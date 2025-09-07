@@ -1,6 +1,8 @@
 import type { Route } from "./+types/home";
 import { Box, Typography, IconButton, Paper, AppBar, Toolbar, Button } from "@mui/material";
 import AddBoxIcon from '@mui/icons-material/AddBox';
+import Header from "~/components/header";
+import Footer from "~/components/footer";
 
 export default function HomePage() {
   return (
@@ -14,23 +16,7 @@ export default function HomePage() {
         flexDirection: "column",
       }}
     >
-      <AppBar position="static" sx={{ bgcolor: "white", color: "black" }}>
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-            GoGoTransfert
-          </Typography>
-
-          {/* Right side menu */}
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <Typography variant="body1" sx={{ alignSelf: "center", cursor: "pointer", color: "#bb17c4" }}>
-              Create an account
-            </Typography>
-            <Typography variant="body1" sx={{ alignSelf: "center", cursor: "pointer" }}>
-              Sign in
-            </Typography>
-          </Box>
-        </Toolbar>
-      </AppBar>
+      <Header />
 
       {/* Main Content */}
       <Box
@@ -49,6 +35,8 @@ export default function HomePage() {
 
         <AddBoxIcon sx={{ color: "#bb17c4", transform: "scale(4)", "&:hover": { cursor: "pointer", transform: "scale(4.1)" } }} />
       </Box>
+
+      <Footer />
     </Box>
   );
 }
