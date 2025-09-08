@@ -139,13 +139,13 @@ export default function Header() {
                             <MenuIcon />
                         </IconButton>
                     )}
-                    <Typography variant="h6" noWrap component="div">
+                    <Typography variant="h6" noWrap component="div" onClick={() => { window.location.href = '/'; }} sx={{ cursor: 'pointer' }}>
                         GoGoTransfer
                     </Typography>
                     {!isLoggedIn ? (
                         <Box sx={{ marginLeft: 'auto' }}>
-                            <Button color="inherit">Create account</Button>
-                            <Button color="inherit">Login</Button>
+                            <Button color="inherit" onClick={() => { window.location.href = '/create-account'; }}>Create account</Button>
+                            <Button color="inherit" onClick={() => { window.location.href = '/login'; }}>Login</Button>
                         </Box>
                     ) : (
                         <Box sx={{ marginLeft: 'auto' }}>
