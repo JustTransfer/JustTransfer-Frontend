@@ -9,6 +9,10 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Header from "~/components/header";
+import Footer from "~/components/footer";
+import { Box } from "@mui/material";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -23,6 +27,17 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+let theme = createTheme({
+  palette: {
+    primary: {
+      main: '#bb17c4',
+    },
+    secondary: {
+      main: '#a50fb3',
+    },
+  },
+});
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -33,7 +48,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
+        <ThemeProvider theme={theme}>
+          <Box
+            sx={{
+              height: "100vh",
+              width: "100vw",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <Header />
+            {children}
+            <Footer />
+          </Box>
+        </ThemeProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
