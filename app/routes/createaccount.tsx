@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { Box, Typography, Button, TextField, Paper } from "@mui/material";
 import { register } from "../handlers/crypto";
 
 export default function CreateAccountPage() {
+    const [error, setError] = useState("");
+
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         const form = event.currentTarget;
@@ -12,7 +15,15 @@ export default function CreateAccountPage() {
             password: formData.get("password"),
             confirmPassword: formData.get("confirmPassword"),
         };
-        register(data.username as string, data.email as string, data.password as string);
+
+        if (data.password !== data.confirmPassword) {
+            setError("Passwords do not match");
+            return;
+        }
+
+        setError("");
+
+        await register(data.username as string, data.email as string, data.password as string);
     }
 
     return (
@@ -69,6 +80,8 @@ export default function CreateAccountPage() {
                             variant="outlined"
                             fullWidth
                             required
+                            error={!!error}
+                            helperText={error}
                         />
                         <Button
                             type="submit"

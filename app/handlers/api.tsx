@@ -1,41 +1,61 @@
-function registerStart() {
+import * as opaque from "@serenity-kit/opaque";
+
+const apiUrl = "http://localhost:3000";
+
+async function registerStartAPI(username: string, client_registration_start: string): Promise<Response> {
+
+    const response = await fetch(`${apiUrl}/register/start`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      username,
+      client_registration_start,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error: ${response.status} ${response.statusText}`);
+  }
+
+  return (await response.json());
+}
+
+function registerEndAPI() {
 
 }
 
-function registerEnd() {
+function registerUpdateAPI() {
 
 }
 
-function registerUpdate() {
+function loginStartAPI() {
 
 }
 
-function loginStart() {
+function loginEndAPI() {
 
 }
 
-function loginEnd() {
+function logoutAPI() {
 
 }
 
-function logout() {
+function getPublicKeyEncAPI() {
 
 }
 
-function getPublicKeyEnc() {
+function getPublicKeySignAPI() {
 
 }
 
-function getPublicKeySign() {
+function getMessagesAPI() {
 
 }
 
-function getMessage() {
+function sendMessageAPI() {
 
 }
 
-function sendMessage() {
-
-}
-
-export { registerStart, registerEnd, registerUpdate, loginStart, loginEnd, logout, getPublicKeyEnc, getPublicKeySign, getMessage, sendMessage };
+export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, sendMessageAPI };
