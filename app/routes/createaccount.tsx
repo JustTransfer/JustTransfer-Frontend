@@ -1,6 +1,20 @@
 import { Box, Typography, Button, TextField, Paper } from "@mui/material";
+import { register } from "../handlers/crypto";
 
 export default function CreateAccountPage() {
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const formData = new FormData(form);
+        const data = {
+            username: formData.get("username"),
+            email: formData.get("email"),
+            password: formData.get("password"),
+            confirmPassword: formData.get("confirmPassword"),
+        };
+        register(data.username as string, data.email as string, data.password as string);
+    }
+
     return (
         <Box
             sx={{
@@ -23,9 +37,18 @@ export default function CreateAccountPage() {
                         Create Account
                     </Typography>
 
-                    <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                    <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }} onSubmit={handleSubmit}>
+                        <TextField
+                            label="Username"
+                            name="username"
+                            type="text"
+                            variant="outlined"
+                            fullWidth
+                            required
+                        />
                         <TextField
                             label="Email"
+                            name="email"
                             type="email"
                             variant="outlined"
                             fullWidth
@@ -33,6 +56,7 @@ export default function CreateAccountPage() {
                         />
                         <TextField
                             label="Password"
+                            name="password"
                             type="password"
                             variant="outlined"
                             fullWidth
@@ -40,6 +64,7 @@ export default function CreateAccountPage() {
                         />
                         <TextField
                             label="Confirm Password"
+                            name="confirmPassword"
                             type="password"
                             variant="outlined"
                             fullWidth
