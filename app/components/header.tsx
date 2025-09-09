@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEffect } from "react";
 import { styled, useTheme, type Theme, type CSSObject } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
@@ -20,6 +21,7 @@ import { Button } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import SendIcon from '@mui/icons-material/Send';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 const drawerWidth = 240;
 
@@ -118,6 +120,31 @@ export default function Header() {
         setOpen(false);
     };
 
+    useEffect(() => {
+        const storedKeys = {
+            username: sessionStorage.getItem("username"),
+            exportKey: sessionStorage.getItem("exportKey"),
+            sessionKey: sessionStorage.getItem("sessionKey"),
+            PrivateKeyEnc: sessionStorage.getItem("PrivateKeyEnc"),
+            PublicKeyEnc: sessionStorage.getItem("PublicKeyEnc"),
+            PrivateKeySign: sessionStorage.getItem("PrivateKeySign"),
+            PublicKeySign: sessionStorage.getItem("PublicKeySign"),
+        };
+
+        // Redirect to login if any key is missing
+        if (
+            storedKeys.username &&
+            storedKeys.exportKey &&
+            storedKeys.sessionKey &&
+            storedKeys.PrivateKeyEnc &&
+            storedKeys.PublicKeyEnc &&
+            storedKeys.PrivateKeySign &&
+            storedKeys.PublicKeySign
+        ) {
+            setIsLoggedIn(true);
+        }
+    }, []);
+
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
@@ -139,7 +166,13 @@ export default function Header() {
                             <MenuIcon />
                         </IconButton>
                     )}
-                    <Typography variant="h6" noWrap component="div" onClick={() => { window.location.href = '/'; }} sx={{ cursor: 'pointer' }}>
+                    <Typography variant="h6" noWrap component="div" onClick={() => {
+                        if (!isLoggedIn) {
+                            window.location.href = '/';
+                        } else {
+                            window.location.href = '/new-transfer';
+                        }
+                    }} sx={{ cursor: 'pointer' }}>
                         GoGoTransfer
                     </Typography>
                     {!isLoggedIn ? (
@@ -163,55 +196,75 @@ export default function Header() {
                     </DrawerHeader>
                     <Divider />
                     <List>
-                        {['Inbox', 'Transfers'].map((text, index) => (
-                            <ListItem key={text} disablePadding sx={{ display: 'block' }}>
-                                <ListItemButton
+                        <ListItem key="New Transfer" disablePadding sx={{ display: 'block' }}>
+                            <ListItemButton
+                                sx={[
+                                    { minHeight: 48, px: 2.5 },
+                                    open ? { justifyContent: 'initial' } : { justifyContent: 'center' },
+                                ]}
+                                onClick={() => { window.location.href = '/new-transfer'; }}
+                            >
+                                <ListItemIcon
                                     sx={[
-                                        {
-                                            minHeight: 48,
-                                            px: 2.5,
-                                        },
-                                        open
-                                            ? {
-                                                justifyContent: 'initial',
-                                            }
-                                            : {
-                                                justifyContent: 'center',
-                                            },
+                                        { minWidth: 0, justifyContent: 'center' },
+                                        open ? { mr: 3 } : { mr: 'auto' },
                                     ]}
                                 >
-                                    <ListItemIcon
-                                        sx={[
-                                            {
-                                                minWidth: 0,
-                                                justifyContent: 'center',
-                                            },
-                                            open
-                                                ? {
-                                                    mr: 3,
-                                                }
-                                                : {
-                                                    mr: 'auto',
-                                                },
-                                        ]}
-                                    >
-                                        {index % 2 === 0 ? <CloudDownloadIcon /> : <SendIcon />}
-                                    </ListItemIcon>
-                                    <ListItemText
-                                        primary={text}
-                                        sx={[
-                                            open
-                                                ? {
-                                                    opacity: 1,
-                                                }
-                                                : {
-                                                    opacity: 0,
-                                                },
-                                        ]}
-                                    />
-                                </ListItemButton>
-                            </ListItem>
-                        ))}
+                                    <AddCircleIcon />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary="New Transfer"
+                                    sx={[open ? { opacity: 1 } : { opacity: 0 }]}
+                                />
+                            </ListItemButton>
+                        </ListItem>
+
+                        <ListItem key="Inbox" disablePadding sx={{ display: 'block' }}>
+                            <ListItemButton
+                                sx={[
+                                    { minHeight: 48, px: 2.5 },
+                                    open ? { justifyContent: 'initial' } : { justifyContent: 'center' },
+                                ]}
+                                onClick={() => { window.location.href = '/inbox'; }}
+                            >
+                                <ListItemIcon
+                                    sx={[
+                                        { minWidth: 0, justifyContent: 'center' },
+                                        open ? { mr: 3 } : { mr: 'auto' },
+                                    ]}
+                                >
+                                    <CloudDownloadIcon />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary="Inbox"
+                                    sx={[open ? { opacity: 1 } : { opacity: 0 }]}
+                                />
+                            </ListItemButton>
+                        </ListItem>
+
+                        <ListItem key="Transfers" disablePadding sx={{ display: 'block' }}>
+                            <ListItemButton
+                                sx={[
+                                    { minHeight: 48, px: 2.5 },
+                                    open ? { justifyContent: 'initial' } : { justifyContent: 'center' },
+                                ]}
+                                onClick={() => { window.location.href = '/transfers'; }}
+                            >
+                                <ListItemIcon
+                                    sx={[
+                                        { minWidth: 0, justifyContent: 'center' },
+                                        open ? { mr: 3 } : { mr: 'auto' },
+                                    ]}
+                                >
+                                    <SendIcon />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary="Transfers"
+                                    sx={[open ? { opacity: 1 } : { opacity: 0 }]}
+                                />
+                            </ListItemButton>
+                        </ListItem>
+
                     </List>
                     <Divider />
                     <List>
@@ -230,6 +283,7 @@ export default function Header() {
                                             justifyContent: 'center',
                                         },
                                 ]}
+                                onClick={() => { window.location.href = '/account'; }}
                             >
                                 <ListItemIcon
                                     sx={[

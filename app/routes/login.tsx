@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Box, Typography, Button, TextField, Paper } from "@mui/material";
 import Alert from '@mui/material/Alert';
-import Snackbar from '@mui/material/Snackbar';
+import Snackbar, { type SnackbarCloseReason } from '@mui/material/Snackbar';
 
 import { login } from "../handlers/crypto";
 
@@ -9,6 +9,14 @@ export default function LoginPage() {
 
     const [error, setError] = useState("");
     const [openError, setOpenError] = useState(false);
+
+    const handleClose = (event?: React.SyntheticEvent | Event, reason?: SnackbarCloseReason, ) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpenError(false);
+    };
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -67,7 +75,7 @@ export default function LoginPage() {
                 </Paper>
             </Box>
 
-            <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openError} autoHideDuration={2000}>
+            <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openError} autoHideDuration={2000} onClose={handleClose}>
                 <Alert
                     severity="error"
                     variant="filled"

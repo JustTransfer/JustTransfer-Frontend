@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Box, Typography, Button, TextField, Paper } from "@mui/material";
 import Alert from '@mui/material/Alert';
-import Snackbar from '@mui/material/Snackbar';
+import Snackbar, { type SnackbarCloseReason } from '@mui/material/Snackbar';
 
 import { register } from "../handlers/crypto";
 
@@ -12,6 +12,14 @@ export default function CreateAccountPage() {
 
     const [success, setSuccess] = useState("");
     const [openSuccess, setOpenSuccess] = useState(false);
+
+    const handleClose = (event?: React.SyntheticEvent | Event, reason?: SnackbarCloseReason, ) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+    
+        setOpenError(false);
+    };
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -121,7 +129,7 @@ export default function CreateAccountPage() {
                             Create Account
                         </Button>
 
-                        <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openSuccess} autoHideDuration={6000}>
+                        <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openSuccess} autoHideDuration={3000}>
                             <Alert
                                 severity="success"
                                 variant="filled"
@@ -130,7 +138,7 @@ export default function CreateAccountPage() {
                                 {success}
                             </Alert>
                         </Snackbar>
-                        <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openError} autoHideDuration={6000}>
+                        <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openError} autoHideDuration={4000} onClose={handleClose}>
                             <Alert
                                 severity="error"
                                 variant="filled"

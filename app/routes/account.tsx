@@ -7,6 +7,7 @@ export default function AccountPage() {
 
     useEffect(() => {
         const storedKeys = {
+            username: sessionStorage.getItem("username"),
             exportKey: sessionStorage.getItem("exportKey"),
             sessionKey: sessionStorage.getItem("sessionKey"),
             PrivateKeyEnc: sessionStorage.getItem("PrivateKeyEnc"),
@@ -17,6 +18,7 @@ export default function AccountPage() {
 
         // Redirect to login if any key is missing
         if (
+            !storedKeys.username ||
             !storedKeys.exportKey ||
             !storedKeys.sessionKey ||
             !storedKeys.PrivateKeyEnc ||
