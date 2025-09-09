@@ -22,10 +22,7 @@ export default function LoginPage() {
         try {
             const result = await login(data.email as string, data.password as string);
 
-            console.log("Login result:", result);
-
             if (result.success) {
-
                 window.location.href = "/account";
 
             } else {

@@ -8,6 +8,13 @@ async function initLibsodium() {
     await sodium.ready;
 }
 
+function calculateMac(username: string, key: any) {
+
+    const usernameBytes = new TextEncoder().encode(username);
+    
+    return sodium.crypto_auth(usernameBytes, key);
+}
+
 async function register(username: string, email: string, password: string) {
 
     const { clientRegistrationState, registrationRequest } = opaque.client.startRegistration({ password });
@@ -59,7 +66,6 @@ async function register(username: string, email: string, password: string) {
     const result2 = await registerEndAPI(username, registrationRecord, cpriv_enc_b64, nonce_enc_b64, PublicKeyEnc_b64, cpriv_sign_b64, nonce_sign_b64, PublicKeySign_b64);
 
     // Return the keys
-    // return {exportKeyDecoded, PrivateKeyEnc, PublicKeyEnc, PrivateKeySign, PublicKeySign};
     return {
         success: true,
         message: "Account created successfully!",
@@ -75,7 +81,6 @@ async function login(username: string, password: string) {
     const response = await loginStartAPI(username, startLoginRequest);
 
     const loginResponse = response.result;
-
 
     const loginResult = opaque.client.finishLogin({
         clientLoginState,
@@ -120,22 +125,43 @@ async function login(username: string, password: string) {
     const PublicKeySign = pub_sign;
 
     // return {exportKeyDecoded, sessionKeyDecoded, PrivateKeyEnc, PublicKeyEnc, PrivateKeySign, PublicKeySign};
+    sessionStorage.setItem("username", username);
+    sessionStorage.setItem("exportKey", exportKeyDecoded);
+    sessionStorage.setItem("sessionKey", sessionKeyDecoded);
+    sessionStorage.setItem("PrivateKeyEnc", PrivateKeyEnc);
+    sessionStorage.setItem("PublicKeyEnc", PublicKeyEnc);
+    sessionStorage.setItem("PrivateKeySign", PrivateKeySign);
+    sessionStorage.setItem("PublicKeySign", PublicKeySign);
+
     return {
         success: true,
         message: "Login successful!",
-        exportKeyDecoded,
-        sessionKeyDecoded,
-        PrivateKeyEnc,
-        PublicKeyEnc,
-        PrivateKeySign,
-        PublicKeySign
     };
 }
 
-async function logout() {
+async function logout(username: string, sessionKey: any) {
+
+    await initLibsodium();
+
+    const mac = calculateMac(username, sessionKey);
+
+    const response = await logoutAPI(username, Base64.fromUint8Array(mac, true));
+
+    if (response === 200) {
+        sessionStorage.clear();
+        window.location.href = "/";
+    } else {
+        throw new Error("Logout failed.");
+    }
 }
 
-async function sendMessage(receiver: string, fileName: string, file: File, lifetimeDays: number, maxDownloads: number) {
+async function sendMessage(sender:string, receiver: string, fileName: string, file: File, lifetimeDays: number, maxDownloads: number) {
+
+    await initLibsodium();
+
+    const mac = calculateMac(sender, sessionStorage.getItem("sessionKey"));
+
+    const pubkey_receiver_response = await getPublicKeyEncAPI(receiver);
 }
 
 async function getMessages() {

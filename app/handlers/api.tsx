@@ -89,14 +89,47 @@ async function loginEndAPI(username: string, client_login_finish_result: string)
     }
 
     return (await response.json());
-
 }
 
-async function logoutAPI() {
+async function logoutAPI(username: string, mac: string) {
 
+    const response = await fetch(`${apiUrl}/logout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            username,
+            mac,
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    return response.status;
 }
 
-async function getPublicKeyEncAPI() {
+async function getPublicKeyEncAPI(username: string, mac: string, user_pub_key: string) {
+
+    const response = await fetch(`${apiUrl}/pubkey/enc`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            username,
+            mac,
+            user_pub_key,
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    return (await response.json());
 
 }
 
