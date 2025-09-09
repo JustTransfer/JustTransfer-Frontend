@@ -11,6 +11,9 @@ export default function NewTransfer() {
     const [error, setError] = useState("");
     const [openError, setOpenError] = useState(false);
 
+    const [success, setSuccess] = useState("");
+    const [openSuccess, setOpenSuccess] = useState(false);
+
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -30,10 +33,11 @@ export default function NewTransfer() {
         }
 
         setOpenError(false);
+        setOpenSuccess(false);
     };
 
 
-    function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         const form = event.currentTarget;
         const formData = new FormData(form);
@@ -53,7 +57,16 @@ export default function NewTransfer() {
             file: formData.get("file"),
         };
 
-        sendMessage(data.receiver as string, selectedFile!.name, selectedFile!, Number(data.lifetime), Number(data.maxDownloads))
+        try {
+            await sendMessage(data.receiver as string, selectedFile!.name, selectedFile!, Number(data.lifetime), Number(data.maxDownloads));
+
+            setSuccess("File sent successfully!");
+            setOpenSuccess(true);
+        } catch (e) {
+            setError("An error occurred while sending the file.");
+            setOpenError(true);
+            return;
+        }
     }
 
     return (
@@ -103,6 +116,15 @@ export default function NewTransfer() {
                 </Box>
             </Paper>
 
+            <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openSuccess} autoHideDuration={2000} onClose={handleClose}>
+                <Alert
+                    severity="success"
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {success}
+                </Alert>
+            </Snackbar>
             <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openError} autoHideDuration={2000} onClose={handleClose}>
                 <Alert
                     severity="error"
