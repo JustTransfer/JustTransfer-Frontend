@@ -46,7 +46,7 @@ async function register(username: string, email: string, password: string) {
     const cpriv_enc = sodium.crypto_secretbox_easy(PrivateKeyEnc, nonce_enc, exportKeyDecoded);
 
     // Generate signing key pair
-    const KeyPairSign = sodium.crypto_box_keypair();
+    const KeyPairSign = sodium.crypto_sign_keypair();
     const PublicKeySign = KeyPairSign.publicKey;
     const PrivateKeySign = KeyPairSign.privateKey;
 
@@ -129,10 +129,10 @@ async function login(username: string, password: string) {
     sessionStorage.setItem("username", username);
     sessionStorage.setItem("exportKey", exportKey);
     sessionStorage.setItem("sessionKey", sessionKey);
-    sessionStorage.setItem("PrivateKeyEnc", PrivateKeyEnc);
-    sessionStorage.setItem("PublicKeyEnc", PublicKeyEnc);
-    sessionStorage.setItem("PrivateKeySign", PrivateKeySign);
-    sessionStorage.setItem("PublicKeySign", PublicKeySign);
+    sessionStorage.setItem("PrivateKeyEnc", Base64.fromUint8Array(PrivateKeyEnc, true));
+    sessionStorage.setItem("PublicKeyEnc", Base64.fromUint8Array(PublicKeyEnc, true));
+    sessionStorage.setItem("PrivateKeySign", Base64.fromUint8Array(PrivateKeySign, true));
+    sessionStorage.setItem("PublicKeySign", Base64.fromUint8Array(PublicKeySign, true));
 
     return {
         success: true,
@@ -149,20 +149,19 @@ async function logout() {
 
     const sessionKeyDecoded = Base64.toUint8Array(sessionKey!).slice(0, 32); // Take only first 32 bytes
 
-    const mac = calculateMac(username, sessionKeyDecoded);
+    const mac = calculateMac(username!, sessionKeyDecoded);
 
-    const response = await logoutAPI(username, Base64.fromUint8Array(mac, true));
+    try {
+        let response = await logoutAPI(username!, Base64.fromUint8Array(mac, true));
+    } catch (e) {
+        console.error("Logout API call failed:", e);
+    }
 
     sessionStorage.clear();
-
-    if (response === 200) {
-        window.location.href = "/";
-    } else {
-        throw new Error("Logout failed.");
-    }
+    window.location.href = "/";
 }
 
-async function sendMessage(sender: string, receiver: string, fileName: string, file: File, lifetimeDays: number, maxDownloads: number) {
+async function getMessages() {
 
     await initLibsodium();
 
@@ -170,18 +169,79 @@ async function sendMessage(sender: string, receiver: string, fileName: string, f
     const sessionKey = sessionStorage.getItem("sessionKey");
     const exportKey = sessionStorage.getItem("exportKey");
 
+    const sessionKeyDecoded = Base64.toUint8Array(sessionKey!).slice(0, 32); // Take only first 32 bytes
+    const exportKeyDecoded = Base64.toUint8Array(exportKey!).slice(0, 32); // Take only first 32 bytes
+
+    const PrivateKeyEnc = sessionStorage.getItem("PrivateKeyEnc");
     const PrivateKeySign = sessionStorage.getItem("PrivateKeySign");
+
+    const PrivateKeyEncDecoded = Base64.toUint8Array(PrivateKeyEnc!);
+    const PrivateKeySignDecoded = Base64.toUint8Array(PrivateKeySign!);
+
+    const mac = calculateMac(username!, sessionKeyDecoded);
+
+    const response = await getMessagesAPI(username!, Base64.fromUint8Array(mac, true));
+
+    console.log("Raw messages:", response.messages);
+    return response.messages;
+}
+
+async function sendMessage(receiver: string, fileName: string, file: File, lifetimeDays: number, maxDownloads: number) {
+
+    await initLibsodium();
+
+    const username = sessionStorage.getItem("username");
+    const sessionKey = sessionStorage.getItem("sessionKey");
+    const exportKey = sessionStorage.getItem("exportKey");
 
     const sessionKeyDecoded = Base64.toUint8Array(sessionKey!).slice(0, 32); // Take only first 32 bytes
     const exportKeyDecoded = Base64.toUint8Array(exportKey!).slice(0, 32); // Take only first 32 bytes
 
+    const PrivateKeyEnc = sessionStorage.getItem("PrivateKeyEnc");
+    const PrivateKeySign = sessionStorage.getItem("PrivateKeySign");
+
+    const PrivateKeyEncDecoded = Base64.toUint8Array(PrivateKeyEnc!);
     const PrivateKeySignDecoded = Base64.toUint8Array(PrivateKeySign!);
 
-    const mac = calculateMac(username, sessionKeyDecoded);
-}
+    const mac = calculateMac(username!, sessionKeyDecoded);
 
-async function getMessages() {
+    // Get receiver's public encryption key
+    const responsePubKey = await getPublicKeyEncAPI(username!, Base64.fromUint8Array(mac, true), receiver);
 
+    const PublicKeyEncReceiver = Base64.toUint8Array(responsePubKey.pub_enc);
+
+    // Encrypt the filename
+    const nonce_filename = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
+    const cfilename = sodium.crypto_box_easy(new TextEncoder().encode(fileName), nonce_filename, PublicKeyEncReceiver, PrivateKeyEncDecoded);
+
+    const cfilename_b64 = Base64.fromUint8Array(cfilename, true);
+    const nonce_filename_b64 = Base64.fromUint8Array(nonce_filename, true);
+
+    // Encrypt the file
+    const fileBuffer = await file.arrayBuffer();
+    const fileBytes = new Uint8Array(fileBuffer);
+
+    const nonce_file = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
+    const cfile = sodium.crypto_box_easy(fileBytes, nonce_file, PublicKeyEncReceiver, PrivateKeyEncDecoded);
+
+    const cfile_b64 = Base64.fromUint8Array(cfile, true);
+    const nonce_file_b64 = Base64.fromUint8Array(nonce_file, true);
+
+    // Get the current timestamp
+    const timestamp = new Date().toISOString();
+
+    // Sign the message
+    const payload = cfilename + nonce_filename + cfile + nonce_file + username + receiver + maxDownloads.toString() + lifetimeDays.toString() + timestamp.toString();
+
+    const signature = sodium.crypto_sign_detached(new TextEncoder().encode(payload), PrivateKeySignDecoded);
+
+    // Send the message
+    const response = await sendMessageAPI(Base64.fromUint8Array(mac, true), username!, receiver, cfilename_b64, nonce_filename_b64, cfile_b64, nonce_file_b64, maxDownloads, lifetimeDays, timestamp, Base64.fromUint8Array(signature, true));
+
+    return {
+        success: true,
+        message: "Message sent successfully!",
+    };
 }
 
 export { register, login, logout, sendMessage, getMessages };

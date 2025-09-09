@@ -4,6 +4,8 @@ import { type SnackbarCloseReason } from '@mui/material/Snackbar';
 import { type SelectChangeEvent } from '@mui/material/Select';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 
+import { sendMessage } from "../handlers/crypto";
+
 
 export default function NewTransfer() {
     const [error, setError] = useState("");
@@ -45,14 +47,13 @@ export default function NewTransfer() {
         }
 
         const data = {
-            usernreceiverame: formData.get("receiver"),
+            receiver: formData.get("receiver"),
             maxDownloads: formData.get("maxDownloads"),
             lifetime: formData.get("lifetime"),
             file: formData.get("file"),
         };
 
-        // Handle the form submission logic here
-        console.log(data);
+        sendMessage(data.receiver as string, selectedFile!.name, selectedFile!, Number(data.lifetime), Number(data.maxDownloads))
     }
 
     return (
