@@ -1,9 +1,17 @@
 import { useState } from "react";
 import { Box, Typography, Button, TextField, Paper } from "@mui/material";
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
+
 import { register } from "../handlers/crypto";
 
 export default function CreateAccountPage() {
+    const [errorPassword, setErrorPassword] = useState("");
     const [error, setError] = useState("");
+    const [openError, setOpenError] = useState(false);
+
+    const [success, setSuccess] = useState("");
+    const [openSuccess, setOpenSuccess] = useState(false);
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -17,13 +25,36 @@ export default function CreateAccountPage() {
         };
 
         if (data.password !== data.confirmPassword) {
+            setErrorPassword("Passwords do not match");
             setError("Passwords do not match");
+            setOpenError(true);
             return;
         }
 
         setError("");
+        setOpenError(false);
+        setSuccess("");
+        setOpenSuccess(false);
 
-        const result = await register(data.username as string, data.email as string, data.password as string);
+        try {
+            const result = await register(data.username as string, data.email as string, data.password as string);
+
+            if (result.success) {
+                setSuccess(result.message);
+                setOpenSuccess(true);
+
+                setTimeout(() => {
+                    window.location.href = "/login";
+                }, 2000);
+
+            } else {
+                setError(result.message);
+                setOpenError(true);
+            }
+        } catch (e) {
+            setError("An error occurred during registration.");
+            setOpenError(true);
+        }
     }
 
     return (
@@ -80,8 +111,8 @@ export default function CreateAccountPage() {
                             variant="outlined"
                             fullWidth
                             required
-                            error={!!error}
-                            helperText={error}
+                            error={!!errorPassword}
+                            helperText={errorPassword}
                         />
                         <Button
                             type="submit"
@@ -89,6 +120,25 @@ export default function CreateAccountPage() {
                         >
                             Create Account
                         </Button>
+
+                        <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openSuccess} autoHideDuration={6000}>
+                            <Alert
+                                severity="success"
+                                variant="filled"
+                                sx={{ width: '100%' }}
+                            >
+                                {success}
+                            </Alert>
+                        </Snackbar>
+                        <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openError} autoHideDuration={6000}>
+                            <Alert
+                                severity="error"
+                                variant="filled"
+                                sx={{ width: '100%' }}
+                            >
+                                {error}
+                            </Alert>
+                        </Snackbar>
                     </Box>
                 </Paper>
             </Box>

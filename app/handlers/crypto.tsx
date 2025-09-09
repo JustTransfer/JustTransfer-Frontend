@@ -14,8 +14,6 @@ async function register(username: string, email: string, password: string) {
 
     const response = await registerStartAPI(username, registrationRequest);
 
-    console.log("Response from /register/start:", response);
-
     const registrationResponse = response.result;
 
     const { exportKey, serverStaticPublicKey, registrationRecord } = opaque.client.finishRegistration({
@@ -61,7 +59,11 @@ async function register(username: string, email: string, password: string) {
     const result2 = await registerEndAPI(username, registrationRecord, cpriv_enc_b64, nonce_enc_b64, PublicKeyEnc_b64, cpriv_sign_b64, nonce_sign_b64, PublicKeySign_b64);
 
     // Return the keys
-    return {exportKeyDecoded, PrivateKeyEnc, PublicKeyEnc, PrivateKeySign, PublicKeySign};
+    // return {exportKeyDecoded, PrivateKeyEnc, PublicKeyEnc, PrivateKeySign, PublicKeySign};
+    return {
+        success: true,
+        message: "Account created successfully!",
+    };
 }
 
 async function login(username: string, password: string) {
@@ -82,7 +84,10 @@ async function login(username: string, password: string) {
     });
 
     if (!loginResult) {
-        throw new Error("Login failed");
+        return {
+            success: false,
+            message: "Login failed. Please check your credentials.",
+        };
     }
 
     const { exportKey, serverStaticPublicKey, finishLoginRequest, sessionKey } = loginResult;
@@ -114,7 +119,17 @@ async function login(username: string, password: string) {
     const PrivateKeySign = sodium.crypto_secretbox_open_easy(cpriv_sign, nonce_priv_sign, exportKeyDecoded);
     const PublicKeySign = pub_sign;
 
-    return {exportKeyDecoded, sessionKeyDecoded, PrivateKeyEnc, PublicKeyEnc, PrivateKeySign, PublicKeySign};
+    // return {exportKeyDecoded, sessionKeyDecoded, PrivateKeyEnc, PublicKeyEnc, PrivateKeySign, PublicKeySign};
+    return {
+        success: true,
+        message: "Login successful!",
+        exportKeyDecoded,
+        sessionKeyDecoded,
+        PrivateKeyEnc,
+        PublicKeyEnc,
+        PrivateKeySign,
+        PublicKeySign
+    };
 }
 
 async function logout() {

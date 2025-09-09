@@ -1,7 +1,14 @@
+import React, { useState } from "react";
 import { Box, Typography, Button, TextField, Paper } from "@mui/material";
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
+
 import { login } from "../handlers/crypto";
 
 export default function LoginPage() {
+
+    const [error, setError] = useState("");
+    const [openError, setOpenError] = useState(false);
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -12,7 +19,23 @@ export default function LoginPage() {
             password: formData.get("password"),
         };
 
-        const result = await login(data.email as string, data.password as string);
+        try {
+            const result = await login(data.email as string, data.password as string);
+
+            console.log("Login result:", result);
+
+            if (result.success) {
+
+                window.location.href = "/account";
+
+            } else {
+                setError(result.message);
+                setOpenError(true);
+            }
+        } catch (e) {
+            setError("An error occurred during login.");
+            setOpenError(true);
+        }
     }
 
     return (
@@ -46,6 +69,16 @@ export default function LoginPage() {
                     </Box>
                 </Paper>
             </Box>
+
+            <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openError} autoHideDuration={2000}>
+                <Alert
+                    severity="error"
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {error}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 }
