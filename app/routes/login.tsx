@@ -1,6 +1,20 @@
 import { Box, Typography, Button, TextField, Paper } from "@mui/material";
+import { login } from "../handlers/crypto";
 
 export default function LoginPage() {
+
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const formData = new FormData(form);
+        const data = {
+            email: formData.get("username"),
+            password: formData.get("password"),
+        };
+
+        const result = await login(data.email as string, data.password as string);
+    }
+
     return (
         <Box
             sx={{
@@ -23,9 +37,9 @@ export default function LoginPage() {
                         Login
                     </Typography>
 
-                    <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                        <TextField label="Email" type="email" variant="outlined" fullWidth required />
-                        <TextField label="Password" type="password" variant="outlined" fullWidth required />
+                    <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }} onSubmit={handleSubmit}>
+                        <TextField label="Username" name="username" type="text" variant="outlined" fullWidth required />
+                        <TextField label="Password" name="password" type="password" variant="outlined" fullWidth required />
                         <Button type="submit" variant="contained" sx={{ mt: 2 }}>
                             Login
                         </Button>

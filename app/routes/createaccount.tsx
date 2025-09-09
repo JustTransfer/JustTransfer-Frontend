@@ -23,7 +23,7 @@ export default function CreateAccountPage() {
 
         setError("");
 
-        await register(data.username as string, data.email as string, data.password as string);
+        const result = await register(data.username as string, data.email as string, data.password as string);
     }
 
     return (

@@ -45,38 +45,70 @@ async function registerEndAPI(username: string, client_registration_finish: stri
         throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
 
+    return response.status;
+}
+
+async function registerUpdateAPI() {
+
+}
+
+async function loginStartAPI(username: string, client_registration_start: string) {
+    const response = await fetch(`${apiUrl}/login/start`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            username,
+            client_registration_start,
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
     return (await response.json());
 }
 
-function registerUpdateAPI() {
+async function loginEndAPI(username: string, client_login_finish_result: string) {
+
+    const response = await fetch(`${apiUrl}/login/end`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            username,
+            client_login_finish_result,
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    return (await response.json());
 
 }
 
-function loginStartAPI() {
+async function logoutAPI() {
 
 }
 
-function loginEndAPI() {
+async function getPublicKeyEncAPI() {
 
 }
 
-function logoutAPI() {
+async function getPublicKeySignAPI() {
 
 }
 
-function getPublicKeyEncAPI() {
+async function getMessagesAPI() {
 
 }
 
-function getPublicKeySignAPI() {
-
-}
-
-function getMessagesAPI() {
-
-}
-
-function sendMessageAPI() {
+async function sendMessageAPI() {
 
 }
 
