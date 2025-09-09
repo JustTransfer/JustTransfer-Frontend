@@ -3,6 +3,7 @@ import sodium from "libsodium-wrappers-sumo";
 import { Base64 } from 'js-base64';
 
 import { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, sendMessageAPI } from "./api";
+import { ConstructionOutlined } from "@mui/icons-material";
 
 async function initLibsodium() {
     await sodium.ready;
@@ -11,7 +12,7 @@ async function initLibsodium() {
 function calculateMac(username: string, key: any) {
 
     const usernameBytes = new TextEncoder().encode(username);
-    
+
     return sodium.crypto_auth(usernameBytes, key);
 }
 
@@ -126,8 +127,8 @@ async function login(username: string, password: string) {
 
     // return {exportKeyDecoded, sessionKeyDecoded, PrivateKeyEnc, PublicKeyEnc, PrivateKeySign, PublicKeySign};
     sessionStorage.setItem("username", username);
-    sessionStorage.setItem("exportKey", exportKeyDecoded);
-    sessionStorage.setItem("sessionKey", sessionKeyDecoded);
+    sessionStorage.setItem("exportKey", exportKey);
+    sessionStorage.setItem("sessionKey", sessionKey);
     sessionStorage.setItem("PrivateKeyEnc", PrivateKeyEnc);
     sessionStorage.setItem("PublicKeyEnc", PublicKeyEnc);
     sessionStorage.setItem("PrivateKeySign", PrivateKeySign);
@@ -139,29 +140,44 @@ async function login(username: string, password: string) {
     };
 }
 
-async function logout(username: string, sessionKey: any) {
+async function logout() {
 
     await initLibsodium();
 
-    const mac = calculateMac(username, sessionKey);
+    const username = sessionStorage.getItem("username");
+    const sessionKey = sessionStorage.getItem("sessionKey");
+
+    const sessionKeyDecoded = Base64.toUint8Array(sessionKey!).slice(0, 32); // Take only first 32 bytes
+
+    const mac = calculateMac(username, sessionKeyDecoded);
 
     const response = await logoutAPI(username, Base64.fromUint8Array(mac, true));
 
+    sessionStorage.clear();
+
     if (response === 200) {
-        sessionStorage.clear();
         window.location.href = "/";
     } else {
         throw new Error("Logout failed.");
     }
 }
 
-async function sendMessage(sender:string, receiver: string, fileName: string, file: File, lifetimeDays: number, maxDownloads: number) {
+async function sendMessage(sender: string, receiver: string, fileName: string, file: File, lifetimeDays: number, maxDownloads: number) {
 
     await initLibsodium();
 
-    const mac = calculateMac(sender, sessionStorage.getItem("sessionKey"));
+    const username = sessionStorage.getItem("username");
+    const sessionKey = sessionStorage.getItem("sessionKey");
+    const exportKey = sessionStorage.getItem("exportKey");
 
-    const pubkey_receiver_response = await getPublicKeyEncAPI(receiver);
+    const PrivateKeySign = sessionStorage.getItem("PrivateKeySign");
+
+    const sessionKeyDecoded = Base64.toUint8Array(sessionKey!).slice(0, 32); // Take only first 32 bytes
+    const exportKeyDecoded = Base64.toUint8Array(exportKey!).slice(0, 32); // Take only first 32 bytes
+
+    const PrivateKeySignDecoded = Base64.toUint8Array(PrivateKeySign!);
+
+    const mac = calculateMac(username, sessionKeyDecoded);
 }
 
 async function getMessages() {

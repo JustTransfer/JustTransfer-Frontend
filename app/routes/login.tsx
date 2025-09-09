@@ -10,7 +10,7 @@ export default function LoginPage() {
     const [error, setError] = useState("");
     const [openError, setOpenError] = useState(false);
 
-    const handleClose = (event?: React.SyntheticEvent | Event, reason?: SnackbarCloseReason, ) => {
+    const handleClose = (event?: React.SyntheticEvent | Event, reason?: SnackbarCloseReason,) => {
         if (reason === 'clickaway') {
             return;
         }
@@ -31,7 +31,7 @@ export default function LoginPage() {
             const result = await login(data.email as string, data.password as string);
 
             if (result.success) {
-                window.location.href = "/account";
+                window.location.href = "/new-transfer";
 
             } else {
                 setError(result.message);

@@ -23,6 +23,8 @@ import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import SendIcon from '@mui/icons-material/Send';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 
+import { logout } from '../handlers/crypto';
+
 const drawerWidth = 240;
 
 const openedMixin = (theme: Theme): CSSObject => ({
@@ -182,7 +184,9 @@ export default function Header() {
                         </Box>
                     ) : (
                         <Box sx={{ marginLeft: 'auto' }}>
-                            <Button color="inherit">Logout</Button>
+                            <Button color="inherit" onClick={() => { logout(); window.location.href = '/login'; }}>
+                                Logout
+                            </Button>
                         </Box>
                     )}
                 </Toolbar>
