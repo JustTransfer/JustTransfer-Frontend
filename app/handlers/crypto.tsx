@@ -14,8 +14,8 @@ function getItemFromSessionStorage(key: string): Uint8Array {
     if (!item) {
         throw new Error(`Item ${key} not found in session storage`);
     }
-    const itemArray = item.split(",").map(num => parseInt(num));
-    return new Uint8Array(itemArray);
+
+    return Base64.toUint8Array(item);
 }
 
 async function register(username: string, email: string, password: string) {
@@ -131,13 +131,13 @@ async function login(username: string, password: string) {
     const mac = sodium.crypto_auth(username, sessionKeyDecoded)
 
     sessionStorage.setItem("username", username);
-    sessionStorage.setItem("exportKey", exportKeyDecoded);
-    sessionStorage.setItem("sessionKey", sessionKeyDecoded);
-    sessionStorage.setItem("mac", mac);
-    sessionStorage.setItem("PrivateKeyEnc", PrivateKeyEnc);
-    sessionStorage.setItem("PublicKeyEnc", PublicKeyEnc);
-    sessionStorage.setItem("PrivateKeySign", PrivateKeySign);
-    sessionStorage.setItem("PublicKeySign", PublicKeySign);
+    sessionStorage.setItem("exportKey", Base64.fromUint8Array(exportKeyDecoded));
+    sessionStorage.setItem("sessionKey", Base64.fromUint8Array(sessionKeyDecoded));
+    sessionStorage.setItem("mac", Base64.fromUint8Array(mac));
+    sessionStorage.setItem("PrivateKeyEnc", Base64.fromUint8Array(PrivateKeyEnc));
+    sessionStorage.setItem("PublicKeyEnc", Base64.fromUint8Array(PublicKeyEnc));
+    sessionStorage.setItem("PrivateKeySign", Base64.fromUint8Array(PrivateKeySign));
+    sessionStorage.setItem("PublicKeySign", Base64.fromUint8Array(PublicKeySign));
 
     return {
         success: true,

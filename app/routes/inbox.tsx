@@ -80,7 +80,7 @@ export default function Inbox() {
                             <TableBody>
                                 {messages.map((msg) => (
                                     <TableRow
-                                        key={msg.sender}
+                                        key={msg.id}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                     >
                                         <TableCell align="center" component="th" scope="row">
