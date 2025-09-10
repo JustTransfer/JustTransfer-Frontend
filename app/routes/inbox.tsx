@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, Button, IconButton } from "@mui/material";
+import { Box, Typography, Button, IconButton, Paper, Table, TableBody, TableCell, TableHead, TableRow, TableContainer } from "@mui/material";
 import RefreshIcon from '@mui/icons-material/Refresh';
+import CircularProgress from '@mui/material/CircularProgress';
+import DownloadIcon from '@mui/icons-material/Download';
 
 import { getMessages } from "../handlers/crypto"
 
 export default function Inbox() {
     const [messages, setMessages] = useState<Array<any>>([]);
+    const [loading, setLoading] = useState(true);
 
     async function getMessagesLocal() {
         try {
@@ -14,6 +17,8 @@ export default function Inbox() {
         } catch (e) {
             console.error("Failed to fetch messages:", e);
         }
+
+        setLoading(false);
     }
 
     function downloadFile(message: number[], filename: string) {
@@ -40,9 +45,8 @@ export default function Inbox() {
                 flex: 1,
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
                 flexDirection: "column",
-                gap: 10,
+                gap: 2,
             }}
         >
             <Box sx={{
@@ -57,36 +61,58 @@ export default function Inbox() {
                 </IconButton>
             </Box>
 
-            {messages == null || messages.length === 0 ? (
-                <Typography variant="h6">No messages</Typography>
-            ) : (
-                messages.map((msg, index) => (
-                    <Box key={index} sx={{ border: '1px solid', padding: 2, borderRadius: 2, width: '80%' }}>
-                        <Typography><strong>From:</strong> {msg.sender}</Typography>
 
-                        {msg.signatureValid === false ? (
-                            <Typography color="error"><strong>Error:</strong> Invalid signature!</Typography>
-                        ) : (
-                            <Typography><strong>File Name:</strong> {msg.filename}</Typography>
-                        )}
-
-                        <Typography><strong>Received At:</strong> {new Date(msg.creation_time).toLocaleString()}</Typography>
-                        <Typography>
-                            <strong>Expire At:</strong>{" "}
-                            {new Date(
-                                new Date(msg.creation_time).getTime() + msg.lifetime * 24 * 60 * 60 * 1000
-                            ).toLocaleString()}
-                        </Typography>
-                        <Typography><strong>Max Downloads:</strong> {msg.max_downloads}</Typography>
-                        <Typography><strong>Downloads Left:</strong> {msg.max_downloads - msg.number_downloads}</Typography>
-
-                        {msg.signatureValid === true && (
-                            <Button variant="outlined" sx={{ marginTop: 1 }} onClick={() => downloadFile(msg.message, msg.filename)}>Download</Button>
-                        )}
-                    </Box>
-                ))
-            )
-            }
+            <Box sx={{ width: '80%', display: 'flex', alignItems: 'center', justifyContent: "center" }}>
+                {messages.length > 0 && !loading ? (
+                    <TableContainer component={Paper}>
+                        <Table sx={{ width: "100%", justifyContent: "center" }} aria-label="simple table">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell align="center"><strong>From</strong></TableCell>
+                                    <TableCell align="center"><strong>File name</strong></TableCell>
+                                    <TableCell align="center"><strong>Received at</strong></TableCell>
+                                    <TableCell align="center"><strong>Expire At</strong></TableCell>
+                                    <TableCell align="center"><strong>Downloads Left</strong></TableCell>
+                                    <TableCell align="center"><strong>Max Downloads</strong></TableCell>
+                                    <TableCell align="center"></TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {messages.map((msg) => (
+                                    <TableRow
+                                        key={msg.sender}
+                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                    >
+                                        <TableCell align="center" component="th" scope="row">
+                                            <strong>{msg.sender}</strong>
+                                        </TableCell>
+                                        {msg.signatureValid === false ? (
+                                            <TableCell align="center"><Typography color="error">Invalid signature</Typography></TableCell>
+                                        ) : (
+                                            <TableCell align="center">{msg.filename}</TableCell>
+                                        )}
+                                        <TableCell align="center">{msg.creation_time}</TableCell>
+                                        <TableCell align="center">{new Date(
+                                            new Date(msg.creation_time).getTime() + msg.lifetime * 24 * 60 * 60 * 1000
+                                        ).toLocaleString()}</TableCell>
+                                        <TableCell align="center">{msg.max_downloads - msg.number_downloads}</TableCell>
+                                        <TableCell align="center">{msg.max_downloads}</TableCell>
+                                        <TableCell align="center">
+                                            {msg.signatureValid === false ? (
+                                                <Typography color="error">Invalid signature</Typography>
+                                            ) : (
+                                                <DownloadIcon sx={{ color: "primary.main", "&:hover": { cursor: "pointer" } }} onClick={() => downloadFile(msg.message, msg.filename)} />
+                                            )}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                ) : (
+                    !loading ? <Typography variant="h6">No messages</Typography> : <CircularProgress />
+                )}
+            </Box>
         </Box >
     );
 };

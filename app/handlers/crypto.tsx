@@ -9,14 +9,21 @@ async function initLibsodium() {
     await sodium.ready;
 }
 
-function calculateMac() {
+function getMac() {
 
-    const username = sessionStorage.getItem("username");
-    const sessionKeyDecoded = getItemFromSessionStorage("sessionKey").slice(0, 32);
+    // const username = sessionStorage.getItem("username");
+    // const sessionKeyDecoded = getItemFromSessionStorage("sessionKey").slice(0, 32);
 
-    const usernameBytes = new TextEncoder().encode(username!);
+    // const usernameBytes = new TextEncoder().encode(username!);
 
-    return sodium.crypto_auth(usernameBytes, sessionKeyDecoded);
+    // return sodium.crypto_auth(usernameBytes, sessionKeyDecoded);
+
+    const mac = sessionStorage.getItem("mac");
+    if (!mac) {
+        throw new Error("MAC not found in session storage");
+    }
+    const macArray = mac.split(",").map(num => parseInt(num));
+    return new Uint8Array(macArray);
 }
 
 function getItemFromSessionStorage(key: string): Uint8Array {
@@ -137,10 +144,13 @@ async function login(username: string, password: string) {
     const PrivateKeySign = sodium.crypto_secretbox_open_easy(cpriv_sign, nonce_priv_sign, exportKeyDecoded);
     const PublicKeySign = pub_sign;
 
-    // return {exportKeyDecoded, sessionKeyDecoded, PrivateKeyEnc, PublicKeyEnc, PrivateKeySign, PublicKeySign};
+    // Calculate MAC
+    const mac = sodium.crypto_auth(username, sessionKeyDecoded)
+
     sessionStorage.setItem("username", username);
     sessionStorage.setItem("exportKey", exportKeyDecoded);
     sessionStorage.setItem("sessionKey", sessionKeyDecoded);
+    sessionStorage.setItem("mac", mac);
     sessionStorage.setItem("PrivateKeyEnc", PrivateKeyEnc);
     sessionStorage.setItem("PublicKeyEnc", PublicKeyEnc);
     sessionStorage.setItem("PrivateKeySign", PrivateKeySign);
@@ -158,7 +168,7 @@ async function logout() {
 
     const username = sessionStorage.getItem("username");
 
-    const mac = calculateMac();
+    const mac = getMac();
 
     try {
         let response = await logoutAPI(username!, Base64.fromUint8Array(mac, true));
@@ -178,7 +188,7 @@ async function getMessages() {
 
     const PrivateKeyEncDecoded = getItemFromSessionStorage("PrivateKeyEnc");
 
-    const mac = calculateMac();
+    const mac = getMac();
 
     const response = await getMessagesAPI(username!, Base64.fromUint8Array(mac, true));
 
@@ -189,13 +199,17 @@ async function getMessages() {
         const responsePubKey = await getPublicKeySignAPI(username!, Base64.fromUint8Array(mac, true), msg.sender);
         const PublicKeySignSender = Base64.toUint8Array(responsePubKey.pub_sign);
 
+        // Get the Encoded fileds of the message
+        msg.signature = Base64.toUint8Array(msg.signature);
+        msg.filename = Base64.toUint8Array(msg.filename);
+        msg.nonce_filename = Base64.toUint8Array(msg.nonce_filename);
+        msg.message = Base64.toUint8Array(msg.message);
+        msg.nonce_message = Base64.toUint8Array(msg.nonce_message);
+
         // Check the signature
         const payload = msg.filename + msg.nonce_filename + msg.message + msg.nonce_message + msg.sender + msg.receiver + msg.max_downloads.toString() + msg.lifetime.toString() + msg.creation_time.toString();
 
-        // const signature = Base64.toUint8Array(msg.signature);
-        const signature = new Uint8Array(msg.signature);
-
-        const isValid = sodium.crypto_sign_verify_detached(signature, new TextEncoder().encode(payload), PublicKeySignSender);
+        const isValid = sodium.crypto_sign_verify_detached(msg.signature, new TextEncoder().encode(payload), PublicKeySignSender);
 
         msg.signatureValid = isValid;
         if (!isValid) {
@@ -208,12 +222,7 @@ async function getMessages() {
         const PublicKeyEncSender = Base64.toUint8Array(responsePubKeyEnc.pub_enc);
 
         // Decrypt the filename
-        // const cfilename = Base64.toUint8Array(msg.filename);
-        // const nonce_filename = Base64.toUint8Array(msg.nonce_filename);
-        const cfilename = new Uint8Array(msg.filename);
-        const nonce_filename = new Uint8Array(msg.nonce_filename);
-
-        const filenameBytes = sodium.crypto_box_open_easy(cfilename, nonce_filename, PublicKeyEncSender, PrivateKeyEncDecoded);
+        const filenameBytes = sodium.crypto_box_open_easy(msg.filename, msg.nonce_filename, PublicKeyEncSender, PrivateKeyEncDecoded);
         const filename = new TextDecoder().decode(filenameBytes);
 
         msg.filename = filename;
@@ -221,12 +230,7 @@ async function getMessages() {
         console.log("Decrypted filename:", filename);
 
         // Decrypt the file
-        // const cfile = Base64.toUint8Array(msg.message);
-        // const nonce_file = Base64.toUint8Array(msg.nonce_message);
-        const cfile = new Uint8Array(msg.message);
-        const nonce_file = new Uint8Array(msg.nonce_message);
-
-        const fileBytes = sodium.crypto_box_open_easy(cfile, nonce_file, PublicKeyEncSender, PrivateKeyEncDecoded);
+        const fileBytes = sodium.crypto_box_open_easy(msg.message, msg.nonce_message, PublicKeyEncSender, PrivateKeyEncDecoded);
 
         msg.message = fileBytes;
     }
@@ -244,7 +248,7 @@ async function sendMessage(receiver: string, fileName: string, file: File, lifet
     const PrivateKeyEncDecoded = getItemFromSessionStorage("PrivateKeyEnc");
     const PrivateKeySignDecoded = getItemFromSessionStorage("PrivateKeySign");
 
-    const mac = calculateMac();
+    const mac = getMac();
 
     // Get receiver's public encryption key
     const responsePubKey = await getPublicKeyEncAPI(username!, Base64.fromUint8Array(mac, true), receiver);
