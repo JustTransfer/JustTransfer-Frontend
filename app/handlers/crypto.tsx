@@ -9,23 +9,6 @@ async function initLibsodium() {
     await sodium.ready;
 }
 
-function getMac() {
-
-    // const username = sessionStorage.getItem("username");
-    // const sessionKeyDecoded = getItemFromSessionStorage("sessionKey").slice(0, 32);
-
-    // const usernameBytes = new TextEncoder().encode(username!);
-
-    // return sodium.crypto_auth(usernameBytes, sessionKeyDecoded);
-
-    const mac = sessionStorage.getItem("mac");
-    if (!mac) {
-        throw new Error("MAC not found in session storage");
-    }
-    const macArray = mac.split(",").map(num => parseInt(num));
-    return new Uint8Array(macArray);
-}
-
 function getItemFromSessionStorage(key: string): Uint8Array {
     const item = sessionStorage.getItem(key);
     if (!item) {
@@ -167,8 +150,7 @@ async function logout() {
     await initLibsodium();
 
     const username = sessionStorage.getItem("username");
-
-    const mac = getMac();
+    const mac = getItemFromSessionStorage("mac");
 
     try {
         let response = await logoutAPI(username!, Base64.fromUint8Array(mac, true));
@@ -187,8 +169,7 @@ async function getMessages() {
     const username = sessionStorage.getItem("username");
 
     const PrivateKeyEncDecoded = getItemFromSessionStorage("PrivateKeyEnc");
-
-    const mac = getMac();
+    const mac = getItemFromSessionStorage("mac");
 
     const response = await getMessagesAPI(username!, Base64.fromUint8Array(mac, true));
 
@@ -247,8 +228,7 @@ async function sendMessage(receiver: string, fileName: string, file: File, lifet
 
     const PrivateKeyEncDecoded = getItemFromSessionStorage("PrivateKeyEnc");
     const PrivateKeySignDecoded = getItemFromSessionStorage("PrivateKeySign");
-
-    const mac = getMac();
+    const mac = getItemFromSessionStorage("mac");
 
     // Get receiver's public encryption key
     const responsePubKey = await getPublicKeyEncAPI(username!, Base64.fromUint8Array(mac, true), receiver);
