@@ -78,7 +78,7 @@ export default function Inbox() {
                             ).toLocaleString()}
                         </Typography>
                         <Typography><strong>Max Downloads:</strong> {msg.max_downloads}</Typography>
-                        <Typography><strong>Downloads Left:</strong> TODO</Typography>
+                        <Typography><strong>Downloads Left:</strong> {msg.max_downloads - msg.number_downloads}</Typography>
 
                         {msg.signatureValid === true && (
                             <Button variant="outlined" sx={{ marginTop: 1 }} onClick={() => downloadFile(msg.message, msg.filename)}>Download</Button>

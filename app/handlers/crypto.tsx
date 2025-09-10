@@ -9,11 +9,23 @@ async function initLibsodium() {
     await sodium.ready;
 }
 
-function calculateMac(username: string, key: any) {
+function calculateMac() {
 
-    const usernameBytes = new TextEncoder().encode(username);
+    const username = sessionStorage.getItem("username");
+    const sessionKeyDecoded = getItemFromSessionStorage("sessionKey").slice(0, 32);
 
-    return sodium.crypto_auth(usernameBytes, key);
+    const usernameBytes = new TextEncoder().encode(username!);
+
+    return sodium.crypto_auth(usernameBytes, sessionKeyDecoded);
+}
+
+function getItemFromSessionStorage(key: string): Uint8Array {
+    const item = sessionStorage.getItem(key);
+    if (!item) {
+        throw new Error(`Item ${key} not found in session storage`);
+    }
+    const itemArray = item.split(",").map(num => parseInt(num));
+    return new Uint8Array(itemArray);
 }
 
 async function register(username: string, email: string, password: string) {
@@ -64,7 +76,7 @@ async function register(username: string, email: string, password: string) {
     const nonce_sign_b64 = Base64.fromUint8Array(nonce_sign, true);
     const PublicKeySign_b64 = Base64.fromUint8Array(PublicKeySign, true);
 
-    const result2 = await registerEndAPI(username, registrationRecord, cpriv_enc_b64, nonce_enc_b64, PublicKeyEnc_b64, cpriv_sign_b64, nonce_sign_b64, PublicKeySign_b64);
+    const result = await registerEndAPI(username, registrationRecord, cpriv_enc_b64, nonce_enc_b64, PublicKeyEnc_b64, cpriv_sign_b64, nonce_sign_b64, PublicKeySign_b64);
 
     // Return the keys
     return {
@@ -127,12 +139,12 @@ async function login(username: string, password: string) {
 
     // return {exportKeyDecoded, sessionKeyDecoded, PrivateKeyEnc, PublicKeyEnc, PrivateKeySign, PublicKeySign};
     sessionStorage.setItem("username", username);
-    sessionStorage.setItem("exportKey", exportKey);
-    sessionStorage.setItem("sessionKey", sessionKey);
-    sessionStorage.setItem("PrivateKeyEnc", Base64.fromUint8Array(PrivateKeyEnc, true));
-    sessionStorage.setItem("PublicKeyEnc", Base64.fromUint8Array(PublicKeyEnc, true));
-    sessionStorage.setItem("PrivateKeySign", Base64.fromUint8Array(PrivateKeySign, true));
-    sessionStorage.setItem("PublicKeySign", Base64.fromUint8Array(PublicKeySign, true));
+    sessionStorage.setItem("exportKey", exportKeyDecoded);
+    sessionStorage.setItem("sessionKey", sessionKeyDecoded);
+    sessionStorage.setItem("PrivateKeyEnc", PrivateKeyEnc);
+    sessionStorage.setItem("PublicKeyEnc", PublicKeyEnc);
+    sessionStorage.setItem("PrivateKeySign", PrivateKeySign);
+    sessionStorage.setItem("PublicKeySign", PublicKeySign);
 
     return {
         success: true,
@@ -145,11 +157,8 @@ async function logout() {
     await initLibsodium();
 
     const username = sessionStorage.getItem("username");
-    const sessionKey = sessionStorage.getItem("sessionKey");
 
-    const sessionKeyDecoded = Base64.toUint8Array(sessionKey!).slice(0, 32); // Take only first 32 bytes
-
-    const mac = calculateMac(username!, sessionKeyDecoded);
+    const mac = calculateMac();
 
     try {
         let response = await logoutAPI(username!, Base64.fromUint8Array(mac, true));
@@ -166,19 +175,10 @@ async function getMessages() {
     await initLibsodium();
 
     const username = sessionStorage.getItem("username");
-    const sessionKey = sessionStorage.getItem("sessionKey");
-    const exportKey = sessionStorage.getItem("exportKey");
 
-    const sessionKeyDecoded = Base64.toUint8Array(sessionKey!).slice(0, 32); // Take only first 32 bytes
-    const exportKeyDecoded = Base64.toUint8Array(exportKey!).slice(0, 32); // Take only first 32 bytes
+    const PrivateKeyEncDecoded = getItemFromSessionStorage("PrivateKeyEnc");
 
-    const PrivateKeyEnc = sessionStorage.getItem("PrivateKeyEnc");
-    const PrivateKeySign = sessionStorage.getItem("PrivateKeySign");
-
-    const PrivateKeyEncDecoded = Base64.toUint8Array(PrivateKeyEnc!);
-    const PrivateKeySignDecoded = Base64.toUint8Array(PrivateKeySign!);
-
-    const mac = calculateMac(username!, sessionKeyDecoded);
+    const mac = calculateMac();
 
     const response = await getMessagesAPI(username!, Base64.fromUint8Array(mac, true));
 
@@ -240,19 +240,11 @@ async function sendMessage(receiver: string, fileName: string, file: File, lifet
     await initLibsodium();
 
     const username = sessionStorage.getItem("username");
-    const sessionKey = sessionStorage.getItem("sessionKey");
-    const exportKey = sessionStorage.getItem("exportKey");
 
-    const sessionKeyDecoded = Base64.toUint8Array(sessionKey!).slice(0, 32); // Take only first 32 bytes
-    const exportKeyDecoded = Base64.toUint8Array(exportKey!).slice(0, 32); // Take only first 32 bytes
+    const PrivateKeyEncDecoded = getItemFromSessionStorage("PrivateKeyEnc");
+    const PrivateKeySignDecoded = getItemFromSessionStorage("PrivateKeySign");
 
-    const PrivateKeyEnc = sessionStorage.getItem("PrivateKeyEnc");
-    const PrivateKeySign = sessionStorage.getItem("PrivateKeySign");
-
-    const PrivateKeyEncDecoded = Base64.toUint8Array(PrivateKeyEnc!);
-    const PrivateKeySignDecoded = Base64.toUint8Array(PrivateKeySign!);
-
-    const mac = calculateMac(username!, sessionKeyDecoded);
+    const mac = calculateMac();
 
     // Get receiver's public encryption key
     const responsePubKey = await getPublicKeyEncAPI(username!, Base64.fromUint8Array(mac, true), receiver);
