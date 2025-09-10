@@ -182,7 +182,56 @@ async function getMessages() {
 
     const response = await getMessagesAPI(username!, Base64.fromUint8Array(mac, true));
 
-    console.log("Raw messages:", response.messages);
+    // For each message:
+    for (let msg of response.messages) {
+
+        // Get the public key sign of the sender to check signature
+        const responsePubKey = await getPublicKeySignAPI(username!, Base64.fromUint8Array(mac, true), msg.sender);
+        const PublicKeySignSender = Base64.toUint8Array(responsePubKey.pub_sign);
+
+        // Check the signature
+        const payload = msg.filename + msg.nonce_filename + msg.message + msg.nonce_message + msg.sender + msg.receiver + msg.max_downloads.toString() + msg.lifetime.toString() + msg.creation_time.toString();
+
+        // const signature = Base64.toUint8Array(msg.signature);
+        const signature = new Uint8Array(msg.signature);
+
+        const isValid = sodium.crypto_sign_verify_detached(signature, new TextEncoder().encode(payload), PublicKeySignSender);
+
+        msg.signatureValid = isValid;
+        if (!isValid) {
+            console.error("Invalid signature for message from", msg.sender);
+            continue; // Skip this message
+        }
+
+        // Get the public key enc of the sender to decrypt the filename and file
+        const responsePubKeyEnc = await getPublicKeyEncAPI(username!, Base64.fromUint8Array(mac, true), msg.sender);
+        const PublicKeyEncSender = Base64.toUint8Array(responsePubKeyEnc.pub_enc);
+
+        // Decrypt the filename
+        // const cfilename = Base64.toUint8Array(msg.filename);
+        // const nonce_filename = Base64.toUint8Array(msg.nonce_filename);
+        const cfilename = new Uint8Array(msg.filename);
+        const nonce_filename = new Uint8Array(msg.nonce_filename);
+
+        const filenameBytes = sodium.crypto_box_open_easy(cfilename, nonce_filename, PublicKeyEncSender, PrivateKeyEncDecoded);
+        const filename = new TextDecoder().decode(filenameBytes);
+
+        msg.filename = filename;
+
+        console.log("Decrypted filename:", filename);
+
+        // Decrypt the file
+        // const cfile = Base64.toUint8Array(msg.message);
+        // const nonce_file = Base64.toUint8Array(msg.nonce_message);
+        const cfile = new Uint8Array(msg.message);
+        const nonce_file = new Uint8Array(msg.nonce_message);
+
+        const fileBytes = sodium.crypto_box_open_easy(cfile, nonce_file, PublicKeyEncSender, PrivateKeyEncDecoded);
+
+        msg.message = fileBytes;
+    }
+
+
     return response.messages;
 }
 

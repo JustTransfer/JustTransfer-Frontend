@@ -134,7 +134,7 @@ async function getPublicKeyEncAPI(username: string, mac: string, user_pub_key: s
 
 async function getPublicKeySignAPI(username: string, mac: string, user_pub_key: string) {
 
-    const response = await fetch(`${apiUrl}/pubkey/enc`, {
+    const response = await fetch(`${apiUrl}/pubkey/sign`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
