@@ -256,7 +256,7 @@ async function sendMessage(receiver: string, fileName: string, file: File, lifet
     const timestamp = new Date().toISOString();
 
     // Sign the message
-    const payload = cfilename + nonce_filename + cfile + nonce_file + username + receiver + maxDownloads.toString() + lifetimeDays.toString() + timestamp.toString();
+    const payload = cfilename.toString() + nonce_filename.toString() + cfile.toString() + nonce_file.toString() + username + receiver + maxDownloads.toString() + lifetimeDays.toString() + timestamp.toString();
 
     const signature = sodium.crypto_sign_detached(new TextEncoder().encode(payload), PrivateKeySignDecoded);
 

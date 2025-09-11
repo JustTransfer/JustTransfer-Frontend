@@ -1,7 +1,7 @@
-import type { Route } from "./+types/account";
 import { useEffect, useState } from "react";
-
 import { Box, Typography } from "@mui/material";
+
+import Layout from "../components/layout";
 
 export default function AccountPage() {
 
@@ -31,19 +31,21 @@ export default function AccountPage() {
     }, []);
 
     return (
-        <Box
-            sx={{
-                flex: 1,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "column",
-                gap: 10,
-            }}
-        >
-            <Typography variant="h3">
-                Account Page
-            </Typography>
-        </Box>
+        <Layout title="Home" content={
+            <Box
+                sx={{
+                    flex: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexDirection: "column",
+                    gap: 10,
+                }}
+            >
+                <Typography variant="h3">
+                    Account Page
+                </Typography>
+            </Box>
+        } />
     );
 }

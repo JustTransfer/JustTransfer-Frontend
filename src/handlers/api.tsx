@@ -1,8 +1,8 @@
 import * as opaque from "@serenity-kit/opaque";
 
-const apiUrl = "http://localhost:3000";
+const apiUrl = "http://localhost:3333";
 
-async function registerStartAPI(username: string, client_registration_start: string): Promise<Response> {
+async function registerStartAPI(username: string, client_registration_start: string) {
 
     const response = await fetch(`${apiUrl}/register/start`, {
         method: "POST",
@@ -49,7 +49,7 @@ async function registerEndAPI(username: string, client_registration_finish: stri
 }
 
 async function registerUpdateAPI() {
-
+    // TODO
 }
 
 async function loginStartAPI(username: string, client_registration_start: string) {
