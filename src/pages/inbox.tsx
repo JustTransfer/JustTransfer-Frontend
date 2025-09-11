@@ -41,7 +41,7 @@ export default function Inbox() {
     }, []);
 
     return (
-        <Layout title="Home" content={
+        <Layout title="Inbox" content={
             <Box
                 sx={{
                     flex: 1,

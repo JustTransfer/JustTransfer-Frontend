@@ -67,7 +67,7 @@ export default function CreateAccountPage() {
     }
 
     return (
-        <Layout title="Home" content={
+        <Layout title="Create Account" content={
             <Box
                 sx={{
                     height: "100%",

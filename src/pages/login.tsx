@@ -45,7 +45,7 @@ export default function LoginPage() {
     }
 
     return (
-        <Layout title="Home" content={
+        <Layout title="Login" content={
             <Box
                 sx={{
                     height: "100%",

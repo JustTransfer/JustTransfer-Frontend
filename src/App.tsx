@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route } from "react-router-dom";
 
+import { ProtectedRoute } from './components/ProtectedRoute';
 import HomePage from './pages/home';
 import CreateAccountPage from './pages/createaccount';
 import LoginPage from './pages/login';
@@ -19,11 +20,30 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<CreateAccountPage />} />
 
-      <Route path="/account" element={<AccountPage />} />
-      <Route path="/transfers" element={<Transfers />} />
-      <Route path="/inbox" element={<Inbox />} />
-      <Route path="/new-transfer" element={<NewTransfer />} />
-    </Routes>
+      <Route path="/account" element={
+        <ProtectedRoute>
+          <AccountPage />
+        </ProtectedRoute>}
+      />
+
+      <Route path="/transfers" element={
+        <ProtectedRoute>
+          <Transfers />
+        </ProtectedRoute>}
+      />
+
+      <Route path="/inbox" element={
+        <ProtectedRoute>
+          <Inbox />
+        </ProtectedRoute>}
+      />
+
+      < Route path="/new-transfer" element={
+        <ProtectedRoute>
+          <NewTransfer />
+        </ProtectedRoute >}
+      />
+    </Routes >
   );
 }
 

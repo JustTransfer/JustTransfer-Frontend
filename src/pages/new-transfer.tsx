@@ -71,7 +71,7 @@ export default function NewTransfer() {
     }
 
     return (
-        <Layout title="Home" content={
+        <Layout title="New Transfer" content={
             <Box
                 sx={{
                     flex: 1,

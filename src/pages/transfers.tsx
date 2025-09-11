@@ -4,7 +4,7 @@ import Layout from "../components/layout";
 
 export default function Transfers() {
     return (
-        <Layout title="Home" content={
+        <Layout title="Transfers" content={
             <Box
                 sx={{
                     flex: 1,

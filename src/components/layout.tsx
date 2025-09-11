@@ -208,7 +208,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                 window.location.href = '/new-transfer';
                             }
                         }} sx={{ cursor: 'pointer' }}>
-                            GoGoTransfer
+                            GoGoTransfer - {title}
                         </Typography>
                         {!isLoggedIn ? (
                             <Box sx={{ marginLeft: 'auto' }}>
@@ -217,7 +217,10 @@ export default function Layout({ title, content }: { title: string; content: Rea
                             </Box>
                         ) : (
                             <Box sx={{ marginLeft: 'auto' }}>
-                                <Button color="inherit" onClick={() => { logout(); window.location.href = '/login'; }}>
+                                <Button color="inherit" onClick={async () => {
+                                    await logout();
+                                    window.location.href = '/';
+                                }}>
                                     Logout
                                 </Button>
                             </Box>
