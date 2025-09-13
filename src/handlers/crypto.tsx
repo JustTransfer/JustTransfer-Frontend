@@ -222,7 +222,7 @@ async function getOneMessage(message: any, onProgress?: (percent: number) => voi
 
     if (!message.signatureValid) {
         console.error("Invalid signature for message from", message.sender);
-        return;
+        return message;
     }
 
     // Get the public key enc of the sender to decrypt the filename and file

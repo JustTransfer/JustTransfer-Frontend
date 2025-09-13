@@ -5,6 +5,8 @@ import DownloadIcon from '@mui/icons-material/Download';
 import CircularProgress, {
     CircularProgressProps,
 } from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
+import Snackbar, { type SnackbarCloseReason } from '@mui/material/Snackbar';
 
 import Layout from "../components/layout";
 import { getMessages, getOneMessage } from "../handlers/crypto"
@@ -14,57 +16,53 @@ export default function Inbox() {
     const [downloadProgress, setDownloadProgress] = useState<Record<string, number>>({});
     const [loading, setLoading] = useState(true);
 
-    function CircularProgressWithLabel(
-        props: CircularProgressProps & { value: number },
-    ) {
-        return (
-            <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-                <CircularProgress variant="determinate" {...props} />
-                <Box
-                    sx={{
-                        top: 0,
-                        left: 0,
-                        bottom: 0,
-                        right: 0,
-                        position: 'absolute',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <Typography
-                        variant="caption"
-                        component="div"
-                        sx={{ color: 'text.secondary' }}
-                    >{`${Math.round(props.value)}%`}</Typography>
-                </Box>
-            </Box>
-        );
-    }
+    const [error, setError] = useState("");
+    const [openError, setOpenError] = useState(false);
+    const [success, setSuccess] = useState("");
+    const [openSuccess, setOpenSuccess] = useState(false);
+
+    const handleClose = (event?: React.SyntheticEvent | Event, reason?: SnackbarCloseReason,) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpenSuccess(false);
+        setOpenError(false);
+    };
 
     async function downloadFile(message: any) {
         setDownloadProgress(prev => ({ ...prev, [message.id]: 0 }));
+        setSuccess("");
+        setOpenSuccess(false);
+        setError("");
+        setOpenError(false);
 
         const messageWithContent = await getOneMessage(message, (percent: number) => {
             setDownloadProgress(prev => ({ ...prev, [message.id]: percent }));
         });
 
-        if (!messageWithContent) {
-            console.error("Failed to get message content");
-            return;
+        // Set the validity of the signature
+        message.signatureValid = messageWithContent.signatureValid;
+        if (message.signatureValid === false) {
+            setError("Invalid signature. Download aborted.");
+            setOpenError(true);
+        } else {
+            // Create a blob and trigger download
+            setSuccess("File downloaded successfully.");
+            setOpenSuccess(true);
+
+            const byteArray = new Uint8Array(messageWithContent.message);
+            const blob = new Blob([byteArray], { type: "application/octet-stream" });
+
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = messageWithContent.filename_dec;
+            a.click();
+
+            URL.revokeObjectURL(url); // cleanup
         }
-
-        const byteArray = new Uint8Array(messageWithContent.message);
-        const blob = new Blob([byteArray], { type: "application/octet-stream" });
-
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = messageWithContent.filename_dec;
-        a.click();
-
-        URL.revokeObjectURL(url); // cleanup
 
         // Remove progress indicator
         setDownloadProgress(prev => {
@@ -72,8 +70,13 @@ export default function Inbox() {
             return rest;
         });
 
-        // Refresh the messages to update download count
-        getMessagesLocal();
+        // Update the download count in the UI
+        setMessages(prevMessages => prevMessages.map(msg => {
+            if (msg.id === message.id) {
+                return { ...msg, number_downloads: msg.number_downloads + 1 };
+            }
+            return msg;
+        }));
     }
 
     async function getMessagesLocal() {
@@ -175,6 +178,24 @@ export default function Inbox() {
                         !loading ? <Typography variant="h6">No messages</Typography> : <CircularProgress />
                     )}
                 </Box>
+                <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openError} autoHideDuration={2000} onClose={handleClose}>
+                    <Alert
+                        severity="error"
+                        variant="filled"
+                        sx={{ width: '100%' }}
+                    >
+                        {error}
+                    </Alert>
+                </Snackbar>
+                <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openSuccess} autoHideDuration={3000} onClose={handleClose}>
+                    <Alert
+                        severity="success"
+                        variant="filled"
+                        sx={{ width: '100%' }}
+                    >
+                        {success}
+                    </Alert>
+                </Snackbar>
             </Box >
         } />
     );
