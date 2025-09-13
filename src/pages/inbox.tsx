@@ -5,7 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import DownloadIcon from '@mui/icons-material/Download';
 
 import Layout from "../components/layout";
-import { getMessages } from "../handlers/crypto"
+import { getMessages, getOneMessage } from "../handlers/crypto"
 
 export default function Inbox() {
     const [messages, setMessages] = useState<Array<any>>([]);
@@ -22,15 +22,23 @@ export default function Inbox() {
         setLoading(false);
     }
 
-    function downloadFile(message: number[], filename: string) {
-        const byteArray = new Uint8Array(message); // convert [104,101,108,108,111] → real bytes
+    async function downloadFile(message: any) {
+
+        const messageWithContent = await getOneMessage(message);
+
+        if (!messageWithContent) {
+            console.error("Failed to get message content");
+            return;
+        }
+
+        const byteArray = new Uint8Array(messageWithContent.message);
         const blob = new Blob([byteArray], { type: "application/octet-stream" });
 
         const url = URL.createObjectURL(blob);
 
         const a = document.createElement("a");
         a.href = url;
-        a.download = filename;
+        a.download = messageWithContent.filename_dec;
         a.click();
 
         URL.revokeObjectURL(url); // cleanup
@@ -91,7 +99,7 @@ export default function Inbox() {
                                             {msg.signatureValid === false ? (
                                                 <TableCell align="center"><Typography color="error">Invalid signature</Typography></TableCell>
                                             ) : (
-                                                <TableCell align="center">{msg.filename}</TableCell>
+                                                <TableCell align="center">{msg.filename_dec}</TableCell>
                                             )}
                                             <TableCell align="center">{new Date(msg.creation_time).toLocaleString()}</TableCell>
                                             <TableCell align="center">{new Date(
@@ -103,7 +111,7 @@ export default function Inbox() {
                                                 {msg.signatureValid === false ? (
                                                     <Typography color="error">Invalid signature</Typography>
                                                 ) : (
-                                                    <DownloadIcon sx={{ color: "primary.main", "&:hover": { cursor: "pointer" } }} onClick={() => downloadFile(msg.message, msg.filename)} />
+                                                    <DownloadIcon sx={{ color: "primary.main", "&:hover": { cursor: "pointer" } }} onClick={() => downloadFile(msg)} />
                                                 )}
                                             </TableCell>
                                         </TableRow>

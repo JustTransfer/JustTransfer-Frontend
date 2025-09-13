@@ -173,9 +173,29 @@ async function getMessagesAPI(username: string, mac: string) {
     return (await response.json());
 }
 
-async function sendMessageAPI(mac: string, sender: string, receiver: string, filename: string, nonce_filename: string, message: string, nonce_message: string, max_downloads: number, lifetime: number, creation_time: any, signature: string) {
+async function getOneMessageAPI(username: string, mac: string, message_id: string) {
 
-    const response = await fetch(`${apiUrl}/message`, {
+    const response = await fetch(`${apiUrl}/message/${message_id}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            username,
+            mac,
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    return response.blob();
+}
+
+async function sendMessageAPI(mac: string, sender: string, receiver: string, filename: string, nonce_filename: string, message: Uint8Array, nonce_message: string, max_downloads: number, lifetime: number, creation_time: any, signature: string) {
+
+    /*const response = await fetch(`${apiUrl}/message`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -193,6 +213,28 @@ async function sendMessageAPI(mac: string, sender: string, receiver: string, fil
             creation_time,
             signature,
         }),
+    });*/
+
+    const form = new FormData();
+    form.append("mac", mac);
+    form.append("sender", sender);
+    form.append("receiver", receiver);
+    form.append("filename", filename);
+    form.append("nonce_filename", nonce_filename);
+    // form.append("message", message);
+    form.append("nonce_message", nonce_message);
+    form.append("max_downloads", String(max_downloads));
+    form.append("lifetime", String(lifetime));
+    form.append("creation_time", creation_time);
+    form.append("signature", signature);
+
+    // wrap encrypted bytes in a Blob
+    const blob = new Blob([message], { type: "application/octet-stream" });
+    form.append("message", blob, "encrypted.bin");
+
+    const response = await fetch(`${apiUrl}/message`, {
+        method: "POST",
+        body: form,
     });
 
     if (!response.ok) {
@@ -202,4 +244,4 @@ async function sendMessageAPI(mac: string, sender: string, receiver: string, fil
     return response.status;
 }
 
-export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, sendMessageAPI };
+export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI };
