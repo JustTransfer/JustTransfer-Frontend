@@ -1,30 +1,53 @@
 import { useEffect, useState } from "react";
 import { Box, Typography, Button, IconButton, Paper, Table, TableBody, TableCell, TableHead, TableRow, TableContainer } from "@mui/material";
 import RefreshIcon from '@mui/icons-material/Refresh';
-import CircularProgress from '@mui/material/CircularProgress';
 import DownloadIcon from '@mui/icons-material/Download';
+import CircularProgress, {
+    CircularProgressProps,
+} from '@mui/material/CircularProgress';
 
 import Layout from "../components/layout";
 import { getMessages, getOneMessage } from "../handlers/crypto"
 
 export default function Inbox() {
     const [messages, setMessages] = useState<Array<any>>([]);
+    const [downloadProgress, setDownloadProgress] = useState<Record<string, number>>({});
     const [loading, setLoading] = useState(true);
 
-    async function getMessagesLocal() {
-        try {
-            const msgs = await getMessages();
-            setMessages(msgs!);
-        } catch (e) {
-            console.error("Failed to fetch messages:", e);
-        }
-
-        setLoading(false);
+    function CircularProgressWithLabel(
+        props: CircularProgressProps & { value: number },
+    ) {
+        return (
+            <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+                <CircularProgress variant="determinate" {...props} />
+                <Box
+                    sx={{
+                        top: 0,
+                        left: 0,
+                        bottom: 0,
+                        right: 0,
+                        position: 'absolute',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Typography
+                        variant="caption"
+                        component="div"
+                        sx={{ color: 'text.secondary' }}
+                    >{`${Math.round(props.value)}%`}</Typography>
+                </Box>
+            </Box>
+        );
     }
 
     async function downloadFile(message: any) {
+        setDownloadProgress(prev => ({ ...prev, [message.id]: 0 }));
 
-        const messageWithContent = await getOneMessage(message);
+        const messageWithContent = await getOneMessage(message, (percent: number) => {
+            setDownloadProgress(prev => ({ ...prev, [message.id]: percent }));
+        });
 
         if (!messageWithContent) {
             console.error("Failed to get message content");
@@ -42,6 +65,26 @@ export default function Inbox() {
         a.click();
 
         URL.revokeObjectURL(url); // cleanup
+
+        // Remove progress indicator
+        setDownloadProgress(prev => {
+            const { [message.id]: _, ...rest } = prev;
+            return rest;
+        });
+
+        // Refresh the messages to update download count
+        getMessagesLocal();
+    }
+
+    async function getMessagesLocal() {
+        try {
+            const msgs = await getMessages();
+            setMessages(msgs!);
+        } catch (e) {
+            console.error("Failed to fetch messages:", e);
+        }
+
+        setLoading(false);
     }
 
     useEffect(() => {
@@ -82,8 +125,8 @@ export default function Inbox() {
                                         <TableCell align="center"><strong>File name</strong></TableCell>
                                         <TableCell align="center"><strong>Received at</strong></TableCell>
                                         <TableCell align="center"><strong>Expire At</strong></TableCell>
-                                        <TableCell align="center"><strong>Downloads Left</strong></TableCell>
                                         <TableCell align="center"><strong>Max Downloads</strong></TableCell>
+                                        <TableCell align="center"><strong>Downloads Left</strong></TableCell>
                                         <TableCell align="center"></TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -105,13 +148,22 @@ export default function Inbox() {
                                             <TableCell align="center">{new Date(
                                                 new Date(msg.creation_time).getTime() + msg.lifetime * 24 * 60 * 60 * 1000
                                             ).toLocaleString()}</TableCell>
-                                            <TableCell align="center">{msg.max_downloads - msg.number_downloads}</TableCell>
                                             <TableCell align="center">{msg.max_downloads}</TableCell>
+                                            <TableCell align="center">{msg.max_downloads - msg.number_downloads}</TableCell>
                                             <TableCell align="center">
                                                 {msg.signatureValid === false ? (
                                                     <Typography color="error">Invalid signature</Typography>
+                                                ) : downloadProgress[msg.id] !== undefined ? (
+                                                    <CircularProgress
+                                                        variant="determinate"
+                                                        value={downloadProgress[msg.id]}
+                                                        size={24}
+                                                    />
                                                 ) : (
-                                                    <DownloadIcon sx={{ color: "primary.main", "&:hover": { cursor: "pointer" } }} onClick={() => downloadFile(msg)} />
+                                                    <DownloadIcon
+                                                        sx={{ color: "primary.main", "&:hover": { cursor: "pointer" } }}
+                                                        onClick={() => downloadFile(msg)}
+                                                    />
                                                 )}
                                             </TableCell>
                                         </TableRow>

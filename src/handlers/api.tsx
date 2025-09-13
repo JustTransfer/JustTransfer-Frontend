@@ -173,7 +173,7 @@ async function getMessagesAPI(username: string, mac: string) {
     return (await response.json());
 }
 
-async function getOneMessageAPI(username: string, mac: string, message_id: string) {
+async function getOneMessageAPI(username: string, mac: string, message_id: string, onProgress?: (percent: number) => void) {
 
     const response = await fetch(`${apiUrl}/message/${message_id}`, {
         method: "POST",
@@ -190,30 +190,33 @@ async function getOneMessageAPI(username: string, mac: string, message_id: strin
         throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
 
-    return response.blob();
+    // return response.blob();
+
+    // If no progress tracking requested, just return the blob as before
+    if (!onProgress || !response.body) {
+        return response.blob();
+    }
+
+    // --- Stream the response ---
+    const contentLength = Number(response.headers.get("Content-Length") || 0);
+    const reader = response.body.getReader();
+    let received = 0;
+    const chunks: Uint8Array[] = [];
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (value) {
+            chunks.push(value); // value is Uint8Array
+            received += value.length;
+            if (contentLength) onProgress?.((received / contentLength) * 100);
+        }
+    }
+
+    return new Blob(chunks as BlobPart[], { type: "application/octet-stream" });
 }
 
 async function sendMessageAPI(mac: string, sender: string, receiver: string, filename: string, nonce_filename: string, message: Uint8Array, nonce_message: string, max_downloads: number, lifetime: number, creation_time: any, signature: string) {
-
-    /*const response = await fetch(`${apiUrl}/message`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            mac,
-            sender,
-            receiver,
-            filename,
-            nonce_filename,
-            message,
-            nonce_message,
-            max_downloads,
-            lifetime,
-            creation_time,
-            signature,
-        }),
-    });*/
 
     const form = new FormData();
     form.append("mac", mac);
@@ -221,7 +224,6 @@ async function sendMessageAPI(mac: string, sender: string, receiver: string, fil
     form.append("receiver", receiver);
     form.append("filename", filename);
     form.append("nonce_filename", nonce_filename);
-    // form.append("message", message);
     form.append("nonce_message", nonce_message);
     form.append("max_downloads", String(max_downloads));
     form.append("lifetime", String(lifetime));

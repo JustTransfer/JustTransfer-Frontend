@@ -176,53 +176,28 @@ async function getMessages() {
     // For each message:
     for (let msg of response.messages) {
 
-        // Get the message content
-        /*const blobFile = await getOneMessageAPI(username!, Base64.fromUint8Array(mac, true), msg.message_id);
-        const arrayBuffer = await blobFile.arrayBuffer();
-        msg.message = new Uint8Array(arrayBuffer);*/
-
-        // Get the public key sign of the sender to check signature
-        // const responsePubKey = await getPublicKeySignAPI(username!, Base64.fromUint8Array(mac, true), msg.sender);
-        // const PublicKeySignSender = Base64.toUint8Array(responsePubKey.pub_sign);
-
         // Get the Encoded fileds of the message
         msg.signature = Base64.toUint8Array(msg.signature);
         msg.filename = Base64.toUint8Array(msg.filename);
         msg.nonce_filename = Base64.toUint8Array(msg.nonce_filename);
         msg.nonce_message = Base64.toUint8Array(msg.nonce_message);
 
-        // Check the signature
-        // const payload = msg.filename.toString() + msg.nonce_filename.toString() + msg.message.toString() + msg.nonce_message.toString() + msg.sender + msg.receiver + msg.max_downloads.toString() + msg.lifetime.toString() + msg.creation_time.toString();
-
-        // const isValid = sodium.crypto_sign_verify_detached(msg.signature, new TextEncoder().encode(payload), PublicKeySignSender);
-
-        // msg.signatureValid = isValid;
-        // if (!isValid) {
-        //     console.error("Invalid signature for message from", msg.sender);
-        //     continue; // Skip this message
-        // }
-
         // Get the public key enc of the sender to decrypt the filename and file
         const responsePubKeyEnc = await getPublicKeyEncAPI(username!, Base64.fromUint8Array(mac, true), msg.sender);
         const PublicKeyEncSender = Base64.toUint8Array(responsePubKeyEnc.pub_enc);
 
-        // Decrypt the filename
+        // Decrypt the filename to display it in the inbox
         const filenameBytes = sodium.crypto_box_open_easy(msg.filename, msg.nonce_filename, PublicKeyEncSender, PrivateKeyEncDecoded);
         const filename = new TextDecoder().decode(filenameBytes);
 
         msg.filename_dec = filename;
-
-        // Decrypt the file
-        // const fileBytes = sodium.crypto_box_open_easy(msg.message, msg.nonce_message, PublicKeyEncSender, PrivateKeyEncDecoded);
-
-        // msg.message = fileBytes;
     }
 
 
     return response.messages;
 }
 
-async function getOneMessage(message: any) {
+async function getOneMessage(message: any, onProgress?: (percent: number) => void) {
 
     await initLibsodium();
 
@@ -232,7 +207,7 @@ async function getOneMessage(message: any) {
     const mac = getItemFromSessionStorage("mac");
 
     // Get the message content
-    const blobFile = await getOneMessageAPI(username!, Base64.fromUint8Array(mac, true), message.message_id);
+    const blobFile = await getOneMessageAPI(username!, Base64.fromUint8Array(mac, true), message.message_id, onProgress);
     const arrayBuffer = await blobFile.arrayBuffer();
     message.message = new Uint8Array(arrayBuffer);
 
@@ -240,19 +215,12 @@ async function getOneMessage(message: any) {
     const responsePubKey = await getPublicKeySignAPI(username!, Base64.fromUint8Array(mac, true), message.sender);
     const PublicKeySignSender = Base64.toUint8Array(responsePubKey.pub_sign);
 
-    // Get the Encoded fileds of the message
-    // message.signature = Base64.toUint8Array(message.signature);
-    // message.filename = Base64.toUint8Array(message.filename);
-    // message.nonce_filename = Base64.toUint8Array(message.nonce_filename);
-    // message.nonce_message = Base64.toUint8Array(message.nonce_message);
-
     // Check the signature
     const payload = message.filename.toString() + message.nonce_filename.toString() + message.message.toString() + message.nonce_message.toString() + message.sender + message.receiver + message.max_downloads.toString() + message.lifetime.toString() + message.creation_time.toString();
 
-    const isValid = sodium.crypto_sign_verify_detached(message.signature, new TextEncoder().encode(payload), PublicKeySignSender);
+    message.signatureValid = sodium.crypto_sign_verify_detached(message.signature, new TextEncoder().encode(payload), PublicKeySignSender);
 
-    message.signatureValid = isValid;
-    if (!isValid) {
+    if (!message.signatureValid) {
         console.error("Invalid signature for message from", message.sender);
         return;
     }
@@ -265,9 +233,7 @@ async function getOneMessage(message: any) {
     const filenameBytes = sodium.crypto_box_open_easy(message.filename, message.nonce_filename, PublicKeyEncSender, PrivateKeyEncDecoded);
     const filename = new TextDecoder().decode(filenameBytes);
 
-    message.filename = filename;
-
-    console.log("Decrypted filename:", filename);
+    message.filename_dec = filename;
 
     // Decrypt the file
     const fileBytes = sodium.crypto_box_open_easy(message.message, message.nonce_message, PublicKeyEncSender, PrivateKeyEncDecoded);
