@@ -216,34 +216,46 @@ async function getOneMessageAPI(username: string, mac: string, message_id: strin
     return new Blob(chunks as BlobPart[], { type: "application/octet-stream" });
 }
 
-async function sendMessageAPI(mac: string, sender: string, receiver: string, filename: string, nonce_filename: string, message: Uint8Array, nonce_message: string, max_downloads: number, lifetime: number, creation_time: any, signature: string) {
+async function sendMessageAPI(mac: string, sender: string, receiver: string, filename: string, nonce_filename: string, message: Uint8Array, nonce_message: string, max_downloads: number, lifetime: number, creation_time: any, signature: string, onProgress?: (percent: number) => void) {
 
-    const form = new FormData();
-    form.append("mac", mac);
-    form.append("sender", sender);
-    form.append("receiver", receiver);
-    form.append("filename", filename);
-    form.append("nonce_filename", nonce_filename);
-    form.append("nonce_message", nonce_message);
-    form.append("max_downloads", String(max_downloads));
-    form.append("lifetime", String(lifetime));
-    form.append("creation_time", creation_time);
-    form.append("signature", signature);
+    return new Promise((resolve, reject) => {
+        const form = new FormData();
+        form.append("mac", mac);
+        form.append("sender", sender);
+        form.append("receiver", receiver);
+        form.append("filename", filename);
+        form.append("nonce_filename", nonce_filename);
+        form.append("nonce_message", nonce_message);
+        form.append("max_downloads", String(max_downloads));
+        form.append("lifetime", String(lifetime));
+        form.append("creation_time", creation_time);
+        form.append("signature", signature);
 
-    // wrap encrypted bytes in a Blob
-    const blob = new Blob([message], { type: "application/octet-stream" });
-    form.append("message", blob, "encrypted.bin");
+        const blob = new Blob([message], { type: "application/octet-stream" });
+        form.append("message", blob, "encrypted.bin");
 
-    const response = await fetch(`${apiUrl}/message`, {
-        method: "POST",
-        body: form,
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `${apiUrl}/message`);
+
+        // Listen to progress events
+        xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable && onProgress) {
+                const percent = (event.loaded / event.total) * 100;
+                onProgress(percent);
+            }
+        };
+
+        xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                resolve(xhr.status);
+            } else {
+                reject(new Error(`Error: ${xhr.status} ${xhr.statusText}`));
+            }
+        };
+
+        xhr.onerror = () => reject(new Error("Network error"));
+        xhr.send(form);
     });
-
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
-
-    return response.status;
 }
 
 export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI };

@@ -3,6 +3,7 @@ import { Box, Typography, TextField, Paper, Button, Snackbar, Alert } from "@mui
 import { type SnackbarCloseReason } from '@mui/material/Snackbar';
 import { type SelectChangeEvent } from '@mui/material/Select';
 import AddBoxIcon from '@mui/icons-material/AddBox';
+import LinearProgress, { LinearProgressProps } from '@mui/material/LinearProgress';
 
 import Layout from "../components/layout";
 import { sendMessage } from "../handlers/crypto";
@@ -15,8 +16,36 @@ export default function NewTransfer() {
     const [success, setSuccess] = useState("");
     const [openSuccess, setOpenSuccess] = useState(false);
 
+    const [isSending, setIsSending] = useState(false);
+    const [progress, setProgress] = useState(0);
+
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+    function LinearProgressWithLabel(props: LinearProgressProps & { value: number }) {
+        return (
+            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                <Box sx={{ width: '100%', mr: 1 }}>
+                    <LinearProgress variant="determinate" {...props} />
+                </Box>
+                <Box sx={{ minWidth: 35 }}>
+                    <Typography
+                        variant="body2"
+                        sx={{ color: 'text.secondary' }}
+                    >{`${Math.round(props.value)}%`}</Typography>
+                </Box>
+            </Box>
+        );
+    }
+
+    const formatSize = (bytes: any) => {
+        if (bytes < 1024) return `${bytes} B`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+        if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+        if (bytes < 1024 * 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+
+        return `${(bytes / (1024 * 1024 * 1024 * 1024)).toFixed(1)} TB`;
+    };
 
     function handleIconClick() {
         fileInputRef.current?.click(); // ouvre le sélecteur de fichiers
@@ -59,10 +88,20 @@ export default function NewTransfer() {
         };
 
         try {
-            await sendMessage(data.receiver as string, selectedFile!.name, selectedFile!, Number(data.lifetime), Number(data.maxDownloads));
+            setIsSending(true);
+            setProgress(0);
+            await sendMessage(data.receiver as string, selectedFile!.name, selectedFile!, Number(data.lifetime), Number(data.maxDownloads), (percent: number) => {
+                setProgress(percent);
+            });
 
             setSuccess("File sent successfully!");
             setOpenSuccess(true);
+
+            setTimeout(() => {
+                setIsSending(false);
+                setProgress(0);
+            }, 500);
+
         } catch (e) {
             setError("An error occurred while sending the file.");
             setOpenError(true);
@@ -101,7 +140,7 @@ export default function NewTransfer() {
 
                         {selectedFile && (
                             <Typography variant="body2" color="text.secondary">
-                                {selectedFile.name}
+                                {selectedFile.name} ({formatSize(selectedFile.size)})
                             </Typography>
                         )}
 
@@ -112,9 +151,13 @@ export default function NewTransfer() {
                             <TextField label="Lifetime" name="lifetime" type="number" InputProps={{ inputProps: { min: 0, max: 100 } }} variant="outlined" fullWidth required />
                         </Box>
 
-                        <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>
-                            Send
-                        </Button>
+                        {isSending ? (
+                            <LinearProgressWithLabel value={progress} />
+                        ) : (
+                            <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>
+                                Send
+                            </Button>
+                        )}
                     </Box>
                 </Paper>
 

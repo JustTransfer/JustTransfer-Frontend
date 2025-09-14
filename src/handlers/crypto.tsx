@@ -215,8 +215,11 @@ async function getOneMessage(message: any, onProgress?: (percent: number) => voi
     const responsePubKey = await getPublicKeySignAPI(username!, Base64.fromUint8Array(mac, true), message.sender);
     const PublicKeySignSender = Base64.toUint8Array(responsePubKey.pub_sign);
 
+    // Hash the file
+    const fileHash = sodium.crypto_generichash(32, message.message);
+
     // Check the signature
-    const payload = message.filename.toString() + message.nonce_filename.toString() + message.message.toString() + message.nonce_message.toString() + message.sender + message.receiver + message.max_downloads.toString() + message.lifetime.toString() + message.creation_time.toString();
+    const payload = message.filename.toString() + message.nonce_filename.toString() + fileHash.toString() + message.nonce_message.toString() + message.sender + message.receiver + message.max_downloads.toString() + message.lifetime.toString() + message.creation_time.toString();
 
     message.signatureValid = sodium.crypto_sign_verify_detached(message.signature, new TextEncoder().encode(payload), PublicKeySignSender);
 
@@ -243,7 +246,7 @@ async function getOneMessage(message: any, onProgress?: (percent: number) => voi
     return message;
 }
 
-async function sendMessage(receiver: string, fileName: string, file: File, lifetimeDays: number, maxDownloads: number) {
+async function sendMessage(receiver: string, fileName: string, file: File, lifetimeDays: number, maxDownloads: number, onProgress?: (percent: number) => void) {
 
     await initLibsodium();
 
@@ -272,19 +275,21 @@ async function sendMessage(receiver: string, fileName: string, file: File, lifet
     const nonce_file = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
     const cfile = sodium.crypto_box_easy(fileBytes, nonce_file, PublicKeyEncReceiver, PrivateKeyEncDecoded);
 
-    const cfile_b64 = Base64.fromUint8Array(cfile, true);
     const nonce_file_b64 = Base64.fromUint8Array(nonce_file, true);
+
+    // Hash the file
+    const fileHash = sodium.crypto_generichash(32, cfile);
 
     // Get the current timestamp
     const timestamp = new Date().toISOString();
 
     // Sign the message
-    const payload = cfilename.toString() + nonce_filename.toString() + cfile.toString() + nonce_file.toString() + username + receiver + maxDownloads.toString() + lifetimeDays.toString() + timestamp.toString();
+    const payload = cfilename.toString() + nonce_filename.toString() + fileHash.toString() + nonce_file.toString() + username + receiver + maxDownloads.toString() + lifetimeDays.toString() + timestamp.toString();
 
     const signature = sodium.crypto_sign_detached(new TextEncoder().encode(payload), PrivateKeySignDecoded);
 
     // Send the message
-    const response = await sendMessageAPI(Base64.fromUint8Array(mac, true), username!, receiver, cfilename_b64, nonce_filename_b64, cfile, nonce_file_b64, maxDownloads, lifetimeDays, timestamp, Base64.fromUint8Array(signature, true));
+    const response = await sendMessageAPI(Base64.fromUint8Array(mac, true), username!, receiver, cfilename_b64, nonce_filename_b64, cfile, nonce_file_b64, maxDownloads, lifetimeDays, timestamp, Base64.fromUint8Array(signature, true), onProgress);
 
     return {
         success: true,

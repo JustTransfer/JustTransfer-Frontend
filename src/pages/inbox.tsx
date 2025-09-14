@@ -37,9 +37,20 @@ export default function Inbox() {
         setError("");
         setOpenError(false);
 
-        const messageWithContent = await getOneMessage(message, (percent: number) => {
-            setDownloadProgress(prev => ({ ...prev, [message.id]: percent }));
-        });
+        let messageWithContent
+        try {
+            messageWithContent = await getOneMessage(message, (percent: number) => {
+                setDownloadProgress(prev => ({ ...prev, [message.id]: percent }));
+            });
+        } catch (e) {
+            setError("Failed to download file. Please try again later.");
+            setOpenError(true);
+            setDownloadProgress(prev => {
+                const { [message.id]: _, ...rest } = prev;
+                return rest;
+            });
+            return;
+        }
 
         // Set the validity of the signature
         message.signatureValid = messageWithContent.signatureValid;
