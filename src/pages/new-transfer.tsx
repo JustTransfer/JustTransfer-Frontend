@@ -105,6 +105,8 @@ export default function NewTransfer() {
         } catch (e) {
             setError("An error occurred while sending the file.");
             setOpenError(true);
+            setIsSending(false);
+            setProgress(0);
             return;
         }
     }
