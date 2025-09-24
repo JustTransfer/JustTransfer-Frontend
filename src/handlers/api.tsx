@@ -258,4 +258,142 @@ async function sendMessageAPI(mac: string, sender: string, receiver: string, fil
     });
 }
 
-export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI };
+async function getAnonymousMessageMetadataStartAPI(id: string, client_registration_start: string) {
+    const response = await fetch(`${apiUrl}/anonymous/message/${id}/start`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            client_registration_start,
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    return (await response.json());
+}
+
+async function getAnonymousMessageMetadataAPI(message_id: string, client_login_finish_result: string,) {
+
+    const response = await fetch(`${apiUrl}/anonymous/message/${message_id}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            client_login_finish_result,
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    return (await response.json());
+}
+
+async function getAnonymousMessageAPI(mac: string, message_id: string, onProgress?: (percent: number) => void) {
+
+    const response = await fetch(`${apiUrl}/anonymous/message/${message_id}/content`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            mac,
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    // return response.blob();
+
+    // If no progress tracking requested, just return the blob as before
+    if (!onProgress || !response.body) {
+        return response.blob();
+    }
+
+    // --- Stream the response ---
+    const contentLength = Number(response.headers.get("Content-Length") || 0);
+    const reader = response.body.getReader();
+    let received = 0;
+    const chunks: Uint8Array[] = [];
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (value) {
+            chunks.push(value); // value is Uint8Array
+            received += value.length;
+            if (contentLength) onProgress?.((received / contentLength) * 100);
+        }
+    }
+
+    return new Blob(chunks as BlobPart[], { type: "application/octet-stream" });
+}
+
+async function sendAnonymousMessageStartAPI(client_registration_start: string) {
+
+    const response = await fetch(`${apiUrl}/anonymous/message/start`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            client_registration_start,
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    return (await response.json());
+}
+
+async function sendAnonymousMessageAPI(id: string, client_registration_finish: string, filename: string, nonce_filename: string, message: Uint8Array, nonce_message: string, max_downloads: number, lifetime: number, creation_time: any, onProgress?: (percent: number) => void) {
+
+    return new Promise((resolve, reject) => {
+        const form = new FormData();
+        form.append("id", id);
+        form.append("client_registration_finish", client_registration_finish);
+        form.append("filename", filename);
+        form.append("nonce_filename", nonce_filename);
+        form.append("nonce_message", nonce_message);
+        form.append("max_downloads", String(max_downloads));
+        form.append("lifetime", String(lifetime));
+        form.append("creation_time", creation_time);
+
+        const blob = new Blob([message], { type: "application/octet-stream" });
+        form.append("message", blob, "encrypted.bin");
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `${apiUrl}/anonymous/message`);
+
+        // Listen to progress events
+        xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable && onProgress) {
+                const percent = (event.loaded / event.total) * 100;
+                onProgress(percent);
+            }
+        };
+
+        xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                resolve(xhr.status);
+            } else {
+                reject(new Error(`Error: ${xhr.status} ${xhr.statusText}`));
+            }
+        };
+
+        xhr.onerror = () => reject(new Error("Network error"));
+        xhr.send(form);
+    });
+}
+
+export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, getAnonymousMessageMetadataStartAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI };

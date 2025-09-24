@@ -2,7 +2,7 @@ import * as opaque from "@serenity-kit/opaque";
 import sodium from "libsodium-wrappers-sumo";
 import { Base64 } from 'js-base64';
 
-import { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI } from "./api";
+import { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, getAnonymousMessageMetadataStartAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI } from "./api";
 import { ConstructionOutlined } from "@mui/icons-material";
 
 async function initLibsodium() {
@@ -297,4 +297,139 @@ async function sendMessage(receiver: string, fileName: string, file: File, lifet
     };
 }
 
-export { register, login, logout, sendMessage, getMessages, getOneMessage };
+///
+/// Anonymous functions
+///
+
+async function getOneAnonymousMessageMetadata(password: string, message_id: string) {
+
+    const { clientLoginState, startLoginRequest } = opaque.client.startLogin({
+        password,
+    });
+
+    const responseOpaque = await getAnonymousMessageMetadataStartAPI(message_id, startLoginRequest);
+
+    const loginResponse = responseOpaque.result;
+
+    const loginResult = opaque.client.finishLogin({
+        clientLoginState,
+        loginResponse,
+        password,
+    });
+
+    if (!loginResult) {
+        throw new Error("Login failed. Please check your credentials.");
+    }
+
+    const { exportKey, serverStaticPublicKey, finishLoginRequest, sessionKey } = loginResult;
+
+    const result2 = await getAnonymousMessageMetadataAPI(message_id, finishLoginRequest);
+
+    let { id, filename, nonce_filename, message_id_received, nonce_message, creation_time, lifetime, max_downloads, number_downloads } = result2.message;
+
+    await initLibsodium();
+
+    // Get the Encoded fileds of the message
+    filename = Base64.toUint8Array(filename);
+    nonce_filename = Base64.toUint8Array(nonce_filename);
+    nonce_message = Base64.toUint8Array(nonce_message);
+
+    // Decrypt the filename to display it in the inbox
+    const filenameBytes = sodium.crypto_secretbox_open_easy(filename, nonce_filename, Base64.toUint8Array(exportKey).slice(0, 32));
+    filename = new TextDecoder().decode(filenameBytes);
+
+    // Calculate MAC
+    const sessionKeyDecoded = Base64.toUint8Array(sessionKey).slice(0, 32); // Take only first 32 bytes
+    const mac = sodium.crypto_auth(message_id, sessionKeyDecoded)
+
+    // Save keys in session storage with message id
+    sessionStorage.setItem(`exportKey_${message_id}`, exportKey);
+    sessionStorage.setItem(`sessionKey_${message_id}`, sessionKey);
+    sessionStorage.setItem(`mac_${message_id}`, Base64.fromUint8Array(mac));
+
+    return {
+        success: true,
+        message: "Message metadata retrieved successfully!",
+        messageData: {
+            id, filename, nonce_filename, message_id, nonce_message, creation_time, lifetime, max_downloads, number_downloads
+        }
+    };
+}
+
+async function getOneAnonymousMessage(message: any, onProgress?: (percent: number) => void) {
+
+    await initLibsodium();
+
+    const message_id = message.id;
+
+    const exportKey = sessionStorage.getItem(`exportKey_${message_id}`);
+    const sessionKey = sessionStorage.getItem(`sessionKey_${message_id}`);
+    const mac = getItemFromSessionStorage(`mac_${message_id}`);
+
+    if (!exportKey || !sessionKey || !mac) {
+        throw new Error("Missing keys in session storage. Please retrieve the message metadata first.");
+    }
+
+    // Get the message content
+    const blobFile = await getAnonymousMessageAPI(Base64.fromUint8Array(mac, true), message_id, onProgress);
+    const arrayBuffer = await blobFile.arrayBuffer();
+    message.message = new Uint8Array(arrayBuffer);
+
+    // Decrypt the file
+    const fileBytes = sodium.crypto_secretbox_open_easy(message.message, message.nonce_message, Base64.toUint8Array(exportKey).slice(0, 32));
+
+    message.message = fileBytes;
+
+    return message;
+}
+
+async function sendMessageAnonymous(password: string, fileName: string, file: File, lifetimeDays: number, maxDownloads: number, onProgress?: (percent: number) => void) {
+
+    await initLibsodium();
+
+    // Create key from OPAQUE
+    const { clientRegistrationState, registrationRequest } = opaque.client.startRegistration({ password });
+
+    const response = await sendAnonymousMessageStartAPI(registrationRequest);
+
+    const registrationResponse = response.result;
+    const id = response.id;
+
+    const { exportKey, serverStaticPublicKey, registrationRecord } = opaque.client.finishRegistration({
+        clientRegistrationState,
+        registrationResponse,
+        password,
+    });
+
+    // Decode it from base64Url
+    const exportKeyDecoded = Base64.toUint8Array(exportKey).slice(0, 32); // Take only first 32 bytes
+
+    // Encrypt the filename
+    const nonce_filename = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
+    const cfilename = sodium.crypto_secretbox_easy(new TextEncoder().encode(fileName), nonce_filename, exportKeyDecoded);
+
+    const cfilename_b64 = Base64.fromUint8Array(cfilename, true);
+    const nonce_filename_b64 = Base64.fromUint8Array(nonce_filename, true);
+
+    // Encrypt the file
+    const fileBuffer = await file.arrayBuffer();
+    const fileBytes = new Uint8Array(fileBuffer);
+
+    const nonce_file = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
+    const cfile = sodium.crypto_secretbox_easy(fileBytes, nonce_file, exportKeyDecoded);
+
+    const nonce_file_b64 = Base64.fromUint8Array(nonce_file, true);
+
+    // Get the current timestamp
+    const timestamp = new Date().toISOString();
+
+    // Send the message
+    const response2 = await sendAnonymousMessageAPI(id, registrationRecord, cfilename_b64, nonce_filename_b64, cfile, nonce_file_b64, maxDownloads, lifetimeDays, timestamp, onProgress);
+
+    return {
+        success: true,
+        message: "Message sent successfully!",
+    };
+}
+
+export { register, login, logout, sendMessage, getMessages, getOneMessage, getOneAnonymousMessageMetadata, getOneAnonymousMessage, sendMessageAnonymous };

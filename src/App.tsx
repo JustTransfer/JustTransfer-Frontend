@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 
 import { ProtectedRoute } from './components/ProtectedRoute';
 import HomePage from './pages/home';
+import AnonymousTransfer from './pages/anonymoustransfer';
 import CreateAccountPage from './pages/createaccount';
 import LoginPage from './pages/login';
 
@@ -19,6 +20,10 @@ function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<CreateAccountPage />} />
+
+      <Route path="/register" element={<CreateAccountPage />} />
+
+      <Route path="/anonymous-transfer/:id" element={<AnonymousTransfer />} />
 
       <Route path="/account" element={
         <ProtectedRoute>
