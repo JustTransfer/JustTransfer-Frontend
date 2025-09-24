@@ -1,8 +1,16 @@
 import { useParams } from 'react-router-dom';
 import React, { useState, useRef } from "react";
 import { Box, Typography, TextField, Paper, Button, Snackbar, Alert } from "@mui/material";
+import Stack from '@mui/material/Stack';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
 import { type SnackbarCloseReason } from '@mui/material/Snackbar';
 import DownloadIcon from '@mui/icons-material/Download';
+import LinearProgress, { LinearProgressProps } from '@mui/material/LinearProgress';
 
 import Layout from "../components/layout";
 import { getOneAnonymousMessageMetadata, getOneAnonymousMessage } from "../handlers/crypto";
@@ -18,8 +26,24 @@ export default function AnonymousTransfer() {
     const [success, setSuccess] = useState("");
     const [openSuccess, setOpenSuccess] = useState(false);
 
-    const [isGetting, setIsGetting] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
     const [downloadProgress, setDownloadProgress] = useState(0);
+
+    function LinearProgressWithLabel(props: LinearProgressProps & { value: number }) {
+        return (
+            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                <Box sx={{ width: '100%', mr: 1 }}>
+                    <LinearProgress variant="determinate" {...props} />
+                </Box>
+                <Box sx={{ minWidth: 35 }}>
+                    <Typography
+                        variant="body2"
+                        sx={{ color: 'text.secondary' }}
+                    >{`${Math.round(props.value)}%`}</Typography>
+                </Box>
+            </Box>
+        );
+    }
 
     const handleClose = (event?: React.SyntheticEvent | Event, reason?: SnackbarCloseReason,) => {
         if (reason === 'clickaway') {
@@ -40,7 +64,7 @@ export default function AnonymousTransfer() {
         };
 
         try {
-            setIsGetting(false);
+            setIsDownloading(false);
             setDownloadProgress(0);
             const result = await getOneAnonymousMessageMetadata(data.passphrase as string, id!);
 
@@ -52,7 +76,7 @@ export default function AnonymousTransfer() {
         } catch (e) {
             setError((e as Error).message);
             setOpenError(true);
-            setIsGetting(false);
+            setIsDownloading(false);
             return;
         }
     }
@@ -66,9 +90,11 @@ export default function AnonymousTransfer() {
 
         let messageWithContent
         try {
+            setIsDownloading(true);
             messageWithContent = await getOneAnonymousMessage(messageData, (percent: number) => {
-                setDownloadProgress(prev => percent);
+                setDownloadProgress(percent);
             });
+
         } catch (e) {
             setError("Failed to download file. Please try again later.");
             setOpenError(true);
@@ -79,6 +105,9 @@ export default function AnonymousTransfer() {
         // Create a blob and trigger download
         setSuccess("File downloaded successfully.");
         setOpenSuccess(true);
+
+        // Increment download count
+        setMessageData((prev: any) => ({ ...prev, number_downloads: prev.number_downloads + 1 }));
 
         const byteArray = new Uint8Array(messageWithContent.message);
         const blob = new Blob([byteArray], { type: "application/octet-stream" });
@@ -91,6 +120,11 @@ export default function AnonymousTransfer() {
         a.click();
 
         URL.revokeObjectURL(url); // cleanup
+
+        // Reset progress indicator
+        setIsDownloading(false);
+        setDownloadProgress(0);
+        return;
     }
 
     return (
@@ -112,28 +146,60 @@ export default function AnonymousTransfer() {
                 <Paper elevation={4} sx={{ p: 6, borderRadius: 3, width: 500, textAlign: "center" }}>
                     <Box component="form" sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }} onSubmit={handleSubmit}>
 
-                        <TextField label="Passphrase" name="passphrase" type="text" variant="outlined" fullWidth required />
-
                         {messageData ? (
-                            <Box sx={{ mt: 2, textAlign: "left" }}>
-                                <Typography variant="h6">Message Details:</Typography>
-                                <Typography>Filename: {messageData.filename}</Typography>
-                                <Typography>Creation Time: {new Date(messageData.creation_time * 1000).toLocaleString()}</Typography>
-                                <Typography>Lifetime: {messageData.lifetime} seconds</Typography>
-                                <Typography>Max Downloads: {messageData.max_downloads}</Typography>
-                                <Typography>Number of Downloads: {messageData.number_downloads}</Typography>
-                                <DownloadIcon
-                                    sx={{ color: "primary.main", "&:hover": { cursor: "pointer" } }}
-                                    onClick={() => downloadFile()}
-                                />
+                            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+                                <Typography variant="h5">Message details</Typography>
+                                <Table size="small">
+                                    <TableBody>
+                                        <TableRow>
+                                            <TableCell><b>Filename</b></TableCell>
+                                            <TableCell>{messageData.filename}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell><b>Creation Time</b></TableCell>
+                                            <TableCell>{new Date(messageData.creation_time).toLocaleString()}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell><b>Expiration Time</b></TableCell>
+                                            <TableCell>{new Date(
+                                                new Date(messageData.creation_time).getTime() + messageData.lifetime * 24 * 60 * 60 * 1000
+                                            ).toLocaleString()}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell><b>Size (bytes)</b></TableCell>
+                                            <TableCell>{messageData.size}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell><b>Downloads</b></TableCell>
+                                            <TableCell>{messageData.number_downloads}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell><b>Max Downloads</b></TableCell>
+                                            <TableCell>{messageData.max_downloads === 0 ? "Unlimited" : messageData.max_downloads}</TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
+                                {isDownloading ? (
+                                    <LinearProgressWithLabel value={downloadProgress} />
+                                ) :
+                                    <Button
+                                        variant="contained"
+                                        startIcon={<DownloadIcon />}
+                                        onClick={downloadFile}
+                                    >
+                                        Download
+                                    </Button>}
                             </Box>
                         ) :
-                            <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>
-                                Submit
-                            </Button>
+                            <Box>
+                                <TextField label="Passphrase" name="passphrase" type="password" variant="outlined" fullWidth required />
+                                <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>
+                                    Submit
+                                </Button>
+                            </Box>
                         }
                     </Box>
-                </Paper>
+                </ Paper>
 
                 <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openSuccess} autoHideDuration={2000} onClose={handleClose}>
                     <Alert

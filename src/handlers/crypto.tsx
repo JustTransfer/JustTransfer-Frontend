@@ -1,9 +1,11 @@
 import * as opaque from "@serenity-kit/opaque";
 import sodium from "libsodium-wrappers-sumo";
 import { Base64 } from 'js-base64';
+import { ConstructionOutlined } from "@mui/icons-material";
+
+import { frontendUrl } from "./config";
 
 import { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, getAnonymousMessageMetadataStartAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI } from "./api";
-import { ConstructionOutlined } from "@mui/icons-material";
 
 async function initLibsodium() {
     await sodium.ready;
@@ -323,6 +325,15 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
 
     const { exportKey, serverStaticPublicKey, finishLoginRequest, sessionKey } = loginResult;
 
+    // Calculate MAC
+    const sessionKeyDecoded = Base64.toUint8Array(sessionKey).slice(0, 32); // Take only first 32 bytes
+    const mac = sodium.crypto_auth(message_id, sessionKeyDecoded)
+
+    // Save keys in session storage with message id
+    sessionStorage.setItem(`exportKey_${message_id}`, exportKey);
+    sessionStorage.setItem(`sessionKey_${message_id}`, sessionKey);
+    sessionStorage.setItem(`mac_${message_id}`, Base64.fromUint8Array(mac));
+
     const result2 = await getAnonymousMessageMetadataAPI(message_id, finishLoginRequest);
 
     let { id, filename, nonce_filename, message_id_received, nonce_message, creation_time, lifetime, max_downloads, number_downloads } = result2.message;
@@ -337,15 +348,6 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
     // Decrypt the filename to display it in the inbox
     const filenameBytes = sodium.crypto_secretbox_open_easy(filename, nonce_filename, Base64.toUint8Array(exportKey).slice(0, 32));
     filename = new TextDecoder().decode(filenameBytes);
-
-    // Calculate MAC
-    const sessionKeyDecoded = Base64.toUint8Array(sessionKey).slice(0, 32); // Take only first 32 bytes
-    const mac = sodium.crypto_auth(message_id, sessionKeyDecoded)
-
-    // Save keys in session storage with message id
-    sessionStorage.setItem(`exportKey_${message_id}`, exportKey);
-    sessionStorage.setItem(`sessionKey_${message_id}`, sessionKey);
-    sessionStorage.setItem(`mac_${message_id}`, Base64.fromUint8Array(mac));
 
     return {
         success: true,
@@ -429,6 +431,7 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
     return {
         success: true,
         message: "Message sent successfully!",
+        link: `${frontendUrl}/anonymous-transfer/${id}`
     };
 }
 

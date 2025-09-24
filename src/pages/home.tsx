@@ -3,13 +3,20 @@ import { Box, Typography, TextField, Paper, Button, Snackbar, Alert } from "@mui
 import { type SnackbarCloseReason } from '@mui/material/Snackbar';
 import { type SelectChangeEvent } from '@mui/material/Select';
 import AddBoxIcon from '@mui/icons-material/AddBox';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import LinearProgress, { LinearProgressProps } from '@mui/material/LinearProgress';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 import Layout from "../components/layout";
 import { sendMessageAnonymous } from "../handlers/crypto";
 
 export default function HomePage() {
 
+  const [errorPassphrase, setErrorPassphrase] = useState("");
   const [error, setError] = useState("");
   const [openError, setOpenError] = useState(false);
 
@@ -19,8 +26,23 @@ export default function HomePage() {
   const [isSending, setIsSending] = useState(false);
   const [progress, setProgress] = useState(0);
 
+  const [openDialog, setOpenDialog] = useState(false);
+  const [link, setLink] = useState("");
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setLink("");
+    setSelectedFile(null);
+    setProgress(0);
+    setIsSending(false);
+
+    // Reset the form fields
+    formRef.current?.reset();
+  }
 
   function LinearProgressWithLabel(props: LinearProgressProps & { value: number }) {
     return (
@@ -82,17 +104,29 @@ export default function HomePage() {
 
     const data = {
       passphrase: formData.get("passphrase"),
+      confirmPassphrase: formData.get("confirmPassphrase"),
       maxDownloads: formData.get("maxDownloads"),
       lifetime: formData.get("lifetime"),
       file: formData.get("file"),
     };
 
+    if (data.passphrase !== data.confirmPassphrase) {
+      setErrorPassphrase("Passphrases do not match");
+      setError("Passphrases do not match");
+      setOpenError(true);
+      return;
+    }
+
+    setErrorPassphrase("");
+
     try {
       setIsSending(true);
       setProgress(0);
-      await sendMessageAnonymous(data.passphrase as string, selectedFile!.name, selectedFile!, Number(data.lifetime), Number(data.maxDownloads), (percent: number) => {
+      const result = await sendMessageAnonymous(data.passphrase as string, selectedFile!.name, selectedFile!, Number(data.lifetime), Number(data.maxDownloads), (percent: number) => {
         setProgress(percent);
       });
+
+      setLink(result.link);
 
       setSuccess("File sent successfully!");
       setOpenSuccess(true);
@@ -100,7 +134,8 @@ export default function HomePage() {
       setTimeout(() => {
         setIsSending(false);
         setProgress(0);
-      }, 500);
+        setOpenDialog(true);
+      }, 100);
 
     } catch (e) {
       setError("An error occurred while sending the file.");
@@ -128,7 +163,7 @@ export default function HomePage() {
         </Typography>
 
         <Paper elevation={4} sx={{ p: 6, borderRadius: 3, width: 500, textAlign: "center" }}>
-          <Box component="form" sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }} onSubmit={handleSubmit}>
+          <Box component="form" sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }} onSubmit={handleSubmit} ref={formRef}>
 
             <AddBoxIcon sx={{ color: "primary.main", transform: "scale(4)", "&:hover": { cursor: "pointer", transform: "scale(4.1)" }, marginBottom: 4 }} onClick={handleIconClick} />
 
@@ -146,7 +181,11 @@ export default function HomePage() {
               </Typography>
             )}
 
-            <TextField label="Passphrase" name="passphrase" type="text" variant="outlined" fullWidth required />
+            <TextField label="Passphrase" name="passphrase" type="password" variant="outlined" fullWidth required />
+            <TextField label="Confirm Passphrase" name="confirmPassphrase" type="password" variant="outlined" fullWidth required
+              error={!!errorPassphrase}
+              helperText={errorPassphrase}
+            />
 
             <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 2, width: "100%" }}>
               <TextField label="Max Downloads" name="maxDownloads" type="number" InputProps={{ inputProps: { min: 0, max: 100 } }} variant="outlined" fullWidth required />
@@ -162,6 +201,36 @@ export default function HomePage() {
             )}
           </Box>
         </Paper>
+
+        <Dialog
+          open={openDialog}
+          onClose={handleCloseDialog}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Your link transfer is ready!"}
+          </DialogTitle>
+          <DialogContent sx={{ minWidth: 600, display: 'flex', alignItems: 'center', gap: 2 }}>
+            <TextField id="outlined-basic" label="Link" variant="outlined" value={link} fullWidth margin="dense" />
+            <ContentCopyIcon sx={{ color: "primary.main", "&:hover": { cursor: "pointer" } }} onClick={() => {
+              navigator.clipboard.writeText(link);
+              setSuccess("Link copied to clipboard!");
+              setOpenSuccess(true);
+            }} />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => {
+              navigator.clipboard.writeText(link);
+              window.open(link, '_blank', 'noopener,noreferrer');
+            }}>
+              Open link
+            </Button>
+            <Button onClick={handleCloseDialog} autoFocus>
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openSuccess} autoHideDuration={2000} onClose={handleClose}>
           <Alert

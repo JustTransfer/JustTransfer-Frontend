@@ -1,6 +1,6 @@
 import * as opaque from "@serenity-kit/opaque";
 
-const apiUrl = "http://localhost:3333";
+import { apiUrl } from "./config";
 
 async function registerStartAPI(username: string, client_registration_start: string) {
 
