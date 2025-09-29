@@ -20,5 +20,5 @@ npm run start
 - Make anonymous transfer page (create transfer and receive transfer)
 - Use TLD for the signatures (not just concatenate)
 - Validate public key retrieved from the server (Authenticated Data in AEAD)
--OPAQUE
+- OPAQUE
   - Check server public key (maybe not needed if authenticity of the server is checked with TLS)
