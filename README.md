@@ -22,3 +22,6 @@ npm run start
 - Validate public key retrieved from the server (Authenticated Data in AEAD)
 - OPAQUE
   - Check server public key (maybe not needed if authenticity of the server is checked with TLS)
+- Add a anti-virus scanner at the end of the download ?
+  - To prenvent malicous files
+  - To prevent illegal files sharing
