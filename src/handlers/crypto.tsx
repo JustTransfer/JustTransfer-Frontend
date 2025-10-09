@@ -1,11 +1,12 @@
 import * as opaque from "@serenity-kit/opaque";
-import sodium from "libsodium-wrappers-sumo";
+import sodium, { sodium_version_string } from "libsodium-wrappers-sumo";
 import { Base64 } from 'js-base64';
 import { ConstructionOutlined } from "@mui/icons-material";
 
-import { frontendUrl } from "./config";
+import { frontendUrl, chunkSize } from "./config";
 
-import { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, getAnonymousMessageMetadataStartAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI } from "./api";
+import { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, getAnonymousMessageMetadataStartAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, sendAnonymousChunkAPI } from "./api";
+import { convertCompilerOptionsFromJson } from "typescript";
 
 async function initLibsodium() {
     await sodium.ready;
@@ -336,14 +337,14 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
 
     const result2 = await getAnonymousMessageMetadataAPI(message_id, finishLoginRequest);
 
-    let { id, filename, nonce_filename, message_id_received, nonce_message, creation_time, lifetime, max_downloads, number_downloads } = result2.message;
+    let { id, filename, nonce_filename, message_id_received, header, creation_time, lifetime, max_downloads, number_downloads } = result2.message;
 
     await initLibsodium();
 
     // Get the Encoded fileds of the message
     filename = Base64.toUint8Array(filename);
     nonce_filename = Base64.toUint8Array(nonce_filename);
-    nonce_message = Base64.toUint8Array(nonce_message);
+    header = Base64.toUint8Array(header);
 
     // Decrypt the filename to display it in the inbox
     const filenameBytes = sodium.crypto_secretbox_open_easy(filename, nonce_filename, Base64.toUint8Array(exportKey).slice(0, 32));
@@ -353,12 +354,12 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
         success: true,
         message: "Message metadata retrieved successfully!",
         messageData: {
-            id, filename, nonce_filename, message_id, nonce_message, creation_time, lifetime, max_downloads, number_downloads
+            id, filename, nonce_filename, message_id, header, creation_time, lifetime, max_downloads, number_downloads
         }
     };
 }
 
-async function getOneAnonymousMessage(message: any, onProgress?: (percent: number) => void) {
+async function getOneAnonymousMessage(message: any, onChunk: (chunk: Uint8Array, filename: string) => Promise<void>, onProgress?: (percent: number) => void) {
 
     await initLibsodium();
 
@@ -373,14 +374,21 @@ async function getOneAnonymousMessage(message: any, onProgress?: (percent: numbe
     }
 
     // Get the message content
-    const blobFile = await getAnonymousMessageAPI(Base64.fromUint8Array(mac, true), message_id, onProgress);
-    const arrayBuffer = await blobFile.arrayBuffer();
-    message.message = new Uint8Array(arrayBuffer);
+    const state = sodium.crypto_secretstream_xchacha20poly1305_init_pull(message.header, Base64.toUint8Array(exportKey).slice(0, 32));
 
-    // Decrypt the file
-    const fileBytes = sodium.crypto_secretbox_open_easy(message.message, message.nonce_message, Base64.toUint8Array(exportKey).slice(0, 32));
+    const decryptChunk = (chunk: Uint8Array) => {
+        const { message: decryptedChunk, tag } = sodium.crypto_secretstream_xchacha20poly1305_pull(state, chunk, null, null);
+        return { decryptedChunk, tag };
+    };
 
-    message.message = fileBytes;
+
+    await getAnonymousMessageAPI(async (chunk) => {
+        const { decryptedChunk, tag } = decryptChunk(chunk);
+        if (decryptedChunk) {
+            await onChunk(decryptedChunk, message.filename); // send chunk progressively
+        }
+        return tag;
+    }, Base64.fromUint8Array(mac, true), message_id, onProgress);
 
     return message;
 }
@@ -413,20 +421,33 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
     const cfilename_b64 = Base64.fromUint8Array(cfilename, true);
     const nonce_filename_b64 = Base64.fromUint8Array(nonce_filename, true);
 
-    // Encrypt the file
-    const fileBuffer = await file.arrayBuffer();
-    const fileBytes = new Uint8Array(fileBuffer);
-
-    const nonce_file = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
-    const cfile = sodium.crypto_secretbox_easy(fileBytes, nonce_file, exportKeyDecoded);
-
-    const nonce_file_b64 = Base64.fromUint8Array(nonce_file, true);
-
     // Get the current timestamp
     const timestamp = new Date().toISOString();
 
-    // Send the message
-    const response2 = await sendAnonymousMessageAPI(id, registrationRecord, cfilename_b64, nonce_filename_b64, cfile, nonce_file_b64, maxDownloads, lifetimeDays, timestamp, onProgress);
+    // Encrypt the file in chunks
+    const { state, header } = sodium.crypto_secretstream_xchacha20poly1305_init_push(exportKeyDecoded);
+    const header_b64 = Base64.fromUint8Array(header, true);
+    const totalLength = file.size;
+
+    // Send the initial request to get an upload ID
+    const response2 = await sendAnonymousMessageAPI(id, registrationRecord, cfilename_b64, nonce_filename_b64, header_b64, maxDownloads, lifetimeDays, timestamp);
+    const upload_id = response2.upload_id;
+
+    for (let offset = 0; offset < file.size; offset += chunkSize) {
+        const slice = file.slice(offset, offset + chunkSize);
+        const buf = new Uint8Array(await slice.arrayBuffer());
+        const isFinal = offset + chunkSize >= file.size;
+
+        const tag = isFinal
+            ? sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
+            : 0;
+        const encryptedChunk = sodium.crypto_secretstream_xchacha20poly1305_push(state, buf, null, tag);
+
+        // Upload the chunk
+        const response2 = await sendAnonymousChunkAPI(upload_id, encryptedChunk, String(offset / chunkSize), String(Math.ceil(totalLength / chunkSize)));
+
+        onProgress?.((offset + chunkSize) / totalLength * 100);
+    }
 
     return {
         success: true,

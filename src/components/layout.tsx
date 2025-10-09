@@ -26,6 +26,7 @@ import Container from "@mui/material/Container";
 import Link from '@mui/material/Link';
 
 import { logout } from '../handlers/crypto';
+import { frontendUrl } from '../handlers/config';
 
 const drawerWidth = 240;
 
@@ -38,7 +39,7 @@ function Copyright(props: any) {
             {...props}
         >
             {"Copyright © "}
-            <Link color="inherit" href="https://GoGoTransfer.com/">
+            <Link color="inherit" href={frontendUrl}>
                 GoGoTransfer
             </Link>{" "}
             {new Date().getFullYear()}
