@@ -25,3 +25,4 @@ npm run start
 - Add a anti-virus scanner at the end of the download ?
   - To prenvent malicous files
   - To prevent illegal files sharing
+  - Make it with a report button? -> send the file for analysis and delete it?
