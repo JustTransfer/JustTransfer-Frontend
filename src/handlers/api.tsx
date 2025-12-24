@@ -193,73 +193,38 @@ async function getOneMessageAPI(username: string, mac: string, message_id: strin
         throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
 
-    // return response.blob();
-
-    // If no progress tracking requested, just return the blob as before
-    if (!onProgress || !response.body) {
-        return response.blob();
-    }
-
-    // --- Stream the response ---
-    const contentLength = Number(response.headers.get("Content-Length") || 0);
-    const reader = response.body.getReader();
-    let received = 0;
-    const chunks: Uint8Array[] = [];
-
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        if (value) {
-            chunks.push(value); // value is Uint8Array
-            received += value.length;
-            if (contentLength) onProgress?.((received / contentLength) * 100);
-        }
-    }
-
-    return new Blob(chunks as BlobPart[], { type: "application/octet-stream" });
+    return (await response.json());
 }
 
-async function sendMessageAPI(mac: string, sender: string, receiver: string, filename: string, nonce_filename: string, message: Uint8Array, nonce_message: string, max_downloads: number, lifetime: number, creation_time: any, signature: string, onProgress?: (percent: number) => void) {
+async function sendMessageAPI(mac: string, sender: string, receiver: string, filename: string, nonce_filename: string, nonce_message: string, max_downloads: number, lifetime: number, creation_time: any, signature: string, onProgress?: (percent: number) => void) {
 
-    return new Promise((resolve, reject) => {
-        const form = new FormData();
-        form.append("mac", mac);
-        form.append("sender", sender);
-        form.append("receiver", receiver);
-        form.append("filename", filename);
-        form.append("nonce_filename", nonce_filename);
-        form.append("nonce_message", nonce_message);
-        form.append("max_downloads", String(max_downloads));
-        form.append("lifetime", String(lifetime));
-        form.append("creation_time", creation_time);
-        form.append("signature", signature);
 
-        const blob = new Blob([new Uint8Array(message)], { type: "application/octet-stream" });
-        form.append("message", blob, "encrypted.bin");
-
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", `${apiUrl}/message`);
-
-        // Listen to progress events
-        xhr.upload.onprogress = (event) => {
-            if (event.lengthComputable && onProgress) {
-                const percent = (event.loaded / event.total) * 100;
-                onProgress(percent);
-            }
-        };
-
-        xhr.onload = () => {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                resolve(xhr.status);
-            } else {
-                reject(new Error(`Error: ${xhr.status} ${xhr.statusText}`));
-            }
-        };
-
-        xhr.onerror = () => reject(new Error("Network error"));
-        xhr.send(form);
+    const response = await fetch(`${apiUrl}/message`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            mac,
+            sender,
+            receiver,
+            filename,
+            nonce_filename,
+            nonce_message,
+            max_downloads,
+            lifetime,
+            creation_time,
+            signature,
+        }),
     });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    return (await response.json());
 }
+
 
 async function getAnonymousMessageMetadataStartAPI(id: string, client_registration_start: string) {
     const response = await fetch(`${apiUrl}/anonymous/message/${id}/start`, {
@@ -442,4 +407,57 @@ async function sendAnonymousChunkAPI(id: string, encryptedChunk: Uint8Array, ind
     return response.status;
 }
 
-export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, getAnonymousMessageMetadataStartAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, sendAnonymousChunkAPI };
+//
+// Upload and Download to/from S3
+//
+
+async function uploadFileToS3(url: string, cfile: Uint8Array, onProgress?: (percent: number) => void) {
+    // Convert Uint8Array to Blob
+    const blob = new Blob([new Uint8Array(cfile)]);
+
+    const response = await fetch(url, {
+        method: "PUT",
+        body: blob, // send the encrypted file
+    });
+
+    if (!response.ok) {
+        throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+    }
+
+    // Set the progress to 100% after successful upload
+    onProgress?.(100);
+
+    return response.status;
+}
+
+async function downloadFileFromS3(url: string, onProgress?: (percent: number) => void) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`Download failed: ${response.status} ${response.statusText}`);
+    }
+
+    // If no progress tracking requested, just return the blob as before
+    if (!onProgress || !response.body) {
+        return response.blob();
+    }
+
+    // --- Stream the response ---
+    const contentLength = Number(response.headers.get("Content-Length") || 0);
+    const reader = response.body.getReader();
+    let received = 0;
+    const chunks: Uint8Array[] = [];
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (value) {
+            chunks.push(value); // value is Uint8Array
+            received += value.length;
+            if (contentLength) onProgress?.((received / contentLength) * 100);
+        }
+    }
+
+    return new Blob(chunks as BlobPart[], { type: "application/octet-stream" });
+}
+
+export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, getAnonymousMessageMetadataStartAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, sendAnonymousChunkAPI, uploadFileToS3,  downloadFileFromS3};

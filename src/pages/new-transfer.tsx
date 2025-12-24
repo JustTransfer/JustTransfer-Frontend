@@ -48,7 +48,7 @@ export default function NewTransfer() {
     };
 
     function handleIconClick() {
-        fileInputRef.current?.click(); // ouvre le sélecteur de fichiers
+        fileInputRef.current?.click(); // Open the file selector
     }
 
     function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {

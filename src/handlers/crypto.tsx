@@ -5,7 +5,7 @@ import { ConstructionOutlined } from "@mui/icons-material";
 
 import { frontendUrl, chunkSize } from "./config";
 
-import { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, getAnonymousMessageMetadataStartAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, sendAnonymousChunkAPI } from "./api";
+import { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, getAnonymousMessageMetadataStartAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, sendAnonymousChunkAPI, uploadFileToS3, downloadFileFromS3 } from "./api";
 import { convertCompilerOptionsFromJson } from "typescript";
 
 async function initLibsodium() {
@@ -209,8 +209,13 @@ async function getOneMessage(message: any, onProgress?: (percent: number) => voi
     const PrivateKeyEncDecoded = getItemFromSessionStorage("PrivateKeyEnc");
     const mac = getItemFromSessionStorage("mac");
 
-    // Get the message content
-    const blobFile = await getOneMessageAPI(username!, Base64.fromUint8Array(mac, true), message.message_id, onProgress);
+    // Get the message download URL
+    const response = await getOneMessageAPI(username!, Base64.fromUint8Array(mac, true), message.message_id, onProgress);
+    const downloadUrl = response.download_url;
+
+    // Download the encrypted file from S3
+    const blobFile = await downloadFileFromS3(downloadUrl, onProgress);
+
     const arrayBuffer = await blobFile.arrayBuffer();
     message.message = new Uint8Array(arrayBuffer);
 
@@ -292,7 +297,10 @@ async function sendMessage(receiver: string, fileName: string, file: File, lifet
     const signature = sodium.crypto_sign_detached(new TextEncoder().encode(payload), PrivateKeySignDecoded);
 
     // Send the message
-    const response = await sendMessageAPI(Base64.fromUint8Array(mac, true), username!, receiver, cfilename_b64, nonce_filename_b64, cfile, nonce_file_b64, maxDownloads, lifetimeDays, timestamp, Base64.fromUint8Array(signature, true), onProgress);
+    const response = await sendMessageAPI(Base64.fromUint8Array(mac, true), username!, receiver, cfilename_b64, nonce_filename_b64, nonce_file_b64, maxDownloads, lifetimeDays, timestamp, Base64.fromUint8Array(signature, true), onProgress);
+
+    // Send the file to S3
+    await uploadFileToS3(response.upload_url, cfile, onProgress);
 
     return {
         success: true,
