@@ -263,81 +263,20 @@ async function getAnonymousMessageMetadataAPI(message_id: string, client_login_f
     return (await response.json());
 }
 
-async function getAnonymousMessageAPI(decrypt: (chunk: Uint8Array) => Promise<number>, mac: string, message_id: string, onProgress?: (percent: number) => void) {
+async function getAnonymousMessageAPI(id: string) {
 
-    const response = await fetch(`${apiUrl}/anonymous/message/${message_id}/content`, {
-        method: "POST",
+    const response = await fetch(`${apiUrl}/anonymous/message/${id}`, {
+        method: "GET",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-            mac,
-        }),
     });
 
     if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
 
-    // return response.blob();
-
-    // If no progress tracking requested, just return the blob as before
-    if (!onProgress || !response.body) {
-        return response.blob();
-    }
-
-    // --- Stream the response ---
-    const contentLength = Number(response.headers.get("Content-Length") || 0);
-    const reader = response.body.getReader();
-    let received = 0;
-
-    let chunk = new Uint8Array(0);
-
-    const chunkSizeWithTag = chunkSize + sodium.crypto_secretstream_xchacha20poly1305_ABYTES;
-
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        if (value) {
-            // Append new data to the existing chunk without using spread (avoids downlevelIteration requirement)
-            if (chunk.length === 0) {
-                chunk = value;
-            } else {
-                const concatenated = new Uint8Array(chunk.length + value.length);
-                concatenated.set(chunk, 0);
-                concatenated.set(value, chunk.length);
-                chunk = concatenated;
-            }
-
-            if (chunk.length < chunkSizeWithTag) {
-                continue; // Wait for more data
-            }
-
-            // Process full chunks
-            let offset = 0;
-            while (offset + chunkSizeWithTag <= chunk.length) {
-                const fullChunk = chunk.slice(offset, offset + chunkSizeWithTag);
-                const ret = await decrypt(fullChunk);
-                if (ret < 0) throw new Error("Decryption of chunk failed");
-
-                received += fullChunk.length;
-                offset += chunkSizeWithTag;
-
-                if (contentLength) onProgress?.((received / contentLength) * 100);
-            }
-
-            // Keep any remaining bytes for the next iteration
-            chunk = chunk.slice(offset);
-        }
-    }
-
-    // Process any remaining bytes as the final chunk
-    if (chunk.length > 0) {
-        const ret = await decrypt(chunk);
-        if (ret < 0) throw new Error("Decryption of final chunk failed");
-    }
-
-    return 0; // Success
+    return (await response.json());
 }
 
 async function sendAnonymousMessageStartAPI(client_registration_start: string) {
@@ -383,28 +322,6 @@ async function sendAnonymousMessageAPI(id: string, client_registration_finish: s
     }
 
     return (await response.json());
-}
-
-async function sendAnonymousChunkAPI(id: string, encryptedChunk: Uint8Array, index: string, maxChunk: string) {
-
-    const chunk = encryptedChunk instanceof Uint8Array ? encryptedChunk : new Uint8Array(encryptedChunk);
-
-    const response = await fetch(`${apiUrl}/anonymous/message/chunk`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/octet-stream",
-            "X-Upload-ID": id,
-            "X-Chunk-Index": index,
-            "X-Total-Chunks": maxChunk,
-        },
-        body: new Blob([chunk as any]),
-    });
-
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
-
-    return response.status;
 }
 
 //
@@ -460,4 +377,4 @@ async function downloadFileFromS3(url: string, onProgress?: (percent: number) =>
     return new Blob(chunks as BlobPart[], { type: "application/octet-stream" });
 }
 
-export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, getAnonymousMessageMetadataStartAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, sendAnonymousChunkAPI, uploadFileToS3,  downloadFileFromS3};
+export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, getAnonymousMessageMetadataStartAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, uploadFileToS3,  downloadFileFromS3};

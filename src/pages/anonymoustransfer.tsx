@@ -94,56 +94,25 @@ export default function AnonymousTransfer() {
         try {
             setIsDownloading(true);
 
-            console.log("Starting file download...");
+            messageWithContent = await getOneAnonymousMessage(messageData);
 
-            // Check if StreamSaver is supported (has service worker support)
-            const supportsStreaming = typeof streamSaver !== 'undefined' &&
-                'serviceWorker' in navigator &&
-                window.WritableStream;
+            // Create a blob and trigger download
+            const byteArray = new Uint8Array(messageWithContent.message);
+            const blob = new Blob([byteArray], { type: "application/octet-stream" });
 
-            if (supportsStreaming) {
-                // Use StreamSaver for streaming download (memory efficient)
-                console.log("Using StreamSaver for streaming download");
-                const fileStream = streamSaver.createWriteStream(messageData.filename);
-                const writer = fileStream.getWriter();
+            const url = URL.createObjectURL(blob);
 
-                messageWithContent = await getOneAnonymousMessage(messageData, async (chunk, name) => {
-                    // Write chunk directly to the stream
-                    await writer.write(chunk);
-                }, (percent: number) => {
-                    setDownloadProgress(percent);
-                });
+            // Trigger download
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = messageData.filename;
+            a.style.display = "none";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
 
-                // Close the stream
-                await writer.close();
-            } else {
-                // Fallback to traditional blob download (stores in memory)
-                console.log("Using fallback blob download");
-                const chunks: Uint8Array[] = [];
-
-                messageWithContent = await getOneAnonymousMessage(messageData, async (chunk, name) => {
-                    // Collect chunks in memory
-                    chunks.push(new Uint8Array(chunk));
-                }, (percent: number) => {
-                    setDownloadProgress(percent);
-                });
-
-                // Create blob from all chunks
-                const blob = new Blob(chunks as BlobPart[], { type: "application/octet-stream" });
-                const url = URL.createObjectURL(blob);
-
-                // Trigger download
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = messageData.filename;
-                a.style.display = "none";
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-
-                // Cleanup
-                URL.revokeObjectURL(url);
-            }
+            // Cleanup
+            URL.revokeObjectURL(url);
 
             setSuccess("File downloaded successfully.");
             setOpenSuccess(true);
