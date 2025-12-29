@@ -51,9 +51,9 @@ function Copyright(props: any) {
 const defaultTheme = createTheme({
     palette: {
         primary: {
-            light: "#bb17c4",
-            main: "#bb17c4",
-            dark: "#bb17c4",
+            light: "#E906E5",
+            main: "#E906E5",
+            dark: "#E906E5",
             contrastText: "#fff",
         },
     },
@@ -184,7 +184,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
         <ThemeProvider theme={defaultTheme}>
             <Box sx={{ display: 'flex' }}>
                 <CssBaseline />
-                <AppBar position="fixed" open={open}>
+                <AppBar position="fixed" open={open} sx={{ backgroundColor: '#534f4fff' }}>
                     <Toolbar>
                         {isLoggedIn && (
                             <IconButton
@@ -202,20 +202,35 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                 <MenuIcon />
                             </IconButton>
                         )}
-                        <Typography variant="h6" noWrap component="div" onClick={() => {
-                            if (!isLoggedIn) {
-                                window.location.href = '/';
-                            } else {
-                                window.location.href = '/new-transfer';
-                            }
-                        }} sx={{ cursor: 'pointer' }}>
-                            <img
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center'
+                            }}
+                        >
+                            <Box
+                                component="img"
                                 src="/JustTransfer.png"
                                 alt="JustTransfer Logo"
-                                style={{ height: 24 }}
+                                sx={{
+                                    height: 24,
+                                    cursor: 'pointer',
+                                    marginTop: '-4px', // Make the logo align better with the text
+                                }}
+                                onClick={() => {
+                                    window.location.href = isLoggedIn ? '/new-transfer' : '/';
+                                }}
                             />
-                            JustTransfer - {title}
-                        </Typography>
+
+                            <Typography
+                                variant="h5"
+                                component="div"
+                                sx={{ marginLeft: 2, fontWeight: 'bold' }}
+                            >
+                                {title}
+                            </Typography>
+                        </Box>
+
                         {!isLoggedIn ? (
                             <Box sx={{ marginLeft: 'auto' }}>
                                 <Button color="inherit" onClick={() => { window.location.href = '/register'; }}>Create account</Button>
