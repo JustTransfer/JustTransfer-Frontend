@@ -209,6 +209,11 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                 window.location.href = '/new-transfer';
                             }
                         }} sx={{ cursor: 'pointer' }}>
+                            <img
+                                src="/JustTransfer.png"
+                                alt="JustTransfer Logo"
+                                style={{ height: 24 }}
+                            />
                             JustTransfer - {title}
                         </Typography>
                         {!isLoggedIn ? (
