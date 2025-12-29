@@ -40,7 +40,7 @@ function Copyright(props: any) {
         >
             {"Copyright © "}
             <Link color="inherit" href={frontendUrl}>
-                GoGoTransfer
+                JustTransfer
             </Link>{" "}
             {new Date().getFullYear()}
             {"."}
@@ -209,7 +209,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                 window.location.href = '/new-transfer';
                             }
                         }} sx={{ cursor: 'pointer' }}>
-                            GoGoTransfer - {title}
+                            JustTransfer - {title}
                         </Typography>
                         {!isLoggedIn ? (
                             <Box sx={{ marginLeft: 'auto' }}>
