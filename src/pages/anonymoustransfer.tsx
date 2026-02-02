@@ -71,7 +71,6 @@ export default function AnonymousTransfer() {
             const result = await getOneAnonymousMessageMetadata(data.passphrase as string, id!);
 
             setMessageData(result.messageData);
-            console.log("Retrieved message metadata:", result.messageData);
 
             setSuccess("File retrieved successfully!");
             setOpenSuccess(true);
@@ -258,50 +257,4 @@ export default function AnonymousTransfer() {
             </Box>
         } />
     );
-}    /*async function downloadFile() {
-        setDownloadProgress(0);
-        setSuccess("");
-        setOpenSuccess(false);
-        setError("");
-        setOpenError(false);
-
-        let messageWithContent
-        try {
-            setIsDownloading(true);
-
-            messageWithContent = await getOneAnonymousMessage(messageData);
-
-            // Create a blob and trigger download
-            const byteArray = new Uint8Array(messageWithContent.message);
-            const blob = new Blob([byteArray], { type: "application/octet-stream" });
-
-            const url = URL.createObjectURL(blob);
-
-            // Trigger download
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = messageData.filename;
-            a.style.display = "none";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-
-            // Cleanup
-            URL.revokeObjectURL(url);
-
-            setSuccess("File downloaded successfully.");
-            setOpenSuccess(true);
-
-            // Increment download count
-            setMessageData((prev: any) => ({ ...prev, number_downloads: prev.number_downloads + 1 }));
-
-        } catch (e) {
-            console.error("Download error:", e);
-            setError("Failed to download file. Please try again later.");
-            setOpenError(true);
-        } finally {
-            // Reset progress indicator
-            setIsDownloading(false);
-            setDownloadProgress(0);
-        }
-    }*/
+}
