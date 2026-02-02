@@ -71,6 +71,7 @@ export default function AnonymousTransfer() {
             const result = await getOneAnonymousMessageMetadata(data.passphrase as string, id!);
 
             setMessageData(result.messageData);
+            console.log("Retrieved message metadata:", result.messageData);
 
             setSuccess("File retrieved successfully!");
             setOpenSuccess(true);
@@ -94,25 +95,56 @@ export default function AnonymousTransfer() {
         try {
             setIsDownloading(true);
 
-            messageWithContent = await getOneAnonymousMessage(messageData);
+            console.log("Starting file download...");
 
-            // Create a blob and trigger download
-            const byteArray = new Uint8Array(messageWithContent.message);
-            const blob = new Blob([byteArray], { type: "application/octet-stream" });
+            // Check if StreamSaver is supported (has service worker support)
+            const supportsStreaming = typeof streamSaver !== 'undefined' &&
+                'serviceWorker' in navigator &&
+                window.WritableStream;
 
-            const url = URL.createObjectURL(blob);
+            if (supportsStreaming) {
+                // Use StreamSaver for streaming download (memory efficient)
+                console.log("Using StreamSaver for streaming download");
+                const fileStream = streamSaver.createWriteStream(messageData.filename);
+                const writer = fileStream.getWriter();
 
-            // Trigger download
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = messageData.filename;
-            a.style.display = "none";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+                messageWithContent = await getOneAnonymousMessage(messageData, async (chunk, name) => {
+                    // Write chunk directly to the stream
+                    await writer.write(chunk);
+                }, (percent: number) => {
+                    setDownloadProgress(percent);
+                });
 
-            // Cleanup
-            URL.revokeObjectURL(url);
+                // Close the stream
+                await writer.close();
+            } else {
+                // Fallback to traditional blob download (stores in memory)
+                console.log("Using fallback blob download");
+                const chunks: Uint8Array[] = [];
+
+                messageWithContent = await getOneAnonymousMessage(messageData, async (chunk, name) => {
+                    // Collect chunks in memory
+                    chunks.push(new Uint8Array(chunk));
+                }, (percent: number) => {
+                    setDownloadProgress(percent);
+                });
+
+                // Create blob from all chunks
+                const blob = new Blob(chunks as BlobPart[], { type: "application/octet-stream" });
+                const url = URL.createObjectURL(blob);
+
+                // Trigger download
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = messageData.filename;
+                a.style.display = "none";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                // Cleanup
+                URL.revokeObjectURL(url);
+            }
 
             setSuccess("File downloaded successfully.");
             setOpenSuccess(true);
@@ -226,4 +258,50 @@ export default function AnonymousTransfer() {
             </Box>
         } />
     );
-}
+}    /*async function downloadFile() {
+        setDownloadProgress(0);
+        setSuccess("");
+        setOpenSuccess(false);
+        setError("");
+        setOpenError(false);
+
+        let messageWithContent
+        try {
+            setIsDownloading(true);
+
+            messageWithContent = await getOneAnonymousMessage(messageData);
+
+            // Create a blob and trigger download
+            const byteArray = new Uint8Array(messageWithContent.message);
+            const blob = new Blob([byteArray], { type: "application/octet-stream" });
+
+            const url = URL.createObjectURL(blob);
+
+            // Trigger download
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = messageData.filename;
+            a.style.display = "none";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            // Cleanup
+            URL.revokeObjectURL(url);
+
+            setSuccess("File downloaded successfully.");
+            setOpenSuccess(true);
+
+            // Increment download count
+            setMessageData((prev: any) => ({ ...prev, number_downloads: prev.number_downloads + 1 }));
+
+        } catch (e) {
+            console.error("Download error:", e);
+            setError("Failed to download file. Please try again later.");
+            setOpenError(true);
+        } finally {
+            // Reset progress indicator
+            setIsDownloading(false);
+            setDownloadProgress(0);
+        }
+    }*/
