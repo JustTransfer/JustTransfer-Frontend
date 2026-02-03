@@ -16,6 +16,7 @@ import streamSaver from 'streamsaver';
 
 import Layout from "../components/layout";
 import { getOneAnonymousMessageMetadata, getOneAnonymousMessage } from "../handlers/crypto";
+import { formatSize } from "../handlers/utils";
 
 export default function AnonymousTransfer() {
     const { id } = useParams();
@@ -202,7 +203,7 @@ export default function AnonymousTransfer() {
                                         </TableRow>
                                         <TableRow>
                                             <TableCell><b>Size (bytes)</b></TableCell>
-                                            <TableCell>{messageData.size}</TableCell>
+                                            <TableCell>{formatSize(messageData.file_size)}</TableCell>
                                         </TableRow>
                                         <TableRow>
                                             <TableCell><b>Downloads</b></TableCell>

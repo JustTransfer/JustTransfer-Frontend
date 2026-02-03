@@ -194,7 +194,7 @@ async function getOneMessageAPI(username: string, mac: string, message_id: strin
     return (await response.json());
 }
 
-async function sendMessageAPI(mac: string, sender: string, receiver: string, filename: string, nonce_filename: string, nonce_message: string, max_downloads: number, lifetime: number, creation_time: any, signature: string, onProgress?: (percent: number) => void) {
+async function sendMessageAPI(mac: string, sender: string, receiver: string, filename: string, nonce_filename: string, nonce_message: string, max_downloads: number, lifetime: number, creation_time: any, signature: string, file_size: number) {
 
 
     const response = await fetch(`${apiUrl}/message`, {
@@ -213,6 +213,7 @@ async function sendMessageAPI(mac: string, sender: string, receiver: string, fil
             lifetime,
             creation_time,
             signature,
+            file_size,
         }),
     });
 
@@ -348,6 +349,26 @@ async function uploadFileToS3(url: string, cfile: Uint8Array, onProgress?: (perc
 
 async function finishUploadFileToS3(file_id: string, upload_id: string, etags: string[]) {
 
+    const response = await fetch(`${apiUrl}/message/uploadfinish/${file_id}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            upload_id,
+            etags,
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+    }
+
+    return response.status;
+}
+
+async function finishUploadFileToS3Anonymous(file_id: string, upload_id: string, etags: string[]) {
+
     const response = await fetch(`${apiUrl}/anonymous/message/uploadfinish/${file_id}`, {
         method: "POST",
         headers: {
@@ -366,7 +387,7 @@ async function finishUploadFileToS3(file_id: string, upload_id: string, etags: s
     return response.status;
 }
 
-async function downloadFileFromS3(chunkSize: number, decrypt: (chunk: Uint8Array) => Promise<number>, url: string, onProgress?: (percent: number) => void) {
+async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (chunk: Uint8Array) => Promise<number>, url: string, onProgress?: (percent: number) => void) {
     const response = await fetch(url);
     if (!response.ok) {
         throw new Error(`Download failed: ${response.status} ${response.statusText}`);
@@ -384,7 +405,7 @@ async function downloadFileFromS3(chunkSize: number, decrypt: (chunk: Uint8Array
 
     let chunk = new Uint8Array(0);
 
-    const chunkSizeWithTag = chunkSize + sodium.crypto_secretstream_xchacha20poly1305_ABYTES;
+    const chunkSizeWithTag = chunkSize + tagSize;
 
     while (true) {
         const { done, value } = await reader.read();
@@ -431,4 +452,4 @@ async function downloadFileFromS3(chunkSize: number, decrypt: (chunk: Uint8Array
     return 0; // Success
 }
 
-export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, getAnonymousMessageMetadataStartAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };
+export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, getAnonymousMessageMetadataStartAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, uploadFileToS3, finishUploadFileToS3, finishUploadFileToS3Anonymous, downloadFileFromS3 };

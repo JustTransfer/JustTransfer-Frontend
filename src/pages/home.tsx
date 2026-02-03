@@ -13,6 +13,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 
 import Layout from "../components/layout";
 import { sendMessageAnonymous } from "../handlers/crypto";
+import { formatSize } from "../handlers/utils";
 
 export default function HomePage() {
 
@@ -59,15 +60,6 @@ export default function HomePage() {
       </Box>
     );
   }
-
-  const formatSize = (bytes: any) => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-    if (bytes < 1024 * 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
-
-    return `${(bytes / (1024 * 1024 * 1024 * 1024)).toFixed(1)} TB`;
-  };
 
   function handleIconClick() {
     fileInputRef.current?.click(); // ouvre le sélecteur de fichiers

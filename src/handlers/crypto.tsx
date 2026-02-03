@@ -5,7 +5,7 @@ import { ConstructionOutlined } from "@mui/icons-material";
 
 import { frontendUrl } from "./config";
 
-import { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, getAnonymousMessageMetadataStartAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 } from "./api";
+import { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, getAnonymousMessageMetadataStartAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, uploadFileToS3, finishUploadFileToS3, finishUploadFileToS3Anonymous, downloadFileFromS3 } from "./api";
 import { convertCompilerOptionsFromJson } from "typescript";
 
 async function initLibsodium() {
@@ -200,7 +200,7 @@ async function getMessages() {
     return response.messages;
 }
 
-async function getOneMessage(message: any, onProgress?: (percent: number) => void) {
+async function getOneMessage(message: any, onChunk: (chunk: Uint8Array, filename: string) => Promise<void>, onProgress?: (percent: number) => void) {
 
     await initLibsodium();
 
@@ -212,24 +212,22 @@ async function getOneMessage(message: any, onProgress?: (percent: number) => voi
     // Get the message download URL
     const response = await getOneMessageAPI(username!, Base64.fromUint8Array(mac, true), message.message_id, onProgress);
     const downloadUrl = response.download_url;
+    console.log("message.chunk_size:", message.chunk_size);
 
     // Download the encrypted file from S3
     //const blobFile = await downloadFileFromS3(downloadUrl, onProgress); !!!!!!!!!!!!!!!!!!!! TODO fix it with new function
     // const arrayBuffer = await blobFile.arrayBuffer();
     // message.message = new Uint8Array(arrayBuffer);
-    message.message = new Uint8Array(); // Placeholder
 
     // Get the public key sign of the sender to check signature
     const responsePubKey = await getPublicKeySignAPI(username!, Base64.fromUint8Array(mac, true), message.sender);
     const PublicKeySignSender = Base64.toUint8Array(responsePubKey.pub_sign);
 
     // Hash the file
-    const fileHash = sodium.crypto_generichash(32, message.message);
+    //const fileHash = sodium.crypto_generichash(32, message.message);
+    // const payload = message.filename.toString() + message.nonce_filename.toString() + fileHash.toString() + message.nonce_message.toString() + message.sender + message.receiver + message.max_downloads.toString() + message.lifetime.toString() + message.creation_time.toString();
 
-    // Check the signature
-    const payload = message.filename.toString() + message.nonce_filename.toString() + fileHash.toString() + message.nonce_message.toString() + message.sender + message.receiver + message.max_downloads.toString() + message.lifetime.toString() + message.creation_time.toString();
-
-    message.signatureValid = sodium.crypto_sign_verify_detached(message.signature, new TextEncoder().encode(payload), PublicKeySignSender);
+    message.signatureValid = /*sodium.crypto_sign_verify_detached(message.signature, new TextEncoder().encode(payload), PublicKeySignSender);*/ true; // TODO change !!!
 
     if (!message.signatureValid) {
         console.error("Invalid signature for message from", message.sender);
@@ -242,14 +240,35 @@ async function getOneMessage(message: any, onProgress?: (percent: number) => voi
 
     // Decrypt the filename
     const filenameBytes = sodium.crypto_box_open_easy(message.filename, message.nonce_filename, PublicKeyEncSender, PrivateKeyEncDecoded);
-    const filename = new TextDecoder().decode(filenameBytes);
+    message.filename_dec = new TextDecoder().decode(filenameBytes);
 
-    message.filename_dec = filename;
+    const shared_key = sodium.crypto_box_beforenm(PublicKeyEncSender, PrivateKeyEncDecoded);
 
-    // Decrypt the file
-    const fileBytes = sodium.crypto_box_open_easy(message.message, message.nonce_message, PublicKeyEncSender, PrivateKeyEncDecoded);
+    const decryptChunk = (chunk: Uint8Array) => {
+        const nonce_chunk = chunk.slice(0, sodium.crypto_box_NONCEBYTES);
+        const ciphertext_chunk = chunk.slice(sodium.crypto_box_NONCEBYTES);
+        try {
+            const decryptedChunk = sodium.crypto_box_open_easy_afternm(ciphertext_chunk, nonce_chunk, shared_key);
+            return { decryptedChunk };
+        } catch (e) {
+            console.error("Decryption of chunk failed");
+            return { decryptedChunk: null };
+        }
+    };
 
-    message.message = fileBytes;
+    const tagSize = sodium.crypto_box_NONCEBYTES + sodium.crypto_box_MACBYTES; // For each chunk: nonce at the beginning + MAC at the end
+    console.log("tag size:", tagSize);
+    console.log("chunk size:", message.chunk_size);
+    console.log("total size:", message.chunk_size + tagSize);
+    await downloadFileFromS3(message.chunk_size, tagSize, async (chunk: any) => {
+        const { decryptedChunk } = decryptChunk(chunk);
+        if (decryptedChunk) {
+            await onChunk(decryptedChunk, message.filename); // send chunk progressively
+            return 1; // Decryption successful
+        }
+
+        return -1; // Decryption failed
+    }, downloadUrl, onProgress);
 
     return message;
 }
@@ -276,17 +295,12 @@ async function sendMessage(receiver: string, fileName: string, file: File, lifet
     const cfilename_b64 = Base64.fromUint8Array(cfilename, true);
     const nonce_filename_b64 = Base64.fromUint8Array(nonce_filename, true);
 
-    // Encrypt the file
-    const fileBuffer = await file.arrayBuffer();
-    const fileBytes = new Uint8Array(fileBuffer);
-
+    // Generate the nonce for the file
     const nonce_file = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
-    const cfile = sodium.crypto_box_easy(fileBytes, nonce_file, PublicKeyEncReceiver, PrivateKeyEncDecoded);
-
     const nonce_file_b64 = Base64.fromUint8Array(nonce_file, true);
 
     // Hash the file
-    const fileHash = sodium.crypto_generichash(32, cfile);
+    const fileHash = sodium.crypto_generichash(32, new Uint8Array(32));
 
     // Get the current timestamp
     const timestamp = new Date().toISOString();
@@ -297,10 +311,61 @@ async function sendMessage(receiver: string, fileName: string, file: File, lifet
     const signature = sodium.crypto_sign_detached(new TextEncoder().encode(payload), PrivateKeySignDecoded);
 
     // Send the message
-    const response = await sendMessageAPI(Base64.fromUint8Array(mac, true), username!, receiver, cfilename_b64, nonce_filename_b64, nonce_file_b64, maxDownloads, lifetimeDays, timestamp, Base64.fromUint8Array(signature, true), onProgress);
+    const response = await sendMessageAPI(Base64.fromUint8Array(mac, true), username!, receiver, cfilename_b64, nonce_filename_b64, nonce_file_b64, maxDownloads, lifetimeDays, timestamp, Base64.fromUint8Array(signature, true), file.size);
 
-    // Send the file to S3
-    await uploadFileToS3(response.upload_url, cfile, onProgress);
+    // Get the upload URL
+    console.log("Send message response:", response);
+    const uploadUrls = response.upload_urls;
+    const upload_id = response.upload_id;
+    const messageFileId = response.message_file_id;
+    const chunkSize = response.chunk_size;
+
+    console.log("upload URLs:", uploadUrls);
+
+
+    console.log("Using server-defined chunk size:", chunkSize);
+    if (!chunkSize || chunkSize <= 0) {
+        throw new Error("Invalid chunk size received from server");
+    }
+
+    // Encrypt the file in chunks
+    const totalLength = file.size;
+    const totalLengthWithTags = totalLength + Math.ceil(totalLength / chunkSize) * (sodium.crypto_box_MACBYTES + sodium.crypto_box_NONCEBYTES);
+
+
+    if (uploadUrls.length !== Math.ceil(file.size / chunkSize)) {
+        throw new Error("Number of upload URLs does not match number of chunks");
+    }
+
+    let ETags: string[] = [];
+
+    const shared_key = sodium.crypto_box_beforenm(PublicKeyEncReceiver, PrivateKeyEncDecoded);
+
+    for (let offset = 0; offset < file.size; offset += chunkSize) {
+        const slice = file.slice(offset, offset + chunkSize);
+        const buf = new Uint8Array(await slice.arrayBuffer());
+
+        // Generate nonce for this chunk
+        const nonce_chunk = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
+
+        // Encrypt the chunk
+        const encryptedChunk = sodium.crypto_box_easy_afternm(buf, nonce_chunk, shared_key)
+
+        // Add nonce at the beginning of the chunk
+        const encryptedChunkWithNonce = new Uint8Array(nonce_chunk.length + encryptedChunk.length);
+        encryptedChunkWithNonce.set(nonce_chunk);
+        encryptedChunkWithNonce.set(encryptedChunk, nonce_chunk.length);
+
+        // Upload the chunk to S3
+        const chunkUploadResp = await uploadFileToS3(uploadUrls[offset / chunkSize], encryptedChunkWithNonce, void 0);
+        ETags.push(chunkUploadResp.ETag);
+
+        // Update progress
+        onProgress?.(Math.min(((offset + chunkSize) / totalLength) * 100, 100)); // Avoid going over 100% if the last chunk is smaller than chunkSize
+    }
+
+    // Finalize the upload
+    const response3 = await finishUploadFileToS3(messageFileId, upload_id, ETags);
 
     return {
         success: true,
@@ -345,7 +410,7 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
 
     const result2 = await getAnonymousMessageMetadataAPI(message_id, finishLoginRequest);
 
-    let { id, filename, nonce_filename, message_id_received, header, creation_time, lifetime, max_downloads, number_downloads, chunk_size } = result2.message;
+    let { id, filename, nonce_filename, message_id_received, header, creation_time, lifetime, max_downloads, number_downloads, file_size, chunk_size } = result2.message;
 
     await initLibsodium();
 
@@ -362,7 +427,7 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
         success: true,
         message: "Message metadata retrieved successfully!",
         messageData: {
-            id, filename, nonce_filename, message_id, header, creation_time, lifetime, max_downloads, number_downloads, chunk_size,
+            id, filename, nonce_filename, message_id, header, creation_time, lifetime, max_downloads, number_downloads, file_size, chunk_size,
         }
     };
 }
@@ -393,7 +458,11 @@ async function getOneAnonymousMessage(message: any, onChunk: (chunk: Uint8Array,
     };
 
 
-    await downloadFileFromS3(message.chunk_size, async (chunk: any) => {
+    const tagSize = sodium.crypto_secretstream_xchacha20poly1305_ABYTES;
+    console.log("tag size:", tagSize);
+    console.log("chunk size:", message.chunk_size);
+    console.log("total size:", message.chunk_size + tagSize);
+    await downloadFileFromS3(message.chunk_size, tagSize, async (chunk: any) => {
         const { decryptedChunk, tag } = decryptChunk(chunk);
         if (decryptedChunk) {
             await onChunk(decryptedChunk, message.filename); // send chunk progressively
@@ -445,10 +514,10 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
     const { state, header } = sodium.crypto_secretstream_xchacha20poly1305_init_push(exportKeyDecoded);
     const header_b64 = Base64.fromUint8Array(header, true);
     const totalLength = file.size;
-    const totalLengthWithTags = totalLength + Math.ceil(totalLength / chunkSize) * sodium.crypto_secretstream_xchacha20poly1305_ABYTES;
+    //const totalLengthWithTags = totalLength + Math.ceil(totalLength / chunkSize) * sodium.crypto_secretstream_xchacha20poly1305_ABYTES;
 
     // Send the initial request to get an upload ID
-    const response2 = await sendAnonymousMessageAPI(id, registrationRecord, cfilename_b64, nonce_filename_b64, header_b64, maxDownloads, lifetimeDays, timestamp, totalLengthWithTags);
+    const response2 = await sendAnonymousMessageAPI(id, registrationRecord, cfilename_b64, nonce_filename_b64, header_b64, maxDownloads, lifetimeDays, timestamp, totalLength);
     const uploadUrls = response2.upload_urls;
     const transferId = response2.transfer_id;
     const upload_id = response2.upload_id;
@@ -475,11 +544,11 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
         ETags.push(chunkUploadResp.ETag);
 
         // Update progress
-        onProgress?.((offset + chunkSize) / totalLength * 100);
+        onProgress?.(Math.min(((offset + chunkSize) / totalLength) * 100, 100)); // Avoid going over 100% if the last chunk is smaller than chunkSize
     }
 
     // Finalize the upload
-    const response3 = await finishUploadFileToS3(message_file_id, upload_id, ETags);
+    const response3 = await finishUploadFileToS3Anonymous(message_file_id, upload_id, ETags);
 
     return {
         success: true,

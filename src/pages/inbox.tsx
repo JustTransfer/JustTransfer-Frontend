@@ -8,8 +8,12 @@ import CircularProgress, {
 import Alert from '@mui/material/Alert';
 import Snackbar, { type SnackbarCloseReason } from '@mui/material/Snackbar';
 
+// @ts-ignore
+import streamSaver from 'streamsaver';
+
 import Layout from "../components/layout";
 import { getMessages, getOneMessage } from "../handlers/crypto"
+import { formatSize } from "../handlers/utils";
 
 export default function Inbox() {
     const [messages, setMessages] = useState<Array<any>>([]);
@@ -39,9 +43,56 @@ export default function Inbox() {
 
         let messageWithContent
         try {
-            messageWithContent = await getOneMessage(message, (percent: number) => {
-                setDownloadProgress(prev => ({ ...prev, [message.id]: percent }));
-            });
+            console.log("Starting file download...");
+
+            // Check if StreamSaver is supported (has service worker support)
+            const supportsStreaming = typeof streamSaver !== 'undefined' &&
+                'serviceWorker' in navigator &&
+                window.WritableStream;
+
+            if (supportsStreaming) {
+                // Use StreamSaver for streaming download (memory efficient)
+                console.log("Using StreamSaver for streaming download");
+                const fileStream = streamSaver.createWriteStream(message.filename_dec);
+                const writer = fileStream.getWriter();
+
+                messageWithContent = await getOneMessage(message, async (chunk, name) => {
+                    // Write chunk directly to the stream
+                    await writer.write(chunk);
+                }, (percent: number) => {
+                    setDownloadProgress(prev => ({ ...prev, [message.id]: percent }));
+                });
+
+                // Close the stream
+                await writer.close();
+            } else {
+                // Fallback to traditional blob download (stores in memory)
+                console.log("Using fallback blob download");
+                const chunks: Uint8Array[] = [];
+
+                messageWithContent = await getOneMessage(message, async (chunk, name) => {
+                    // Collect chunks in memory
+                    chunks.push(new Uint8Array(chunk));
+                }, (percent: number) => {
+                    setDownloadProgress(prev => ({ ...prev, [message.id]: percent }));
+                });
+
+                // Create blob from all chunks
+                const blob = new Blob(chunks as BlobPart[], { type: "application/octet-stream" });
+                const url = URL.createObjectURL(blob);
+
+                // Trigger download
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = messageWithContent.filename_dec;
+                a.style.display = "none";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                // Cleanup
+                URL.revokeObjectURL(url);
+            }
         } catch (e) {
             setError("Failed to download file. Please try again later.");
             setOpenError(true);
@@ -62,7 +113,7 @@ export default function Inbox() {
             setSuccess("File downloaded successfully.");
             setOpenSuccess(true);
 
-            const byteArray = new Uint8Array(messageWithContent.message);
+            /*const byteArray = new Uint8Array(messageWithContent.message);
             const blob = new Blob([byteArray], { type: "application/octet-stream" });
 
             const url = URL.createObjectURL(blob);
@@ -72,7 +123,7 @@ export default function Inbox() {
             a.download = messageWithContent.filename_dec;
             a.click();
 
-            URL.revokeObjectURL(url); // cleanup
+            URL.revokeObjectURL(url); // cleanup*/
         }
 
         // Remove progress indicator
@@ -137,6 +188,7 @@ export default function Inbox() {
                                     <TableRow>
                                         <TableCell align="center"><strong>From</strong></TableCell>
                                         <TableCell align="center"><strong>File name</strong></TableCell>
+                                        <TableCell align="center"><strong>File size</strong></TableCell>
                                         <TableCell align="center"><strong>Received at</strong></TableCell>
                                         <TableCell align="center"><strong>Expire At</strong></TableCell>
                                         <TableCell align="center"><strong>Max Downloads</strong></TableCell>
@@ -158,6 +210,9 @@ export default function Inbox() {
                                             ) : (
                                                 <TableCell align="center">{msg.filename_dec}</TableCell>
                                             )}
+                                            <TableCell align="center" component="th" scope="row">
+                                                {formatSize(msg.file_size)}
+                                            </TableCell>
                                             <TableCell align="center">{new Date(msg.creation_time).toLocaleString()}</TableCell>
                                             <TableCell align="center">{new Date(
                                                 new Date(msg.creation_time).getTime() + msg.lifetime * 24 * 60 * 60 * 1000

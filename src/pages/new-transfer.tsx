@@ -7,6 +7,7 @@ import LinearProgress, { LinearProgressProps } from '@mui/material/LinearProgres
 
 import Layout from "../components/layout";
 import { sendMessage } from "../handlers/crypto";
+import { formatSize } from "../handlers/utils";
 
 
 export default function NewTransfer() {
@@ -37,15 +38,6 @@ export default function NewTransfer() {
             </Box>
         );
     }
-
-    const formatSize = (bytes: any) => {
-        if (bytes < 1024) return `${bytes} B`;
-        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-        if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-        if (bytes < 1024 * 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
-
-        return `${(bytes / (1024 * 1024 * 1024 * 1024)).toFixed(1)} TB`;
-    };
 
     function handleIconClick() {
         fileInputRef.current?.click(); // Open the file selector
