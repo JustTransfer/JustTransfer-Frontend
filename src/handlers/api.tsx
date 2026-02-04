@@ -92,7 +92,7 @@ async function loginEndAPI(username: string, client_login_finish_result: string)
     return (await response.json());
 }
 
-async function logoutAPI(username: string, mac: string) {
+async function logoutAPI(username: string) { // TODO username should not be needed
 
     const response = await fetch(`${apiUrl}/logout`, {
         method: "POST",
@@ -101,7 +101,6 @@ async function logoutAPI(username: string, mac: string) {
         },
         body: JSON.stringify({
             username,
-            mac,
         }),
     });
 
@@ -112,7 +111,7 @@ async function logoutAPI(username: string, mac: string) {
     return response.status;
 }
 
-async function getPublicKeyEncAPI(username: string, mac: string, user_pub_key: string) {
+async function getPublicKeyEncAPI(user_request_pub_key: string) {
 
     const response = await fetch(`${apiUrl}/pubkey/enc`, {
         method: "POST",
@@ -120,9 +119,7 @@ async function getPublicKeyEncAPI(username: string, mac: string, user_pub_key: s
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            username,
-            mac,
-            user_pub_key,
+            user_request_pub_key,
         }),
     });
 
@@ -133,7 +130,7 @@ async function getPublicKeyEncAPI(username: string, mac: string, user_pub_key: s
     return (await response.json());
 }
 
-async function getPublicKeySignAPI(username: string, mac: string, user_pub_key: string) {
+async function getPublicKeySignAPI(user_request_pub_key: string) {
 
     const response = await fetch(`${apiUrl}/pubkey/sign`, {
         method: "POST",
@@ -141,9 +138,7 @@ async function getPublicKeySignAPI(username: string, mac: string, user_pub_key: 
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            username,
-            mac,
-            user_pub_key,
+            user_request_pub_key,
         }),
     });
 
@@ -154,7 +149,7 @@ async function getPublicKeySignAPI(username: string, mac: string, user_pub_key: 
     return (await response.json());
 }
 
-async function getMessagesAPI(username: string, mac: string) {
+async function getMessagesAPI(username: string) {
 
     const response = await fetch(`${apiUrl}/messages`, {
         method: "POST",
@@ -163,7 +158,6 @@ async function getMessagesAPI(username: string, mac: string) {
         },
         body: JSON.stringify({
             username,
-            mac,
         }),
     });
 
@@ -174,7 +168,7 @@ async function getMessagesAPI(username: string, mac: string) {
     return (await response.json());
 }
 
-async function getOneMessageAPI(username: string, mac: string, file_id: string, onProgress?: (percent: number) => void) {
+async function getOneMessageAPI(username: string, file_id: string, onProgress?: (percent: number) => void) {
 
     const response = await fetch(`${apiUrl}/message/${file_id}`, {
         method: "POST",
@@ -183,7 +177,6 @@ async function getOneMessageAPI(username: string, mac: string, file_id: string, 
         },
         body: JSON.stringify({
             username,
-            mac,
         }),
     });
 
@@ -194,7 +187,7 @@ async function getOneMessageAPI(username: string, mac: string, file_id: string, 
     return (await response.json());
 }
 
-async function sendMessageAPI(mac: string, sender: string, receiver: string, cfilename: string, nonce_filename: string, nonce_message: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
+async function sendMessageAPI(sender: string, receiver: string, cfilename: string, nonce_filename: string, nonce_message: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
 
 
     const response = await fetch(`${apiUrl}/message`, {
@@ -203,7 +196,6 @@ async function sendMessageAPI(mac: string, sender: string, receiver: string, cfi
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            mac,
             sender,
             receiver,
             cfilename,

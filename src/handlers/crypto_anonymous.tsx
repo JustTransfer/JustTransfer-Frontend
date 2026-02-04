@@ -13,30 +13,6 @@ async function initLibsodium() {
     await sodium.ready;
 }
 
-interface AnonymousMessageMacPayload {
-    cfilename: Uint8Array;
-    nonce_filename: Uint8Array;
-
-    file_id: string;
-    header: Uint8Array;
-
-    max_downloads: number;
-    lifetime: number;
-    creation_time: string;
-
-    file_size: number;
-    chunk_size: number;
-
-    first_chunk: Uint8Array;
-}
-
-const enc = new TextEncoder();
-
-export function buildAnonymousMessageMacPayload(payload: AnonymousMessageMacPayload): Uint8Array {
-    return enc.encode(JSON.stringify(payload));
-}
-
-
 ///
 /// Get Anonymous Message Metadata and Content
 ///
@@ -63,14 +39,12 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
 
     const { exportKey, serverStaticPublicKey, finishLoginRequest, sessionKey } = loginResult;
 
-    // Calculate MAC
+    // Decode session key
     const sessionKeyDecoded = Base64.toUint8Array(sessionKey).slice(0, 32); // Take only first 32 bytes
-    //const mac = sodium.crypto_auth(message_id, sessionKeyDecoded)
 
     // Save keys in session storage with message id
     sessionStorage.setItem(`exportKey_${message_id}`, exportKey);
     sessionStorage.setItem(`sessionKey_${message_id}`, sessionKey);
-    //sessionStorage.setItem(`mac_${message_id}`, Base64.fromUint8Array(mac));
 
     const result2 = await getAnonymousMessageMetadataAPI(message_id, finishLoginRequest);
 
@@ -109,9 +83,8 @@ async function getOneAnonymousMessage(message: any, onChunk: (chunk: Uint8Array,
 
     const exportKey = sessionStorage.getItem(`exportKey_${message_id}`);
     const sessionKey = sessionStorage.getItem(`sessionKey_${message_id}`);
-    //const mac = getItemFromSessionStorage(`mac_${message_id}`);
 
-    if (!exportKey || !sessionKey /*|| !mac*/) {
+    if (!exportKey || !sessionKey) {
         throw new Error("Missing keys in session storage. Please retrieve the message metadata first.");
     }
 

@@ -142,10 +142,9 @@ async function logout() {
     await initLibsodium();
 
     const username = sessionStorage.getItem("username");
-    const mac = getItemFromSessionStorage("mac");
 
     try {
-        let response = await logoutAPI(username!, Base64.fromUint8Array(mac, true));
+        let response = await logoutAPI(username!);
     } catch (e) {
         console.error("Logout API call failed:", e);
     }
@@ -161,9 +160,8 @@ async function getMessages() {
     const username = sessionStorage.getItem("username");
 
     const PrivateKeyEncDecoded = getItemFromSessionStorage("PrivateKeyEnc");
-    const mac = getItemFromSessionStorage("mac");
 
-    const response = await getMessagesAPI(username!, Base64.fromUint8Array(mac, true));
+    const response = await getMessagesAPI(username!);
 
     // For each message:
     for (let msg of response.messages) {
@@ -175,7 +173,7 @@ async function getMessages() {
         msg.nonce_message = Base64.toUint8Array(msg.nonce_message);
 
         // Get the public key enc of the sender to decrypt the filename and file
-        const responsePubKeyEnc = await getPublicKeyEncAPI(username!, Base64.fromUint8Array(mac, true), msg.sender);
+        const responsePubKeyEnc = await getPublicKeyEncAPI(msg.sender);
         const PublicKeyEncSender = Base64.toUint8Array(responsePubKeyEnc.pub_enc);
 
         // Decrypt the filename to display it in the inbox
@@ -194,14 +192,13 @@ async function getOneMessage(message: any, onChunk: (chunk: Uint8Array, filename
     const username = sessionStorage.getItem("username");
 
     const PrivateKeyEncDecoded = getItemFromSessionStorage("PrivateKeyEnc");
-    const mac = getItemFromSessionStorage("mac");
 
     // Get the message download URL
-    const response = await getOneMessageAPI(username!, Base64.fromUint8Array(mac, true), message.file_id, onProgress);
+    const response = await getOneMessageAPI(username!, message.file_id);
     const downloadUrl = response.download_url;
 
     // Get the public key sign of the sender to check signature
-    const responsePubKey = await getPublicKeySignAPI(username!, Base64.fromUint8Array(mac, true), message.sender);
+    const responsePubKey = await getPublicKeySignAPI(message.sender);
     const PublicKeySignSender = Base64.toUint8Array(responsePubKey.pub_sign);
 
     // Construct the signature
@@ -226,7 +223,7 @@ async function getOneMessage(message: any, onChunk: (chunk: Uint8Array, filename
     sodium.crypto_sign_update(state, new TextEncoder().encode(JSON.stringify(messageMetadata)));
 
     // Get the public key enc of the sender to decrypt the filename and file
-    const responsePubKeyEnc = await getPublicKeyEncAPI(username!, Base64.fromUint8Array(mac, true), message.sender);
+    const responsePubKeyEnc = await getPublicKeyEncAPI(message.sender);
     const PublicKeyEncSender = Base64.toUint8Array(responsePubKeyEnc.pub_enc);
 
     // Decrypt the filename
@@ -281,10 +278,9 @@ async function sendMessage(receiver: string, fileName: string, file: File, lifet
 
     const PrivateKeyEncDecoded = getItemFromSessionStorage("PrivateKeyEnc");
     const PrivateKeySignDecoded = getItemFromSessionStorage("PrivateKeySign");
-    const mac = getItemFromSessionStorage("mac");
 
     // Get receiver's public encryption key
-    const responsePubKey = await getPublicKeyEncAPI(username!, Base64.fromUint8Array(mac, true), receiver);
+    const responsePubKey = await getPublicKeyEncAPI(receiver);
 
     const PublicKeyEncReceiver = Base64.toUint8Array(responsePubKey.pub_enc);
 
@@ -303,7 +299,7 @@ async function sendMessage(receiver: string, fileName: string, file: File, lifet
     const timestamp = new Date().toISOString();
 
     // Send the message
-    const response = await sendMessageAPI(Base64.fromUint8Array(mac, true), username!, receiver, cfilename_b64, nonce_filename_b64, nonce_file_b64, maxDownloads, lifetimeDays, timestamp, file.size);
+    const response = await sendMessageAPI(username!, receiver, cfilename_b64, nonce_filename_b64, nonce_file_b64, maxDownloads, lifetimeDays, timestamp, file.size);
 
     // Get the upload URL
     const uploadUrls = response.upload_urls;
