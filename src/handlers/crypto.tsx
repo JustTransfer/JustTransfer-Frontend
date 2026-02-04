@@ -7,6 +7,7 @@ import { frontendUrl } from "./config";
 
 import { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, getAnonymousMessageMetadataStartAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, uploadFileToS3, finishUploadFileToS3, finishUploadFileToS3Anonymous, downloadFileFromS3 } from "./api";
 import { convertCompilerOptionsFromJson } from "typescript";
+import { msgFailureSignatureVerification } from "../handlers/config";
 
 async function initLibsodium() {
     await sodium.ready;
@@ -210,29 +211,32 @@ async function getOneMessage(message: any, onChunk: (chunk: Uint8Array, filename
     const mac = getItemFromSessionStorage("mac");
 
     // Get the message download URL
-    const response = await getOneMessageAPI(username!, Base64.fromUint8Array(mac, true), message.message_id, onProgress);
+    const response = await getOneMessageAPI(username!, Base64.fromUint8Array(mac, true), message.file_id, onProgress);
     const downloadUrl = response.download_url;
-    console.log("message.chunk_size:", message.chunk_size);
-
-    // Download the encrypted file from S3
-    //const blobFile = await downloadFileFromS3(downloadUrl, onProgress); !!!!!!!!!!!!!!!!!!!! TODO fix it with new function
-    // const arrayBuffer = await blobFile.arrayBuffer();
-    // message.message = new Uint8Array(arrayBuffer);
 
     // Get the public key sign of the sender to check signature
     const responsePubKey = await getPublicKeySignAPI(username!, Base64.fromUint8Array(mac, true), message.sender);
     const PublicKeySignSender = Base64.toUint8Array(responsePubKey.pub_sign);
 
-    // Hash the file
-    //const fileHash = sodium.crypto_generichash(32, message.message);
-    // const payload = message.filename.toString() + message.nonce_filename.toString() + fileHash.toString() + message.nonce_message.toString() + message.sender + message.receiver + message.max_downloads.toString() + message.lifetime.toString() + message.creation_time.toString();
+    // Construct the signature
+    let state = sodium.crypto_sign_init();
 
-    message.signatureValid = /*sodium.crypto_sign_verify_detached(message.signature, new TextEncoder().encode(payload), PublicKeySignSender);*/ true; // TODO change !!!
+    // Generate a JSON representation of the message metadata to sign
+    const messageMetadata = {
+        filename: message.filename,
+        nonce_filename: message.nonce_filename,
+        nonce_file: message.nonce_message,
+        sender: message.sender,
+        receiver: username!,
+        max_downloads: message.max_downloads,
+        lifetime: message.lifetime,
+        creation_time: message.creation_time,
+        file_size: message.file_size,
+        chunk_size: message.chunk_size,
+    };
 
-    if (!message.signatureValid) {
-        console.error("Invalid signature for message from", message.sender);
-        return message;
-    }
+    // Update the signature with the metadata JSON structure
+    sodium.crypto_sign_update(state, new TextEncoder().encode(JSON.stringify(messageMetadata)));
 
     // Get the public key enc of the sender to decrypt the filename and file
     const responsePubKeyEnc = await getPublicKeyEncAPI(username!, Base64.fromUint8Array(mac, true), message.sender);
@@ -245,6 +249,11 @@ async function getOneMessage(message: any, onChunk: (chunk: Uint8Array, filename
     const shared_key = sodium.crypto_box_beforenm(PublicKeyEncSender, PrivateKeyEncDecoded);
 
     const decryptChunk = (chunk: Uint8Array) => {
+
+        // Add chunk to signature
+        sodium.crypto_sign_update(state, chunk);
+
+        // Decrypt chunk
         const nonce_chunk = chunk.slice(0, sodium.crypto_box_NONCEBYTES);
         const ciphertext_chunk = chunk.slice(sodium.crypto_box_NONCEBYTES);
         try {
@@ -257,9 +266,6 @@ async function getOneMessage(message: any, onChunk: (chunk: Uint8Array, filename
     };
 
     const tagSize = sodium.crypto_box_NONCEBYTES + sodium.crypto_box_MACBYTES; // For each chunk: nonce at the beginning + MAC at the end
-    console.log("tag size:", tagSize);
-    console.log("chunk size:", message.chunk_size);
-    console.log("total size:", message.chunk_size + tagSize);
     await downloadFileFromS3(message.chunk_size, tagSize, async (chunk: any) => {
         const { decryptedChunk } = decryptChunk(chunk);
         if (decryptedChunk) {
@@ -269,6 +275,14 @@ async function getOneMessage(message: any, onChunk: (chunk: Uint8Array, filename
 
         return -1; // Decryption failed
     }, downloadUrl, onProgress);
+
+
+    // Verify the signature
+    message.signatureValid = sodium.crypto_sign_final_verify(state, message.signature, PublicKeySignSender);
+    console.log("Signature valid:", message.signatureValid);
+    if (!message.signatureValid) {
+        throw new Error(msgFailureSignatureVerification);
+    }
 
     return message;
 }
@@ -299,39 +313,44 @@ async function sendMessage(receiver: string, fileName: string, file: File, lifet
     const nonce_file = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
     const nonce_file_b64 = Base64.fromUint8Array(nonce_file, true);
 
-    // Hash the file
-    const fileHash = sodium.crypto_generichash(32, new Uint8Array(32));
-
     // Get the current timestamp
     const timestamp = new Date().toISOString();
 
-    // Sign the message
-    const payload = cfilename.toString() + nonce_filename.toString() + fileHash.toString() + nonce_file.toString() + username + receiver + maxDownloads.toString() + lifetimeDays.toString() + timestamp.toString();
-
-    const signature = sodium.crypto_sign_detached(new TextEncoder().encode(payload), PrivateKeySignDecoded);
-
     // Send the message
-    const response = await sendMessageAPI(Base64.fromUint8Array(mac, true), username!, receiver, cfilename_b64, nonce_filename_b64, nonce_file_b64, maxDownloads, lifetimeDays, timestamp, Base64.fromUint8Array(signature, true), file.size);
+    const response = await sendMessageAPI(Base64.fromUint8Array(mac, true), username!, receiver, cfilename_b64, nonce_filename_b64, nonce_file_b64, maxDownloads, lifetimeDays, timestamp, file.size);
 
     // Get the upload URL
-    console.log("Send message response:", response);
     const uploadUrls = response.upload_urls;
     const upload_id = response.upload_id;
     const messageFileId = response.message_file_id;
     const chunkSize = response.chunk_size;
 
-    console.log("upload URLs:", uploadUrls);
-
-
-    console.log("Using server-defined chunk size:", chunkSize);
     if (!chunkSize || chunkSize <= 0) {
         throw new Error("Invalid chunk size received from server");
     }
 
+    // Sign the metadata of the message
+    let state = sodium.crypto_sign_init();
+
+    const metadata = {
+        filename: cfilename,
+        nonce_filename: nonce_filename,
+        nonce_file: nonce_file,
+        sender: username!,
+        receiver: receiver,
+        max_downloads: maxDownloads,
+        lifetime: lifetimeDays,
+        creation_time: timestamp,
+        file_size: file.size,
+        chunk_size: chunkSize,
+    };
+
+    // Update the signature with the metadata JSON structure
+    sodium.crypto_sign_update(state, new TextEncoder().encode(JSON.stringify(metadata)));
+
     // Encrypt the file in chunks
     const totalLength = file.size;
     const totalLengthWithTags = totalLength + Math.ceil(totalLength / chunkSize) * (sodium.crypto_box_MACBYTES + sodium.crypto_box_NONCEBYTES);
-
 
     if (uploadUrls.length !== Math.ceil(file.size / chunkSize)) {
         throw new Error("Number of upload URLs does not match number of chunks");
@@ -356,6 +375,9 @@ async function sendMessage(receiver: string, fileName: string, file: File, lifet
         encryptedChunkWithNonce.set(nonce_chunk);
         encryptedChunkWithNonce.set(encryptedChunk, nonce_chunk.length);
 
+        // Update the signature
+        sodium.crypto_sign_update(state, encryptedChunkWithNonce);
+
         // Upload the chunk to S3
         const chunkUploadResp = await uploadFileToS3(uploadUrls[offset / chunkSize], encryptedChunkWithNonce, void 0);
         ETags.push(chunkUploadResp.ETag);
@@ -364,8 +386,11 @@ async function sendMessage(receiver: string, fileName: string, file: File, lifet
         onProgress?.(Math.min(((offset + chunkSize) / totalLength) * 100, 100)); // Avoid going over 100% if the last chunk is smaller than chunkSize
     }
 
+    // Finalize the signature
+    const signature = sodium.crypto_sign_final_create(state, PrivateKeySignDecoded);
+
     // Finalize the upload
-    const response3 = await finishUploadFileToS3(messageFileId, upload_id, ETags);
+    const response3 = await finishUploadFileToS3(messageFileId, upload_id, ETags, Base64.fromUint8Array(signature, true));
 
     return {
         success: true,
@@ -459,9 +484,6 @@ async function getOneAnonymousMessage(message: any, onChunk: (chunk: Uint8Array,
 
 
     const tagSize = sodium.crypto_secretstream_xchacha20poly1305_ABYTES;
-    console.log("tag size:", tagSize);
-    console.log("chunk size:", message.chunk_size);
-    console.log("total size:", message.chunk_size + tagSize);
     await downloadFileFromS3(message.chunk_size, tagSize, async (chunk: any) => {
         const { decryptedChunk, tag } = decryptChunk(chunk);
         if (decryptedChunk) {
@@ -486,7 +508,6 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
     const id = response.id;
     const chunkSize = response.chunk_size
 
-    console.log("Using server-defined chunk size:", chunkSize);
     if (!chunkSize || chunkSize <= 0) {
         throw new Error("Invalid chunk size received from server");
     }

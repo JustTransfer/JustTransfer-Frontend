@@ -174,9 +174,9 @@ async function getMessagesAPI(username: string, mac: string) {
     return (await response.json());
 }
 
-async function getOneMessageAPI(username: string, mac: string, message_id: string, onProgress?: (percent: number) => void) {
+async function getOneMessageAPI(username: string, mac: string, file_id: string, onProgress?: (percent: number) => void) {
 
-    const response = await fetch(`${apiUrl}/message/${message_id}`, {
+    const response = await fetch(`${apiUrl}/message/${file_id}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -194,7 +194,7 @@ async function getOneMessageAPI(username: string, mac: string, message_id: strin
     return (await response.json());
 }
 
-async function sendMessageAPI(mac: string, sender: string, receiver: string, filename: string, nonce_filename: string, nonce_message: string, max_downloads: number, lifetime: number, creation_time: any, signature: string, file_size: number) {
+async function sendMessageAPI(mac: string, sender: string, receiver: string, filename: string, nonce_filename: string, nonce_message: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
 
 
     const response = await fetch(`${apiUrl}/message`, {
@@ -212,7 +212,6 @@ async function sendMessageAPI(mac: string, sender: string, receiver: string, fil
             max_downloads,
             lifetime,
             creation_time,
-            signature,
             file_size,
         }),
     });
@@ -243,9 +242,9 @@ async function getAnonymousMessageMetadataStartAPI(id: string, client_registrati
     return (await response.json());
 }
 
-async function getAnonymousMessageMetadataAPI(message_id: string, client_login_finish_result: string,) {
+async function getAnonymousMessageMetadataAPI(file_id: string, client_login_finish_result: string,) {
 
-    const response = await fetch(`${apiUrl}/anonymous/message/${message_id}`, {
+    const response = await fetch(`${apiUrl}/anonymous/message/${file_id}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -347,7 +346,7 @@ async function uploadFileToS3(url: string, cfile: Uint8Array, onProgress?: (perc
     return { ETag: response.headers.get("ETag") || "" };
 }
 
-async function finishUploadFileToS3(file_id: string, upload_id: string, etags: string[]) {
+async function finishUploadFileToS3(file_id: string, upload_id: string, etags: string[], signature: string) {
 
     const response = await fetch(`${apiUrl}/message/uploadfinish/${file_id}`, {
         method: "POST",
@@ -357,6 +356,7 @@ async function finishUploadFileToS3(file_id: string, upload_id: string, etags: s
         body: JSON.stringify({
             upload_id,
             etags,
+            signature,
         }),
     });
 

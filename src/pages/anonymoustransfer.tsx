@@ -95,12 +95,8 @@ export default function AnonymousTransfer() {
         try {
             setIsDownloading(true);
 
-            console.log("Starting file download...");
-
             // Check if StreamSaver is supported (has service worker support)
-            const supportsStreaming = typeof streamSaver !== 'undefined' &&
-                'serviceWorker' in navigator &&
-                window.WritableStream;
+            const supportsStreaming = typeof streamSaver !== 'undefined' && 'serviceWorker' in navigator && window.WritableStream;
 
             if (supportsStreaming) {
                 // Use StreamSaver for streaming download (memory efficient)
@@ -108,12 +104,18 @@ export default function AnonymousTransfer() {
                 const fileStream = streamSaver.createWriteStream(messageData.filename);
                 const writer = fileStream.getWriter();
 
-                messageWithContent = await getOneAnonymousMessage(messageData, async (chunk, name) => {
-                    // Write chunk directly to the stream
-                    await writer.write(chunk);
-                }, (percent: number) => {
-                    setDownloadProgress(percent);
-                });
+                try {
+                    messageWithContent = await getOneAnonymousMessage(messageData, async (chunk, name) => {
+                        // Write chunk directly to the stream
+                        await writer.write(chunk);
+                    }, (percent: number) => {
+                        setDownloadProgress(percent);
+                    });
+                } catch (e) {
+                    // If an error occurs during streaming, abort the stream to prevent hanging (e.g., signature verification failure)
+                    await writer.abort(e);
+                    throw e; // Re-throw to be caught by outer catch
+                }
 
                 // Close the stream
                 await writer.close();
@@ -134,16 +136,18 @@ export default function AnonymousTransfer() {
                 const url = URL.createObjectURL(blob);
 
                 // Trigger download
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = messageData.filename;
-                a.style.display = "none";
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-
-                // Cleanup
-                URL.revokeObjectURL(url);
+                try {
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = messageData.filename;
+                    a.style.display = "none";
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                } finally {
+                    // Cleanup
+                    URL.revokeObjectURL(url);
+                }
             }
 
             setSuccess("File downloaded successfully.");

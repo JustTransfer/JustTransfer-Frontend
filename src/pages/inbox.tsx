@@ -14,6 +14,7 @@ import streamSaver from 'streamsaver';
 import Layout from "../components/layout";
 import { getMessages, getOneMessage } from "../handlers/crypto"
 import { formatSize } from "../handlers/utils";
+import { msgFailureSignatureVerification } from "../handlers/config";
 
 export default function Inbox() {
     const [messages, setMessages] = useState<Array<any>>([]);
@@ -41,30 +42,35 @@ export default function Inbox() {
         setError("");
         setOpenError(false);
 
-        let messageWithContent
-        try {
-            console.log("Starting file download...");
+        let messageWithContent;
 
+        try {
             // Check if StreamSaver is supported (has service worker support)
-            const supportsStreaming = typeof streamSaver !== 'undefined' &&
-                'serviceWorker' in navigator &&
-                window.WritableStream;
+            const supportsStreaming = typeof streamSaver !== 'undefined' && 'serviceWorker' in navigator && window.WritableStream;
 
             if (supportsStreaming) {
+
                 // Use StreamSaver for streaming download (memory efficient)
                 console.log("Using StreamSaver for streaming download");
                 const fileStream = streamSaver.createWriteStream(message.filename_dec);
                 const writer = fileStream.getWriter();
 
-                messageWithContent = await getOneMessage(message, async (chunk, name) => {
-                    // Write chunk directly to the stream
-                    await writer.write(chunk);
-                }, (percent: number) => {
-                    setDownloadProgress(prev => ({ ...prev, [message.id]: percent }));
-                });
+
+                try {
+                    messageWithContent = await getOneMessage(message, async (chunk, name) => {
+                        // Write chunk directly to the stream
+                        await writer!.write(chunk);
+                    }, (percent: number) => {
+                        setDownloadProgress(prev => ({ ...prev, [message.id]: percent }));
+                    });
+                } catch (e) {
+                    // If an error occurs during streaming, abort the stream to prevent hanging (e.g., signature verification failure)
+                    await writer.abort(e);
+                    throw e; // Re-throw to be caught by outer catch
+                }
 
                 // Close the stream
-                await writer.close();
+                await writer!.close();
             } else {
                 // Fallback to traditional blob download (stores in memory)
                 console.log("Using fallback blob download");
@@ -82,48 +88,41 @@ export default function Inbox() {
                 const url = URL.createObjectURL(blob);
 
                 // Trigger download
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = messageWithContent.filename_dec;
-                a.style.display = "none";
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-
-                // Cleanup
-                URL.revokeObjectURL(url);
+                try {
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = messageWithContent.filename_dec;
+                    a.style.display = "none";
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                } finally {
+                    // Cleanup
+                    URL.revokeObjectURL(url);
+                }
             }
+
+
+            // At this point, the file has been downloaded successfully
+            setSuccess("File downloaded successfully.");
+            setOpenSuccess(true);
+
         } catch (e) {
-            setError("Failed to download file. Please try again later.");
+
+            // Handle errors (e.g., signature verification failure)
+            if (e instanceof Error && e.message.includes(msgFailureSignatureVerification)) {
+                message.signatureValid = false;
+                setError("Invalid signature. Download aborted.");
+            } else {
+                setError("Failed to download file. Please try again later.");
+            }
+
             setOpenError(true);
             setDownloadProgress(prev => {
                 const { [message.id]: _, ...rest } = prev;
                 return rest;
             });
             return;
-        }
-
-        // Set the validity of the signature
-        message.signatureValid = messageWithContent.signatureValid;
-        if (message.signatureValid === false) {
-            setError("Invalid signature. Download aborted.");
-            setOpenError(true);
-        } else {
-            // Create a blob and trigger download
-            setSuccess("File downloaded successfully.");
-            setOpenSuccess(true);
-
-            /*const byteArray = new Uint8Array(messageWithContent.message);
-            const blob = new Blob([byteArray], { type: "application/octet-stream" });
-
-            const url = URL.createObjectURL(blob);
-
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = messageWithContent.filename_dec;
-            a.click();
-
-            URL.revokeObjectURL(url); // cleanup*/
         }
 
         // Remove progress indicator
