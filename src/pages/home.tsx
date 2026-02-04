@@ -12,7 +12,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
 import Layout from "../components/layout";
-import { sendMessageAnonymous } from "../handlers/crypto";
+import { sendMessageAnonymous } from "../handlers/crypto_anonymous";
 import { formatSize } from "../handlers/utils";
 
 export default function HomePage() {

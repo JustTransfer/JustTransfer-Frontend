@@ -15,7 +15,7 @@ import LinearProgress, { LinearProgressProps } from '@mui/material/LinearProgres
 import streamSaver from 'streamsaver';
 
 import Layout from "../components/layout";
-import { getOneAnonymousMessageMetadata, getOneAnonymousMessage } from "../handlers/crypto";
+import { getOneAnonymousMessageMetadata, getOneAnonymousMessage } from "../handlers/crypto_anonymous";
 import { formatSize } from "../handlers/utils";
 
 export default function AnonymousTransfer() {

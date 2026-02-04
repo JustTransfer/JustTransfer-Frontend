@@ -1,5 +1,14 @@
+import { Base64 } from "js-base64";
 
 
+function getItemFromSessionStorage(key: string): Uint8Array {
+  const item = sessionStorage.getItem(key);
+  if (!item) {
+    throw new Error(`Item ${key} not found in session storage`);
+  }
+
+  return Base64.toUint8Array(item);
+}
 
 
 const formatSize = (bytes: any) => {
@@ -11,4 +20,4 @@ const formatSize = (bytes: any) => {
   return `${(bytes / (1024 * 1024 * 1024 * 1024)).toFixed(1)} TB`;
 };
 
-export { formatSize };
+export { getItemFromSessionStorage, formatSize };
