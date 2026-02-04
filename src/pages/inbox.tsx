@@ -52,7 +52,7 @@ export default function Inbox() {
 
                 // Use StreamSaver for streaming download (memory efficient)
                 console.log("Using StreamSaver for streaming download");
-                const fileStream = streamSaver.createWriteStream(message.filename_dec);
+                const fileStream = streamSaver.createWriteStream(message.filename);
                 const writer = fileStream.getWriter();
 
 
@@ -91,7 +91,7 @@ export default function Inbox() {
                 try {
                     const a = document.createElement("a");
                     a.href = url;
-                    a.download = messageWithContent.filename_dec;
+                    a.download = messageWithContent.filename;
                     a.style.display = "none";
                     document.body.appendChild(a);
                     a.click();
@@ -207,7 +207,7 @@ export default function Inbox() {
                                             {msg.signatureValid === false ? (
                                                 <TableCell align="center"><Typography color="error">Invalid signature</Typography></TableCell>
                                             ) : (
-                                                <TableCell align="center">{msg.filename_dec}</TableCell>
+                                                <TableCell align="center">{msg.filename}</TableCell>
                                             )}
                                             <TableCell align="center" component="th" scope="row">
                                                 {formatSize(msg.file_size)}

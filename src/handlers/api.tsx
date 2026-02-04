@@ -194,7 +194,7 @@ async function getOneMessageAPI(username: string, mac: string, file_id: string, 
     return (await response.json());
 }
 
-async function sendMessageAPI(mac: string, sender: string, receiver: string, filename: string, nonce_filename: string, nonce_message: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
+async function sendMessageAPI(mac: string, sender: string, receiver: string, cfilename: string, nonce_filename: string, nonce_message: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
 
 
     const response = await fetch(`${apiUrl}/message`, {
@@ -206,7 +206,7 @@ async function sendMessageAPI(mac: string, sender: string, receiver: string, fil
             mac,
             sender,
             receiver,
-            filename,
+            cfilename,
             nonce_filename,
             nonce_message,
             max_downloads,
@@ -296,7 +296,7 @@ async function sendAnonymousMessageStartAPI(client_registration_start: string) {
     return (await response.json());
 }
 
-async function sendAnonymousMessageAPI(id: string, client_registration_finish: string, filename: string, nonce_filename: string, header: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
+async function sendAnonymousMessageAPI(id: string, client_registration_finish: string, cfilename: string, nonce_filename: string, header: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
 
     const response = await fetch(`${apiUrl}/anonymous/message`, {
         method: "POST",
@@ -306,7 +306,7 @@ async function sendAnonymousMessageAPI(id: string, client_registration_finish: s
         body: JSON.stringify({
             id,
             client_registration_finish,
-            filename,
+            cfilename,
             nonce_filename,
             header,
             max_downloads,
@@ -367,7 +367,7 @@ async function finishUploadFileToS3(file_id: string, upload_id: string, etags: s
     return response.status;
 }
 
-async function finishUploadFileToS3Anonymous(file_id: string, upload_id: string, etags: string[]) {
+async function finishUploadFileToS3Anonymous(file_id: string, upload_id: string, etags: string[], mac: String) {
 
     const response = await fetch(`${apiUrl}/anonymous/message/uploadfinish/${file_id}`, {
         method: "POST",
@@ -377,6 +377,7 @@ async function finishUploadFileToS3Anonymous(file_id: string, upload_id: string,
         body: JSON.stringify({
             upload_id,
             etags,
+            mac,
         }),
     });
 

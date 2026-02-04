@@ -151,7 +151,7 @@ export default function HomePage() {
         }}
       >
         <Typography variant="h3">
-          Make a new transfer here!
+          Make a new anonymous transfer here!
         </Typography>
 
         <Paper elevation={4} sx={{ p: 6, borderRadius: 3, width: 500, textAlign: "center" }}>

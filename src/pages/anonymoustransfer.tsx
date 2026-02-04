@@ -17,6 +17,7 @@ import streamSaver from 'streamsaver';
 import Layout from "../components/layout";
 import { getOneAnonymousMessageMetadata, getOneAnonymousMessage } from "../handlers/crypto_anonymous";
 import { formatSize } from "../handlers/utils";
+import { msgFailureMACVerification } from '../handlers/config';
 
 export default function AnonymousTransfer() {
     const { id } = useParams();
@@ -157,8 +158,14 @@ export default function AnonymousTransfer() {
             setMessageData((prev: any) => ({ ...prev, number_downloads: prev.number_downloads + 1 }));
 
         } catch (e) {
-            console.error("Download error:", e);
-            setError("Failed to download file. Please try again later.");
+
+            if (e instanceof Error && e.message.includes(msgFailureMACVerification)) {
+                setError("File integrity check failed (MAC verification). Download aborted.");
+
+            } else {
+                setError("Failed to download file. Please try again later.");
+            }
+
             setOpenError(true);
         } finally {
             // Reset progress indicator

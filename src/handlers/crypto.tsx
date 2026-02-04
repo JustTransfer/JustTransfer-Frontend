@@ -170,7 +170,7 @@ async function getMessages() {
 
         // Get the Encoded fileds of the message
         msg.signature = Base64.toUint8Array(msg.signature);
-        msg.filename = Base64.toUint8Array(msg.filename);
+        msg.cfilename = Base64.toUint8Array(msg.cfilename);
         msg.nonce_filename = Base64.toUint8Array(msg.nonce_filename);
         msg.nonce_message = Base64.toUint8Array(msg.nonce_message);
 
@@ -179,10 +179,8 @@ async function getMessages() {
         const PublicKeyEncSender = Base64.toUint8Array(responsePubKeyEnc.pub_enc);
 
         // Decrypt the filename to display it in the inbox
-        const filenameBytes = sodium.crypto_box_open_easy(msg.filename, msg.nonce_filename, PublicKeyEncSender, PrivateKeyEncDecoded);
-        const filename = new TextDecoder().decode(filenameBytes);
-
-        msg.filename_dec = filename;
+        const filenameBytes = sodium.crypto_box_open_easy(msg.cfilename, msg.nonce_filename, PublicKeyEncSender, PrivateKeyEncDecoded);
+        msg.filename = new TextDecoder().decode(filenameBytes);
     }
 
 
@@ -211,8 +209,9 @@ async function getOneMessage(message: any, onChunk: (chunk: Uint8Array, filename
 
     // Generate a JSON representation of the message metadata to sign
     const messageMetadata = {
-        filename: message.filename,
+        cfilename: message.cfilename,
         nonce_filename: message.nonce_filename,
+        file_id: message.file_id,
         nonce_file: message.nonce_message,
         sender: message.sender,
         receiver: username!,
@@ -231,8 +230,8 @@ async function getOneMessage(message: any, onChunk: (chunk: Uint8Array, filename
     const PublicKeyEncSender = Base64.toUint8Array(responsePubKeyEnc.pub_enc);
 
     // Decrypt the filename
-    const filenameBytes = sodium.crypto_box_open_easy(message.filename, message.nonce_filename, PublicKeyEncSender, PrivateKeyEncDecoded);
-    message.filename_dec = new TextDecoder().decode(filenameBytes);
+    const filenameBytes = sodium.crypto_box_open_easy(message.cfilename, message.nonce_filename, PublicKeyEncSender, PrivateKeyEncDecoded);
+    message.filename = new TextDecoder().decode(filenameBytes);
 
     const shared_key = sodium.crypto_box_beforenm(PublicKeyEncSender, PrivateKeyEncDecoded);
 
@@ -320,8 +319,9 @@ async function sendMessage(receiver: string, fileName: string, file: File, lifet
     let state = sodium.crypto_sign_init();
 
     const metadata = {
-        filename: cfilename,
+        cfilename: cfilename,
         nonce_filename: nonce_filename,
+        file_id: messageFileId,
         nonce_file: nonce_file,
         sender: username!,
         receiver: receiver,
