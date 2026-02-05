@@ -6,8 +6,9 @@ import { frontendUrl } from "./config";
 
 import { getAnonymousMessageMetadataStartAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, uploadFileToS3, finishUploadFileToS3Anonymous, downloadFileFromS3 } from "./api";
 import { getItemFromSessionStorage } from "./utils";
-import { msgFailureMACVerification } from "./config";
-import { NamedTupleMember } from "typescript";
+
+import * as errors from "../messages/errors";
+import * as strings from "../messages/strings";
 
 async function initLibsodium() {
     await sodium.ready;
@@ -34,20 +35,19 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
     });
 
     if (!loginResult) {
-        throw new Error("Login failed. Please check your credentials.");
+        throw new Error(errors.errorLoginFailed);
     }
 
     const { exportKey, serverStaticPublicKey, finishLoginRequest, sessionKey } = loginResult;
 
-    // Decode session key
-    const sessionKeyDecoded = Base64.toUint8Array(sessionKey).slice(0, 32); // Take only first 32 bytes
-
     // Save keys in session storage with message id
     sessionStorage.setItem(`exportKey_${message_id}`, exportKey);
-    sessionStorage.setItem(`sessionKey_${message_id}`, sessionKey);
 
+    // Decode export key
+    const exportKeyMetadataDecoded = Base64.toUint8Array(exportKey).slice(0, 32);
+
+    // Get the message metadata
     const result2 = await getAnonymousMessageMetadataAPI(message_id, finishLoginRequest);
-
     let { id, cfilename, nonce_filename, file_id, header, creation_time, lifetime, max_downloads, number_downloads, file_size, chunk_size, mac } = result2.message;
 
     await initLibsodium();
@@ -56,17 +56,30 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
     cfilename = Base64.toUint8Array(cfilename);
     nonce_filename = Base64.toUint8Array(nonce_filename);
     header = Base64.toUint8Array(header);
-    mac = Base64.toUint8Array(mac);
 
-    // Decrypt the filename to display it in the inbox
-    const filenameBytes = sodium.crypto_secretbox_open_easy(cfilename, nonce_filename, Base64.toUint8Array(exportKey).slice(0, 32));
-    const filename = new TextDecoder().decode(filenameBytes);
+    // Decrypt the filename and check auth data
+    const auth_data = {
+        max_downloads: max_downloads,
+        lifetime: lifetime,
+        creation_time: creation_time,
+        file_size: file_size,
+        chunk_size: chunk_size,
+    };
+
+    let filename: string;
+
+    try {
+        const filenameBytes = sodium.crypto_aead_aegis256_decrypt(null, cfilename, new TextEncoder().encode(JSON.stringify(auth_data)), nonce_filename, exportKeyMetadataDecoded);
+        filename = new TextDecoder().decode(filenameBytes);
+    } catch (e) {
+        throw new Error(errors.errorFailureMACVerification);
+    }
 
     return {
         success: true,
         message: "Message metadata retrieved successfully!",
         messageData: {
-            id, cfilename, filename, nonce_filename, message_id, file_id, header, creation_time, lifetime, max_downloads, number_downloads, file_size, chunk_size, mac
+            id, cfilename, filename, nonce_filename, message_id, file_id, header, creation_time, lifetime, max_downloads, number_downloads, file_size, chunk_size
         }
     };
 }
@@ -82,41 +95,21 @@ async function getOneAnonymousMessage(message: any, onChunk: (chunk: Uint8Array,
     const message_id = message.id;
 
     const exportKey = sessionStorage.getItem(`exportKey_${message_id}`);
-    const sessionKey = sessionStorage.getItem(`sessionKey_${message_id}`);
 
-    if (!exportKey || !sessionKey) {
-        throw new Error("Missing keys in session storage. Please retrieve the message metadata first.");
+    if (!exportKey) {
+        throw new Error(errors.errorMissingKeyInSessionStorage);
     }
 
     const repsonse = await getAnonymousMessageAPI(message_id);
     const downloadUrl = repsonse.download_url;
 
-    // Construct the MAC data
-    const data_mac = {
-        cfilename: message.cfilename,
-        nonce_filename: message.nonce_filename,
-        file_id: message.file_id,
-        header: message.header,
-        max_downloads: message.max_downloads,
-        lifetime: message.lifetime,
-        creation_time: message.creation_time,
-        file_size: message.file_size,
-        chunk_size: message.chunk_size,
-        first_chunk: new Uint8Array(),
-    };
-
     // Get the message content
-    const exportKeyDecoded = Base64.toUint8Array(exportKey).slice(0, 32); // Take only first 32 bytes
-    const state = sodium.crypto_secretstream_xchacha20poly1305_init_pull(message.header, exportKeyDecoded);
+    const exportKeyFileDecoded = Base64.toUint8Array(exportKey).slice(32, 64);
+    const state = sodium.crypto_secretstream_xchacha20poly1305_init_pull(message.header, exportKeyFileDecoded);
 
     const decryptChunk = (chunk: Uint8Array) => {
-
-        // Check if it's the first chunk to add it to MAC data
-        if (data_mac.first_chunk.length === 0) {
-            data_mac.first_chunk = new Uint8Array(chunk);
-        }
-
-        const { message: decryptedChunk, tag } = sodium.crypto_secretstream_xchacha20poly1305_pull(state, chunk, null, null);
+        const { message: decryptedChunk, tag: tag } = sodium.crypto_secretstream_xchacha20poly1305_pull(state, chunk);
+        console.log("tag:", tag);
         return { decryptedChunk, tag };
     };
 
@@ -126,15 +119,13 @@ async function getOneAnonymousMessage(message: any, onChunk: (chunk: Uint8Array,
         if (decryptedChunk) {
             await onChunk(decryptedChunk, message.filename); // send chunk progressively
         }
+
+        if (tag === undefined) {
+            return -1;
+        }
+
         return tag;
     }, downloadUrl, onProgress);
-
-    // Verify MAC
-    const valid = sodium.crypto_auth_verify(message.mac, JSON.stringify(data_mac), exportKeyDecoded);
-
-    if (!valid) {
-        throw new Error(msgFailureMACVerification);
-    }
 
     return message;
 }
@@ -157,7 +148,7 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
     const chunkSize = response.chunk_size
 
     if (!chunkSize || chunkSize <= 0) {
-        throw new Error("Invalid chunk size received from server");
+        throw new Error(errors.errorAPIRequestFailed);
     }
 
     const { exportKey, serverStaticPublicKey, registrationRecord } = opaque.client.finishRegistration({
@@ -166,21 +157,34 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
         password,
     });
 
-    // Decode it from base64Url
-    const exportKeyDecoded = Base64.toUint8Array(exportKey).slice(0, 32); // Take only first 32 bytes
+    if (!exportKey || exportKey.length < 64) {
+        throw new Error(errors.errorKeyDerivationFailed);
+    }
 
-    // Encrypt the filename
-    const nonce_filename = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
-    const cfilename = sodium.crypto_secretbox_easy(new TextEncoder().encode(fileName), nonce_filename, exportKeyDecoded); // TODO check Key usage !!!
-
-    const cfilename_b64 = Base64.fromUint8Array(cfilename, true);
-    const nonce_filename_b64 = Base64.fromUint8Array(nonce_filename, true);
+    // Decode the export key
+    const exportKeyMetadataDecoded = Base64.toUint8Array(exportKey).slice(0, 32); // Take only first 32 bytes for the filename and auth data
+    const exportKeyFileDecoded = Base64.toUint8Array(exportKey).slice(32, 64); // Take last 32 bytes for MAC key for the file encryption
 
     // Get the current timestamp
     const timestamp = new Date().toISOString();
 
+    // Encrypt the filename and construct the auth data
+    const auth_data = {
+        max_downloads: maxDownloads,
+        lifetime: lifetimeDays,
+        creation_time: timestamp,
+        file_size: file.size,
+        chunk_size: chunkSize,
+    };
+
+    const nonce_filename = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
+    const cfilename = sodium.crypto_aead_aegis256_encrypt(new TextEncoder().encode(fileName), new TextEncoder().encode(JSON.stringify(auth_data)), null, nonce_filename, exportKeyMetadataDecoded);
+
+    const cfilename_b64 = Base64.fromUint8Array(cfilename, true);
+    const nonce_filename_b64 = Base64.fromUint8Array(nonce_filename, true);
+
     // Encrypt the file in chunks
-    const { state, header } = sodium.crypto_secretstream_xchacha20poly1305_init_push(exportKeyDecoded); // TODO check Key usage !!!
+    const { state, header } = sodium.crypto_secretstream_xchacha20poly1305_init_push(exportKeyFileDecoded);
     const header_b64 = Base64.fromUint8Array(header, true);
     const totalLength = file.size;
     //const totalLengthWithTags = totalLength + Math.ceil(totalLength / chunkSize) * sodium.crypto_secretstream_xchacha20poly1305_ABYTES;
@@ -192,21 +196,8 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
     const upload_id = response2.upload_id;
     const message_file_id = response2.message_file_id;
 
-    let data_mac = {
-        cfilename: cfilename,
-        nonce_filename: nonce_filename,
-        file_id: message_file_id,
-        header: header,
-        max_downloads: maxDownloads,
-        lifetime: lifetimeDays,
-        creation_time: timestamp,
-        file_size: file.size,
-        chunk_size: chunkSize,
-        first_chunk: new Uint8Array(),
-    };
-
     if (uploadUrls.length !== Math.ceil(file.size / chunkSize)) {
-        throw new Error("Number of upload URLs does not match number of chunks");
+        throw new Error(errors.errorAPIRequestFailed);
     }
 
     let ETags: string[] = [];
@@ -221,11 +212,6 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
             : 0;
         const encryptedChunk = sodium.crypto_secretstream_xchacha20poly1305_push(state, buf, null, tag);
 
-        // Add first chunk to mac data
-        if (offset === 0) {
-            data_mac.first_chunk = new Uint8Array(encryptedChunk);
-        }
-
         // Upload the chunk to S3
         const chunkUploadResp = await uploadFileToS3(uploadUrls[offset / chunkSize], encryptedChunk, void 0);
         ETags.push(chunkUploadResp.ETag);
@@ -234,11 +220,8 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
         onProgress?.(Math.min(((offset + chunkSize) / totalLength) * 100, 100)); // Avoid going over 100% if the last chunk is smaller than chunkSize
     }
 
-    // Calculate MAC
-    const mac = sodium.crypto_auth(JSON.stringify(data_mac), exportKeyDecoded); // TODO check Key usage !!!
-
     // Finalize the upload
-    const response3 = await finishUploadFileToS3Anonymous(message_file_id, upload_id, ETags, Base64.fromUint8Array(mac, true));
+    const response3 = await finishUploadFileToS3Anonymous(message_file_id, upload_id, ETags);
 
     return {
         success: true,

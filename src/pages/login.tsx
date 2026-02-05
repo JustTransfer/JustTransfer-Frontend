@@ -6,6 +6,9 @@ import Snackbar, { type SnackbarCloseReason } from '@mui/material/Snackbar';
 import Layout from "../components/layout";
 import { login } from "../handlers/crypto";
 
+import * as errors from "../messages/errors";
+import * as strings from "../messages/strings";
+
 export default function LoginPage() {
 
     const [error, setError] = useState("");
@@ -35,11 +38,10 @@ export default function LoginPage() {
                 window.location.href = "/new-transfer";
 
             } else {
-                setError(result.message);
-                setOpenError(true);
+                throw new Error(result.message);
             }
         } catch (e) {
-            setError("An error occurred during login.");
+            setError(e instanceof Error ? e.message : errors.errorLoginFailed);
             setOpenError(true);
         }
     }

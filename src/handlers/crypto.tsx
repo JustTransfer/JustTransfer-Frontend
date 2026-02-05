@@ -3,8 +3,10 @@ import sodium from "libsodium-wrappers-sumo";
 import { Base64 } from 'js-base64';
 
 import { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 } from "./api";
-import { msgFailureSignatureVerification } from "../handlers/config";
 import { getItemFromSessionStorage } from "./utils";
+
+import * as errors from "../messages/errors";
+import * as strings from "../messages/strings";
 
 async function initLibsodium() {
     await sodium.ready;
@@ -63,7 +65,6 @@ async function register(username: string, email: string, password: string) {
     // Return the keys
     return {
         success: true,
-        message: "Account created successfully!",
     };
 }
 
@@ -98,7 +99,6 @@ async function login(username: string, password: string) {
 
     // Decode it from base64Url
     const exportKeyDecoded = Base64.toUint8Array(exportKey).slice(0, 32); // Take only first 32 bytes
-    const sessionKeyDecoded = Base64.toUint8Array(sessionKey).slice(0, 32); // Take only first 32 bytes
 
     // Convert the keys from base64 to Uint8Array
     pub_enc = Base64.toUint8Array(pub_enc);
@@ -119,13 +119,10 @@ async function login(username: string, password: string) {
     const PrivateKeySign = sodium.crypto_secretbox_open_easy(cpriv_sign, nonce_priv_sign, exportKeyDecoded);
     const PublicKeySign = pub_sign;
 
-    // Calculate MAC
-    const mac = sodium.crypto_auth(username, sessionKeyDecoded)
 
+    // Save keys in session storage
     sessionStorage.setItem("username", username);
     sessionStorage.setItem("exportKey", Base64.fromUint8Array(exportKeyDecoded));
-    sessionStorage.setItem("sessionKey", Base64.fromUint8Array(sessionKeyDecoded));
-    sessionStorage.setItem("mac", Base64.fromUint8Array(mac));
     sessionStorage.setItem("PrivateKeyEnc", Base64.fromUint8Array(PrivateKeyEnc));
     sessionStorage.setItem("PublicKeyEnc", Base64.fromUint8Array(PublicKeyEnc));
     sessionStorage.setItem("PrivateKeySign", Base64.fromUint8Array(PrivateKeySign));
@@ -264,7 +261,7 @@ async function getOneMessage(message: any, onChunk: (chunk: Uint8Array, filename
     // Verify the signature
     message.signatureValid = sodium.crypto_sign_final_verify(state, message.signature, PublicKeySignSender);
     if (!message.signatureValid) {
-        throw new Error(msgFailureSignatureVerification);
+        throw new Error(errors.errorFailureSignatureVerification);
     }
 
     return message;
@@ -308,7 +305,7 @@ async function sendMessage(receiver: string, fileName: string, file: File, lifet
     const chunkSize = response.chunk_size;
 
     if (!chunkSize || chunkSize <= 0) {
-        throw new Error("Invalid chunk size received from server");
+        throw new Error(errors.errorAPIRequestFailed);
     }
 
     // Sign the metadata of the message
@@ -336,7 +333,7 @@ async function sendMessage(receiver: string, fileName: string, file: File, lifet
     const totalLengthWithTags = totalLength + Math.ceil(totalLength / chunkSize) * (sodium.crypto_box_MACBYTES + sodium.crypto_box_NONCEBYTES);
 
     if (uploadUrls.length !== Math.ceil(file.size / chunkSize)) {
-        throw new Error("Number of upload URLs does not match number of chunks");
+        throw new Error(errors.errorAPIRequestFailed);
     }
 
     let ETags: string[] = [];

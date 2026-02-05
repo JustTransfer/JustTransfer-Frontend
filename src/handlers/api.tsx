@@ -3,6 +3,9 @@ import * as opaque from "@serenity-kit/opaque";
 import { apiUrl } from "./config";
 import sodium from "libsodium-wrappers-sumo";
 
+import * as errors from "../messages/errors";
+import * as strings from "../messages/strings";
+
 async function registerStartAPI(username: string, client_registration_start: string) {
 
     const response = await fetch(`${apiUrl}/register/start`, {
@@ -359,7 +362,7 @@ async function finishUploadFileToS3(file_id: string, upload_id: string, etags: s
     return response.status;
 }
 
-async function finishUploadFileToS3Anonymous(file_id: string, upload_id: string, etags: string[], mac: String) {
+async function finishUploadFileToS3Anonymous(file_id: string, upload_id: string, etags: string[]) {
 
     const response = await fetch(`${apiUrl}/anonymous/message/uploadfinish/${file_id}`, {
         method: "POST",
@@ -369,7 +372,6 @@ async function finishUploadFileToS3Anonymous(file_id: string, upload_id: string,
         body: JSON.stringify({
             upload_id,
             etags,
-            mac,
         }),
     });
 
@@ -423,7 +425,7 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
             while (offset + chunkSizeWithTag <= chunk.length) {
                 const fullChunk = chunk.slice(offset, offset + chunkSizeWithTag);
                 const ret = await decrypt(fullChunk);
-                if (ret < 0) throw new Error("Decryption of chunk failed");
+                if (ret < 0) throw new Error(errors.errorFailureDecryption);
 
                 received += fullChunk.length;
                 offset += chunkSizeWithTag;
@@ -439,7 +441,7 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
     // Process any remaining bytes as the final chunk
     if (chunk.length > 0) {
         const ret = await decrypt(chunk);
-        if (ret < 0) throw new Error("Decryption of final chunk failed");
+        if (ret < 0) throw new Error(errors.errorFailureDecryption);
     }
 
     return 0; // Success

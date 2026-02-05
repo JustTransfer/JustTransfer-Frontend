@@ -9,6 +9,8 @@ import Layout from "../components/layout";
 import { sendMessage } from "../handlers/crypto";
 import { formatSize } from "../handlers/utils";
 
+import * as errors from "../messages/errors";
+import * as strings from "../messages/strings";
 
 export default function NewTransfer() {
     const [error, setError] = useState("");
@@ -67,7 +69,7 @@ export default function NewTransfer() {
         if (selectedFile) {
             formData.append("file", selectedFile);
         } else {
-            setError("Please select a file to upload.");
+            setError(errors.errorFileNotSelected);
             setOpenError(true);
             return;
         }
@@ -86,7 +88,7 @@ export default function NewTransfer() {
                 setProgress(percent);
             });
 
-            setSuccess("File sent successfully!");
+            setSuccess(strings.msgFileUploaded);
             setOpenSuccess(true);
 
             setTimeout(() => {
@@ -95,7 +97,7 @@ export default function NewTransfer() {
             }, 500);
 
         } catch (e) {
-            setError("An error occurred while sending the file.");
+            setError("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
             setOpenError(true);
             setIsSending(false);
             setProgress(0);

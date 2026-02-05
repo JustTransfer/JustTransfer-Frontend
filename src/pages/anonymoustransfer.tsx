@@ -17,7 +17,9 @@ import streamSaver from 'streamsaver';
 import Layout from "../components/layout";
 import { getOneAnonymousMessageMetadata, getOneAnonymousMessage } from "../handlers/crypto_anonymous";
 import { formatSize } from "../handlers/utils";
-import { msgFailureMACVerification } from '../handlers/config';
+
+import * as errors from "../messages/errors";
+import * as strings from "../messages/strings";
 
 export default function AnonymousTransfer() {
     const { id } = useParams();
@@ -74,11 +76,12 @@ export default function AnonymousTransfer() {
 
             setMessageData(result.messageData);
 
-            setSuccess("File retrieved successfully!");
+            setSuccess(strings.msgFileInfoDecrypted);
             setOpenSuccess(true);
 
         } catch (e) {
-            setError((e as Error).message);
+
+            setError("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
             setOpenError(true);
             setIsDownloading(false);
             return;
@@ -151,7 +154,7 @@ export default function AnonymousTransfer() {
                 }
             }
 
-            setSuccess("File downloaded successfully.");
+            setSuccess(strings.msgFileDownloaded);
             setOpenSuccess(true);
 
             // Increment download count
@@ -159,13 +162,7 @@ export default function AnonymousTransfer() {
 
         } catch (e) {
 
-            if (e instanceof Error && e.message.includes(msgFailureMACVerification)) {
-                setError("File integrity check failed (MAC verification). Download aborted.");
-
-            } else {
-                setError("Failed to download file. Please try again later.");
-            }
-
+            setError("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
             setOpenError(true);
         } finally {
             // Reset progress indicator

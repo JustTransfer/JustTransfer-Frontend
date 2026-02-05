@@ -6,6 +6,9 @@ import Snackbar, { type SnackbarCloseReason } from '@mui/material/Snackbar';
 import Layout from "../components/layout";
 import { register } from "../handlers/crypto";
 
+import * as errors from "../messages/errors";
+import * as strings from "../messages/strings";
+
 export default function CreateAccountPage() {
     const [errorPassword, setErrorPassword] = useState("");
     const [error, setError] = useState("");
@@ -34,8 +37,8 @@ export default function CreateAccountPage() {
         };
 
         if (data.password !== data.confirmPassword) {
-            setErrorPassword("Passwords do not match");
-            setError("Passwords do not match");
+            setErrorPassword(errors.errorPasswordMismatch);
+            setError(errors.errorPasswordMismatch);
             setOpenError(true);
             return;
         }
@@ -49,7 +52,7 @@ export default function CreateAccountPage() {
             const result = await register(data.username as string, data.email as string, data.password as string);
 
             if (result.success) {
-                setSuccess(result.message);
+                setSuccess(strings.msgAccountCreated);
                 setOpenSuccess(true);
 
                 setTimeout(() => {
@@ -57,11 +60,10 @@ export default function CreateAccountPage() {
                 }, 2000);
 
             } else {
-                setError(result.message);
-                setOpenError(true);
+                throw new Error(errors.errorRegistrationFailed);
             }
         } catch (e) {
-            setError("An error occurred during registration.");
+            setError(e instanceof Error ? e.message : errors.errorRegistrationFailed);
             setOpenError(true);
         }
     }

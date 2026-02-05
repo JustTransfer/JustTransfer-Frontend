@@ -159,7 +159,6 @@ export default function Layout({ title, content }: { title: string; content: Rea
         const storedKeys = {
             username: sessionStorage.getItem("username"),
             exportKey: sessionStorage.getItem("exportKey"),
-            sessionKey: sessionStorage.getItem("sessionKey"),
             PrivateKeyEnc: sessionStorage.getItem("PrivateKeyEnc"),
             PublicKeyEnc: sessionStorage.getItem("PublicKeyEnc"),
             PrivateKeySign: sessionStorage.getItem("PrivateKeySign"),
@@ -170,7 +169,6 @@ export default function Layout({ title, content }: { title: string; content: Rea
         if (
             storedKeys.username &&
             storedKeys.exportKey &&
-            storedKeys.sessionKey &&
             storedKeys.PrivateKeyEnc &&
             storedKeys.PublicKeyEnc &&
             storedKeys.PrivateKeySign &&

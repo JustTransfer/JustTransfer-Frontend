@@ -1,10 +1,13 @@
 import { Base64 } from "js-base64";
 
+import * as errors from "../messages/errors";
+import * as strings from "../messages/strings";
+
 
 function getItemFromSessionStorage(key: string): Uint8Array {
   const item = sessionStorage.getItem(key);
   if (!item) {
-    throw new Error(`Item ${key} not found in session storage`);
+    throw new Error(errors.errorMissingKeyInSessionStorage);
   }
 
   return Base64.toUint8Array(item);

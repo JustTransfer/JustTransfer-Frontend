@@ -14,7 +14,9 @@ import streamSaver from 'streamsaver';
 import Layout from "../components/layout";
 import { getMessages, getOneMessage } from "../handlers/crypto"
 import { formatSize } from "../handlers/utils";
-import { msgFailureSignatureVerification } from "../handlers/config";
+
+import * as errors from "../messages/errors";
+import * as strings from "../messages/strings";
 
 export default function Inbox() {
     const [messages, setMessages] = useState<Array<any>>([]);
@@ -104,19 +106,12 @@ export default function Inbox() {
 
 
             // At this point, the file has been downloaded successfully
-            setSuccess("File downloaded successfully.");
+            setSuccess(strings.msgFileDownloaded);
             setOpenSuccess(true);
 
         } catch (e) {
 
-            // Handle errors (e.g., signature verification failure)
-            if (e instanceof Error && e.message.includes(msgFailureSignatureVerification)) {
-                message.signatureValid = false;
-                setError("Invalid signature. Download aborted.");
-            } else {
-                setError("Failed to download file. Please try again later.");
-            }
-
+            setError("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
             setOpenError(true);
             setDownloadProgress(prev => {
                 const { [message.id]: _, ...rest } = prev;

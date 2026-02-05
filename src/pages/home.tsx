@@ -15,6 +15,9 @@ import Layout from "../components/layout";
 import { sendMessageAnonymous } from "../handlers/crypto_anonymous";
 import { formatSize } from "../handlers/utils";
 
+import * as errors from "../messages/errors";
+import * as strings from "../messages/strings";
+
 export default function HomePage() {
 
   const [errorPassphrase, setErrorPassphrase] = useState("");
@@ -89,7 +92,7 @@ export default function HomePage() {
     if (selectedFile) {
       formData.append("file", selectedFile);
     } else {
-      setError("Please select a file to upload.");
+      setError(errors.errorFileNotSelected);
       setOpenError(true);
       return;
     }
@@ -103,8 +106,8 @@ export default function HomePage() {
     };
 
     if (data.passphrase !== data.confirmPassphrase) {
-      setErrorPassphrase("Passphrases do not match");
-      setError("Passphrases do not match");
+      setErrorPassphrase(errors.errorPassphraseMismatch);
+      setError(errors.errorPassphraseMismatch);
       setOpenError(true);
       return;
     }
@@ -120,7 +123,7 @@ export default function HomePage() {
 
       setLink(result.link);
 
-      setSuccess("File sent successfully!");
+      setSuccess(strings.msgFileUploaded);
       setOpenSuccess(true);
 
       setTimeout(() => {
@@ -130,7 +133,7 @@ export default function HomePage() {
       }, 100);
 
     } catch (e) {
-      setError("An error occurred while sending the file.");
+      setError("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
       setOpenError(true);
       setIsSending(false);
       setProgress(0);
@@ -207,7 +210,7 @@ export default function HomePage() {
             <TextField id="outlined-basic" label="Link" variant="outlined" value={link} fullWidth margin="dense" />
             <ContentCopyIcon sx={{ color: "primary.main", "&:hover": { cursor: "pointer" } }} onClick={() => {
               navigator.clipboard.writeText(link);
-              setSuccess("Link copied to clipboard!");
+              setSuccess(strings.msgLinkCopied);
               setOpenSuccess(true);
             }} />
           </DialogContent>
