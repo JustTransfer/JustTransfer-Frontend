@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { styled, useTheme, createTheme, ThemeProvider, type Theme, type CSSObject } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
@@ -143,6 +144,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 export default function Layout({ title, content }: { title: string; content: React.ReactNode }) {
+
+    const navigate = useNavigate();
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
     const [isLoggedIn, setIsLoggedIn] = React.useState(false);
@@ -216,7 +219,11 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                     marginTop: '-4px', // Make the logo align better with the text
                                 }}
                                 onClick={() => {
-                                    window.location.href = isLoggedIn ? '/new-transfer' : '/';
+                                    if (isLoggedIn) {
+                                        navigate("/new-transfer", { replace: true });
+                                    } else {
+                                        navigate("/", { replace: true });
+                                    }
                                 }}
                             />
 
@@ -231,14 +238,14 @@ export default function Layout({ title, content }: { title: string; content: Rea
 
                         {!isLoggedIn ? (
                             <Box sx={{ marginLeft: 'auto' }}>
-                                <Button color="inherit" onClick={() => { window.location.href = '/register'; }}>Create account</Button>
-                                <Button color="inherit" onClick={() => { window.location.href = '/login'; }}>Login</Button>
+                                <Button color="inherit" onClick={() => { navigate("/register", { replace: true }); }}>Create account</Button>
+                                <Button color="inherit" onClick={() => { navigate("/login", { replace: true }); }}>Login</Button>
                             </Box>
                         ) : (
                             <Box sx={{ marginLeft: 'auto' }}>
                                 <Button color="inherit" onClick={async () => {
                                     await logout();
-                                    window.location.href = '/';
+                                    navigate("/", { replace: true });
                                 }}>
                                     Logout
                                 </Button>
@@ -261,7 +268,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                         { minHeight: 48, px: 2.5 },
                                         open ? { justifyContent: 'initial' } : { justifyContent: 'center' },
                                     ]}
-                                    onClick={() => { window.location.href = '/new-transfer'; }}
+                                    onClick={() => { navigate("/new-transfer", { replace: true }); }}
                                 >
                                     <ListItemIcon
                                         sx={[
@@ -284,7 +291,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                         { minHeight: 48, px: 2.5 },
                                         open ? { justifyContent: 'initial' } : { justifyContent: 'center' },
                                     ]}
-                                    onClick={() => { window.location.href = '/inbox'; }}
+                                    onClick={() => { navigate("/inbox", { replace: true }); }}
                                 >
                                     <ListItemIcon
                                         sx={[
@@ -307,7 +314,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                         { minHeight: 48, px: 2.5 },
                                         open ? { justifyContent: 'initial' } : { justifyContent: 'center' },
                                     ]}
-                                    onClick={() => { window.location.href = '/transfers'; }}
+                                    onClick={() => { navigate("/transfers", { replace: true }); }}
                                 >
                                     <ListItemIcon
                                         sx={[
@@ -342,7 +349,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                                 justifyContent: 'center',
                                             },
                                     ]}
-                                    onClick={() => { window.location.href = '/account'; }}
+                                    onClick={() => { navigate("/account", { replace: true }); }}
                                 >
                                     <ListItemIcon
                                         sx={[

@@ -147,7 +147,6 @@ async function logout() {
     }
 
     sessionStorage.clear();
-    window.location.href = "/";
 }
 
 async function getMessages() {

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Box, Typography, Button, TextField, Paper } from "@mui/material";
 import Alert from '@mui/material/Alert';
 import Snackbar, { type SnackbarCloseReason } from '@mui/material/Snackbar';
@@ -10,6 +11,8 @@ import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
 
 export default function CreateAccountPage() {
+
+    const navigate = useNavigate();
     const [errorPassword, setErrorPassword] = useState("");
     const [error, setError] = useState("");
     const [openError, setOpenError] = useState(false);
@@ -56,7 +59,7 @@ export default function CreateAccountPage() {
                 setOpenSuccess(true);
 
                 setTimeout(() => {
-                    window.location.href = "/login";
+                    navigate("/login", { replace: true });
                 }, 2000);
 
             } else {
