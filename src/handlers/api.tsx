@@ -26,7 +26,7 @@ async function registerStartAPI(username: string, client_registration_start: str
     return (await response.json());
 }
 
-async function registerEndAPI(username: string, client_registration_finish: string, cpriv_enc: string, nonce_priv_enc: string, pub_enc: string, cpriv_sign: string, nonce_priv_sign: string, pub_sign: string) {
+async function registerEndAPI(username: string, email: string, client_registration_finish: string, cpriv_enc: string, nonce_priv_enc: string, pub_enc: string, cpriv_sign: string, nonce_priv_sign: string, pub_sign: string) {
 
     const response = await fetch(`${apiUrl}/register/end`, {
         method: "POST",
@@ -35,6 +35,7 @@ async function registerEndAPI(username: string, client_registration_finish: stri
         },
         body: JSON.stringify({
             username,
+            email,
             client_registration_finish,
             cpriv_enc,
             nonce_priv_enc,

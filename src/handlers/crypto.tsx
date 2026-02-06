@@ -60,7 +60,7 @@ async function register(username: string, email: string, password: string) {
     const nonce_sign_b64 = Base64.fromUint8Array(nonce_sign, true);
     const PublicKeySign_b64 = Base64.fromUint8Array(PublicKeySign, true);
 
-    const result = await registerEndAPI(username, registrationRecord, cpriv_enc_b64, nonce_enc_b64, PublicKeyEnc_b64, cpriv_sign_b64, nonce_sign_b64, PublicKeySign_b64);
+    const result = await registerEndAPI(username, email, registrationRecord, cpriv_enc_b64, nonce_enc_b64, PublicKeyEnc_b64, cpriv_sign_b64, nonce_sign_b64, PublicKeySign_b64);
 
     // Return the keys
     return {
@@ -170,7 +170,7 @@ async function getMessages() {
 
         // Get the public key enc of the sender to decrypt the filename and file
         const responsePubKeyEnc = await getPublicKeyEncAPI(msg.sender);
-        const PublicKeyEncSender = Base64.toUint8Array(responsePubKeyEnc.pub_enc);
+        const PublicKeyEncSender = Base64.toUint8Array(responsePubKeyEnc.pub_enc); // TODO create cache for public keys
 
         // Decrypt the filename to display it in the inbox
         const filenameBytes = sodium.crypto_box_open_easy(msg.cfilename, msg.nonce_filename, PublicKeyEncSender, PrivateKeyEncDecoded);
