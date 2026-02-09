@@ -157,7 +157,7 @@ async function getMessages() {
 
     const PrivateKeyEncDecoded = getItemFromSessionStorage("PrivateKeyEnc");
 
-    const response = await getMessagesAPI(username!);
+    const response = await getMessagesAPI();
 
     // For each message:
     for (let msg of response.messages) {
@@ -295,7 +295,7 @@ async function sendMessage(receiver: string, fileName: string, file: File, lifet
     const timestamp = new Date().toISOString();
 
     // Send the message
-    const response = await sendMessageAPI(username!, receiver, cfilename_b64, nonce_filename_b64, nonce_file_b64, maxDownloads, lifetimeDays, timestamp, file.size);
+    const response = await sendMessageAPI(receiver, cfilename_b64, nonce_filename_b64, nonce_file_b64, maxDownloads, lifetimeDays, timestamp, file.size);
 
     // Get the upload URL
     const uploadUrls = response.upload_urls;

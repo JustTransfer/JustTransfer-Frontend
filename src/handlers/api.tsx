@@ -153,16 +153,13 @@ async function getPublicKeySignAPI(user_request_pub_key: string) {
     return (await response.json());
 }
 
-async function getMessagesAPI(username: string) {
+async function getMessagesAPI() {
 
     const response = await fetch(`${apiUrl}/messages`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-            username,
-        }),
     });
 
     if (!response.ok) {
@@ -172,16 +169,13 @@ async function getMessagesAPI(username: string) {
     return (await response.json());
 }
 
-async function getOneMessageAPI(username: string, file_id: string, onProgress?: (percent: number) => void) {
+async function getOneMessageAPI(file_id: string, onProgress?: (percent: number) => void) {
 
     const response = await fetch(`${apiUrl}/message/${file_id}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-            username,
-        }),
     });
 
     if (!response.ok) {
@@ -191,7 +185,7 @@ async function getOneMessageAPI(username: string, file_id: string, onProgress?: 
     return (await response.json());
 }
 
-async function sendMessageAPI(sender: string, receiver: string, cfilename: string, nonce_filename: string, nonce_message: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
+async function sendMessageAPI(receiver: string, cfilename: string, nonce_filename: string, nonce_message: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
 
 
     const response = await fetch(`${apiUrl}/message`, {
@@ -200,7 +194,6 @@ async function sendMessageAPI(sender: string, receiver: string, cfilename: strin
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            sender,
             receiver,
             cfilename,
             nonce_filename,
