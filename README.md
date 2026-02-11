@@ -11,17 +11,15 @@ This is the frontend application for JustTransfer, a file transfer service. The 
 To set up the project locally, follow these steps:
 
 ```bash
-npm run start
+npm install
+npm run start # http://localhost:3000
 ```
 
 ## TODO
 
 - Validate password strength
-- Support large files (not in memory)
 - Support drag and drop
 - Make account page (key rotation, delete account, etc.)
-- Make anonymous transfer page (create transfer and receive transfer)
-- Use TLD for the signatures (not just concatenate)
 - Validate public key retrieved from the server (Authenticated Data in AEAD)
 - OPAQUE
   - Check server public key (maybe not needed if authenticity of the server is checked with TLS)

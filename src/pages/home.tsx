@@ -157,10 +157,14 @@ export default function HomePage() {
           Make a new anonymous transfer here!
         </Typography>
 
-        <Paper elevation={4} sx={{ p: 6, borderRadius: 3, width: 500, textAlign: "center" }}>
+        <Paper elevation={4} sx={{ p: 4, borderRadius: 3, width: 500, textAlign: "center" }}>
           <Box component="form" sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }} onSubmit={handleSubmit} ref={formRef}>
 
-            <AddBoxIcon sx={{ color: "primary.main", transform: "scale(4)", "&:hover": { cursor: "pointer", transform: "scale(4.1)" }, marginBottom: 4 }} onClick={handleIconClick} />
+            <Typography variant="h6">
+              Click to add a file to transfer.
+            </Typography>
+
+            <AddBoxIcon sx={{ color: "primary.main", transform: "scale(4)", "&:hover": { cursor: "pointer", transform: "scale(4.1)" }, marginBottom: 3, marginTop: 3 }} onClick={handleIconClick} />
 
             <input
               type="file"
@@ -174,7 +178,11 @@ export default function HomePage() {
               <Typography variant="body2" color="text.secondary">
                 {selectedFile.name} ({formatSize(selectedFile.size)})
               </Typography>
-            )}
+            ) || (
+                <Typography variant="body2" color="text.secondary">
+                  No file selected.
+                </Typography>
+              )}
 
             <TextField label="Passphrase" name="passphrase" type="password" variant="outlined" fullWidth required />
             <TextField label="Confirm Passphrase" name="confirmPassphrase" type="password" variant="outlined" fullWidth required

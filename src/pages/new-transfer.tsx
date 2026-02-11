@@ -121,10 +121,14 @@ export default function NewTransfer() {
                     Make a new transfer here!
                 </Typography>
 
-                <Paper elevation={4} sx={{ p: 6, borderRadius: 3, width: 500, textAlign: "center" }}>
+                <Paper elevation={4} sx={{ p: 4, borderRadius: 3, width: 500, textAlign: "center" }}>
                     <Box component="form" sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }} onSubmit={handleSubmit}>
 
-                        <AddBoxIcon sx={{ color: "primary.main", transform: "scale(4)", "&:hover": { cursor: "pointer", transform: "scale(4.1)" }, marginBottom: 4 }} onClick={handleIconClick} />
+                        <Typography variant="h6">
+                            Click to add a file to transfer.
+                        </Typography>
+
+                        <AddBoxIcon sx={{ color: "primary.main", transform: "scale(4)", "&:hover": { cursor: "pointer", transform: "scale(4.1)" }, marginBottom: 3, marginTop: 3 }} onClick={handleIconClick} />
 
                         <input
                             type="file"
@@ -138,7 +142,12 @@ export default function NewTransfer() {
                             <Typography variant="body2" color="text.secondary">
                                 {selectedFile.name} ({formatSize(selectedFile.size)})
                             </Typography>
-                        )}
+                        ) || (
+                                <Typography variant="body2" color="text.secondary">
+                                    No file selected.
+                                </Typography>
+                            )
+                        }
 
                         <TextField label="Receiver" name="receiver" type="text" variant="outlined" fullWidth required />
 
@@ -155,7 +164,7 @@ export default function NewTransfer() {
                             </Button>
                         )}
                     </Box>
-                </Paper>
+                </ Paper>
 
                 <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openSuccess} autoHideDuration={2000} onClose={handleClose}>
                     <Alert
