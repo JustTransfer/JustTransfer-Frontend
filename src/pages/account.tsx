@@ -17,7 +17,7 @@ export default function AccountPage() {
         <Layout
             title="Account"
             content={
-                <Box sx={{ width: "100%", py: 6, px: 4 }}>
+                <Box sx={{ py: 6, px: 20 }}>
                     <Stack spacing={4} sx={{ width: "100%" }}>
 
                         <Typography variant="h4" fontWeight={600}>
