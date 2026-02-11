@@ -171,6 +171,36 @@ export default function AnonymousTransfer() {
         }
     }
 
+    // Check if exportKey_{id} exist, avoid showing the passphrase form
+    /*React.useEffect(() => {
+        const exportKey = document.cookie.split("; ").find(row => row.startsWith(`exportKey_${id}=`))?.split("=")[1];
+
+        console.log("Checking cookies for token and exportKey:", { exportKey });
+
+        if (exportKey) {
+            // If both exist, try to fetch the message metadata directly
+            (async () => {
+                try {
+                    setIsDownloading(false);
+                    setDownloadProgress(0);
+                    const result = await getOneAnonymousMessageMetadata(id!);
+
+                    setMessageData(result.messageData);
+
+                    setSuccess(strings.msgFileInfoDecrypted);
+                    setOpenSuccess(true);
+
+                } catch (e) {
+                    // If an error occurs (e.g., invalid token), clear cookies and show passphrase form
+                    document.cookie = `anonymous-auth-token_${id}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+                    document.cookie = `exportKey_${id}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+                    setError("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
+                    setOpenError(true);
+                }
+            })();
+        }
+    }, [id]);*/
+
     return (
         <Layout title="Anonymous Transfer" content={
             <Box

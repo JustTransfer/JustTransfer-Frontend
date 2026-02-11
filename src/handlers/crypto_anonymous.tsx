@@ -4,7 +4,8 @@ import { Base64 } from 'js-base64';
 
 import { frontendUrl } from "./config";
 
-import { getAnonymousMessageMetadataStartAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, uploadFileToS3, finishUploadFileToS3Anonymous, downloadFileFromS3 } from "./api";
+import { uploadFileToS3, downloadFileFromS3 } from "./api";
+import { postAnonymousMessageLoginStartAPI, postAnonymousMessageLoginEndAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, finishUploadFileToS3Anonymous } from "./api_anonymous";
 import { getItemFromSessionStorage } from "./utils";
 
 import * as errors from "../messages/errors";
@@ -24,7 +25,7 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
         password,
     });
 
-    const responseOpaque = await getAnonymousMessageMetadataStartAPI(message_id, startLoginRequest);
+    const responseOpaque = await postAnonymousMessageLoginStartAPI(message_id, startLoginRequest);
 
     const loginResponse = responseOpaque.result;
 
@@ -40,6 +41,9 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
 
     const { exportKey, serverStaticPublicKey, finishLoginRequest, sessionKey } = loginResult;
 
+    // Finish the login process
+    const responseOpaqueFinish = await postAnonymousMessageLoginEndAPI(message_id, finishLoginRequest);
+
     // Save keys in session storage with message id
     sessionStorage.setItem(`exportKey_${message_id}`, exportKey);
 
@@ -47,7 +51,7 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
     const exportKeyMetadataDecoded = Base64.toUint8Array(exportKey).slice(0, 32);
 
     // Get the message metadata
-    const result2 = await getAnonymousMessageMetadataAPI(message_id, finishLoginRequest);
+    const result2 = await getAnonymousMessageMetadataAPI(message_id);
     let { id, cfilename, nonce_filename, file_id, header, creation_time, lifetime, max_downloads, number_downloads, file_size, chunk_size, mac } = result2.message;
 
     await initLibsodium();

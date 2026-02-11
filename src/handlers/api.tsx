@@ -212,106 +212,6 @@ async function sendMessageAPI(receiver: string, cfilename: string, nonce_filenam
     return (await response.json());
 }
 
-
-async function getAnonymousMessageMetadataStartAPI(id: string, client_registration_start: string) {
-    const response = await fetch(`${apiUrl}/anonymous/message/${id}/start`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            client_registration_start,
-        }),
-    });
-
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
-
-    return (await response.json());
-}
-
-async function getAnonymousMessageMetadataAPI(file_id: string, client_login_finish_result: string,) {
-
-    const response = await fetch(`${apiUrl}/anonymous/message/${file_id}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            client_login_finish_result,
-        }),
-    });
-
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
-
-    return (await response.json());
-}
-
-async function getAnonymousMessageAPI(id: string) {
-
-    const response = await fetch(`${apiUrl}/anonymous/message/${id}`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-        },
-    });
-
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
-
-    return (await response.json());
-}
-
-async function sendAnonymousMessageStartAPI(client_registration_start: string) {
-
-    const response = await fetch(`${apiUrl}/anonymous/message/start`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            client_registration_start,
-        }),
-    });
-
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
-
-    return (await response.json());
-}
-
-async function sendAnonymousMessageAPI(id: string, client_registration_finish: string, cfilename: string, nonce_filename: string, header: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
-
-    const response = await fetch(`${apiUrl}/anonymous/message`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            id,
-            client_registration_finish,
-            cfilename,
-            nonce_filename,
-            header,
-            max_downloads,
-            lifetime,
-            creation_time,
-            file_size,
-        }),
-    });
-
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
-
-    return (await response.json());
-}
-
 //
 // Upload and Download to/from S3
 //
@@ -346,26 +246,6 @@ async function finishUploadFileToS3(file_id: string, upload_id: string, etags: s
             upload_id,
             etags,
             signature,
-        }),
-    });
-
-    if (!response.ok) {
-        throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
-    }
-
-    return response.status;
-}
-
-async function finishUploadFileToS3Anonymous(file_id: string, upload_id: string, etags: string[]) {
-
-    const response = await fetch(`${apiUrl}/anonymous/message/uploadfinish/${file_id}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            upload_id,
-            etags,
         }),
     });
 
@@ -441,4 +321,4 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
     return 0; // Success
 }
 
-export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, getAnonymousMessageMetadataStartAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, uploadFileToS3, finishUploadFileToS3, finishUploadFileToS3Anonymous, downloadFileFromS3 };
+export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };
