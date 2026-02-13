@@ -1,31 +1,17 @@
 import * as React from 'react';
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { styled, useTheme, createTheme, ThemeProvider, type Theme, type CSSObject } from '@mui/material/styles';
+import { styled, useTheme, createTheme, ThemeProvider } from '@mui/material/styles';
 import Box from '@mui/material/Box';
-import MuiDrawer from '@mui/material/Drawer';
-import MuiAppBar, { type AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import CssBaseline from '@mui/material/CssBaseline';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
 import { Button } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import SendIcon from '@mui/icons-material/Send';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
 import Container from "@mui/material/Container";
 import Link from '@mui/material/Link';
 
