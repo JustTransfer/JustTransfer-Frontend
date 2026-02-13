@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "./useLocalStorage";
 
 type AuthContextType = {
-    userId: string | null;
-    fonction: string | null;
+    username: string | null;
+    role: string | null;
     login: (data: any) => Promise<void>;
     logout: () => void;
 };
@@ -13,30 +13,30 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: any) => {
-    const [userId, setUserId] = useLocalStorage("userId", null);
-    const [fonction, setFonction] = useLocalStorage("fonction", null);
+    const [username, setUsername] = useLocalStorage("username", null);
+    const [role, setRole] = useLocalStorage("role", null);
     const navigate = useNavigate();
 
     const login = async (data: any) => {
-        setUserId(data.idlogin);
-        setFonction(data.fonction);
-        navigate("/");
+        setUsername(data.username);
+        setRole(data.role);
+        navigate("/new-transfer");
     };
 
     const logout = () => {
-        setUserId(null);
-        setFonction(null);
+        setUsername(null);
+        setRole(null);
         navigate("/", { replace: true });
     };
 
     const value = useMemo(
         () => ({
-            userId,
-            fonction,
+            username,
+            role,
             login,
             logout,
         }),
-        [userId, fonction]
+        [username, role]
     );
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

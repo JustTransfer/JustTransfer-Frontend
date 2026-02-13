@@ -4,8 +4,9 @@ import { Box, Typography, Button, TextField, Paper } from "@mui/material";
 import Alert from '@mui/material/Alert';
 import Snackbar, { type SnackbarCloseReason } from '@mui/material/Snackbar';
 
+import { useAuth } from "../hooks/useAuth";
 import Layout from "../components/layout";
-import { login } from "../handlers/crypto";
+import { loginProcess } from "../handlers/crypto";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
@@ -13,6 +14,7 @@ import * as strings from "../messages/strings";
 export default function LoginPage() {
 
     const navigate = useNavigate();
+    const { login } = useAuth();
     const [error, setError] = useState("");
     const [openError, setOpenError] = useState(false);
 
@@ -34,10 +36,14 @@ export default function LoginPage() {
         };
 
         try {
-            const result = await login(data.email as string, data.password as string);
+            const result = await loginProcess(data.email as string, data.password as string);
 
             if (result.success) {
-                navigate("/new-transfer", { replace: true });
+
+                login({
+                    username: result.username,
+                    role: result.role,
+                });
 
             } else {
                 throw new Error(result.message);

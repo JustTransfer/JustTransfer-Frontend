@@ -29,7 +29,8 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import Container from "@mui/material/Container";
 import Link from '@mui/material/Link';
 
-import { logout } from '../handlers/crypto';
+import { useAuth } from "../hooks/useAuth";
+import { logoutProcess } from '../handlers/crypto';
 import { frontendUrl } from '../handlers/config';
 import { Boy } from '@mui/icons-material';
 
@@ -199,31 +200,11 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
 export default function Layout({ title, content }: { title: string; content: React.ReactNode }) {
 
     const navigate = useNavigate();
+    const { logout } = useAuth();
     const theme = useTheme();
-    const [isLoggedIn, setIsLoggedIn] = React.useState(false); // TODO remove to use auth context
 
-    useEffect(() => {
-        const storedKeys = {
-            username: sessionStorage.getItem("username"),
-            exportKey: sessionStorage.getItem("exportKey"),
-            PrivateKeyEnc: sessionStorage.getItem("PrivateKeyEnc"),
-            PublicKeyEnc: sessionStorage.getItem("PublicKeyEnc"),
-            PrivateKeySign: sessionStorage.getItem("PrivateKeySign"),
-            PublicKeySign: sessionStorage.getItem("PublicKeySign"),
-        };
-
-        // Redirect to login if any key is missing
-        if (
-            storedKeys.username &&
-            storedKeys.exportKey &&
-            storedKeys.PrivateKeyEnc &&
-            storedKeys.PublicKeyEnc &&
-            storedKeys.PrivateKeySign &&
-            storedKeys.PublicKeySign
-        ) {
-            setIsLoggedIn(true);
-        }
-    }, []);
+    const { username } = useAuth();
+    const isLoggedIn = !!username;
 
     return (
         <ThemeProvider theme={defaultTheme}>
@@ -385,7 +366,10 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                         fullWidth
                                         size="large"
                                         color="secondary"
-                                        onClick={async () => { await logout(); navigate("/"); }}
+                                        onClick={async () => {
+                                            await logoutProcess();
+                                            logout();
+                                        }}
                                         sx={{ justifyContent: "flex-start", textTransform: 'none', fontSize: '1.2rem' }}
                                     >
                                         Logout

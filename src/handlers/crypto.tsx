@@ -4,9 +4,11 @@ import { Base64 } from 'js-base64';
 
 import { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 } from "./api";
 import { getItemFromSessionStorage } from "./utils";
+import { useAuth } from "../hooks/useAuth";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
+
 
 async function initLibsodium() {
     await sodium.ready;
@@ -68,7 +70,7 @@ async function register(username: string, email: string, password: string) {
     };
 }
 
-async function login(username: string, password: string) {
+async function loginProcess(username: string, password: string) {
 
     const { clientLoginState, startLoginRequest } = opaque.client.startLogin({
         password,
@@ -95,7 +97,7 @@ async function login(username: string, password: string) {
 
     const result2 = await loginEndAPI(username, finishLoginRequest);
 
-    let { pub_enc, cpriv_enc, nonce_priv_enc, pub_sign, cpriv_sign, nonce_priv_sign } = result2;
+    let { pub_enc, cpriv_enc, nonce_priv_enc, pub_sign, cpriv_sign, nonce_priv_sign, role } = result2;
 
     // Decode it from base64Url
     const exportKeyDecoded = Base64.toUint8Array(exportKey).slice(0, 32); // Take only first 32 bytes
@@ -131,10 +133,12 @@ async function login(username: string, password: string) {
     return {
         success: true,
         message: "Login successful!",
+        username,
+        role,
     };
 }
 
-async function logout() {
+async function logoutProcess() {
 
     await initLibsodium();
 
@@ -377,4 +381,4 @@ async function sendMessage(receiver: string, fileName: string, file: File, lifet
     };
 }
 
-export { register, login, logout, sendMessage, getMessages, getOneMessage };
+export { register, loginProcess, logoutProcess, sendMessage, getMessages, getOneMessage };
