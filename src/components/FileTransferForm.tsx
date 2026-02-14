@@ -155,8 +155,8 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 )}
 
                 <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 2, width: "100%" }}>
-                    <TextField label="Max Downloads" name="maxDownloads" type="number" InputProps={{ inputProps: { min: 0, max: maxDownloads ?? 100 } }} variant="outlined" fullWidth required helperText={maxDownloads ? `Max allowed: ${maxDownloads}` : undefined} />
-                    <TextField label="Lifetime" name="lifetime" type="number" InputProps={{ inputProps: { min: 0, max: maxLifetime ?? 100 } }} variant="outlined" fullWidth required helperText={maxLifetime ? `Max allowed: ${maxLifetime} days` : undefined} />
+                    <TextField label="Max Downloads" name="maxDownloads" type="number" InputProps={{ inputProps: { min: 1, max: maxDownloads } }} variant="outlined" fullWidth required helperText={maxDownloads ? `Max allowed: ${maxDownloads}` : undefined} />
+                    <TextField label="Lifetime" name="lifetime" type="number" InputProps={{ inputProps: { min: 1, max: maxLifetime } }} variant="outlined" fullWidth required helperText={maxLifetime ? `Max allowed: ${maxLifetime} days` : undefined} />
                 </Box>
 
                 {isSending ? <LinearProgressWithLabel value={progress} /> : <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>Send</Button>}

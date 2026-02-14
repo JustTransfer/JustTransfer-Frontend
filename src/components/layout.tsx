@@ -87,7 +87,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                             JustTransfer
                         </Typography>
                         <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                            JustTransfer is a secure, open-source file transfer service designed for privacy-conscious users. We use end-to-end encryption to ensure your files are protected at all times.
+                            JustTransfer is a secure, open-source file transfer service designed for large files. We use end-to-end encryption to ensure your files are protected at all times.
                         </Typography>
                     </Box>
 
