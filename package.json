@@ -24,7 +24,8 @@
     "react-scripts": "5.0.1",
     "streamsaver": "^2.0.6",
     "typescript": "^4.9.5",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "zxcvbn": "^4.4.2"
   },
   "scripts": {
     "start": "BROWSER=none react-scripts start",
@@ -51,6 +52,7 @@
     ]
   },
   "devDependencies": {
-    "@types/libsodium-wrappers-sumo": "^0.7.8"
+    "@types/libsodium-wrappers-sumo": "^0.7.8",
+    "@types/zxcvbn": "^4.4.5"
   }
 }

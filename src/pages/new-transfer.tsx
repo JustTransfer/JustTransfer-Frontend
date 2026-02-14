@@ -38,7 +38,7 @@ export default function NewTransfer() {
                 </Typography>
 
                 <FileTransferForm
-                    type="user"
+                    type="connected"
                     maxFileSize={maxFileSize!}
                     maxDownloads={maxDownloads}
                     maxLifetime={maxLifetime}

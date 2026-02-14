@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { Box, Typography, Button, TextField, Paper } from "@mui/material";
 import Alert from '@mui/material/Alert';
 import Snackbar, { type SnackbarCloseReason } from '@mui/material/Snackbar';
+import { LinearProgress } from "@mui/material";
 
 import Layout from "../components/layout";
 import { register } from "../handlers/crypto";
+import PasswordStrength from "../components/passwordStrength";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
@@ -19,6 +21,9 @@ export default function CreateAccountPage() {
 
     const [success, setSuccess] = useState("");
     const [openSuccess, setOpenSuccess] = useState(false);
+
+    const [password, setPassword] = useState("");
+    const [isStrong, setIsStrong] = useState(false);
 
     const handleClose = (event?: React.SyntheticEvent | Event, reason?: SnackbarCloseReason,) => {
         if (reason === 'clickaway') {
@@ -118,7 +123,11 @@ export default function CreateAccountPage() {
                                 variant="outlined"
                                 fullWidth
                                 required
+                                onChange={(e) => setPassword(e.target.value)}
                             />
+
+                            <PasswordStrength password={password} onStrengthChange={setIsStrong} />
+
                             <TextField
                                 label="Confirm Password"
                                 name="confirmPassword"
@@ -132,6 +141,7 @@ export default function CreateAccountPage() {
                             <Button
                                 type="submit"
                                 variant="contained"
+                                disabled={!isStrong}
                             >
                                 Create Account
                             </Button>

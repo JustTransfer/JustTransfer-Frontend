@@ -228,7 +228,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                             cursor: "pointer",
                             marginTop: logoMarginTop,
                         }}
-                        onClick={() => navigate(isLoggedIn ? "/new-transfer" : "/")}
+                        onClick={() => navigate("/")}
                     />
 
                     {/* Title */}

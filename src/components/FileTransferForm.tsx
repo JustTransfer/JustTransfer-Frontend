@@ -7,10 +7,12 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+
+import PasswordStrength from "./passwordStrength";
 import { formatSize } from "../handlers/utils";
 
 type FileTransferFormProps = {
-    type: "anonymous" | "user"; // determines if passphrase or receiver is used
+    type: "anonymous" | "connected"; // determines if passphrase or receiver is used
     maxFileSize: number;
     maxDownloads: number;
     maxLifetime: number;
@@ -24,12 +26,17 @@ type FileTransferFormProps = {
 };
 
 export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxLifetime, onSubmit }: FileTransferFormProps) {
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [password, setPassword] = useState("");
+    const [isStrong, setIsStrong] = useState(false);
+
     const [errorPassphrase, setErrorPassphrase] = useState(false);
     const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
     const [openError, setOpenError] = useState(false);
+
+    const [success, setSuccess] = useState("");
     const [openSuccess, setOpenSuccess] = useState(false);
+
     const [isSending, setIsSending] = useState(false);
     const [progress, setProgress] = useState(0);
     const [link, setLink] = useState("");
@@ -73,6 +80,8 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
         setProgress(0);
         setIsSending(false);
         formRef.current?.reset();
+        setPassword("");
+        setIsStrong(false);
     };
 
     const handleCloseSnackbar = () => {
@@ -125,8 +134,11 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             setError(e.message || "Unknown error");
             setOpenError(true);
         } finally {
-            setIsSending(false);
-            setProgress(0);
+
+            // Reset form and state if connected
+            if (type === "connected") {
+                handleCloseDialog();
+            }
         }
     };
 
@@ -144,7 +156,10 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
 
                 {type === "anonymous" ? (
                     <>
-                        <TextField label="Passphrase" name="passphrase" type="password" variant="outlined" fullWidth required />
+                        <TextField label="Passphrase" name="passphrase" type="password" variant="outlined" fullWidth required onChange={(e) => setPassword(e.target.value)} />
+
+                        <PasswordStrength password={password} onStrengthChange={setIsStrong} />
+
                         <TextField label="Confirm Passphrase" name="confirmPassphrase" type="password" variant="outlined" fullWidth required
                             error={errorPassphrase}
                             helperText={errorPassphrase ? "Passphrases do not match" : ""}
@@ -159,7 +174,12 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                     <TextField label="Lifetime" name="lifetime" type="number" InputProps={{ inputProps: { min: 1, max: maxLifetime } }} variant="outlined" fullWidth required helperText={maxLifetime ? `Max allowed: ${maxLifetime} days` : undefined} />
                 </Box>
 
-                {isSending ? <LinearProgressWithLabel value={progress} /> : <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>Send</Button>}
+                {isSending ?
+                    <LinearProgressWithLabel value={progress} />
+                    :
+                    <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth disabled={type === "anonymous" && !isStrong}
+                    >Send</Button>
+                }
             </Box>
 
             {/* Dialog with link pop up */}
