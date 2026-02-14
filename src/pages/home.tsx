@@ -11,6 +11,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
+import { useServerConfig } from "../hooks/useServerConfig";
 import Layout from "../components/layout";
 import { sendMessageAnonymous } from "../handlers/crypto_anonymous";
 import { formatSize } from "../handlers/utils";
@@ -20,6 +21,16 @@ import * as strings from "../messages/strings";
 
 export default function HomePage() {
 
+  const { config } = useServerConfig();
+
+  const maxFileSizeAnonymous = config?.max_file_size_anonymous ?? 0;
+  const maxDownloadsAnonymous = config?.max_downloads_anonymous ?? 0;
+  const maxLifetimeAnonymous = config?.max_lifetime_anonymous ?? 0;
+
+
+  const [errorFile, setErrorFile] = useState(false);
+  const [errorMaxDownloads, setErrorMaxDownloads] = useState(false);
+  const [errorLifetime, setErrorLifetime] = useState(false);
   const [errorPassphrase, setErrorPassphrase] = useState("");
   const [error, setError] = useState("");
   const [openError, setOpenError] = useState(false);
@@ -70,9 +81,21 @@ export default function HomePage() {
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     if (event.target.files && event.target.files[0]) {
-      setSelectedFile(event.target.files[0]);
+      const file = event.target.files[0];
+
+      console.log("Selected file size:", file.size);
+      console.log("Max file size allowed:", maxFileSizeAnonymous);
+
+      if (maxFileSizeAnonymous && file.size > maxFileSizeAnonymous) {
+        setError(`File too large. Maximum allowed size is ${formatSize(maxFileSizeAnonymous)}.`);
+        setOpenError(true);
+        return;
+      }
+
+      setSelectedFile(file);
     }
   }
+
 
   const handleClose = (event?: React.SyntheticEvent | Event, reason?: SnackbarCloseReason,) => {
     if (reason === 'clickaway') {
@@ -92,6 +115,7 @@ export default function HomePage() {
     if (selectedFile) {
       formData.append("file", selectedFile);
     } else {
+      setErrorFile(true);
       setError(errors.errorFileNotSelected);
       setOpenError(true);
       return;
@@ -105,14 +129,55 @@ export default function HomePage() {
       file: formData.get("file"),
     };
 
+    const downloads = Number(data.maxDownloads);
+    const lifetime = Number(data.lifetime);
+
+    let hasError = false;
+
+    // Reset all field errors first
+    setErrorPassphrase("");
+    setErrorMaxDownloads(false);
+    setErrorLifetime(false);
+
+    // Passphrase validation
     if (data.passphrase !== data.confirmPassphrase) {
       setErrorPassphrase(errors.errorPassphraseMismatch);
-      setError(errors.errorPassphraseMismatch);
+      hasError = true;
+    }
+
+
+    // Downloads validation
+    if (downloads <= 0) {
+      setErrorMaxDownloads(true);
+      hasError = true;
+    } else if (
+      maxDownloadsAnonymous !== undefined &&
+      downloads > maxDownloadsAnonymous
+    ) {
+      setErrorMaxDownloads(true);
+      hasError = true;
+    }
+
+    // Lifetime validation
+    if (lifetime <= 0) {
+      setErrorLifetime(true);
+      hasError = true;
+    } else if (
+      maxLifetimeAnonymous !== undefined &&
+      lifetime > maxLifetimeAnonymous
+    ) {
+      setErrorLifetime(true);
+      hasError = true;
+    }
+
+    if (hasError) {
+      setError("Please correct the highlighted fields.");
       setOpenError(true);
       return;
     }
 
-    setErrorPassphrase("");
+    setErrorMaxDownloads(false);
+    setErrorLifetime(false);
 
     try {
       setIsSending(true);
@@ -179,7 +244,7 @@ export default function HomePage() {
                 {selectedFile.name} ({formatSize(selectedFile.size)})
               </Typography>
             ) || (
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="text.secondary" sx={{ color: errorFile ? "error.main" : "text.secondary" }}>
                   No file selected.
                 </Typography>
               )}
@@ -191,8 +256,14 @@ export default function HomePage() {
             />
 
             <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 2, width: "100%" }}>
-              <TextField label="Max Downloads" name="maxDownloads" type="number" InputProps={{ inputProps: { min: 0, max: 100 } }} variant="outlined" fullWidth required />
-              <TextField label="Lifetime" name="lifetime" type="number" InputProps={{ inputProps: { min: 0, max: 100 } }} variant="outlined" fullWidth required />
+              <TextField label="Max Downloads" name="maxDownloads" type="number" InputProps={{ inputProps: { min: 0, max: 100 } }} variant="outlined" fullWidth required
+                helperText={maxDownloadsAnonymous ? `Maximum allowed: ${maxDownloadsAnonymous}` : ""}
+                error={!!errorMaxDownloads}
+              />
+              <TextField label="Lifetime" name="lifetime" type="number" InputProps={{ inputProps: { min: 0, max: 100 } }} variant="outlined" fullWidth required
+                helperText={maxLifetimeAnonymous ? `Maximum allowed: ${maxLifetimeAnonymous} days` : ""}
+                error={!!errorLifetime}
+              />
             </Box>
 
             {isSending ? (
