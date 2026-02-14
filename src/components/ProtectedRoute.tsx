@@ -6,7 +6,7 @@ export const ProtectedRoute = ({ children }: { children: any }) => {
 
     const { username } = useAuth();
 
-    if (username !== null && !username) {
+    if (!username) {
         return <Navigate to="/login" />;
     }
     return children;

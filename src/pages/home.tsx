@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Box, Typography, TextField, Paper, Button, Snackbar, Alert } from "@mui/material";
+import { Link } from "react-router-dom";
 
 import { useServerConfig } from "../hooks/useServerConfig";
 import Layout from "../components/layout";
@@ -21,28 +22,43 @@ export default function HomePage() {
         alignItems: "center",
         justifyContent: "center",
         flexDirection: "column",
-        gap: 10,
+        gap: 2,
       }}>
-        <Typography variant="h3">
-          Make a new link transfer here!
+
+        <Box sx={{
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
+          gap: 6,
+        }}>
+          <Typography variant="h3">
+            Make a new link transfer here!
+          </Typography>
+          <FileTransferForm
+            type="anonymous"
+            maxFileSize={config?.max_file_size_anonymous!}
+            maxDownloads={config?.max_downloads_anonymous!}
+            maxLifetime={config?.max_lifetime_anonymous!}
+            onSubmit={async (data, onProgress) => {
+              const result = await sendMessageAnonymous(
+                data.password!,
+                data.file.name,
+                data.file,
+                data.lifetime,
+                data.maxDownloads,
+                onProgress
+              );
+              return result.link; // return string for the link
+            }}
+          />
+        </Box>
+
+        <Typography variant="body2" color="text.secondary">
+          To make an account transfer, please{" "}
+          <Link to="/login">login</Link>.
         </Typography>
-        <FileTransferForm
-          type="anonymous"
-          maxFileSize={config?.max_file_size_anonymous!}
-          maxDownloads={config?.max_downloads_anonymous!}
-          maxLifetime={config?.max_lifetime_anonymous!}
-          onSubmit={async (data, onProgress) => {
-            const result = await sendMessageAnonymous(
-              data.password!,
-              data.file.name,
-              data.file,
-              data.lifetime,
-              data.maxDownloads,
-              onProgress
-            );
-            return result.link; // return string for the link
-          }}
-        />
       </Box>
     } />
   );
