@@ -15,8 +15,8 @@ import * as strings from "../messages/strings";
 export default function CreateAccountPage() {
 
     const navigate = useNavigate();
-    const [errorPassword, setErrorPassword] = useState("");
-    const [errorWeakPassword, setErrorWeakPassword] = useState("");
+    const [errorPasswordMismatch, setErrorPasswordMismatch] = useState(false);
+    const [errorWeakPassword, setErrorWeakPassword] = useState(false);
     const [error, setError] = useState("");
     const [openError, setOpenError] = useState(false);
 
@@ -48,29 +48,29 @@ export default function CreateAccountPage() {
         let hasError = false;
 
         if (!isStrong) {
-            setErrorWeakPassword(errors.errorWeakPassword);
+            setErrorWeakPassword(true);
             setError(errors.errorWeakPassword);
             setOpenError(true);
             hasError = true;
         } else {
-            setErrorWeakPassword("");
+            setErrorWeakPassword(false);
         }
 
         if (data.password !== data.confirmPassword) {
-            setErrorPassword(errors.errorPasswordMismatch);
+            setErrorPasswordMismatch(true);
             setError(errors.errorPasswordMismatch);
             setOpenError(true);
             hasError = true;
         } else {
-            setErrorPassword("");
+            setErrorPasswordMismatch(false);
         }
 
         if (hasError) {
             return;
         }
 
-        setErrorWeakPassword("");
-        setErrorPassword("");
+        setErrorWeakPassword(false);
+        setErrorPasswordMismatch(false);
         setError("");
         setOpenError(false);
         setSuccess("");
@@ -144,8 +144,8 @@ export default function CreateAccountPage() {
                                 fullWidth
                                 required
                                 onChange={(e) => setPassword(e.target.value)}
-                                error={!!errorWeakPassword}
-                                helperText={errorWeakPassword}
+                                error={errorWeakPassword}
+                                helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
                             />
 
                             <PasswordStrength password={password} onStrengthChange={setIsStrong} />
@@ -157,8 +157,8 @@ export default function CreateAccountPage() {
                                 variant="outlined"
                                 fullWidth
                                 required
-                                error={!!errorPassword}
-                                helperText={errorPassword}
+                                error={errorPasswordMismatch}
+                                helperText={errorPasswordMismatch ? errors.errorPasswordMismatch : ""}
                             />
                             <Button
                                 type="submit"

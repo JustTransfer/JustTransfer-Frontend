@@ -8,6 +8,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 
+import * as errors from "../messages/errors";
 import PasswordStrength from "./passwordStrength";
 import { formatSize } from "../handlers/utils";
 
@@ -31,6 +32,8 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
     const [isStrong, setIsStrong] = useState(false);
 
     const [errorPassphrase, setErrorPassphrase] = useState(false);
+    const [errorWeakPassword, setErrorWeakPassword] = useState(false);
+
     const [error, setError] = useState("");
     const [openError, setOpenError] = useState(false);
 
@@ -108,12 +111,31 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
         if (type === "anonymous") {
             const pass = formData.get("passphrase") as string;
             const confirm = formData.get("confirmPassphrase") as string;
+
+            let hasError = false;
+
+            if (!isStrong) {
+                setError("Passphrase is too weak");
+                setOpenError(true);
+                setErrorWeakPassword(true);
+                hasError = true;
+            } else {
+                setErrorWeakPassword(false);
+            }
+
             if (pass !== confirm) {
                 setError("Passphrases do not match");
                 setOpenError(true);
                 setErrorPassphrase(true);
+                hasError = true;
+            } else {
+                setErrorPassphrase(false);
+            }
+
+            if (hasError) {
                 return;
             }
+
             setErrorPassphrase(false);
             data.passphrase = pass;
         } else {
@@ -156,13 +178,16 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
 
                 {type === "anonymous" ? (
                     <>
-                        <TextField label="Passphrase" name="passphrase" type="password" variant="outlined" fullWidth required onChange={(e) => setPassword(e.target.value)} />
+                        <TextField label="Passphrase" name="passphrase" type="password" variant="outlined" fullWidth required onChange={(e) => setPassword(e.target.value)}
+                            error={errorWeakPassword}
+                            helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
+                        />
 
                         <PasswordStrength password={password} onStrengthChange={setIsStrong} />
 
                         <TextField label="Confirm Passphrase" name="confirmPassphrase" type="password" variant="outlined" fullWidth required
                             error={errorPassphrase}
-                            helperText={errorPassphrase ? "Passphrases do not match" : ""}
+                            helperText={errorPassphrase ? errors.errorPasswordMismatch : ""}
                         />
                     </>
                 ) : (
@@ -177,8 +202,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 {isSending ?
                     <LinearProgressWithLabel value={progress} />
                     :
-                    <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth disabled={type === "anonymous" && !isStrong}
-                    >Send</Button>
+                    <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>Send</Button>
                 }
             </Box>
 
