@@ -5,6 +5,7 @@ import Alert from '@mui/material/Alert';
 import Snackbar, { type SnackbarCloseReason } from '@mui/material/Snackbar';
 import { LinearProgress } from "@mui/material";
 
+import { useAuth } from "../hooks/useAuth";
 import Layout from "../components/layout";
 import { register } from "../handlers/crypto";
 import PasswordStrength from "../components/passwordStrength";
@@ -15,6 +16,7 @@ import * as strings from "../messages/strings";
 export default function CreateAccountPage() {
 
     const navigate = useNavigate();
+    const { login } = useAuth();
     const [errorPasswordMismatch, setErrorPasswordMismatch] = useState(false);
     const [errorWeakPassword, setErrorWeakPassword] = useState(false);
     const [error, setError] = useState("");
@@ -83,9 +85,14 @@ export default function CreateAccountPage() {
                 setSuccess(strings.msgAccountCreated);
                 setOpenSuccess(true);
 
+                login({
+                    username: data.username as string,
+                    role: result.role,
+                });
+
                 setTimeout(() => {
-                    navigate("/login", { replace: true });
-                }, 2000);
+                    navigate("/new-transfer", { replace: true });
+                }, 1000);
 
             } else {
                 throw new Error(errors.errorRegistrationFailed);

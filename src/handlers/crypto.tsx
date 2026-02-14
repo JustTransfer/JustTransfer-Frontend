@@ -64,9 +64,22 @@ async function register(username: string, email: string, password: string) {
 
     const result = await registerEndAPI(username, email, registrationRecord, cpriv_enc_b64, nonce_enc_b64, PublicKeyEnc_b64, cpriv_sign_b64, nonce_sign_b64, PublicKeySign_b64);
 
-    // Return the keys
+    const role = result.role;
+
+    // Store the keys in session storage
+    sessionStorage.setItem("username", username);
+    sessionStorage.setItem("exportKey", Base64.fromUint8Array(exportKeyDecoded));
+    sessionStorage.setItem("PrivateKeyEnc", Base64.fromUint8Array(PrivateKeyEnc, true));
+    sessionStorage.setItem("PublicKeyEnc", PublicKeyEnc_b64);
+    sessionStorage.setItem("PrivateKeySign", Base64.fromUint8Array(PrivateKeySign, true));
+    sessionStorage.setItem("PublicKeySign", PublicKeySign_b64);
+
+    // Return success
     return {
         success: true,
+        message: "Register successful!",
+        username,
+        role,
     };
 }
 
@@ -124,11 +137,11 @@ async function loginProcess(username: string, password: string) {
 
     // Save keys in session storage
     sessionStorage.setItem("username", username);
-    sessionStorage.setItem("exportKey", Base64.fromUint8Array(exportKeyDecoded));
-    sessionStorage.setItem("PrivateKeyEnc", Base64.fromUint8Array(PrivateKeyEnc));
-    sessionStorage.setItem("PublicKeyEnc", Base64.fromUint8Array(PublicKeyEnc));
-    sessionStorage.setItem("PrivateKeySign", Base64.fromUint8Array(PrivateKeySign));
-    sessionStorage.setItem("PublicKeySign", Base64.fromUint8Array(PublicKeySign));
+    sessionStorage.setItem("exportKey", Base64.fromUint8Array(exportKeyDecoded, true));
+    sessionStorage.setItem("PrivateKeyEnc", Base64.fromUint8Array(PrivateKeyEnc, true));
+    sessionStorage.setItem("PublicKeyEnc", Base64.fromUint8Array(PublicKeyEnc, true));
+    sessionStorage.setItem("PrivateKeySign", Base64.fromUint8Array(PrivateKeySign, true));
+    sessionStorage.setItem("PublicKeySign", Base64.fromUint8Array(PublicKeySign, true));
 
     return {
         success: true,
@@ -194,7 +207,7 @@ async function getOneMessage(message: any, onChunk: (chunk: Uint8Array, filename
     const PrivateKeyEncDecoded = getItemFromSessionStorage("PrivateKeyEnc");
 
     // Get the message download URL
-    const response = await getOneMessageAPI(username!, message.file_id);
+    const response = await getOneMessageAPI(message.file_id);
     const downloadUrl = response.download_url;
 
     // Get the public key sign of the sender to check signature

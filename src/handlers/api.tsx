@@ -50,7 +50,7 @@ async function registerEndAPI(username: string, email: string, client_registrati
         throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
 
-    return response.status;
+    return (await response.json());
 }
 
 async function registerUpdateAPI() {
@@ -169,7 +169,7 @@ async function getMessagesAPI() {
     return (await response.json());
 }
 
-async function getOneMessageAPI(file_id: string, onProgress?: (percent: number) => void) {
+async function getOneMessageAPI(file_id: string) {
 
     const response = await fetch(`${apiUrl}/message/${file_id}`, {
         method: "POST",
