@@ -11,6 +11,9 @@ import AddBoxIcon from '@mui/icons-material/AddBox';
 import { Button } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import LinkIcon from "@mui/icons-material/Link";
+import SettingsIcon from '@mui/icons-material/Settings';
+
 import SendIcon from '@mui/icons-material/Send';
 import Container from "@mui/material/Container";
 import Link from '@mui/material/Link';
@@ -296,14 +299,24 @@ export default function Layout({ title, content }: { title: string; content: Rea
                             >
                                 <Box sx={{ display: "flex", flexDirection: "column", gap: 2, justifyContent: "space-between" }}>
                                     <Button
-                                        startIcon={<AddBoxIcon />}
+                                        startIcon={<LinkIcon />}
+                                        fullWidth
+                                        size="large"
+                                        color="secondary"
+                                        onClick={() => navigate("/")}
+                                        sx={{ justifyContent: "flex-start", textTransform: 'none', fontSize: '1.2rem' }}
+                                    >
+                                        Link Transfer
+                                    </Button>
+                                    <Button
+                                        startIcon={<AccountCircleIcon />}
                                         fullWidth
                                         size="large"
                                         color="secondary"
                                         onClick={() => navigate("/new-transfer")}
                                         sx={{ justifyContent: "flex-start", textTransform: 'none', fontSize: '1.2rem' }}
                                     >
-                                        New Transfer
+                                        Account Transfer
                                     </Button>
                                     <Button
                                         startIcon={<CloudDownloadIcon />}
@@ -337,7 +350,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                     pt: 2,
                                 }}>
                                     <Button
-                                        startIcon={<AccountCircleIcon sx={{ iconSize: 0 }} />}
+                                        startIcon={<SettingsIcon />}
                                         fullWidth
                                         size="large"
                                         color="secondary"

@@ -24,7 +24,7 @@ export default function HomePage() {
         gap: 10,
       }}>
         <Typography variant="h3">
-          Make a new anonymous transfer here!
+          Make a new link transfer here!
         </Typography>
         <FileTransferForm
           type="anonymous"
@@ -33,7 +33,7 @@ export default function HomePage() {
           maxLifetime={config?.max_lifetime_anonymous!}
           onSubmit={async (data, onProgress) => {
             const result = await sendMessageAnonymous(
-              data.passphrase!,
+              data.password!,
               data.file.name,
               data.file,
               data.lifetime,

@@ -13,13 +13,13 @@ import PasswordStrength from "./passwordStrength";
 import { formatSize } from "../handlers/utils";
 
 type FileTransferFormProps = {
-    type: "anonymous" | "connected"; // determines if passphrase or receiver is used
+    type: "anonymous" | "connected"; // determines if password or receiver is used
     maxFileSize: number;
     maxDownloads: number;
     maxLifetime: number;
     onSubmit: (data: {
         receiver?: string;
-        passphrase?: string;
+        password?: string;
         file: File;
         lifetime: number;
         maxDownloads: number;
@@ -31,7 +31,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
     const [password, setPassword] = useState("");
     const [isStrong, setIsStrong] = useState(false);
 
-    const [errorPassphrase, setErrorPassphrase] = useState(false);
+    const [errorPassword, setErrorPassword] = useState(false);
     const [errorWeakPassword, setErrorWeakPassword] = useState(false);
 
     const [error, setError] = useState("");
@@ -109,13 +109,13 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
         };
 
         if (type === "anonymous") {
-            const pass = formData.get("passphrase") as string;
-            const confirm = formData.get("confirmPassphrase") as string;
+            const pass = formData.get("password") as string;
+            const confirm = formData.get("confirmPassword") as string;
 
             let hasError = false;
 
             if (!isStrong) {
-                setError("Passphrase is too weak");
+                setError(errors.errorWeakPassword);
                 setOpenError(true);
                 setErrorWeakPassword(true);
                 hasError = true;
@@ -124,20 +124,20 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             }
 
             if (pass !== confirm) {
-                setError("Passphrases do not match");
+                setError(errors.errorPasswordMismatch);
                 setOpenError(true);
-                setErrorPassphrase(true);
+                setErrorPassword(true);
                 hasError = true;
             } else {
-                setErrorPassphrase(false);
+                setErrorPassword(false);
             }
 
             if (hasError) {
                 return;
             }
 
-            setErrorPassphrase(false);
-            data.passphrase = pass;
+            setErrorPassword(false);
+            data.password = pass;
         } else {
             data.receiver = formData.get("receiver") as string;
         }
@@ -178,16 +178,16 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
 
                 {type === "anonymous" ? (
                     <>
-                        <TextField label="Passphrase" name="passphrase" type="password" variant="outlined" fullWidth required onChange={(e) => setPassword(e.target.value)}
+                        <TextField label="Password" name="password" type="password" variant="outlined" fullWidth required onChange={(e) => setPassword(e.target.value)}
                             error={errorWeakPassword}
                             helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
                         />
 
                         <PasswordStrength password={password} onStrengthChange={setIsStrong} />
 
-                        <TextField label="Confirm Passphrase" name="confirmPassphrase" type="password" variant="outlined" fullWidth required
-                            error={errorPassphrase}
-                            helperText={errorPassphrase ? errors.errorPasswordMismatch : ""}
+                        <TextField label="Confirm Password" name="confirmPassword" type="password" variant="outlined" fullWidth required
+                            error={errorPassword}
+                            helperText={errorPassword ? errors.errorPasswordMismatch : ""}
                         />
                     </>
                 ) : (

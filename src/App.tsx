@@ -13,6 +13,7 @@ import NewTransfer from './pages/new-transfer';
 import Inbox from './pages/inbox';
 import Transfers from './pages/transfers';
 import AccountPage from './pages/account';
+import Error from './pages/error';
 
 import './App.css';
 
@@ -52,6 +53,8 @@ function App() {
               <NewTransfer />
             </ProtectedRoute >}
           />
+
+          <Route path="*" element={<Error />} />
         </Routes>
       </AuthProvider>
     </ServerConfigProvider>

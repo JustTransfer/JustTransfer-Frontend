@@ -15,14 +15,27 @@ import Layout from "../components/layout";
 export default function AccountPage() {
     return (
         <Layout
-            title="Account"
+            title="Account Settings"
             content={
                 <Box sx={{ py: 6, px: 20 }}>
                     <Stack spacing={4} sx={{ width: "100%" }}>
 
-                        <Typography variant="h4" fontWeight={600}>
-                            Account Settings
-                        </Typography>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                            <Typography variant="h5">
+                                Account Information
+                            </Typography>
+                            <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
+                                Username: TODO
+                            </Typography>
+                            <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
+                                Email Address: TODO
+                            </Typography>
+                            <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
+                                Account status: TODO
+                            </Typography>
+                        </Box>
+
+                        <Divider />
 
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                             <Typography variant="h5">
