@@ -14,7 +14,7 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ password, onStrengt
     useEffect(() => {
         const result = zxcvbn(password);
         setScore(result.score);
-        const strong = result.score >= 3;
+        const strong = result.score >= 2;
         setIsStrong(strong);
         if (onStrengthChange) onStrengthChange(strong);
     }, [password, onStrengthChange]);
@@ -30,13 +30,14 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ password, onStrengt
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, width: '100%' }}>
             <LinearProgress
                 variant="determinate"
-                value={(score) * 25 + 1} // 0-4 -> 0-100%
+                value={Math.max(1, score * 25)} // score is 0-4, convert to percentage
                 sx={{
                     height: 10,
                     borderRadius: 5,
                     backgroundColor: '#e0e0e0',
                     '& .MuiLinearProgress-bar': {
                         backgroundColor: barColor,
+                        transition: 'transform 100ms linear', // faster animation
                     },
                 }}
             />

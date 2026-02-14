@@ -20,6 +20,7 @@ export const errorFailureDecryption = "Decryption failed";
 export const errorFileNotSelected = "No file selected. Please select a file to upload.";
 export const errorPasswordMismatch = "Passwords do not match.";
 export const errorPassphraseMismatch = "Passphrases do not match.";
+export const errorWeakPassword = "Password is too weak. Please choose a stronger password.";
 
 // API Errors
 export const errorAPIRequestFailed = "API request failed. Please try again later.";

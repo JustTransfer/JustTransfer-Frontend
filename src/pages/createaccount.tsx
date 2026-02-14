@@ -16,6 +16,7 @@ export default function CreateAccountPage() {
 
     const navigate = useNavigate();
     const [errorPassword, setErrorPassword] = useState("");
+    const [errorWeakPassword, setErrorWeakPassword] = useState("");
     const [error, setError] = useState("");
     const [openError, setOpenError] = useState(false);
 
@@ -44,13 +45,32 @@ export default function CreateAccountPage() {
             confirmPassword: formData.get("confirmPassword"),
         };
 
+        let hasError = false;
+
+        if (!isStrong) {
+            setErrorWeakPassword(errors.errorWeakPassword);
+            setError(errors.errorWeakPassword);
+            setOpenError(true);
+            hasError = true;
+        } else {
+            setErrorWeakPassword("");
+        }
+
         if (data.password !== data.confirmPassword) {
             setErrorPassword(errors.errorPasswordMismatch);
             setError(errors.errorPasswordMismatch);
             setOpenError(true);
+            hasError = true;
+        } else {
+            setErrorPassword("");
+        }
+
+        if (hasError) {
             return;
         }
 
+        setErrorWeakPassword("");
+        setErrorPassword("");
         setError("");
         setOpenError(false);
         setSuccess("");
@@ -124,6 +144,8 @@ export default function CreateAccountPage() {
                                 fullWidth
                                 required
                                 onChange={(e) => setPassword(e.target.value)}
+                                error={!!errorWeakPassword}
+                                helperText={errorWeakPassword}
                             />
 
                             <PasswordStrength password={password} onStrengthChange={setIsStrong} />
@@ -141,7 +163,6 @@ export default function CreateAccountPage() {
                             <Button
                                 type="submit"
                                 variant="contained"
-                                disabled={!isStrong}
                             >
                                 Create Account
                             </Button>
