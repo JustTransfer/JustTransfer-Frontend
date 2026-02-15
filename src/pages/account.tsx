@@ -1,27 +1,33 @@
 import { useEffect, useState } from "react";
-import {
-    Box,
-    Typography,
-    Button,
-    Stack,
-    Divider,
-    Card,
-    CardContent,
-    Avatar,
-} from "@mui/material";
+import { Box, Typography, Button, Stack, Divider, Avatar } from "@mui/material";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import DialpadIcon from "@mui/icons-material/Dialpad";
 
+import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
 import { getAccountInfoAPI } from "../handlers/api";
 
 export default function AccountPage() {
 
+    const { success, error } = useNotification();
+
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [role, setRole] = useState("");
+
+    async function handleRotateKeys() {
+        error("Key rotation is not implemented yet.");
+    }
+
+    async function handleChangePassword() {
+        error("Password change is not implemented yet.");
+    }
+
+    async function handleDeleteAccount() {
+        error("Account deletion is not implemented yet.");
+    }
 
     useEffect(() => {
         async function fetchAccountInfo() {
@@ -31,7 +37,7 @@ export default function AccountPage() {
                 setEmail(accountInfo.email);
                 setRole(accountInfo.role);
             } catch (e) {
-
+                error("Failed to fetch account info: " + (e instanceof Error ? e.message : "Unknown error"));
             }
         }
 
@@ -77,7 +83,7 @@ export default function AccountPage() {
                             <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
                                 Generate new encryption and signing keys.
                             </Typography>
-                            <Button sx={{ mt: 2, maxWidth: 200 }} size="small" variant="contained" startIcon={<RefreshIcon />}>
+                            <Button sx={{ mt: 2, maxWidth: 200 }} size="small" variant="contained" startIcon={<RefreshIcon />} onClick={handleRotateKeys}>
                                 Rotate Keys
                             </Button>
                         </Box>
@@ -91,7 +97,7 @@ export default function AccountPage() {
                             <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
                                 Update your account password.
                             </Typography>
-                            <Button sx={{ mt: 2, maxWidth: 200 }} size="small" variant="contained" startIcon={<DialpadIcon />}>
+                            <Button sx={{ mt: 2, maxWidth: 200 }} size="small" variant="contained" startIcon={<DialpadIcon />} onClick={handleChangePassword}>
                                 Change Password
                             </Button>
                         </Box>
@@ -105,7 +111,7 @@ export default function AccountPage() {
                             <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
                                 Permanently remove your account and all associated data. This action cannot be undone.
                             </Typography>
-                            <Button sx={{ mt: 2, maxWidth: 200 }} size="small" color="error" variant="contained" startIcon={<DeleteIcon />}>
+                            <Button sx={{ mt: 2, maxWidth: 200 }} size="small" color="error" variant="contained" startIcon={<DeleteIcon />} onClick={handleDeleteAccount}>
                                 Delete Account
                             </Button>
                         </Box>
