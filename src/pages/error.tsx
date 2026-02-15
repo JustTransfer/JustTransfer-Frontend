@@ -8,6 +8,7 @@ import * as errors from "../messages/errors";
 
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import Layout from "../components/layout";
+import { Link } from "react-router-dom";
 
 export default function Error() {
     return (
@@ -19,16 +20,13 @@ export default function Error() {
                 <Box display="flex" flexDirection="column" alignItems="center">
                     <ErrorOutlineIcon style={{ fontSize: 80, color: "#f44336" }} />
                     <Typography variant="h3" component="h1" gutterBottom>
-                        Oops!
-                    </Typography>
-                    <Typography variant="h6" component="p" gutterBottom>
-                        {errors.errorPageNotFound}
+                        Oops! {errors.errorPageNotFound}
                     </Typography>
                     <Button variant="contained" href="/">
                         {strings.btnBackToHome}
                     </Button>
                 </Box>
-            </Container>
+            </ Container>
         } />
     );
 }

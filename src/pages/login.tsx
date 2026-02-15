@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Typography, Button, TextField, Paper } from "@mui/material";
 import Alert from '@mui/material/Alert';
-import Snackbar, { type SnackbarCloseReason } from '@mui/material/Snackbar';
 
+import { useNotification } from "../hooks/useNotificationContext";
 import { useAuth } from "../hooks/useAuth";
 import Layout from "../components/layout";
 import { loginProcess } from "../handlers/crypto";
@@ -13,18 +13,10 @@ import * as strings from "../messages/strings";
 
 export default function LoginPage() {
 
+    const { success, error } = useNotification();
     const navigate = useNavigate();
     const { login } = useAuth();
-    const [error, setError] = useState("");
-    const [openError, setOpenError] = useState(false);
 
-    const handleClose = (event?: React.SyntheticEvent | Event, reason?: SnackbarCloseReason,) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setOpenError(false);
-    };
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -40,6 +32,8 @@ export default function LoginPage() {
 
             if (result.success) {
 
+                success(strings.msgLoginSuccessful);
+
                 login({
                     username: result.username,
                     role: result.role,
@@ -49,8 +43,7 @@ export default function LoginPage() {
                 throw new Error(result.message);
             }
         } catch (e) {
-            setError(e instanceof Error ? e.message : errors.errorLoginFailed);
-            setOpenError(true);
+            error(e instanceof Error ? e.message : errors.errorLoginFailed);
         }
     }
 
@@ -86,16 +79,6 @@ export default function LoginPage() {
                         </Box>
                     </Paper>
                 </Box>
-
-                <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openError} autoHideDuration={2000} onClose={handleClose}>
-                    <Alert
-                        severity="error"
-                        variant="filled"
-                        sx={{ width: '100%' }}
-                    >
-                        {error}
-                    </Alert>
-                </Snackbar>
             </Box>
         } />
     );

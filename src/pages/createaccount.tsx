@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Typography, Button, TextField, Paper } from "@mui/material";
 import Alert from '@mui/material/Alert';
-import Snackbar, { type SnackbarCloseReason } from '@mui/material/Snackbar';
 import { LinearProgress } from "@mui/material";
 
+import { useNotification } from "../hooks/useNotificationContext";
 import { useAuth } from "../hooks/useAuth";
 import Layout from "../components/layout";
 import { register } from "../handlers/crypto";
@@ -15,26 +15,15 @@ import * as strings from "../messages/strings";
 
 export default function CreateAccountPage() {
 
+    const { success, error } = useNotification();
+
     const navigate = useNavigate();
     const { login } = useAuth();
     const [errorPasswordMismatch, setErrorPasswordMismatch] = useState(false);
     const [errorWeakPassword, setErrorWeakPassword] = useState(false);
-    const [error, setError] = useState("");
-    const [openError, setOpenError] = useState(false);
-
-    const [success, setSuccess] = useState("");
-    const [openSuccess, setOpenSuccess] = useState(false);
 
     const [password, setPassword] = useState("");
     const [isStrong, setIsStrong] = useState(false);
-
-    const handleClose = (event?: React.SyntheticEvent | Event, reason?: SnackbarCloseReason,) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setOpenError(false);
-    };
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -51,8 +40,7 @@ export default function CreateAccountPage() {
 
         if (!isStrong) {
             setErrorWeakPassword(true);
-            setError(errors.errorWeakPassword);
-            setOpenError(true);
+            error(errors.errorWeakPassword);
             hasError = true;
         } else {
             setErrorWeakPassword(false);
@@ -60,8 +48,7 @@ export default function CreateAccountPage() {
 
         if (data.password !== data.confirmPassword) {
             setErrorPasswordMismatch(true);
-            setError(errors.errorPasswordMismatch);
-            setOpenError(true);
+            error(errors.errorPasswordMismatch);
             hasError = true;
         } else {
             setErrorPasswordMismatch(false);
@@ -73,17 +60,12 @@ export default function CreateAccountPage() {
 
         setErrorWeakPassword(false);
         setErrorPasswordMismatch(false);
-        setError("");
-        setOpenError(false);
-        setSuccess("");
-        setOpenSuccess(false);
 
         try {
             const result = await register(data.username as string, data.email as string, data.password as string);
 
             if (result.success) {
-                setSuccess(strings.msgAccountCreated);
-                setOpenSuccess(true);
+                success(strings.msgAccountCreated);
 
                 login({
                     username: data.username as string,
@@ -98,8 +80,7 @@ export default function CreateAccountPage() {
                 throw new Error(errors.errorRegistrationFailed);
             }
         } catch (e) {
-            setError(e instanceof Error ? e.message : errors.errorRegistrationFailed);
-            setOpenError(true);
+            error(e instanceof Error ? e.message : errors.errorRegistrationFailed);
         }
     }
 
@@ -173,25 +154,6 @@ export default function CreateAccountPage() {
                             >
                                 Create Account
                             </Button>
-
-                            <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openSuccess} autoHideDuration={3000}>
-                                <Alert
-                                    severity="success"
-                                    variant="filled"
-                                    sx={{ width: '100%' }}
-                                >
-                                    {success}
-                                </Alert>
-                            </Snackbar>
-                            <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openError} autoHideDuration={4000} onClose={handleClose}>
-                                <Alert
-                                    severity="error"
-                                    variant="filled"
-                                    sx={{ width: '100%' }}
-                                >
-                                    {error}
-                                </Alert>
-                            </Snackbar>
                         </Box>
                     </Paper>
                 </Box>

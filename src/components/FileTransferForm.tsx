@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Box, Typography, TextField, Paper, Button, Snackbar, Alert } from "@mui/material";
+import { Box, Typography, TextField, Paper, Button, Alert } from "@mui/material";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import LinearProgress, { LinearProgressProps } from '@mui/material/LinearProgress';
@@ -8,6 +8,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 
+import { useNotification } from "../hooks/useNotificationContext";
 import * as errors from "../messages/errors";
 import PasswordStrength from "./passwordStrength";
 import { formatSize } from "../handlers/utils";
@@ -27,18 +28,15 @@ type FileTransferFormProps = {
 };
 
 export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxLifetime, onSubmit }: FileTransferFormProps) {
+
+    const { success, error } = useNotification();
+
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [password, setPassword] = useState("");
     const [isStrong, setIsStrong] = useState(false);
 
     const [errorPassword, setErrorPassword] = useState(false);
     const [errorWeakPassword, setErrorWeakPassword] = useState(false);
-
-    const [error, setError] = useState("");
-    const [openError, setOpenError] = useState(false);
-
-    const [success, setSuccess] = useState("");
-    const [openSuccess, setOpenSuccess] = useState(false);
 
     const [isSending, setIsSending] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -69,8 +67,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
         if (!event.target.files || !event.target.files[0]) return;
         const file = event.target.files[0];
         if (maxFileSize && file.size > maxFileSize) {
-            setError(`File too large. Max: ${formatSize(maxFileSize)}`);
-            setOpenError(true);
+            error(`File too large. Max: ${formatSize(maxFileSize)}`);
             return;
         }
         setSelectedFile(file);
@@ -87,16 +84,10 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
         setIsStrong(false);
     };
 
-    const handleCloseSnackbar = () => {
-        setOpenError(false);
-        setOpenSuccess(false);
-    };
-
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (!selectedFile) {
-            setError("No file selected");
-            setOpenError(true);
+            error("No file selected");
             return;
         }
         const form = event.currentTarget;
@@ -115,8 +106,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             let hasError = false;
 
             if (!isStrong) {
-                setError(errors.errorWeakPassword);
-                setOpenError(true);
+                error(errors.errorWeakPassword);
                 setErrorWeakPassword(true);
                 hasError = true;
             } else {
@@ -124,8 +114,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             }
 
             if (pass !== confirm) {
-                setError(errors.errorPasswordMismatch);
-                setOpenError(true);
+                error(errors.errorPasswordMismatch);
                 setErrorPassword(true);
                 hasError = true;
             } else {
@@ -150,11 +139,9 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 setLink(result);
                 setOpenDialog(true);
             }
-            setSuccess("File uploaded successfully!");
-            setOpenSuccess(true);
+            success("File uploaded successfully!");
         } catch (e: any) {
-            setError(e.message || "Unknown error");
-            setOpenError(true);
+            error(e.message || "Unknown error");
         } finally {
 
             // Reset form and state if connected
@@ -219,32 +206,19 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 <DialogTitle>Link ready!</DialogTitle>
                 <DialogContent sx={{ display: 'flex', gap: 2 }}>
                     <TextField value={link} fullWidth />
-                    <ContentCopyIcon sx={{ color: "primary.main", "&:hover": { cursor: "pointer" } }} onClick={() => { navigator.clipboard.writeText(link); setSuccess("Link copied"); setOpenSuccess(true); }} />
+                    <ContentCopyIcon sx={{ color: "primary.main", "&:hover": { cursor: "pointer" } }}
+                        onClick={() => {
+                            navigator.clipboard.writeText(link);
+                            success("Link copied");
+                        }} />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => window.open(link, '_blank', 'noopener,noreferrer')}>Open link</Button>
+                    <Button onClick={() => window.open(link, '_blank', 'noopener,noreferrer')}>
+                        Open link
+                    </Button>
                     <Button onClick={handleCloseDialog}>Close</Button>
                 </DialogActions>
             </Dialog>
-
-            <Snackbar open={openSuccess} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
-                <Alert
-                    severity="success"
-                    variant="filled"
-                    sx={{ width: '100%' }}
-                >
-                    {success}
-                </Alert>
-            </Snackbar>
-            <Snackbar open={openError} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
-                <Alert
-                    severity="error"
-                    variant="filled"
-                    sx={{ width: '100%' }}
-                >
-                    {error}
-                </Alert>
-            </Snackbar>
         </Paper>
     );
 }

@@ -6,11 +6,11 @@ import CircularProgress, {
     CircularProgressProps,
 } from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
-import Snackbar, { type SnackbarCloseReason } from '@mui/material/Snackbar';
 
 // @ts-ignore
 import streamSaver from 'streamsaver';
 
+import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
 import { getMessages, getOneMessage } from "../handlers/crypto"
 import { formatSize } from "../handlers/utils";
@@ -19,30 +19,14 @@ import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
 
 export default function Inbox() {
+
+    const { success, error } = useNotification();
     const [messages, setMessages] = useState<Array<any>>([]);
     const [downloadProgress, setDownloadProgress] = useState<Record<string, number>>({});
     const [loading, setLoading] = useState(true);
 
-    const [error, setError] = useState("");
-    const [openError, setOpenError] = useState(false);
-    const [success, setSuccess] = useState("");
-    const [openSuccess, setOpenSuccess] = useState(false);
-
-    const handleClose = (event?: React.SyntheticEvent | Event, reason?: SnackbarCloseReason,) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setOpenSuccess(false);
-        setOpenError(false);
-    };
-
     async function downloadFile(message: any) {
         setDownloadProgress(prev => ({ ...prev, [message.id]: 0 }));
-        setSuccess("");
-        setOpenSuccess(false);
-        setError("");
-        setOpenError(false);
 
         let messageWithContent;
 
@@ -106,13 +90,11 @@ export default function Inbox() {
 
 
             // At this point, the file has been downloaded successfully
-            setSuccess(strings.msgFileDownloaded);
-            setOpenSuccess(true);
+            success(strings.msgFileDownloaded);
 
         } catch (e) {
 
-            setError("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
-            setOpenError(true);
+            error("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
             setDownloadProgress(prev => {
                 const { [message.id]: _, ...rest } = prev;
                 return rest;
@@ -238,24 +220,6 @@ export default function Inbox() {
                         !loading ? <Typography variant="h6">No messages</Typography> : <CircularProgress />
                     )}
                 </Box>
-                <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openError} autoHideDuration={2000} onClose={handleClose}>
-                    <Alert
-                        severity="error"
-                        variant="filled"
-                        sx={{ width: '100%' }}
-                    >
-                        {error}
-                    </Alert>
-                </Snackbar>
-                <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openSuccess} autoHideDuration={3000} onClose={handleClose}>
-                    <Alert
-                        severity="success"
-                        variant="filled"
-                        sx={{ width: '100%' }}
-                    >
-                        {success}
-                    </Alert>
-                </Snackbar>
             </Box >
         } />
     );

@@ -1,6 +1,6 @@
 // Account messages
 export const msgAccountCreated = "Account created successfully.";
-
+export const msgLoginSuccessful = "Logged in successfully.";
 
 // Upload messages
 export const msgFileUploaded = "File uploaded successfully.";

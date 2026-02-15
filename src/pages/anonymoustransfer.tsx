@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import React, { useState, useRef } from "react";
-import { Box, Typography, TextField, Paper, Button, Snackbar, Alert } from "@mui/material";
+import { Box, Typography, TextField, Paper, Button, Alert } from "@mui/material";
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -8,12 +8,12 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import { type SnackbarCloseReason } from '@mui/material/Snackbar';
 import DownloadIcon from '@mui/icons-material/Download';
 import LinearProgress, { LinearProgressProps } from '@mui/material/LinearProgress';
 // @ts-ignore
 import streamSaver from 'streamsaver';
 
+import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
 import { getOneAnonymousMessageMetadata, getOneAnonymousMessage } from "../handlers/crypto_anonymous";
 import { formatSize } from "../handlers/utils";
@@ -22,15 +22,11 @@ import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
 
 export default function AnonymousTransfer() {
+
+    const { success, error } = useNotification();
     const { id } = useParams();
 
     const [messageData, setMessageData] = useState<any>(null);
-
-    const [error, setError] = useState("");
-    const [openError, setOpenError] = useState(false);
-
-    const [success, setSuccess] = useState("");
-    const [openSuccess, setOpenSuccess] = useState(false);
 
     const [isDownloading, setIsDownloading] = useState(false);
     const [downloadProgress, setDownloadProgress] = useState(0);
@@ -51,15 +47,6 @@ export default function AnonymousTransfer() {
         );
     }
 
-    const handleClose = (event?: React.SyntheticEvent | Event, reason?: SnackbarCloseReason,) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setOpenError(false);
-        setOpenSuccess(false);
-    };
-
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         const form = event.currentTarget;
@@ -76,24 +63,17 @@ export default function AnonymousTransfer() {
 
             setMessageData(result.messageData);
 
-            setSuccess(strings.msgFileInfoDecrypted);
-            setOpenSuccess(true);
+            success(strings.msgFileInfoDecrypted);
 
         } catch (e) {
 
-            setError("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
-            setOpenError(true);
-            setIsDownloading(false);
+            error("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
             return;
         }
     }
 
     async function downloadFile() {
         setDownloadProgress(0);
-        setSuccess("");
-        setOpenSuccess(false);
-        setError("");
-        setOpenError(false);
 
         let messageWithContent
         try {
@@ -154,52 +134,19 @@ export default function AnonymousTransfer() {
                 }
             }
 
-            setSuccess(strings.msgFileDownloaded);
-            setOpenSuccess(true);
+            success(strings.msgFileDownloaded);
 
             // Increment download count
             setMessageData((prev: any) => ({ ...prev, number_downloads: prev.number_downloads + 1 }));
 
         } catch (e) {
-
-            setError("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
-            setOpenError(true);
+            error("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
         } finally {
             // Reset progress indicator
             setIsDownloading(false);
             setDownloadProgress(0);
         }
     }
-
-    // Check if exportKey_{id} exist, avoid showing the passphrase form
-    /*React.useEffect(() => {
-        const exportKey = document.cookie.split("; ").find(row => row.startsWith(`exportKey_${id}=`))?.split("=")[1];
-
-        console.log("Checking cookies for token and exportKey:", { exportKey });
-
-        if (exportKey) {
-            // If both exist, try to fetch the message metadata directly
-            (async () => {
-                try {
-                    setIsDownloading(false);
-                    setDownloadProgress(0);
-                    const result = await getOneAnonymousMessageMetadata(id!);
-
-                    setMessageData(result.messageData);
-
-                    setSuccess(strings.msgFileInfoDecrypted);
-                    setOpenSuccess(true);
-
-                } catch (e) {
-                    // If an error occurs (e.g., invalid token), clear cookies and show passphrase form
-                    document.cookie = `anonymous-auth-token_${id}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-                    document.cookie = `exportKey_${id}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-                    setError("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
-                    setOpenError(true);
-                }
-            })();
-        }
-    }, [id]);*/
 
     return (
         <Layout title="Anonymous Transfer" content={
@@ -274,25 +221,6 @@ export default function AnonymousTransfer() {
                         }
                     </Box>
                 </ Paper>
-
-                <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openSuccess} autoHideDuration={2000} onClose={handleClose}>
-                    <Alert
-                        severity="success"
-                        variant="filled"
-                        sx={{ width: '100%' }}
-                    >
-                        {success}
-                    </Alert>
-                </Snackbar>
-                <Snackbar anchorOrigin={{ vertical: "bottom", horizontal: "right" }} open={openError} autoHideDuration={2000} onClose={handleClose}>
-                    <Alert
-                        severity="error"
-                        variant="filled"
-                        sx={{ width: '100%' }}
-                    >
-                        {error}
-                    </Alert>
-                </Snackbar>
             </Box>
         } />
     );
