@@ -199,6 +199,19 @@ export default function Layout({ title, content }: { title: string; content: Rea
     const { username } = useAuth();
     const isLoggedIn = !!username;
 
+    const menuButtonStyle = (path: string) => ({
+        justifyContent: "flex-start",
+        textTransform: "none",
+        fontSize: "1.2rem",
+        color: "#000",
+        backgroundColor: isActive(path) ? "#e6e6e6" : "transparent",
+        "&:hover": {
+            backgroundColor: isActive(path) ? "#e6e6e6" : "#e6e6e6",
+        },
+        borderRadius: 2,
+        px: 2,
+    });
+
     return (
         <ThemeProvider theme={defaultTheme}>
             <Box sx={{
@@ -306,9 +319,8 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                         startIcon={<LinkIcon />}
                                         fullWidth
                                         size="large"
-                                        color={isActive("/") ? "primary" : "secondary"}
                                         onClick={() => navigate("/")}
-                                        sx={{ justifyContent: "flex-start", textTransform: 'none', fontSize: '1.2rem' }}
+                                        sx={menuButtonStyle("/")}
                                     >
                                         Link Transfer
                                     </Button>
@@ -316,9 +328,8 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                         startIcon={<AccountCircleIcon />}
                                         fullWidth
                                         size="large"
-                                        color={isActive("/new-transfer") ? "primary" : "secondary"}
                                         onClick={() => navigate("/new-transfer")}
-                                        sx={{ justifyContent: "flex-start", textTransform: 'none', fontSize: '1.2rem' }}
+                                        sx={menuButtonStyle("/new-transfer")}
                                     >
                                         Account Transfer
                                     </Button>
@@ -326,9 +337,8 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                         startIcon={<CloudDownloadIcon />}
                                         fullWidth
                                         size="large"
-                                        color={isActive("/inbox") ? "primary" : "secondary"}
                                         onClick={() => navigate("/inbox")}
-                                        sx={{ justifyContent: "flex-start", textTransform: 'none', fontSize: '1.2rem' }}
+                                        sx={menuButtonStyle("/inbox")}
                                     >
                                         Inbox
                                     </Button>
@@ -336,9 +346,8 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                         startIcon={<SendIcon />}
                                         fullWidth
                                         size="large"
-                                        color={isActive("/transfers") ? "primary" : "secondary"}
                                         onClick={() => navigate("/transfers")}
-                                        sx={{ justifyContent: "flex-start", textTransform: 'none', fontSize: '1.2rem' }}
+                                        sx={menuButtonStyle("/transfers")}
                                     >
                                         Transfers
                                     </Button>
@@ -357,9 +366,8 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                         startIcon={<SettingsIcon />}
                                         fullWidth
                                         size="large"
-                                        color={isActive("/account") ? "primary" : "secondary"}
                                         onClick={() => navigate("/account")}
-                                        sx={{ justifyContent: "flex-start", textTransform: 'none', fontSize: '1.2rem' }}
+                                        sx={menuButtonStyle("/account")}
                                     >
                                         Account
                                     </Button>
@@ -368,11 +376,10 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                         startIcon={<LogoutIcon />}
                                         fullWidth
                                         size="large"
-                                        color="secondary"
                                         onClick={async () => {
                                             navigate("/logout");
                                         }}
-                                        sx={{ justifyContent: "flex-start", textTransform: 'none', fontSize: '1.2rem' }}
+                                        sx={menuButtonStyle("/logout")}
                                     >
                                         Logout
                                     </Button>
