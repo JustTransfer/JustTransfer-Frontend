@@ -91,7 +91,7 @@ export default function CreateAccountPage() {
                 });
 
                 setTimeout(() => {
-                    navigate("/new-transfer", { replace: true });
+                    navigate("/new-transfer");
                 }, 1000);
 
             } else {

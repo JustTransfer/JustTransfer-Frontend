@@ -23,10 +23,9 @@ export const AuthProvider = ({ children }: any) => {
         navigate("/new-transfer");
     };
 
-    const logout = () => {
+    const logout = async () => {
         setUsername(null);
         setRole(null);
-        navigate("/", { replace: true });
     };
 
     const value = useMemo(

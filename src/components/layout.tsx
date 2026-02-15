@@ -19,7 +19,6 @@ import Container from "@mui/material/Container";
 import Link from '@mui/material/Link';
 
 import { useAuth } from "../hooks/useAuth";
-import { logoutProcess } from '../handlers/crypto';
 import { frontendUrl } from '../handlers/config';
 import { Boy } from '@mui/icons-material';
 
@@ -366,8 +365,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                         size="large"
                                         color="secondary"
                                         onClick={async () => {
-                                            await logoutProcess();
-                                            logout();
+                                            navigate("/logout");
                                         }}
                                         sx={{ justifyContent: "flex-start", textTransform: 'none', fontSize: '1.2rem' }}
                                     >

@@ -8,6 +8,7 @@ import HomePage from './pages/home';
 import AnonymousTransfer from './pages/anonymoustransfer';
 import CreateAccountPage from './pages/createaccount';
 import LoginPage from './pages/login';
+import Logout from './pages/logout';
 
 import NewTransfer from './pages/new-transfer';
 import Inbox from './pages/inbox';
@@ -24,6 +25,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/logout" element={<Logout />} />
           <Route path="/register" element={<CreateAccountPage />} />
 
           <Route path="/register" element={<CreateAccountPage />} />
@@ -48,7 +50,7 @@ function App() {
             </ProtectedRoute>}
           />
 
-          < Route path="/new-transfer" element={
+          <Route path="/new-transfer" element={
             <ProtectedRoute>
               <NewTransfer />
             </ProtectedRoute >}
