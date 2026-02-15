@@ -16,7 +16,7 @@ import { useAuth } from "../hooks/useAuth";
 export default function NewTransfer() {
     const { config } = useServerConfig();
 
-    const { role } = useAuth();
+    const { username, role, privateKeyEnc, privateKeySign } = useAuth();
 
     const maxFileSize = role === "premium" ? config?.max_file_size_connected_premium! : config?.max_file_size_connected!;
     const maxDownloads = role === "premium" ? config?.max_downloads_connected_premium! : config?.max_downloads_connected!;
@@ -44,6 +44,9 @@ export default function NewTransfer() {
                     maxLifetime={maxLifetime}
                     onSubmit={async (data, onProgress) => {
                         await sendMessage(
+                            username!,
+                            privateKeyEnc!,
+                            privateKeySign!,
                             data.receiver!,
                             data.file.name,
                             data.file,

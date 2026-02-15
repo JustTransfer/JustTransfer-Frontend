@@ -3,7 +3,6 @@ import sodium from "libsodium-wrappers-sumo";
 import { Base64 } from 'js-base64';
 
 import { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 } from "./api";
-import { getItemFromSessionStorage } from "./utils";
 import { useAuth } from "../hooks/useAuth";
 
 import * as errors from "../messages/errors";
@@ -66,20 +65,17 @@ async function register(username: string, email: string, password: string) {
 
     const role = result.role;
 
-    // Store the keys in session storage
-    sessionStorage.setItem("username", username);
-    sessionStorage.setItem("exportKey", Base64.fromUint8Array(exportKeyDecoded));
-    sessionStorage.setItem("PrivateKeyEnc", Base64.fromUint8Array(PrivateKeyEnc, true));
-    sessionStorage.setItem("PublicKeyEnc", PublicKeyEnc_b64);
-    sessionStorage.setItem("PrivateKeySign", Base64.fromUint8Array(PrivateKeySign, true));
-    sessionStorage.setItem("PublicKeySign", PublicKeySign_b64);
-
     // Return success
     return {
         success: true,
         message: "Register successful!",
         username,
         role,
+        exportKey: Base64.fromUint8Array(exportKeyDecoded, true),
+        privateKeyEnc: Base64.fromUint8Array(PrivateKeyEnc, true),
+        publicKeyEnc: PublicKeyEnc_b64,
+        privateKeySign: Base64.fromUint8Array(PrivateKeySign, true),
+        publicKeySign: PublicKeySign_b64,
     };
 }
 
@@ -134,20 +130,16 @@ async function loginProcess(username: string, password: string) {
     const PrivateKeySign = sodium.crypto_secretbox_open_easy(cpriv_sign, nonce_priv_sign, exportKeyDecoded);
     const PublicKeySign = pub_sign;
 
-
-    // Save keys in session storage
-    sessionStorage.setItem("username", username);
-    sessionStorage.setItem("exportKey", Base64.fromUint8Array(exportKeyDecoded, true));
-    sessionStorage.setItem("PrivateKeyEnc", Base64.fromUint8Array(PrivateKeyEnc, true));
-    sessionStorage.setItem("PublicKeyEnc", Base64.fromUint8Array(PublicKeyEnc, true));
-    sessionStorage.setItem("PrivateKeySign", Base64.fromUint8Array(PrivateKeySign, true));
-    sessionStorage.setItem("PublicKeySign", Base64.fromUint8Array(PublicKeySign, true));
-
     return {
         success: true,
         message: "Login successful!",
         username,
         role,
+        exportKey: Base64.fromUint8Array(exportKeyDecoded, true),
+        privateKeyEnc: Base64.fromUint8Array(PrivateKeyEnc, true),
+        publicKeyEnc: Base64.fromUint8Array(PublicKeyEnc, true),
+        privateKeySign: Base64.fromUint8Array(PrivateKeySign, true),
+        publicKeySign: Base64.fromUint8Array(PublicKeySign, true),
     };
 }
 
@@ -155,24 +147,18 @@ async function logoutProcess() {
 
     await initLibsodium();
 
-    const username = sessionStorage.getItem("username");
-
     try {
-        let response = await logoutAPI(username!);
+        let response = await logoutAPI();
     } catch (e) {
         console.error("Logout API call failed:", e);
     }
-
-    sessionStorage.clear();
 }
 
-async function getMessages() {
+async function getMessages(privateKeyEnc: string) {
 
     await initLibsodium();
 
-    const username = sessionStorage.getItem("username");
-
-    const PrivateKeyEncDecoded = getItemFromSessionStorage("PrivateKeyEnc");
+    const PrivateKeyEncDecoded = Base64.toUint8Array(privateKeyEnc);
 
     const response = await getMessagesAPI();
 
@@ -198,13 +184,11 @@ async function getMessages() {
     return response.messages;
 }
 
-async function getOneMessage(message: any, onChunk: (chunk: Uint8Array, filename: string) => Promise<void>, onProgress?: (percent: number) => void) {
+async function getOneMessage(username: string, privateKeyEnc: string, message: any, onChunk: (chunk: Uint8Array, filename: string) => Promise<void>, onProgress?: (percent: number) => void) {
 
     await initLibsodium();
 
-    const username = sessionStorage.getItem("username");
-
-    const PrivateKeyEncDecoded = getItemFromSessionStorage("PrivateKeyEnc");
+    const PrivateKeyEncDecoded = Base64.toUint8Array(privateKeyEnc);
 
     // Get the message download URL
     const response = await getOneMessageAPI(message.file_id);
@@ -283,14 +267,12 @@ async function getOneMessage(message: any, onChunk: (chunk: Uint8Array, filename
     return message;
 }
 
-async function sendMessage(receiver: string, fileName: string, file: File, lifetimeDays: number, maxDownloads: number, onProgress?: (percent: number) => void) {
+async function sendMessage(username: string, privateKeyEnc: string, privateKeySign: string, receiver: string, fileName: string, file: File, lifetimeDays: number, maxDownloads: number, onProgress?: (percent: number) => void) {
 
     await initLibsodium();
 
-    const username = sessionStorage.getItem("username");
-
-    const PrivateKeyEncDecoded = getItemFromSessionStorage("PrivateKeyEnc");
-    const PrivateKeySignDecoded = getItemFromSessionStorage("PrivateKeySign");
+    const PrivateKeyEncDecoded = Base64.toUint8Array(privateKeyEnc);
+    const PrivateKeySignDecoded = Base64.toUint8Array(privateKeySign);
 
     // Get receiver's public encryption key
     const responsePubKey = await getPublicKeyEncAPI(receiver);

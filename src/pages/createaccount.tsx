@@ -76,6 +76,11 @@ export default function CreateAccountPage() {
                 login({
                     username: data.username as string,
                     role: result.role,
+                    exportKey: result.exportKey!,
+                    privateKeyEnc: result.privateKeyEnc!,
+                    publicKeyEnc: result.publicKeyEnc!,
+                    privateKeySign: result.privateKeySign!,
+                    publicKeySign: result.publicKeySign!,
                 });
 
                 setTimeout(() => {

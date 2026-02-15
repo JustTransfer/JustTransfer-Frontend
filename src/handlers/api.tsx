@@ -96,16 +96,13 @@ async function loginEndAPI(username: string, client_login_finish_result: string)
     return (await response.json());
 }
 
-async function logoutAPI(username: string) { // TODO username should not be needed
+async function logoutAPI() {
 
     const response = await fetch(`${apiUrl}/logout`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-            username,
-        }),
     });
 
     if (!response.ok) {

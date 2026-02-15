@@ -6,7 +6,6 @@ import { frontendUrl } from "./config";
 
 import { uploadFileToS3, downloadFileFromS3 } from "./api";
 import { postAnonymousMessageLoginStartAPI, postAnonymousMessageLoginEndAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, finishUploadFileToS3Anonymous } from "./api_anonymous";
-import { getItemFromSessionStorage } from "./utils";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";

@@ -1,10 +1,7 @@
 
 // Login and Registration Errors
 export const errorLoginFailed = "Login failed. Please check your credentials.";
-
 export const errorRegistrationFailed = "Registration failed. Please try again.";
-
-export const errorMissingKeyInSessionStorage = "Required key not found. Please log in again.";
 
 
 // Cryptography Errors

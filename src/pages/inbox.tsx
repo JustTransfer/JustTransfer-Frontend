@@ -11,6 +11,7 @@ import Alert from '@mui/material/Alert';
 import streamSaver from 'streamsaver';
 
 import { useNotification } from "../hooks/useNotificationContext";
+import { useAuth } from "../hooks/useAuth";
 import Layout from "../components/layout";
 import { getMessages, getOneMessage } from "../handlers/crypto"
 import { formatSize } from "../handlers/utils";
@@ -19,6 +20,8 @@ import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
 
 export default function Inbox() {
+
+    const { username, privateKeyEnc } = useAuth();
 
     const { success, error } = useNotification();
     const [messages, setMessages] = useState<Array<any>>([]);
@@ -43,7 +46,7 @@ export default function Inbox() {
 
 
                 try {
-                    messageWithContent = await getOneMessage(message, async (chunk, name) => {
+                    messageWithContent = await getOneMessage(username!, privateKeyEnc!, message, async (chunk, name) => {
                         // Write chunk directly to the stream
                         await writer!.write(chunk);
                     }, (percent: number) => {
@@ -62,7 +65,7 @@ export default function Inbox() {
                 console.log("Using fallback blob download");
                 const chunks: Uint8Array[] = [];
 
-                messageWithContent = await getOneMessage(message, async (chunk, name) => {
+                messageWithContent = await getOneMessage(username!, privateKeyEnc!, message, async (chunk, name) => {
                     // Collect chunks in memory
                     chunks.push(new Uint8Array(chunk));
                 }, (percent: number) => {
@@ -119,7 +122,7 @@ export default function Inbox() {
 
     async function getMessagesLocal() {
         try {
-            const msgs = await getMessages();
+            const msgs = await getMessages(privateKeyEnc!);
             setMessages(msgs!);
         } catch (e) {
             console.error("Failed to fetch messages:", e);

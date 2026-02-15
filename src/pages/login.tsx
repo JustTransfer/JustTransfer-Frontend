@@ -39,8 +39,13 @@ export default function LoginPage() {
                 success(strings.msgLoginSuccessful);
 
                 login({
-                    username: result.username,
+                    username: result.username!,
                     role: result.role,
+                    exportKey: result.exportKey!,
+                    privateKeyEnc: result.privateKeyEnc!,
+                    publicKeyEnc: result.publicKeyEnc!,
+                    privateKeySign: result.privateKeySign!,
+                    publicKeySign: result.publicKeySign!,
                 });
 
             } else {
