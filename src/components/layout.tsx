@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { styled, useTheme, createTheme, ThemeProvider } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -188,7 +189,11 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
 export default function Layout({ title, content }: { title: string; content: React.ReactNode }) {
 
     const navigate = useNavigate();
-    const { logout } = useAuth();
+
+    const location = useLocation();
+
+    const isActive = (path: string) => location.pathname === path;
+
     const theme = useTheme();
 
     const { username } = useAuth();
@@ -301,7 +306,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                         startIcon={<LinkIcon />}
                                         fullWidth
                                         size="large"
-                                        color="secondary"
+                                        color={isActive("/") ? "primary" : "secondary"}
                                         onClick={() => navigate("/")}
                                         sx={{ justifyContent: "flex-start", textTransform: 'none', fontSize: '1.2rem' }}
                                     >
@@ -311,7 +316,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                         startIcon={<AccountCircleIcon />}
                                         fullWidth
                                         size="large"
-                                        color="secondary"
+                                        color={isActive("/new-transfer") ? "primary" : "secondary"}
                                         onClick={() => navigate("/new-transfer")}
                                         sx={{ justifyContent: "flex-start", textTransform: 'none', fontSize: '1.2rem' }}
                                     >
@@ -321,7 +326,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                         startIcon={<CloudDownloadIcon />}
                                         fullWidth
                                         size="large"
-                                        color="secondary"
+                                        color={isActive("/inbox") ? "primary" : "secondary"}
                                         onClick={() => navigate("/inbox")}
                                         sx={{ justifyContent: "flex-start", textTransform: 'none', fontSize: '1.2rem' }}
                                     >
@@ -331,7 +336,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                         startIcon={<SendIcon />}
                                         fullWidth
                                         size="large"
-                                        color="secondary"
+                                        color={isActive("/transfers") ? "primary" : "secondary"}
                                         onClick={() => navigate("/transfers")}
                                         sx={{ justifyContent: "flex-start", textTransform: 'none', fontSize: '1.2rem' }}
                                     >
@@ -352,7 +357,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                         startIcon={<SettingsIcon />}
                                         fullWidth
                                         size="large"
-                                        color="secondary"
+                                        color={isActive("/account") ? "primary" : "secondary"}
                                         onClick={() => navigate("/account")}
                                         sx={{ justifyContent: "flex-start", textTransform: 'none', fontSize: '1.2rem' }}
                                     >
