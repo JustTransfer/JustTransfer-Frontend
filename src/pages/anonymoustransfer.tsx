@@ -26,6 +26,7 @@ export default function AnonymousTransfer() {
     const { success, error } = useNotification();
     const { id } = useParams();
 
+    const [exportKey, setExportKey] = useState<string>("");
     const [messageData, setMessageData] = useState<any>(null);
 
     const [isDownloading, setIsDownloading] = useState(false);
@@ -61,6 +62,7 @@ export default function AnonymousTransfer() {
             setDownloadProgress(0);
             const result = await getOneAnonymousMessageMetadata(data.passphrase as string, id!);
 
+            setExportKey(result.exportKey);
             setMessageData(result.messageData);
 
             success(strings.msgFileInfoDecrypted);
@@ -89,7 +91,7 @@ export default function AnonymousTransfer() {
                 const writer = fileStream.getWriter();
 
                 try {
-                    messageWithContent = await getOneAnonymousMessage(messageData, async (chunk, name) => {
+                    messageWithContent = await getOneAnonymousMessage(exportKey, messageData, async (chunk, name) => {
                         // Write chunk directly to the stream
                         await writer.write(chunk);
                     }, (percent: number) => {
@@ -108,7 +110,7 @@ export default function AnonymousTransfer() {
                 console.log("Using fallback blob download");
                 const chunks: Uint8Array[] = [];
 
-                messageWithContent = await getOneAnonymousMessage(messageData, async (chunk, name) => {
+                messageWithContent = await getOneAnonymousMessage(exportKey, messageData, async (chunk, name) => {
                     // Collect chunks in memory
                     chunks.push(new Uint8Array(chunk));
                 }, (percent: number) => {

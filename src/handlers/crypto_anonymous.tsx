@@ -44,9 +44,6 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
     // Finish the login process
     const responseOpaqueFinish = await postAnonymousMessageLoginEndAPI(message_id, finishLoginRequest);
 
-    // Save keys in session storage with message id
-    sessionStorage.setItem(`exportKey_${message_id}`, exportKey);
-
     // Decode export key
     const exportKeyMetadataDecoded = Base64.toUint8Array(exportKey).slice(0, 32);
 
@@ -81,6 +78,7 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
 
     return {
         success: true,
+        exportKey,
         message: "Message metadata retrieved successfully!",
         messageData: {
             id, cfilename, filename, nonce_filename, message_id, file_id, header, creation_time, lifetime, max_downloads, number_downloads, file_size, chunk_size
@@ -92,18 +90,11 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
 /// Get Anonymous Message Content
 ///
 
-async function getOneAnonymousMessage(message: any, onChunk: (chunk: Uint8Array, filename: string) => Promise<void>, onProgress?: (percent: number) => void) {
+async function getOneAnonymousMessage(exportKey: string, message: any, onChunk: (chunk: Uint8Array, filename: string) => Promise<void>, onProgress?: (percent: number) => void) {
 
     await initLibsodium();
 
     const message_id = message.id;
-
-    const exportKey = sessionStorage.getItem(`exportKey_${message_id}`);
-
-    if (!exportKey) {
-        throw new Error(errors.errorMissingKeyInSessionStorage);
-    }
-
     const repsonse = await getAnonymousMessageAPI(message_id);
     const downloadUrl = repsonse.download_url;
 
