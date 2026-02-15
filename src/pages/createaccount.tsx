@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Button, TextField, Paper } from "@mui/material";
+import { Box, Typography, Button, TextField, Paper, IconButton, InputAdornment } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Alert from '@mui/material/Alert';
 import { LinearProgress } from "@mui/material";
 
@@ -24,6 +25,11 @@ export default function CreateAccountPage() {
 
     const [password, setPassword] = useState("");
     const [isStrong, setIsStrong] = useState(false);
+
+    const [showPassword, setShowPassword] = useState(false);
+    const handleTogglePassword = () => {
+        setShowPassword(prev => !prev);
+    };
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -127,13 +133,27 @@ export default function CreateAccountPage() {
                             <TextField
                                 label="Password"
                                 name="password"
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 variant="outlined"
                                 fullWidth
                                 required
                                 onChange={(e) => setPassword(e.target.value)}
                                 error={errorWeakPassword}
                                 helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
+                                InputProps={{
+                                    endAdornment: (
+                                        < InputAdornment position="end" >
+                                            <IconButton
+                                                aria-label={
+                                                    showPassword ? 'hide the password' : 'display the password'
+                                                }
+                                                onClick={handleTogglePassword}
+                                            >
+                                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    )
+                                }}
                             />
 
                             <PasswordStrength password={password} onStrengthChange={setIsStrong} />

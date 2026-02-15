@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
-import { Box, Typography, TextField, Paper, Button, Alert } from "@mui/material";
+import { Box, Typography, TextField, Paper, Button, Alert, IconButton, InputAdornment } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import LinearProgress, { LinearProgressProps } from '@mui/material/LinearProgress';
@@ -42,6 +43,11 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
     const [progress, setProgress] = useState(0);
     const [link, setLink] = useState("");
     const [openDialog, setOpenDialog] = useState(false);
+
+    const [showPassword, setShowPassword] = useState(false);
+    const handleTogglePassword = () => {
+        setShowPassword(prev => !prev);
+    };
 
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const formRef = useRef<HTMLFormElement | null>(null);
@@ -165,9 +171,24 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
 
                 {type === "anonymous" ? (
                     <>
-                        <TextField label="Password" name="password" type="password" variant="outlined" fullWidth required onChange={(e) => setPassword(e.target.value)}
+                        <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
+                            onChange={(e) => setPassword(e.target.value)}
                             error={errorWeakPassword}
                             helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
+                            InputProps={{
+                                endAdornment: (
+                                    < InputAdornment position="end" >
+                                        <IconButton
+                                            aria-label={
+                                                showPassword ? 'hide the password' : 'display the password'
+                                            }
+                                            onClick={handleTogglePassword}
+                                        >
+                                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                )
+                            }}
                         />
 
                         <PasswordStrength password={password} onStrengthChange={setIsStrong} />
@@ -219,6 +240,6 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                     <Button onClick={handleCloseDialog}>Close</Button>
                 </DialogActions>
             </Dialog>
-        </Paper>
+        </Paper >
     );
 }

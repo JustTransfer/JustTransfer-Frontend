@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Button, TextField, Paper } from "@mui/material";
-import Alert from '@mui/material/Alert';
+import { Box, Typography, Button, TextField, Paper, InputAdornment, IconButton } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 import { useNotification } from "../hooks/useNotificationContext";
 import { useAuth } from "../hooks/useAuth";
@@ -17,6 +17,10 @@ export default function LoginPage() {
     const navigate = useNavigate();
     const { login } = useAuth();
 
+    const [showPassword, setShowPassword] = useState(false);
+    const handleTogglePassword = () => {
+        setShowPassword(prev => !prev);
+    };
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -72,7 +76,22 @@ export default function LoginPage() {
 
                         <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }} onSubmit={handleSubmit}>
                             <TextField label="Username" name="username" type="text" variant="outlined" fullWidth required />
-                            <TextField label="Password" name="password" type="password" variant="outlined" fullWidth required />
+                            <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
+                                InputProps={{
+                                    endAdornment: (
+                                        < InputAdornment position="end" >
+                                            <IconButton
+                                                aria-label={
+                                                    showPassword ? 'hide the password' : 'display the password'
+                                                }
+                                                onClick={handleTogglePassword}
+                                            >
+                                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    )
+                                }}
+                            />
                             <Button type="submit" variant="contained" sx={{ mt: 2 }}>
                                 Login
                             </Button>
