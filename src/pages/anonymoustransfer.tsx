@@ -149,7 +149,7 @@ export default function AnonymousTransfer() {
     }
 
     return (
-        <Layout title="Anonymous Transfer" content={
+        <Layout title="Link Transfer" content={
             <Box
                 sx={{
                     flex: 1,
@@ -161,7 +161,7 @@ export default function AnonymousTransfer() {
                 }}
             >
                 <Typography variant="h3">
-                    Anonymous Transfer
+                    Link Transfer
                 </Typography>
 
                 <Paper elevation={4} sx={{ p: 6, borderRadius: 3, width: 500, textAlign: "center" }}>
