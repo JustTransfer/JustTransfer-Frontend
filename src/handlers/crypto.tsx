@@ -2,7 +2,8 @@ import * as opaque from "@serenity-kit/opaque";
 import sodium from "libsodium-wrappers-sumo";
 import { Base64 } from 'js-base64';
 
-import { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 } from "./api";
+import { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 } from "./api";
+import { getCachedPublicKeyEnc, getCachedPublicKeySign } from "./cachePubKey";
 import { useAuth } from "../hooks/useAuth";
 
 import * as errors from "../messages/errors";
@@ -172,8 +173,7 @@ async function getMessages(privateKeyEnc: string) {
         msg.nonce_message = Base64.toUint8Array(msg.nonce_message);
 
         // Get the public key enc of the sender to decrypt the filename and file
-        const responsePubKeyEnc = await getPublicKeyEncAPI(msg.sender);
-        const PublicKeyEncSender = Base64.toUint8Array(responsePubKeyEnc.pub_enc); // TODO create cache for public keys
+        const PublicKeyEncSender = await getCachedPublicKeyEnc(msg.sender);
 
         // Decrypt the filename to display it in the inbox
         const filenameBytes = sodium.crypto_box_open_easy(msg.cfilename, msg.nonce_filename, PublicKeyEncSender, PrivateKeyEncDecoded);
@@ -195,13 +195,12 @@ async function getOneMessage(username: string, privateKeyEnc: string, message: a
     const downloadUrl = response.download_url;
 
     // Get the public key sign of the sender to check signature
-    const responsePubKey = await getPublicKeySignAPI(message.sender);
-    const PublicKeySignSender = Base64.toUint8Array(responsePubKey.pub_sign);
+    const PublicKeySignSender = await getCachedPublicKeySign(message.sender);
 
     // Construct the signature
     let state = sodium.crypto_sign_init();
 
-    // Generate a JSON representation of the message metadata to sign
+    // Generate a JSON representation of the message metadata for the signature
     const messageMetadata = {
         cfilename: message.cfilename,
         nonce_filename: message.nonce_filename,
@@ -220,8 +219,7 @@ async function getOneMessage(username: string, privateKeyEnc: string, message: a
     sodium.crypto_sign_update(state, new TextEncoder().encode(JSON.stringify(messageMetadata)));
 
     // Get the public key enc of the sender to decrypt the filename and file
-    const responsePubKeyEnc = await getPublicKeyEncAPI(message.sender);
-    const PublicKeyEncSender = Base64.toUint8Array(responsePubKeyEnc.pub_enc);
+    const PublicKeyEncSender = await getCachedPublicKeyEnc(message.sender);
 
     // Decrypt the filename
     const filenameBytes = sodium.crypto_box_open_easy(message.cfilename, message.nonce_filename, PublicKeyEncSender, PrivateKeyEncDecoded);
@@ -275,9 +273,7 @@ async function sendMessage(username: string, privateKeyEnc: string, privateKeySi
     const PrivateKeySignDecoded = Base64.toUint8Array(privateKeySign);
 
     // Get receiver's public encryption key
-    const responsePubKey = await getPublicKeyEncAPI(receiver);
-
-    const PublicKeyEncReceiver = Base64.toUint8Array(responsePubKey.pub_enc);
+    const PublicKeyEncReceiver = await getCachedPublicKeyEnc(receiver);
 
     // Encrypt the filename
     const nonce_filename = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
