@@ -10,6 +10,7 @@ import { useAuth } from "../hooks/useAuth";
 import Layout from "../components/layout";
 import { register } from "../handlers/crypto";
 import PasswordStrength from "../components/passwordStrength";
+import { isValidUsername } from "../handlers/utils";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
@@ -20,6 +21,8 @@ export default function CreateAccountPage() {
 
     const navigate = useNavigate();
     const { login } = useAuth();
+
+    const [errorInvalidUsername, setErrorInvalidUsername] = useState(false);
     const [errorPasswordMismatch, setErrorPasswordMismatch] = useState(false);
     const [errorWeakPassword, setErrorWeakPassword] = useState(false);
 
@@ -43,6 +46,14 @@ export default function CreateAccountPage() {
         };
 
         let hasError = false;
+
+        if (!isValidUsername(data.username as string)) {
+            setErrorInvalidUsername(true);
+            error(errors.errorInvalidUsernameShort);
+            hasError = true;
+        } else {
+            setErrorInvalidUsername(false);
+        }
 
         if (!isStrong) {
             setErrorWeakPassword(true);
@@ -126,6 +137,8 @@ export default function CreateAccountPage() {
                                 variant="outlined"
                                 fullWidth
                                 required
+                                error={errorInvalidUsername}
+                                helperText={errorInvalidUsername ? errors.errorInvalidUsername : ""}
                             />
                             <TextField
                                 label="Email"

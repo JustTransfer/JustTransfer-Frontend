@@ -7,6 +7,7 @@ import { useNotification } from "../hooks/useNotificationContext";
 import { useAuth } from "../hooks/useAuth";
 import Layout from "../components/layout";
 import { loginProcess } from "../handlers/crypto";
+import { isValidUsername } from "../handlers/utils";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
@@ -16,6 +17,8 @@ export default function LoginPage() {
     const { success, error } = useNotification();
     const navigate = useNavigate();
     const { login } = useAuth();
+
+    const [errorInvalidUsername, setErrorInvalidUsername] = useState(false);
 
     const [showPassword, setShowPassword] = useState(false);
     const handleTogglePassword = () => {
@@ -27,12 +30,26 @@ export default function LoginPage() {
         const form = event.currentTarget;
         const formData = new FormData(form);
         const data = {
-            email: formData.get("username"),
+            username: formData.get("username"),
             password: formData.get("password"),
         };
 
+        let hasError = false;
+
+        if (!isValidUsername(data.username as string)) {
+            setErrorInvalidUsername(true);
+            error(errors.errorInvalidUsernameShort);
+            hasError = true;
+        } else {
+            setErrorInvalidUsername(false);
+        }
+
+        if (hasError) {
+            return;
+        }
+
         try {
-            const result = await loginProcess(data.email as string, data.password as string);
+            const result = await loginProcess(data.username as string, data.password as string);
 
             if (result.success) {
 
@@ -80,7 +97,10 @@ export default function LoginPage() {
                         </Typography>
 
                         <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }} onSubmit={handleSubmit}>
-                            <TextField label="Username" name="username" type="text" variant="outlined" fullWidth required />
+                            <TextField label="Username" name="username" type="text" variant="outlined" fullWidth required
+                                error={errorInvalidUsername}
+                                helperText={errorInvalidUsername ? errors.errorInvalidUsername : ""}
+                            />
                             <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
                                 InputProps={{
                                     endAdornment: (
