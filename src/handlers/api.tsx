@@ -47,7 +47,7 @@ async function registerEndAPI(username: string, email: string, client_registrati
     });
 
     if (response.status === 409) {
-        throw new Error(errors.errorUsernameTaken);
+        throw new Error(errors.errorUsernameEmailTaken);
     } else if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
