@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, Button, IconButton, Paper, Table, TableBody, TableCell, TableHead, TableRow, TableContainer } from "@mui/material";
+import { Box, Typography, Button, IconButton, Paper, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, ListItem, ListItemIcon, ListItemText, Stack, Chip } from "@mui/material";
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DownloadIcon from '@mui/icons-material/Download';
+import InboxIcon from '@mui/icons-material/Inbox';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+
 import CircularProgress, {
     CircularProgressProps,
 } from '@mui/material/CircularProgress';
@@ -18,6 +22,94 @@ import { formatSize } from "../handlers/utils";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
+
+function formatCreated(date: string) {
+    const d = new Date(date);
+    return d.toLocaleString(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short"
+    });
+}
+
+function expireColor(msg: any) {
+    const expire = new Date(new Date(msg.creation_time).getTime() + msg.lifetime * 86400000);
+    const now = new Date();
+
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const expDay = new Date(expire.getFullYear(), expire.getMonth(), expire.getDate());
+
+    const dayDiff = Math.round((expDay.getTime() - today.getTime()) / 86400000);
+
+    if (expire <= now) return "error.main";
+    if (dayDiff <= 0) return "error.main";
+    if (dayDiff <= 2) return "warning.main";
+    return "text.secondary";
+}
+
+function relativeExpire(msg: any) {
+    const expire = new Date(new Date(msg.creation_time).getTime() + msg.lifetime * 86400000);
+    const now = new Date();
+
+    // normalize to local midnight
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const expDay = new Date(expire.getFullYear(), expire.getMonth(), expire.getDate());
+
+    const dayDiff = Math.round((expDay.getTime() - today.getTime()) / 86400000);
+
+    if (expire <= now) return "Expired";
+
+    if (dayDiff === 0)
+        return "Expires today at " + expire.toLocaleTimeString();
+
+    if (dayDiff === 1)
+        return "Expires tomorrow at " + expire.toLocaleTimeString();
+
+    return `Expires ${expire.toLocaleDateString()} at ${expire.toLocaleTimeString()}`;
+}
+
+type Props = {
+    msg: any;
+    progress?: number;
+    onDownload: () => void;
+};
+
+function DownloadSection({ msg, progress, onDownload }: Props) {
+
+    const downloadsLeft = msg.max_downloads - msg.number_downloads;
+
+    // Invalid signature -> block download
+    if (msg.signatureValid === false) {
+        return <Chip color="error" label="Tampered" />;
+    }
+
+    // Already fully used
+    if (downloadsLeft <= 0) {
+        return <Chip label="Limit reached" />;
+    }
+
+    // Downloading state
+    if (progress !== undefined) {
+        return (
+            <Stack direction="row" spacing={1} alignItems="center" minWidth={90}>
+                <CircularProgress variant="determinate" value={progress} size={22} />
+                <Typography variant="caption">{Math.round(progress)}%</Typography>
+            </Stack>
+        );
+    }
+
+    // Ready state
+    return (
+        <Button
+            variant="contained"
+            size="small"
+            startIcon={<DownloadIcon />}
+            onClick={onDownload}
+        >
+            Download
+        </Button>
+    );
+}
+
 
 export default function Inbox() {
 
@@ -161,69 +253,82 @@ export default function Inbox() {
 
                 <Box sx={{ width: '80%', display: 'flex', alignItems: 'center', justifyContent: "center" }}>
                     {messages.length > 0 && !loading ? (
-                        <TableContainer component={Paper}>
-                            <Table sx={{ width: "100%", justifyContent: "center" }} aria-label="simple table">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell align="center"><strong>From</strong></TableCell>
-                                        <TableCell align="center"><strong>File name</strong></TableCell>
-                                        <TableCell align="center"><strong>File size</strong></TableCell>
-                                        <TableCell align="center"><strong>Received at</strong></TableCell>
-                                        <TableCell align="center"><strong>Expire At</strong></TableCell>
-                                        <TableCell align="center"><strong>Max Downloads</strong></TableCell>
-                                        <TableCell align="center"><strong>Downloads Left</strong></TableCell>
-                                        <TableCell align="center"></TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {messages.map((msg) => (
-                                        <TableRow
-                                            key={msg.id}
-                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                        >
-                                            <TableCell align="center" component="th" scope="row">
-                                                <strong>{msg.sender}</strong>
-                                            </TableCell>
-                                            {msg.signatureValid === false ? (
-                                                <TableCell align="center"><Typography color="error">Invalid signature</Typography></TableCell>
-                                            ) : (
-                                                <TableCell align="center">{msg.filename}</TableCell>
-                                            )}
-                                            <TableCell align="center" component="th" scope="row">
-                                                {formatSize(msg.file_size)}
-                                            </TableCell>
-                                            <TableCell align="center">{new Date(msg.creation_time).toLocaleString()}</TableCell>
-                                            <TableCell align="center">{new Date(
-                                                new Date(msg.creation_time).getTime() + msg.lifetime * 24 * 60 * 60 * 1000
-                                            ).toLocaleString()}</TableCell>
-                                            <TableCell align="center">{msg.max_downloads}</TableCell>
-                                            <TableCell align="center">{msg.max_downloads - msg.number_downloads}</TableCell>
-                                            <TableCell align="center">
-                                                {msg.signatureValid === false ? (
-                                                    <Typography color="error">Invalid signature</Typography>
-                                                ) : downloadProgress[msg.id] !== undefined ? (
-                                                    <CircularProgress
-                                                        variant="determinate"
-                                                        value={downloadProgress[msg.id]}
-                                                        size={24}
+                        <Stack spacing={1} sx={{ width: "100%" }}>
+                            {messages.map((msg) => (
+                                <ListItem
+                                    key={msg.id}
+                                    sx={{
+                                        width: "100%",
+                                        borderRadius: 2,
+                                        px: 2,
+                                        py: 1.2,
+                                        display: "flex",
+                                        alignItems: "center",
+                                        border: "1px solid",
+                                        borderColor: "divider",
+                                        "&:hover": { backgroundColor: "action.hover" }
+                                    }}
+                                >
+                                    <ListItemIcon>
+                                        <InsertDriveFileIcon color="primary" />
+                                    </ListItemIcon>
+
+                                    <ListItemText
+                                        primary={
+                                            <Stack spacing={0.3}>
+                                                <Typography variant="caption" color="text.secondary">
+                                                    Received {formatCreated(msg.creation_time)}
+                                                </Typography>
+
+                                                <Stack direction="row" spacing={1} alignItems="center">
+                                                    <Typography fontWeight={600}>{msg.filename}</Typography>
+                                                    <Chip label={formatSize(msg.file_size)} size="small" />
+                                                    {msg.signatureValid === true && (
+                                                        <Chip color="success" size="small" label="Verified" />
+                                                    )}
+                                                </Stack>
+
+                                                <Stack direction="row" spacing={1} mt={0.5}>
+                                                    <Chip
+                                                        size="small"
+                                                        label={relativeExpire(msg)}
+                                                        color={expireColor(msg) === "error.main" ? "error" : expireColor(msg) === "warning.main" ? "warning" : "default"}
                                                     />
-                                                ) : (
-                                                    <DownloadIcon
-                                                        sx={{ color: "primary.main", "&:hover": { cursor: "pointer" } }}
-                                                        onClick={() => downloadFile(msg)}
+                                                    <Chip
+                                                        size="small"
+                                                        label={`${msg.max_downloads - msg.number_downloads} downloads remaining`}
+                                                        color="info" // TODO change color if only one remaining
                                                     />
-                                                )}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
+                                                </Stack>
+                                            </Stack>
+                                        }
+                                    />
+
+
+                                    <DownloadSection
+                                        msg={msg}
+                                        progress={downloadProgress[msg.id]}
+                                        onDownload={() => downloadFile(msg)}
+                                    />
+                                </ListItem>
+                            ))}
+                        </Stack>
+
                     ) : (
-                        !loading ? <Typography variant="h6">No messages</Typography> : <CircularProgress />
+                        loading ?
+                            <CircularProgress />
+                            :
+                            <Box textAlign="center" mt={8} color="text.secondary">
+                                <InboxIcon sx={{ fontSize: 64, opacity: 0.4 }} />
+                                <Typography variant="h6">No files yet</Typography>
+                                <Typography variant="body2">
+                                    When someone sends you a file, it will appear here.
+                                </Typography>
+                            </Box>
+
                     )}
                 </Box>
-            </Box >
+            </ Box >
         } />
     );
 };
