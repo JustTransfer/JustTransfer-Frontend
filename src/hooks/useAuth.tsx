@@ -29,14 +29,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: any) => {
 
-    const [username, setUsername] = useLocalStorage("username", null);
-    const [role, setRole] = useLocalStorage("role", null);
+    //const [username, setUsername] = useLocalStorage("username", null);
+    //const [role, setRole] = useLocalStorage("role", null);
+    const [username, setUsername] = useState<string | null>(null);
+    const [role, setRole] = useState<string | null>(null);
 
-    const [exportKey, setExportKey] = useState<string>("");
-    const [privateKeyEnc, setPrivateKeyEnc] = useState<string>("");
-    const [publicKeyEnc, setPublicKeyEnc] = useState<string>("");
-    const [privateKeySign, setPrivateKeySign] = useState<string>("");
-    const [publicKeySign, setPublicKeySign] = useState<string>("");
+    const [exportKey, setExportKey] = useState<string | null>(null);
+    const [privateKeyEnc, setPrivateKeyEnc] = useState<string | null>(null);
+    const [publicKeyEnc, setPublicKeyEnc] = useState<string | null>(null);
+    const [privateKeySign, setPrivateKeySign] = useState<string | null>(null);
+    const [publicKeySign, setPublicKeySign] = useState<string | null>(null);
 
 
     const navigate = useNavigate();
@@ -56,11 +58,11 @@ export const AuthProvider = ({ children }: any) => {
     const logout = async () => {
         setUsername(null);
         setRole(null);
-        setExportKey("");
-        setPrivateKeyEnc("");
-        setPublicKeyEnc("");
-        setPrivateKeySign("");
-        setPublicKeySign("");
+        setExportKey(null);
+        setPrivateKeyEnc(null);
+        setPublicKeyEnc(null);
+        setPrivateKeySign(null);
+        setPublicKeySign(null);
 
         // Navigation done in logout.tsx page
     };

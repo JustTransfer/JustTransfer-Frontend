@@ -23,48 +23,61 @@ import { formatSize } from "../handlers/utils";
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
 
+const DAY = 86400000;
+
+function getExpiration(msg: any) {
+    const created = new Date(msg.creation_time);
+    const expire = new Date(created.getTime() + msg.lifetime * DAY);
+    const now = new Date();
+
+    // calendar normalized dates
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const expDay = new Date(expire.getFullYear(), expire.getMonth(), expire.getDate());
+
+    const dayDiff = Math.round((expDay.getTime() - today.getTime()) / DAY);
+
+    return {
+        created,
+        expire,
+        now,
+        dayDiff,
+        expired: now >= expire
+    };
+}
+
 function formatCreated(date: string) {
     const d = new Date(date);
     return d.toLocaleString(undefined, {
-        dateStyle: "medium",
-        timeStyle: "short"
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
     });
 }
 
 function expireColor(msg: any) {
-    const expire = new Date(new Date(msg.creation_time).getTime() + msg.lifetime * 86400000);
-    const now = new Date();
+    const { dayDiff, expired } = getExpiration(msg);
 
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const expDay = new Date(expire.getFullYear(), expire.getMonth(), expire.getDate());
-
-    const dayDiff = Math.round((expDay.getTime() - today.getTime()) / 86400000);
-
-    if (expire <= now) return "error.main";
-    if (dayDiff <= 0) return "error.main";
-    if (dayDiff <= 2) return "warning.main";
+    if (expired) return "error.main";
+    if (dayDiff < 1) return "warning.main";
     return "text.secondary";
 }
 
 function relativeExpire(msg: any) {
-    const expire = new Date(new Date(msg.creation_time).getTime() + msg.lifetime * 86400000);
-    const now = new Date();
+    const { expire, dayDiff, expired } = getExpiration(msg);
 
-    // normalize to local midnight
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const expDay = new Date(expire.getFullYear(), expire.getMonth(), expire.getDate());
+    if (expired) return "Expired";
 
-    const dayDiff = Math.round((expDay.getTime() - today.getTime()) / 86400000);
-
-    if (expire <= now) return "Expired";
+    const time = expire.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
     if (dayDiff === 0)
-        return "Expires today at " + expire.toLocaleTimeString();
+        return `Expires today at ${time}`;
 
     if (dayDiff === 1)
-        return "Expires tomorrow at " + expire.toLocaleTimeString();
+        return `Expires tomorrow at ${time}`;
 
-    return `Expires ${expire.toLocaleDateString()} at ${expire.toLocaleTimeString()}`;
+    return `Expires ${expire.toLocaleDateString()} at ${time}`;
 }
 
 type Props = {
@@ -217,7 +230,7 @@ export default function Inbox() {
             const msgs = await getMessages(privateKeyEnc!);
             setMessages(msgs!);
         } catch (e) {
-            console.error("Failed to fetch messages:", e);
+            error("Failed to load messages: " + (e instanceof Error ? e.message : errors.errorUnknown));
         }
 
         setLoading(false);
@@ -275,7 +288,7 @@ export default function Inbox() {
 
                                     <ListItemText
                                         primary={
-                                            <Stack spacing={0.3}>
+                                            <Stack spacing={1}>
                                                 <Typography variant="caption" color="text.secondary">
                                                     Received {formatCreated(msg.creation_time)}
                                                 </Typography>
@@ -283,9 +296,6 @@ export default function Inbox() {
                                                 <Stack direction="row" spacing={1} alignItems="center">
                                                     <Typography fontWeight={600}>{msg.filename}</Typography>
                                                     <Chip label={formatSize(msg.file_size)} size="small" />
-                                                    {msg.signatureValid === true && (
-                                                        <Chip color="success" size="small" label="Verified" />
-                                                    )}
                                                 </Stack>
 
                                                 <Stack direction="row" spacing={1} mt={0.5}>
@@ -297,7 +307,7 @@ export default function Inbox() {
                                                     <Chip
                                                         size="small"
                                                         label={`${msg.max_downloads - msg.number_downloads} downloads remaining`}
-                                                        color="info" // TODO change color if only one remaining
+                                                        color={(msg.max_downloads - msg.number_downloads) <= 1 ? "warning" : "default"}
                                                     />
                                                 </Stack>
                                             </Stack>
