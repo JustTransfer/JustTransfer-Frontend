@@ -5,6 +5,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import InboxIcon from '@mui/icons-material/Inbox';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import PersonIcon from '@mui/icons-material/Person';
 
 import CircularProgress, {
     CircularProgressProps,
@@ -289,9 +290,12 @@ export default function Inbox() {
                                     <ListItemText
                                         primary={
                                             <Stack spacing={1}>
-                                                <Typography variant="caption" color="text.secondary">
-                                                    Received {formatCreated(msg.creation_time)}
-                                                </Typography>
+                                                <Stack direction="row" spacing={1} alignItems="center">
+                                                    <PersonIcon sx={{ fontSize: 16, opacity: 0.7 }} />
+                                                    <Typography variant="caption" color="text.secondary">
+                                                        From <b>{msg.sender}</b> • Received {formatCreated(msg.creation_time)}
+                                                    </Typography>
+                                                </Stack>
 
                                                 <Stack direction="row" spacing={1} alignItems="center">
                                                     <Typography fontWeight={600}>{msg.filename}</Typography>

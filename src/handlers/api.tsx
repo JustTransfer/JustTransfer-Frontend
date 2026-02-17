@@ -132,14 +132,11 @@ async function getAccountInfoAPI() {
 
 async function getPublicKeyEncAPI(user_request_pub_key: string) {
 
-    const response = await fetch(`${apiUrl}/pubkey/enc`, {
-        method: "POST",
+    const response = await fetch(`${apiUrl}/pubkey/enc/${user_request_pub_key}`, {
+        method: "GET",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-            user_request_pub_key,
-        }),
     });
 
     if (response.status === 404) {
@@ -153,14 +150,11 @@ async function getPublicKeyEncAPI(user_request_pub_key: string) {
 
 async function getPublicKeySignAPI(user_request_pub_key: string) {
 
-    const response = await fetch(`${apiUrl}/pubkey/sign`, {
-        method: "POST",
+    const response = await fetch(`${apiUrl}/pubkey/sign/${user_request_pub_key}`, {
+        method: "GET",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-            user_request_pub_key,
-        }),
     });
 
     if (response.status === 404) {
@@ -175,7 +169,7 @@ async function getPublicKeySignAPI(user_request_pub_key: string) {
 async function getMessagesAPI() {
 
     const response = await fetch(`${apiUrl}/messages`, {
-        method: "POST",
+        method: "GET",
         headers: {
             "Content-Type": "application/json",
         },
@@ -191,7 +185,7 @@ async function getMessagesAPI() {
 async function getOneMessageAPI(file_id: string) {
 
     const response = await fetch(`${apiUrl}/message/${file_id}`, {
-        method: "POST",
+        method: "GET",
         headers: {
             "Content-Type": "application/json",
         },

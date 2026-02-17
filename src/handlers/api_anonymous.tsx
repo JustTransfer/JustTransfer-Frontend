@@ -46,7 +46,7 @@ async function postAnonymousMessageLoginEndAPI(id: string, client_login_finish_r
 async function getAnonymousMessageMetadataAPI(file_id: string) {
 
     const response = await fetch(`${apiUrl}/anonymous/message/${file_id}/metadata`, {
-        method: "POST",
+        method: "GET",
         headers: {
             "Content-Type": "application/json",
         },
