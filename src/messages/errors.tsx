@@ -3,6 +3,7 @@
 export const errorLoginFailed = "Login failed. Please check your credentials.";
 export const errorRegistrationFailed = "Registration failed. Please try again.";
 export const errorUsernameEmailTaken = "Username or email already used. Please choose another one.";
+export const errorUserNotFound = "User not found. Please check the username and try again.";
 
 // Cryptography Errors
 export const errorKeyDerivationFailed = "Key derivation failed";

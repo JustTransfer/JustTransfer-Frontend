@@ -12,7 +12,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { useNotification } from "../hooks/useNotificationContext";
 import * as errors from "../messages/errors";
 import PasswordStrength from "./passwordStrength";
-import { formatSize } from "../handlers/utils";
+import { formatSize, isValidUsername } from "../handlers/utils";
 
 type FileTransferFormProps = {
     type: "anonymous" | "connected"; // determines if password or receiver is used
@@ -35,6 +35,9 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [password, setPassword] = useState("");
     const [isStrong, setIsStrong] = useState(false);
+
+    const [errorReceiver, setErrorReceiver] = useState(false);
+    const [helperTextReceiver, setHelperTextReceiver] = useState("");
 
     const [errorPassword, setErrorPassword] = useState(false);
     const [errorWeakPassword, setErrorWeakPassword] = useState(false);
@@ -134,7 +137,19 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             setErrorPassword(false);
             data.password = pass;
         } else {
+
             data.receiver = formData.get("receiver") as string;
+
+            // Validate receiver field
+            if (!isValidUsername(data.receiver)) {
+                error(errors.errorInvalidUsernameShort);
+                setErrorReceiver(true);
+                setHelperTextReceiver(errors.errorInvalidUsernameShort);
+                return;
+            } else {
+                setErrorReceiver(false);
+                setHelperTextReceiver("");
+            }
         }
 
         try {
@@ -146,14 +161,25 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 setOpenDialog(true);
             }
             success("File uploaded successfully!");
-        } catch (e: any) {
-            error(e.message || "Unknown error");
-        } finally {
 
             // Reset form and state if connected
             if (type === "connected") {
                 handleCloseDialog();
             }
+        } catch (e: any) {
+            if (e.message === errors.errorUserNotFound) {
+                setErrorReceiver(true);
+                setHelperTextReceiver(errors.errorUserNotFound);
+            } else {
+                setErrorReceiver(false);
+                setHelperTextReceiver("");
+            }
+
+            error(e.message || "Unknown error");
+
+            // Only reset sending state and progress
+            setIsSending(false);
+            setProgress(0);
         }
     };
 
@@ -199,7 +225,10 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                         />
                     </>
                 ) : (
-                    <TextField label="Receiver" name="receiver" type="text" variant="outlined" fullWidth required />
+                    <TextField label="Receiver" name="receiver" type="text" variant="outlined" fullWidth required
+                        error={errorReceiver}
+                        helperText={helperTextReceiver}
+                    />
                 )}
 
                 <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 2, width: "100%" }}>

@@ -142,7 +142,9 @@ async function getPublicKeyEncAPI(user_request_pub_key: string) {
         }),
     });
 
-    if (!response.ok) {
+    if (response.status === 404) {
+        throw new Error(errors.errorUserNotFound);
+    } else if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
 
@@ -161,7 +163,9 @@ async function getPublicKeySignAPI(user_request_pub_key: string) {
         }),
     });
 
-    if (!response.ok) {
+    if (response.status === 404) {
+        throw new Error(errors.errorUserNotFound);
+    } else if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
 

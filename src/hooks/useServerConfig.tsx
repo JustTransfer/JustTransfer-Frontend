@@ -26,7 +26,6 @@ export const ServerConfigProvider = ({ children }: any) => {
         const fetchConfig = async () => {
             const res = await fetch("/api/config");
             const data = await res.json();
-            console.log("Fetched server config:", data);
             setConfig(data);
         };
 
