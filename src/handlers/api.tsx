@@ -182,6 +182,22 @@ async function getMessagesAPI() {
     return (await response.json());
 }
 
+async function getSentMessagesAPI() {
+
+    const response = await fetch(`${apiUrl}/messages/sent`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    return (await response.json());
+}
+
 async function getOneMessageAPI(file_id: string) {
 
     const response = await fetch(`${apiUrl}/message/${file_id}`, {
@@ -334,4 +350,4 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
     return 0; // Success
 }
 
-export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getAccountInfoAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };
+export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getAccountInfoAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getSentMessagesAPI, getOneMessageAPI, sendMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };

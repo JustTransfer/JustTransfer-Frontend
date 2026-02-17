@@ -32,3 +32,60 @@ export function isPasswordStrong(password: string): [number, boolean] {
   const tested = zxcvbn(password);
   return [tested.score, tested.score >= 3];
 }
+
+const DAY = 86400000;
+
+export function getExpiration(msg: any) {
+  const created = new Date(msg.creation_time);
+  const expire = new Date(created.getTime() + msg.lifetime * DAY);
+  const now = new Date();
+
+  // calendar normalized dates
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const expDay = new Date(expire.getFullYear(), expire.getMonth(), expire.getDate());
+
+  const dayDiff = Math.round((expDay.getTime() - today.getTime()) / DAY);
+
+  return {
+    created,
+    expire,
+    now,
+    dayDiff,
+    expired: now >= expire
+  };
+}
+
+export function formatCreated(date: string) {
+  const d = new Date(date);
+  return d.toLocaleString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+export function expireColor(msg: any) {
+  const { dayDiff, expired } = getExpiration(msg);
+
+  if (expired) return "error.main";
+  if (dayDiff < 1) return "warning.main";
+  return "text.secondary";
+}
+
+export function relativeExpire(msg: any) {
+  const { expire, dayDiff, expired } = getExpiration(msg);
+
+  if (expired) return "Expired";
+
+  const time = expire.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  if (dayDiff === 0)
+    return `Expires today at ${time}`;
+
+  if (dayDiff === 1)
+    return `Expires tomorrow at ${time}`;
+
+  return `Expires ${expire.toLocaleDateString()} at ${time}`;
+}

@@ -6,6 +6,7 @@ import InboxIcon from '@mui/icons-material/Inbox';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PersonIcon from '@mui/icons-material/Person';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import CircularProgress, {
     CircularProgressProps,
@@ -19,67 +20,11 @@ import { useNotification } from "../hooks/useNotificationContext";
 import { useAuth } from "../hooks/useAuth";
 import Layout from "../components/layout";
 import { getMessages, getOneMessage } from "../handlers/crypto"
-import { formatSize } from "../handlers/utils";
+import { formatSize, formatCreated, relativeExpire, expireColor } from "../handlers/utils";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
-
-const DAY = 86400000;
-
-function getExpiration(msg: any) {
-    const created = new Date(msg.creation_time);
-    const expire = new Date(created.getTime() + msg.lifetime * DAY);
-    const now = new Date();
-
-    // calendar normalized dates
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const expDay = new Date(expire.getFullYear(), expire.getMonth(), expire.getDate());
-
-    const dayDiff = Math.round((expDay.getTime() - today.getTime()) / DAY);
-
-    return {
-        created,
-        expire,
-        now,
-        dayDiff,
-        expired: now >= expire
-    };
-}
-
-function formatCreated(date: string) {
-    const d = new Date(date);
-    return d.toLocaleString(undefined, {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-    });
-}
-
-function expireColor(msg: any) {
-    const { dayDiff, expired } = getExpiration(msg);
-
-    if (expired) return "error.main";
-    if (dayDiff < 1) return "warning.main";
-    return "text.secondary";
-}
-
-function relativeExpire(msg: any) {
-    const { expire, dayDiff, expired } = getExpiration(msg);
-
-    if (expired) return "Expired";
-
-    const time = expire.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-    if (dayDiff === 0)
-        return `Expires today at ${time}`;
-
-    if (dayDiff === 1)
-        return `Expires tomorrow at ${time}`;
-
-    return `Expires ${expire.toLocaleDateString()} at ${time}`;
-}
+import exp from "constants";
 
 type Props = {
     msg: any;
@@ -113,14 +58,20 @@ function DownloadSection({ msg, progress, onDownload }: Props) {
 
     // Ready state
     return (
-        <Button
-            variant="contained"
-            size="small"
-            startIcon={<DownloadIcon />}
-            onClick={onDownload}
-        >
-            Download
-        </Button>
+        <Box sx={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 2,
+        }}>
+            <IconButton color="primary" onClick={onDownload}>
+                <DownloadIcon />
+            </IconButton>
+
+            <IconButton color="primary" onClick={onDownload}>
+                <DeleteIcon />
+            </IconButton >
+        </Box>
     );
 }
 
@@ -305,11 +256,13 @@ export default function Inbox() {
                                                 <Stack direction="row" spacing={1} mt={0.5}>
                                                     <Chip
                                                         size="small"
+                                                        variant={expireColor(msg) === "error.main" ? "filled" : expireColor(msg) === "warning.main" ? "filled" : "outlined"}
                                                         label={relativeExpire(msg)}
                                                         color={expireColor(msg) === "error.main" ? "error" : expireColor(msg) === "warning.main" ? "warning" : "default"}
                                                     />
                                                     <Chip
                                                         size="small"
+                                                        variant={(msg.max_downloads - msg.number_downloads) <= 1 ? "filled" : "outlined"}
                                                         label={`${msg.max_downloads - msg.number_downloads} downloads remaining`}
                                                         color={(msg.max_downloads - msg.number_downloads) <= 1 ? "warning" : "default"}
                                                     />
