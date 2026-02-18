@@ -103,7 +103,7 @@ export default function Transfers() {
                                                 </Stack>
 
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {relativeExpire(msg)}
+                                                    {relativeExpire(msg)} • Max downloads: {msg.max_downloads}
                                                 </Typography>
                                             </Stack>
                                         }
