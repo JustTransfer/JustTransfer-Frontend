@@ -114,7 +114,9 @@ async function sendAnonymousMessageAPI(id: string, client_registration_finish: s
         }),
     });
 
-    if (!response.ok) {
+    if (response.status === 507) {
+        throw new Error(errors.errorMaxAnonymousTransfersReached);
+    } else if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
 

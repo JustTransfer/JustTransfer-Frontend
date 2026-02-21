@@ -23,5 +23,8 @@ export const errorInvalidUsername = "Invalid username, use 3-20 characters, lett
 // API Errors
 export const errorAPIRequestFailed = "API request failed. Please try again later.";
 
+// Anonymous Message Errors
+export const errorMaxAnonymousTransfersReached = "The server has reached the maximum number of anonymous messages. Please try again later or register for an account.";
+
 // Unknown Error
 export const errorUnknown = "Unknown error occurred.";
