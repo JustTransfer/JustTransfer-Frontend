@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, Button, Stack, Divider, Avatar, Card, CardContent, LinearProgress } from "@mui/material";
+import { Box, Typography, Button, Stack, Divider, Avatar, Card, CardContent, LinearProgress, Grid, Chip } from "@mui/material";
 import StorageIcon from "@mui/icons-material/Storage";
 import DownloadIcon from "@mui/icons-material/Download";
 import ScheduleIcon from "@mui/icons-material/Schedule";
@@ -19,30 +19,37 @@ function PlanLimitCard({
     icon,
     title,
     value,
-    unit
+    unit,
+    progress
 }: {
     icon: React.ReactNode;
     title: string;
     value: string | number;
     unit?: string;
+    progress?: number;
 }) {
     return (
-        <Card variant="outlined" sx={{ borderRadius: 3 }}>
-            <CardContent>
+        <Card variant="outlined" sx={{ borderRadius: 3, p: 2 }}>
+            <Stack spacing={1}>
                 <Stack direction="row" spacing={2} alignItems="center">
                     {icon}
-
-                    <Box sx={{ flex: 1 }}>
-                        <Typography variant="subtitle2" color="text.secondary">
+                    <Box>
+                        <Typography variant="caption" color="text.secondary">
                             {title}
                         </Typography>
-
-                        <Typography variant="h6">
+                        <Typography variant="h6" fontWeight={600}>
                             {value} {unit && <Typography variant="caption" color="text.secondary">{unit}</Typography>}
                         </Typography>
                     </Box>
                 </Stack>
-            </CardContent>
+
+                {progress !== undefined && (
+                    <LinearProgress
+                        variant="determinate"
+                        value={Math.min(progress, 100)}
+                    />
+                )}
+            </Stack>
         </Card>
     );
 }
@@ -118,9 +125,17 @@ export default function AccountPage() {
                         <Divider />
 
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                            <Typography variant="h5">
-                                {role === "premium" ? "Premium Plan Limits" : "Free Plan Limits"}
-                            </Typography>
+
+                            <Box display="flex" alignItems="center" justifyContent="space-between">
+                                <Typography variant="h5">
+                                    Plan Overview
+                                </Typography>
+
+                                <Chip
+                                    label={role === "premium" ? "Premium Plan" : "Free Plan"}
+                                    color={role === "premium" ? "primary" : "default"}
+                                />
+                            </Box>
 
                             {!config ? (
                                 <Typography variant="body2">
@@ -128,37 +143,21 @@ export default function AccountPage() {
                                 </Typography>
                             ) : (
 
-                                <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                                    <Stack spacing={3}>
-                                        <Typography variant="h6">Account Limits</Typography>
+                                <Grid container spacing={3} mt={1}>
 
+                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                         <PlanLimitCard
                                             icon={<SyncAltIcon color="primary" />}
-                                            title="Maximum Number of Transfers"
-                                            value={
-                                                role === "premium"
-                                                    ? config.max_transfer_connected_premium
-                                                    : config.max_transfer_connected
-                                            }
+                                            title="Concurrent Transfers"
+                                            value={`${numberTransfers} / ${role === "premium" ? config.max_transfer_connected_premium : config.max_transfer_connected}`}
+                                            progress={(numberTransfers / (role === "premium" ? config.max_transfer_connected_premium : config.max_transfer_connected)) * 100}
                                         />
+                                    </Grid>
 
-                                        <Box>
-                                            <Typography variant="body1">
-                                                {numberTransfers} / {role === "premium" ? config.max_transfer_connected_premium : config.max_transfer_connected} transfers used
-                                            </Typography>
-
-                                            <LinearProgress
-                                                variant="determinate"
-                                                value={
-                                                    (numberTransfers / (role === "premium" ? config.max_transfer_connected_premium : config.max_transfer_connected)) * 100
-                                                }
-                                                sx={{ mt: 1 }}
-                                            />
-                                        </Box>
-
+                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                         <PlanLimitCard
                                             icon={<ScheduleIcon color="primary" />}
-                                            title="Maximum Transfer Lifetime"
+                                            title="Maximum Lifetime"
                                             value={
                                                 role === "premium"
                                                     ? config.max_lifetime_connected_premium
@@ -166,33 +165,35 @@ export default function AccountPage() {
                                             }
                                             unit="Days"
                                         />
-                                    </Stack>
+                                    </Grid>
 
-                                    <Stack spacing={3}>
-                                        <Typography variant="h6">Per Transfer Limits</Typography>
-
+                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                         <PlanLimitCard
                                             icon={<StorageIcon color="primary" />}
-                                            title="Maximum File Size"
+                                            title="Max File Size"
                                             value={
                                                 role === "premium"
                                                     ? formatSize(config.max_file_size_connected_premium)
                                                     : formatSize(config.max_file_size_connected)
                                             }
+                                            unit="per transfer"
                                         />
+                                    </Grid>
 
+                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                         <PlanLimitCard
                                             icon={<DownloadIcon color="primary" />}
-                                            title="Maximum Downloads"
+                                            title="Downloads"
                                             value={
                                                 role === "premium"
                                                     ? config.max_downloads_connected_premium
                                                     : config.max_downloads_connected
                                             }
-                                            unit="downloads"
+                                            unit="per transfer"
                                         />
-                                    </Stack>
-                                </Box>
+                                    </Grid>
+                                </Grid>
+
                             )}
                         </Box>
 
