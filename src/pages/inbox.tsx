@@ -21,6 +21,7 @@ import { useAuth } from "../hooks/useAuth";
 import Layout from "../components/layout";
 import { getMessages, getOneMessage } from "../handlers/crypto"
 import { formatSize, formatCreated, relativeExpire, expireColor } from "../handlers/utils";
+import { deleteMessageAPI } from "../handlers/api";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
@@ -30,9 +31,10 @@ type Props = {
     msg: any;
     progress?: number;
     onDownload: () => void;
+    onDelete: () => void;
 };
 
-function DownloadSection({ msg, progress, onDownload }: Props) {
+function DownloadSection({ msg, progress, onDownload, onDelete }: Props) {
 
     const downloadsLeft = msg.max_downloads - msg.number_downloads;
 
@@ -68,7 +70,7 @@ function DownloadSection({ msg, progress, onDownload }: Props) {
                 <DownloadIcon />
             </IconButton>
 
-            <IconButton color="primary" onClick={onDownload}>
+            <IconButton color="primary" onClick={onDelete}>
                 <DeleteIcon />
             </IconButton >
         </Box>
@@ -84,6 +86,16 @@ export default function Inbox() {
     const [messages, setMessages] = useState<Array<any>>([]);
     const [downloadProgress, setDownloadProgress] = useState<Record<string, number>>({});
     const [loading, setLoading] = useState(true);
+
+    async function deleteMessage(id: string) {
+        try {
+            await deleteMessageAPI(id);
+            setMessages(prev => prev.filter(msg => msg.id !== id));
+            success(strings.msgMessageDeleted);
+        } catch (e) {
+            error("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
+        }
+    }
 
     async function downloadFile(message: any) {
         setDownloadProgress(prev => ({ ...prev, [message.id]: 0 }));
@@ -276,6 +288,7 @@ export default function Inbox() {
                                         msg={msg}
                                         progress={downloadProgress[msg.id]}
                                         onDownload={() => downloadFile(msg)}
+                                        onDelete={() => deleteMessage(msg.id)}
                                     />
                                 </ListItem>
                             ))}

@@ -11,6 +11,9 @@ export const msgFileInfoDecrypted = "File information decrypted successfully.";
 
 export const msgLinkCopied = "Link copied to clipboard.";
 
+// Delete messages
+export const msgMessageDeleted = "Message deleted successfully.";
+
 // Buttons
 export const btnCreateAccount = "Create Account";
 export const btnLogin = "Login";

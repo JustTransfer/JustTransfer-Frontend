@@ -243,6 +243,22 @@ async function sendMessageAPI(receiver: string, cfilename: string, nonce_filenam
     return (await response.json());
 }
 
+async function deleteMessageAPI(message_id: string) {
+
+    const response = await fetch(`${apiUrl}/message/${message_id}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    return response.status;
+}
+
 //
 // Upload and Download to/from S3
 //
@@ -352,4 +368,4 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
     return 0; // Success
 }
 
-export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getAccountInfoAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getSentMessagesAPI, getOneMessageAPI, sendMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };
+export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getAccountInfoAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getSentMessagesAPI, getOneMessageAPI, sendMessageAPI, deleteMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };
