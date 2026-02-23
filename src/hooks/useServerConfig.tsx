@@ -8,11 +8,11 @@ type ServerConfig = {
     max_lifetime_connected: number,
     max_file_size_connected: number,
     max_downloads_connected: number,
-    max_transfer_connected: number,
+    max_transfer_month_connected: number,
     max_lifetime_connected_premium: number,
     max_file_size_connected_premium: number,
     max_downloads_connected_premium: number,
-    max_transfer_connected_premium: number,
+    max_transfer_month_connected_premium: number,
 };
 
 type ServerConfigContextType = {

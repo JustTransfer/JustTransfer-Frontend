@@ -148,9 +148,9 @@ export default function AccountPage() {
                                     <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                         <PlanLimitCard
                                             icon={<SyncAltIcon color="primary" />}
-                                            title="Concurrent Transfers"
-                                            value={`${numberTransfers} / ${role === "premium" ? config.max_transfer_connected_premium : config.max_transfer_connected}`}
-                                            progress={(numberTransfers / (role === "premium" ? config.max_transfer_connected_premium : config.max_transfer_connected)) * 100}
+                                            title="Monthly Transfers"
+                                            value={`${numberTransfers} / ${role === "premium" ? config.max_transfer_month_connected_premium : config.max_transfer_month_connected}`}
+                                            progress={(numberTransfers / (role === "premium" ? config.max_transfer_month_connected_premium : config.max_transfer_month_connected)) * 100}
                                         />
                                     </Grid>
 
