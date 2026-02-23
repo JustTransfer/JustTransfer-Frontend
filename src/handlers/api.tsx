@@ -234,7 +234,9 @@ async function sendMessageAPI(receiver: string, cfilename: string, nonce_filenam
         }),
     });
 
-    if (!response.ok) {
+    if (response.status === 403) {
+        throw new Error(errors.errorInsufficientRessources);
+    } else if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
 

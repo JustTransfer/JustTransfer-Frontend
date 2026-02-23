@@ -26,5 +26,8 @@ export const errorAPIRequestFailed = "API request failed. Please try again later
 // Anonymous Message Errors
 export const errorMaxAnonymousTransfersReached = "The server has reached the maximum number of anonymous messages. Please try again later or register for an account.";
 
+// Premium Account Errors
+export const errorInsufficientRessources = "You have reached your resource limits. Upgrade to a premium account for higher limits and additional features.";
+
 // Unknown Error
 export const errorUnknown = "Unknown error occurred.";
