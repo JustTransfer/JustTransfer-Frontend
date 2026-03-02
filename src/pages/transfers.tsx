@@ -26,7 +26,6 @@ export default function Transfers() {
     async function getMessagesSentLocal() {
         try {
             const response = await getSentMessagesAPI();
-            console.log(response.messages);
             setMessages(response.messages);
         } catch (e) {
             error("Failed to load messages: " + (e instanceof Error ? e.message : errors.errorUnknown));
@@ -67,7 +66,6 @@ export default function Transfers() {
                     {messages.length > 0 && !loading ? (
                         <Stack spacing={1} sx={{ width: "100%" }}>
                             {messages.map((msg) => (
-                                console.log(msg),
                                 < ListItem
                                     key={msg.id}
                                     sx={{

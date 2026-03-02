@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import React, { useState, useRef } from "react";
-import { Box, Typography, TextField, Paper, Button, Alert } from "@mui/material";
+import { Box, Typography, TextField, Paper, Button, Alert, Chip } from "@mui/material";
 import Stack from '@mui/material/Stack';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -28,6 +28,8 @@ export default function AnonymousTransfer() {
 
     const [exportKey, setExportKey] = useState<string>("");
     const [messageData, setMessageData] = useState<any>(null);
+
+    const limitReached = messageData && messageData.max_downloads !== 0 && messageData.number_downloads >= messageData.max_downloads;
 
     const [isDownloading, setIsDownloading] = useState(false);
     const [downloadProgress, setDownloadProgress] = useState(0);
@@ -202,7 +204,9 @@ export default function AnonymousTransfer() {
                                         </TableRow>
                                     </TableBody>
                                 </Table>
-                                {isDownloading ? (
+                                {limitReached ? (
+                                    <Chip label="Limit reached" />
+                                ) : isDownloading ? (
                                     <LinearProgressWithLabel value={downloadProgress} />
                                 ) :
                                     <Button
@@ -211,7 +215,8 @@ export default function AnonymousTransfer() {
                                         onClick={downloadFile}
                                     >
                                         Download
-                                    </Button>}
+                                    </Button>
+                                }
                             </Box>
                         ) :
                             <Box>

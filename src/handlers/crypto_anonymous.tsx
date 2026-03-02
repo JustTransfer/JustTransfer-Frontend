@@ -103,7 +103,6 @@ async function getOneAnonymousMessage(exportKey: string, message: any, onChunk: 
 
     const decryptChunk = (chunk: Uint8Array) => {
         const { message: decryptedChunk, tag: tag } = sodium.crypto_secretstream_xchacha20poly1305_pull(state, chunk);
-        console.log("tag:", tag);
         return { decryptedChunk, tag };
     };
 
