@@ -10,9 +10,12 @@ export default function Logout() {
 
     useEffect(() => {
         const doLogout = async () => {
-            await logoutProcess();
-            logout();
-            navigate("/", { replace: true });
+            try {
+                await logoutProcess();
+            } finally {
+                logout();
+                navigate("/", { replace: true });
+            }
         };
 
         doLogout();
