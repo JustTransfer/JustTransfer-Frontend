@@ -41,6 +41,7 @@ export default function AccountActionDialog({
     const [confirmNewPassword, setConfirmNewPassword] = useState("");
     const [isStrong, setIsStrong] = useState(false);
 
+    const [errorSamePassword, setErrorSamePassword] = useState(false);
     const [errorPasswordMismatch, setErrorPasswordMismatch] = useState(false);
     const [errorWeakPassword, setErrorWeakPassword] = useState(false);
 
@@ -48,6 +49,7 @@ export default function AccountActionDialog({
         if (!open) {
             setCurrentPassword("");
             setNewPassword("");
+            setConfirmNewPassword("");
         }
     }, [open]);
 
@@ -83,6 +85,11 @@ export default function AccountActionDialog({
         setErrorWeakPassword(false);
 
         let error = false;
+        if (isChangePassword && newPassword === currentPassword) {
+            setErrorSamePassword(true);
+            error = true;
+        }
+
         if (isChangePassword && !isStrong) {
             setErrorWeakPassword(true);
             error = true;
@@ -134,8 +141,8 @@ export default function AccountActionDialog({
                                 fullWidth
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
-                                error={errorWeakPassword}
-                                helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
+                                error={errorWeakPassword || errorSamePassword}
+                                helperText={errorWeakPassword ? errors.errorWeakPassword : errorSamePassword ? errors.errorSamePassword : ""}
                             />
 
                             <PasswordStrength password={newPassword} onStrengthChange={setIsStrong} />

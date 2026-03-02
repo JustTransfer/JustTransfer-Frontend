@@ -83,12 +83,17 @@ async function register(username: string, email: string, password: string) {
 async function changePassword(username: string, password: string, newPassword: string, PublicKeyEnc_b64: string, PrivateKeyEnc_b64: string, PublicKeySign_b64: string, PrivateKeySign_b64: string) {
 
     // TODO make a login before changing password!!!
+    const response = await loginProcess(username, password);
+
+    if (!response.success) {
+        throw (errors.errorWrongPassword);
+    }
 
     const { clientRegistrationState, registrationRequest } = opaque.client.startRegistration({ password: newPassword });
 
-    const response = await registerStartAPI(username, registrationRequest);
+    const response2 = await registerStartAPI(username, registrationRequest);
 
-    const registrationResponse = response.result;
+    const registrationResponse = response2.result;
 
     const { exportKey, serverStaticPublicKey, registrationRecord } = opaque.client.finishRegistration({
         clientRegistrationState,
@@ -121,7 +126,7 @@ async function changePassword(username: string, password: string, newPassword: s
     const cpriv_sign_b64 = Base64.fromUint8Array(cpriv_sign, true);
     const nonce_sign_b64 = Base64.fromUint8Array(nonce_sign, true);
 
-    const result = await registerUpdateAPI(registrationRecord, cpriv_enc_b64, nonce_enc_b64, PublicKeyEnc_b64, cpriv_sign_b64, nonce_sign_b64, PublicKeySign_b64);
+    const response3 = await registerUpdateAPI(registrationRecord, cpriv_enc_b64, nonce_enc_b64, PublicKeyEnc_b64, cpriv_sign_b64, nonce_sign_b64, PublicKeySign_b64);
 
     // Return success
     return {

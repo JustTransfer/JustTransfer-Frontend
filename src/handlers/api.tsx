@@ -72,7 +72,9 @@ async function registerUpdateAPI(client_registration_finish: string, cpriv_enc: 
         }),
     });
 
-    if (!response.ok) {
+    if (response.status === 401) {
+        throw new Error(errors.errorChangePassword);
+    } else if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
 
