@@ -9,11 +9,15 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import DialpadIcon from "@mui/icons-material/Dialpad";
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
 
+import { useAuth } from "../hooks/useAuth";
 import { useServerConfig } from "../hooks/useServerConfig";
 import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
+import { changePassword } from "../handlers/crypto";
 import { getAccountInfoAPI } from "../handlers/api";
 import { formatSize } from "../handlers/utils";
+import AccountActionDialog from "../components/AccountActionDialog";
+import { Mode } from "../components/AccountActionDialog";
 
 function PlanLimitCard({
     icon,
@@ -58,18 +62,42 @@ export default function AccountPage() {
 
     const { config } = useServerConfig();
     const { success, error } = useNotification();
+    const { updateKeys, privateKeyEnc, publicKeyEnc, privateKeySign, publicKeySign } = useAuth();
 
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [role, setRole] = useState("");
     const [numberTransfers, setNumberTransfers] = useState(0);
 
+    const [dialogMode, setDialogMode] = useState<Mode | null>(null);
+    const [loading, setLoading] = useState(false);
+
     async function handleRotateKeys() {
         error("Key rotation is not implemented yet.");
     }
 
-    async function handleChangePassword() {
-        error("Password change is not implemented yet.");
+    async function handleChangePassword(currentPassword: string, newPassword: string) {
+        try {
+
+            const result = await changePassword(username, currentPassword, newPassword, publicKeyEnc!, privateKeyEnc!, publicKeySign!, privateKeySign!);
+
+            if (!result.success) {
+                throw new Error(result.message || "Failed to change password.");
+            }
+
+            updateKeys({
+                exportKey: result.exportKey!,
+                privateKeyEnc: result.privateKeyEnc!,
+                publicKeyEnc: result.publicKeyEnc!,
+                privateKeySign: result.privateKeySign!,
+                publicKeySign: result.publicKeySign!,
+            });
+
+            success(result.message);
+
+        } catch (e) {
+            error(e instanceof Error ? e.message : "Failed to change password.");
+        }
     }
 
     async function handleDeleteAccount() {
@@ -206,7 +234,7 @@ export default function AccountPage() {
                             <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
                                 Generate new encryption and signing keys.
                             </Typography>
-                            <Button sx={{ mt: 2, maxWidth: 200 }} size="small" variant="contained" startIcon={<RefreshIcon />} onClick={handleRotateKeys}>
+                            <Button sx={{ mt: 2, maxWidth: 200 }} size="small" variant="contained" startIcon={<RefreshIcon />} onClick={() => setDialogMode("rotateKeys")}>
                                 Rotate Keys
                             </Button>
                         </Box>
@@ -220,7 +248,7 @@ export default function AccountPage() {
                             <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
                                 Update your account password.
                             </Typography>
-                            <Button sx={{ mt: 2, maxWidth: 200 }} size="small" variant="contained" startIcon={<DialpadIcon />} onClick={handleChangePassword}>
+                            <Button sx={{ mt: 2, maxWidth: 200 }} size="small" variant="contained" startIcon={<DialpadIcon />} onClick={() => setDialogMode("changePassword")}>
                                 Change Password
                             </Button>
                         </Box>
@@ -234,12 +262,41 @@ export default function AccountPage() {
                             <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
                                 Permanently remove your account and all associated data. This action cannot be undone.
                             </Typography>
-                            <Button sx={{ mt: 2, maxWidth: 200 }} size="small" color="error" variant="contained" startIcon={<DeleteIcon />} onClick={handleDeleteAccount}>
+                            <Button sx={{ mt: 2, maxWidth: 200 }} size="small" color="error" variant="contained" startIcon={<DeleteIcon />} onClick={() => setDialogMode("deleteAccount")}>
                                 Delete Account
                             </Button>
                         </Box>
 
                     </ Stack>
+
+
+                    <AccountActionDialog
+                        open={dialogMode !== null}
+                        mode={dialogMode}
+                        loading={loading}
+                        onClose={() => setDialogMode(null)}
+                        onSubmit={async ({ currentPassword, newPassword }) => {
+                            try {
+                                setLoading(true);
+
+                                if (dialogMode === "changePassword") {
+                                    await handleChangePassword(currentPassword, newPassword!);
+                                }
+
+                                if (dialogMode === "deleteAccount") {
+                                    await handleDeleteAccount();
+                                }
+
+                                if (dialogMode === "rotateKeys") {
+                                    await handleRotateKeys();
+                                }
+
+                                setDialogMode(null);
+                            } finally {
+                                setLoading(false);
+                            }
+                        }}
+                    />
                 </ Box>
             }
         />

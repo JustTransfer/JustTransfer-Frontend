@@ -80,6 +80,61 @@ async function register(username: string, email: string, password: string) {
     };
 }
 
+async function changePassword(username: string, password: string, newPassword: string, PublicKeyEnc_b64: string, PrivateKeyEnc_b64: string, PublicKeySign_b64: string, PrivateKeySign_b64: string) {
+
+    // TODO make a login before changing password!!!
+
+    const { clientRegistrationState, registrationRequest } = opaque.client.startRegistration({ password: newPassword });
+
+    const response = await registerStartAPI(username, registrationRequest);
+
+    const registrationResponse = response.result;
+
+    const { exportKey, serverStaticPublicKey, registrationRecord } = opaque.client.finishRegistration({
+        clientRegistrationState,
+        registrationResponse,
+        password: newPassword,
+    });
+
+    // Decode it from base64Url
+    const exportKeyDecoded = Base64.toUint8Array(exportKey).slice(0, 32); // Take only first 32 bytes
+
+    // Init libsodium
+    await initLibsodium();
+
+    // Convert the keys from base64 to Uint8Array
+    const PrivateKeyEnc = Base64.toUint8Array(PrivateKeyEnc_b64);
+    const PrivateKeySign = Base64.toUint8Array(PrivateKeySign_b64);
+
+    // Encrypt private key with new export key
+    const nonce_enc = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
+    const cpriv_enc = sodium.crypto_secretbox_easy(PrivateKeyEnc, nonce_enc, exportKeyDecoded);
+
+    // Encrypt private key with new export key
+    const nonce_sign = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
+    const cpriv_sign = sodium.crypto_secretbox_easy(PrivateKeySign, nonce_sign, exportKeyDecoded);
+
+    // Base64 encode all binary data
+    const cpriv_enc_b64 = Base64.fromUint8Array(cpriv_enc, true);
+    const nonce_enc_b64 = Base64.fromUint8Array(nonce_enc, true);
+
+    const cpriv_sign_b64 = Base64.fromUint8Array(cpriv_sign, true);
+    const nonce_sign_b64 = Base64.fromUint8Array(nonce_sign, true);
+
+    const result = await registerUpdateAPI(registrationRecord, cpriv_enc_b64, nonce_enc_b64, PublicKeyEnc_b64, cpriv_sign_b64, nonce_sign_b64, PublicKeySign_b64);
+
+    // Return success
+    return {
+        success: true,
+        message: "Password change successful!",
+        exportKey: Base64.fromUint8Array(exportKeyDecoded, true),
+        privateKeyEnc: Base64.fromUint8Array(PrivateKeyEnc, true),
+        publicKeyEnc: PublicKeyEnc_b64,
+        privateKeySign: Base64.fromUint8Array(PrivateKeySign, true),
+        publicKeySign: PublicKeySign_b64,
+    };
+}
+
 async function loginProcess(username: string, password: string) {
 
     const { clientLoginState, startLoginRequest } = opaque.client.startLogin({
@@ -146,13 +201,8 @@ async function loginProcess(username: string, password: string) {
 
 async function logoutProcess() {
 
-    await initLibsodium();
+    await logoutAPI();
 
-    try {
-        let response = await logoutAPI();
-    } catch (e) {
-        console.error("Logout API call failed:", e);
-    }
 }
 
 async function getMessages(privateKeyEnc: string) {
@@ -372,4 +422,4 @@ async function sendMessage(username: string, privateKeyEnc: string, privateKeySi
     };
 }
 
-export { register, loginProcess, logoutProcess, sendMessage, getMessages, getOneMessage };
+export { register, changePassword, loginProcess, logoutProcess, sendMessage, getMessages, getOneMessage };
