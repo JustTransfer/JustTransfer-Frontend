@@ -8,8 +8,11 @@ import {
     Button,
     Stack,
     Typography,
-    Box
+    Box,
+    InputAdornment,
+    IconButton
 } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 import PasswordStrength from "../components/passwordStrength";
 
@@ -40,10 +43,16 @@ export default function AccountActionDialog({
     const [newPassword, setNewPassword] = useState("");
     const [confirmNewPassword, setConfirmNewPassword] = useState("");
     const [isStrong, setIsStrong] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const [errorSamePassword, setErrorSamePassword] = useState(false);
     const [errorPasswordMismatch, setErrorPasswordMismatch] = useState(false);
     const [errorWeakPassword, setErrorWeakPassword] = useState(false);
+
+    const handleTogglePassword = () => {
+        setShowPassword(prev => !prev);
+    };
+
 
     useEffect(() => {
         if (!open) {
@@ -143,6 +152,20 @@ export default function AccountActionDialog({
                                 onChange={(e) => setNewPassword(e.target.value)}
                                 error={errorWeakPassword || errorSamePassword}
                                 helperText={errorWeakPassword ? errors.errorWeakPassword : errorSamePassword ? errors.errorSamePassword : ""}
+                                InputProps={{
+                                    endAdornment: (
+                                        < InputAdornment position="end" >
+                                            <IconButton
+                                                aria-label={
+                                                    showPassword ? 'hide the password' : 'display the password'
+                                                }
+                                                onClick={handleTogglePassword}
+                                            >
+                                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    )
+                                }}
                             />
 
                             <PasswordStrength password={newPassword} onStrengthChange={setIsStrong} />
