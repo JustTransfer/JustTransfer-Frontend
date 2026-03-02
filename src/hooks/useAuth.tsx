@@ -13,6 +13,14 @@ type LoginData = {
     publicKeySign: string;
 };
 
+type updateKeysData = {
+    exportKey: string;
+    privateKeyEnc: string;
+    publicKeyEnc: string;
+    privateKeySign: string;
+    publicKeySign: string;
+}
+
 type AuthContextType = {
     username: string | null;
     role: string | null;
@@ -22,6 +30,7 @@ type AuthContextType = {
     privateKeySign: string | null;
     publicKeySign: string | null;
     login: (data: LoginData) => Promise<void>;
+    updateKeys: (data: updateKeysData) => Promise<void>;
     logout: () => void;
 };
 
@@ -55,6 +64,14 @@ export const AuthProvider = ({ children }: any) => {
         navigate("/new-transfer");
     };
 
+    const updateKeys = async (data: updateKeysData) => {
+        setExportKey(data.exportKey);
+        setPrivateKeyEnc(data.privateKeyEnc);
+        setPublicKeyEnc(data.publicKeyEnc);
+        setPrivateKeySign(data.privateKeySign);
+        setPublicKeySign(data.publicKeySign);
+    }
+
     const logout = async () => {
         setUsername(null);
         setRole(null);
@@ -77,6 +94,7 @@ export const AuthProvider = ({ children }: any) => {
             privateKeySign,
             publicKeySign,
             login,
+            updateKeys,
             logout,
         }),
         [username, role, exportKey, privateKeyEnc, publicKeyEnc, privateKeySign, publicKeySign]

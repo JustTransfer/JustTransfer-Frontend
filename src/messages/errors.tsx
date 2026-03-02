@@ -4,6 +4,8 @@ export const errorLoginFailed = "Login failed. Please check your credentials.";
 export const errorRegistrationFailed = "Registration failed. Please try again.";
 export const errorUsernameEmailTaken = "Username or email already used. Please choose another one.";
 export const errorUserNotFound = "User not found. Please check the username and try again.";
+export const errorWrongPassword = "Incorrect password. Please try again.";
+export const errorChangePassword = "Failed to change password."
 
 // Cryptography Errors
 export const errorKeyDerivationFailed = "Key derivation failed";
@@ -14,7 +16,7 @@ export const errorFailureDecryption = "Decryption failed";
 // UI Errors
 export const errorFileNotSelected = "No file selected. Please select a file to upload.";
 export const errorPasswordMismatch = "Passwords do not match.";
-export const errorPassphraseMismatch = "Passphrases do not match.";
+export const errorSamePassword = "New password cannot be the same as the current password.";
 export const errorWeakPassword = "Password is too weak. Please choose a stronger password.";
 export const errorPageNotFound = "Page not found.";
 export const errorInvalidUsernameShort = "Invalid username format."

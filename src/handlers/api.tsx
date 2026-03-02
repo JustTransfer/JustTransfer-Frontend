@@ -55,8 +55,31 @@ async function registerEndAPI(username: string, email: string, client_registrati
     return (await response.json());
 }
 
-async function registerUpdateAPI() {
-    // TODO
+async function registerUpdateAPI(client_registration_finish: string, cpriv_enc: string, nonce_priv_enc: string, pub_enc: string, cpriv_sign: string, nonce_priv_sign: string, pub_sign: string) {
+    const response = await fetch(`${apiUrl}/register/update`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            client_registration_finish,
+            cpriv_enc,
+            nonce_priv_enc,
+            pub_enc,
+            cpriv_sign,
+            nonce_priv_sign,
+            pub_sign,
+        }),
+    });
+
+    if (response.status === 401) {
+        throw new Error(errors.errorChangePassword);
+    } else if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    return response.status;
+
 }
 
 async function loginStartAPI(username: string, client_registration_start: string) {
