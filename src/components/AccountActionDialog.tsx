@@ -146,7 +146,7 @@ export default function AccountActionDialog({
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                             <TextField
                                 label="New Password"
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 fullWidth
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
