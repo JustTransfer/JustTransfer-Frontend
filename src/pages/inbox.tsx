@@ -80,7 +80,7 @@ function DownloadSection({ msg, progress, onDownload, onDelete }: Props) {
 
 export default function Inbox() {
 
-    const { username, privateKeyEnc } = useAuth();
+    const { username, getLatestKeys } = useAuth();
 
     const { success, error } = useNotification();
     const [messages, setMessages] = useState<Array<any>>([]);
@@ -100,6 +100,7 @@ export default function Inbox() {
     async function downloadFile(message: any) {
         setDownloadProgress(prev => ({ ...prev, [message.id]: 0 }));
 
+        const keys = await getLatestKeys();
         let messageWithContent;
 
         try {
@@ -115,7 +116,7 @@ export default function Inbox() {
 
 
                 try {
-                    messageWithContent = await getOneMessage(username!, privateKeyEnc!, message, async (chunk, name) => {
+                    messageWithContent = await getOneMessage(username!, keys.enc_private_key, message, async (chunk, name) => {
                         // Write chunk directly to the stream
                         await writer!.write(chunk);
                     }, (percent: number) => {
@@ -134,7 +135,7 @@ export default function Inbox() {
                 console.log("Using fallback blob download");
                 const chunks: Uint8Array[] = [];
 
-                messageWithContent = await getOneMessage(username!, privateKeyEnc!, message, async (chunk, name) => {
+                messageWithContent = await getOneMessage(username!, keys.enc_private_key, message, async (chunk, name) => {
                     // Collect chunks in memory
                     chunks.push(new Uint8Array(chunk));
                 }, (percent: number) => {
@@ -190,8 +191,9 @@ export default function Inbox() {
     }
 
     async function getMessagesLocal() {
+        const keys = await getLatestKeys();
         try {
-            const msgs = await getMessages(privateKeyEnc!);
+            const msgs = await getMessages(keys.enc_private_key);
             setMessages(msgs!);
         } catch (e) {
             error("Failed to load messages: " + (e instanceof Error ? e.message : errors.errorUnknown));

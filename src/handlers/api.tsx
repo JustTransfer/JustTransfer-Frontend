@@ -78,7 +78,7 @@ async function registerUpdateAPI(client_registration_finish: string, cpriv_enc: 
         throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
 
-    return response.status;
+    return (await response.json());
 
 }
 
@@ -153,9 +153,9 @@ async function getAccountInfoAPI() {
     return (await response.json());
 }
 
-async function getPublicKeyEncAPI(user_request_pub_key: string) {
+async function getPublicKeyAPI(pub_key_id: string) {
 
-    const response = await fetch(`${apiUrl}/pubkey/enc/${user_request_pub_key}`, {
+    const response = await fetch(`${apiUrl}/pubkey/${pub_key_id}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -163,7 +163,7 @@ async function getPublicKeyEncAPI(user_request_pub_key: string) {
     });
 
     if (response.status === 404) {
-        throw new Error(errors.errorUserNotFound);
+        throw new Error(errors.errorPublicKeyNotFound);
     } else if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
@@ -171,9 +171,9 @@ async function getPublicKeyEncAPI(user_request_pub_key: string) {
     return (await response.json());
 }
 
-async function getPublicKeySignAPI(user_request_pub_key: string) {
+async function getPublicKeyUsernameAPI(username: string) {
 
-    const response = await fetch(`${apiUrl}/pubkey/sign/${user_request_pub_key}`, {
+    const response = await fetch(`${apiUrl}/user/${username}/pubkey`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -237,7 +237,7 @@ async function getOneMessageAPI(file_id: string) {
     return (await response.json());
 }
 
-async function sendMessageAPI(receiver: string, cfilename: string, nonce_filename: string, nonce_message: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
+async function sendMessageAPI(sender_key_id: string, receiver_key_id: string, cfilename: string, nonce_filename: string, nonce_message: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
 
 
     const response = await fetch(`${apiUrl}/message`, {
@@ -246,7 +246,8 @@ async function sendMessageAPI(receiver: string, cfilename: string, nonce_filenam
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            receiver,
+            sender_key_id,
+            receiver_key_id,
             cfilename,
             nonce_filename,
             nonce_message,
@@ -391,4 +392,4 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
     return 0; // Success
 }
 
-export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getAccountInfoAPI, getPublicKeyEncAPI, getPublicKeySignAPI, getMessagesAPI, getSentMessagesAPI, getOneMessageAPI, sendMessageAPI, deleteMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };
+export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getAccountInfoAPI, getPublicKeyAPI, getPublicKeyUsernameAPI, getMessagesAPI, getSentMessagesAPI, getOneMessageAPI, sendMessageAPI, deleteMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };

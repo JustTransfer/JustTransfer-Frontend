@@ -59,10 +59,7 @@ export default function LoginPage() {
                     username: result.username!,
                     role: result.role,
                     exportKey: result.exportKey!,
-                    privateKeyEnc: result.privateKeyEnc!,
-                    publicKeyEnc: result.publicKeyEnc!,
-                    privateKeySign: result.privateKeySign!,
-                    publicKeySign: result.publicKeySign!,
+                    keys: result.keys!,
                 });
 
             } else {

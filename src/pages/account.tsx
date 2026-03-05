@@ -62,7 +62,7 @@ export default function AccountPage() {
 
     const { config } = useServerConfig();
     const { success, error } = useNotification();
-    const { updateKeys, privateKeyEnc, publicKeyEnc, privateKeySign, publicKeySign } = useAuth();
+    const { updateKeys, getLatestKeys } = useAuth();
 
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
@@ -79,7 +79,9 @@ export default function AccountPage() {
     async function handleChangePassword(currentPassword: string, newPassword: string) {
         try {
 
-            const result = await changePassword(username, currentPassword, newPassword, publicKeyEnc!, privateKeyEnc!, publicKeySign!, privateKeySign!);
+            const latestKey = await getLatestKeys();
+
+            const result = await changePassword(username, currentPassword, newPassword, latestKey.enc_public_key, latestKey.enc_private_key, latestKey.sign_public_key, latestKey.sign_private_key);
 
             if (!result.success) {
                 throw new Error(result.message || "Failed to change password.");
@@ -87,10 +89,7 @@ export default function AccountPage() {
 
             updateKeys({
                 exportKey: result.exportKey!,
-                privateKeyEnc: result.privateKeyEnc!,
-                publicKeyEnc: result.publicKeyEnc!,
-                privateKeySign: result.privateKeySign!,
-                publicKeySign: result.publicKeySign!,
+                keys: result.keys!,
             });
 
             success(result.message);
