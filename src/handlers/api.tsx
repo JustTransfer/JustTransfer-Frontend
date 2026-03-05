@@ -55,7 +55,19 @@ async function registerEndAPI(username: string, email: string, client_registrati
     return (await response.json());
 }
 
-async function registerUpdateAPI(client_registration_finish: string, cpriv_enc: string, nonce_priv_enc: string, pub_enc: string, cpriv_sign: string, nonce_priv_sign: string, pub_sign: string) {
+type KeyPairsEncodedUpdate = {
+    id: string;
+
+    enc_public_key: string;
+    enc_nonce_private_key: string;
+    enc_cipher_private_key: string;
+
+    sign_public_key: string;
+    sign_nonce_private_key: string;
+    sign_cipher_private_key: string;
+}
+
+async function registerUpdateAPI(client_registration_finish: string, keys: KeyPairsEncodedUpdate[]) {
     const response = await fetch(`${apiUrl}/register/update`, {
         method: "POST",
         headers: {
@@ -63,12 +75,7 @@ async function registerUpdateAPI(client_registration_finish: string, cpriv_enc: 
         },
         body: JSON.stringify({
             client_registration_finish,
-            cpriv_enc,
-            nonce_priv_enc,
-            pub_enc,
-            cpriv_sign,
-            nonce_priv_sign,
-            pub_sign,
+            keys,
         }),
     });
 
@@ -80,6 +87,35 @@ async function registerUpdateAPI(client_registration_finish: string, cpriv_enc: 
 
     return (await response.json());
 
+}
+
+type NewKeyPairsEncoded = {
+    enc_public_key: string;
+    enc_nonce_private_key: string;
+    enc_cipher_private_key: string;
+
+    sign_public_key: string;
+    sign_nonce_private_key: string;
+    sign_cipher_private_key: string;
+}
+
+async function putNewKeyAPI(key: NewKeyPairsEncoded) {
+
+    const response = await fetch(`${apiUrl}/user/addkey`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            key,
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    return (await response.json());
 }
 
 async function loginStartAPI(username: string, client_registration_start: string) {
@@ -392,4 +428,4 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
     return 0; // Success
 }
 
-export { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getAccountInfoAPI, getPublicKeyAPI, getPublicKeyUsernameAPI, getMessagesAPI, getSentMessagesAPI, getOneMessageAPI, sendMessageAPI, deleteMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };
+export { registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, getAccountInfoAPI, getPublicKeyAPI, getPublicKeyUsernameAPI, getMessagesAPI, getSentMessagesAPI, getOneMessageAPI, sendMessageAPI, deleteMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };

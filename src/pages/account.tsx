@@ -13,7 +13,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useServerConfig } from "../hooks/useServerConfig";
 import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
-import { changePassword } from "../handlers/crypto";
+import { changePassword, generateNewKeys } from "../handlers/crypto";
 import { getAccountInfoAPI } from "../handlers/api";
 import { formatSize } from "../handlers/utils";
 import AccountActionDialog from "../components/AccountActionDialog";
@@ -62,7 +62,7 @@ export default function AccountPage() {
 
     const { config } = useServerConfig();
     const { success, error } = useNotification();
-    const { updateKeys, getLatestKeys } = useAuth();
+    const { updateKeys, keys, exportKey } = useAuth();
 
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
@@ -72,16 +72,31 @@ export default function AccountPage() {
     const [dialogMode, setDialogMode] = useState<Mode | null>(null);
     const [loading, setLoading] = useState(false);
 
-    async function handleRotateKeys() {
-        error("Key rotation is not implemented yet.");
+    async function handleRotateKeys(currentPassword: string) {
+        try {
+
+            const result = await generateNewKeys(username, currentPassword, exportKey!);
+
+            if (!result.success) {
+                throw new Error(result.message || "Failed to generate new keys.");
+            }
+
+            updateKeys({
+                exportKey: exportKey!,
+                keys: result.keys!,
+            });
+
+            success(result.message);
+
+        } catch (e) {
+            error(e instanceof Error ? e.message : "Failed to generate new keys.");
+        }
     }
 
     async function handleChangePassword(currentPassword: string, newPassword: string) {
         try {
 
-            const latestKey = await getLatestKeys();
-
-            const result = await changePassword(username, currentPassword, newPassword, latestKey.enc_public_key, latestKey.enc_private_key, latestKey.sign_public_key, latestKey.sign_private_key);
+            const result = await changePassword(username, currentPassword, newPassword, keys!);
 
             if (!result.success) {
                 throw new Error(result.message || "Failed to change password.");
@@ -287,7 +302,7 @@ export default function AccountPage() {
                                 }
 
                                 if (dialogMode === "rotateKeys") {
-                                    await handleRotateKeys();
+                                    await handleRotateKeys(currentPassword);
                                 }
 
                                 setDialogMode(null);
