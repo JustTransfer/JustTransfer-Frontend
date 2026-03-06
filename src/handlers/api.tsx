@@ -189,6 +189,22 @@ async function getAccountInfoAPI() {
     return (await response.json());
 }
 
+async function deleteAccountAPI(username: string) {
+
+    const response = await fetch(`${apiUrl}/user/${username}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    return response.status;
+}
+
 async function getPublicKeyAPI(pub_key_id: string) {
 
     const response = await fetch(`${apiUrl}/pubkey/${pub_key_id}`, {
@@ -428,4 +444,4 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
     return 0; // Success
 }
 
-export { registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, getAccountInfoAPI, getPublicKeyAPI, getPublicKeyUsernameAPI, getMessagesAPI, getSentMessagesAPI, getOneMessageAPI, sendMessageAPI, deleteMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };
+export { registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyUsernameAPI, getMessagesAPI, getSentMessagesAPI, getOneMessageAPI, sendMessageAPI, deleteMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };

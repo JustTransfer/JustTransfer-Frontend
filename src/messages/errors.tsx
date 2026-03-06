@@ -7,6 +7,8 @@ export const errorPublicKeyNotFound = "Public key not found for the user.";
 export const errorUserNotFound = "User not found. Please check the username and try again.";
 export const errorWrongPassword = "Incorrect password. Please try again.";
 export const errorChangePassword = "Failed to change password."
+export const errorDeleteAccount = "Failed to delete account.";
+export const errorRotateKeys = "Failed to generate new keys.";
 
 // Cryptography Errors
 export const errorMultipleValidKeys = "Multiple valid keys found.";

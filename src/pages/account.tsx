@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Box, Typography, Button, Stack, Divider, Avatar, Card, CardContent, LinearProgress, Grid, Chip } from "@mui/material";
 import StorageIcon from "@mui/icons-material/Storage";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -14,10 +15,13 @@ import { useServerConfig } from "../hooks/useServerConfig";
 import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
 import { changePassword, generateNewKeys } from "../handlers/crypto";
-import { getAccountInfoAPI } from "../handlers/api";
+import { getAccountInfoAPI, deleteAccountAPI } from "../handlers/api";
 import { formatSize } from "../handlers/utils";
 import AccountActionDialog from "../components/AccountActionDialog";
 import { Mode } from "../components/AccountActionDialog";
+
+import * as errors from "../messages/errors";
+import * as strings from "../messages/strings";
 
 function PlanLimitCard({
     icon,
@@ -60,6 +64,8 @@ function PlanLimitCard({
 
 export default function AccountPage() {
 
+    const navigate = useNavigate();
+
     const { config } = useServerConfig();
     const { success, error } = useNotification();
     const { updateKeys, keys, exportKey } = useAuth();
@@ -78,7 +84,7 @@ export default function AccountPage() {
             const result = await generateNewKeys(username, currentPassword, exportKey!);
 
             if (!result.success) {
-                throw new Error(result.message || "Failed to generate new keys.");
+                throw new Error(result.message || errors.errorRotateKeys);
             }
 
             updateKeys({
@@ -89,7 +95,7 @@ export default function AccountPage() {
             success(result.message);
 
         } catch (e) {
-            error(e instanceof Error ? e.message : "Failed to generate new keys.");
+            error(e instanceof Error ? e.message : errors.errorRotateKeys);
         }
     }
 
@@ -99,7 +105,7 @@ export default function AccountPage() {
             const result = await changePassword(username, currentPassword, newPassword, keys!);
 
             if (!result.success) {
-                throw new Error(result.message || "Failed to change password.");
+                throw new Error(result.message || errors.errorChangePassword);
             }
 
             updateKeys({
@@ -110,12 +116,29 @@ export default function AccountPage() {
             success(result.message);
 
         } catch (e) {
-            error(e instanceof Error ? e.message : "Failed to change password.");
+            error(e instanceof Error ? e.message : errors.errorChangePassword);
         }
     }
 
     async function handleDeleteAccount() {
-        error("Account deletion is not implemented yet.");
+        try {
+
+            const result = await deleteAccountAPI(username);
+
+            if (result !== 204) {
+                throw new Error(errors.errorDeleteAccount);
+            }
+
+            success(strings.msgAccountDeleted);
+
+            // wait 1 second to show success message before logging out
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            navigate("/logout", { replace: true });
+
+        } catch (e) {
+            error(e instanceof Error ? e.message : errors.errorDeleteAccount);
+        }
     }
 
     useEffect(() => {
@@ -274,7 +297,9 @@ export default function AccountPage() {
                                 Delete Account
                             </Typography>
                             <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
-                                Permanently remove your account and all associated data. This action cannot be undone.
+                                Deleting your account will permanently remove all your data, including current transfers. This information cannot be recovered once your account is deleted.
+
+                                This action cannot be undone.
                             </Typography>
                             <Button sx={{ mt: 2, maxWidth: 200 }} size="small" color="error" variant="contained" startIcon={<DeleteIcon />} onClick={() => setDialogMode("deleteAccount")}>
                                 Delete Account
