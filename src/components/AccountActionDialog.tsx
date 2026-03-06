@@ -43,14 +43,19 @@ export default function AccountActionDialog({
     const [newPassword, setNewPassword] = useState("");
     const [confirmNewPassword, setConfirmNewPassword] = useState("");
     const [isStrong, setIsStrong] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
+    const [showPassword1, setShowPassword1] = useState(false);
+    const [showPassword2, setShowPassword2] = useState(false);
 
     const [errorSamePassword, setErrorSamePassword] = useState(false);
     const [errorPasswordMismatch, setErrorPasswordMismatch] = useState(false);
     const [errorWeakPassword, setErrorWeakPassword] = useState(false);
 
-    const handleTogglePassword = () => {
-        setShowPassword(prev => !prev);
+    const handleTogglePassword1 = () => {
+        setShowPassword1(prev => !prev);
+    };
+
+    const handleTogglePassword2 = () => {
+        setShowPassword2(prev => !prev);
     };
 
 
@@ -136,17 +141,31 @@ export default function AccountActionDialog({
 
                     <TextField
                         label="Current Password"
-                        type="password"
+                        type={showPassword1 ? "text" : "password"}
                         fullWidth
                         value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
+                        InputProps={{
+                            endAdornment: (
+                                < InputAdornment position="end" >
+                                    <IconButton
+                                        aria-label={
+                                            showPassword1 ? 'hide the password' : 'display the password'
+                                        }
+                                        onClick={handleTogglePassword1}
+                                    >
+                                        {showPassword1 ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                </InputAdornment>
+                            )
+                        }}
                     />
 
                     {isChangePassword && (
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                             <TextField
                                 label="New Password"
-                                type="password"
+                                type={showPassword2 ? "text" : "password"}
                                 fullWidth
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
@@ -157,11 +176,11 @@ export default function AccountActionDialog({
                                         < InputAdornment position="end" >
                                             <IconButton
                                                 aria-label={
-                                                    showPassword ? 'hide the password' : 'display the password'
+                                                    showPassword2 ? 'hide the password' : 'display the password'
                                                 }
-                                                onClick={handleTogglePassword}
+                                                onClick={handleTogglePassword2}
                                             >
-                                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                {showPassword2 ? <VisibilityOff /> : <Visibility />}
                                             </IconButton>
                                         </InputAdornment>
                                     )

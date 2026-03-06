@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Box, Typography, TextField, Paper, Button, Alert } from "@mui/material";
 
 
@@ -12,15 +12,30 @@ import * as strings from "../messages/strings";
 
 import FileTransferForm from "../components/FileTransferForm";
 import { useAuth } from "../hooks/useAuth";
+import { get } from "http";
 
 export default function NewTransfer() {
     const { config } = useServerConfig();
+    const { username, role, getLatestKeys } = useAuth();
 
-    const { username, role, privateKeyEnc, privateKeySign } = useAuth();
+    const [keys, setKeys] = useState<any>(null);
 
     const maxFileSize = role === "premium" ? config?.max_file_size_connected_premium! : config?.max_file_size_connected!;
     const maxDownloads = role === "premium" ? config?.max_downloads_connected_premium! : config?.max_downloads_connected!;
     const maxLifetime = role === "premium" ? config?.max_lifetime_connected_premium! : config?.max_lifetime_connected!;
+
+    useEffect(() => {
+        const fetchKeys = async () => {
+            try {
+                const latestKeys = await getLatestKeys();
+                setKeys(latestKeys);
+            } catch (err) {
+                console.error("Failed to fetch latest keys:", err);
+            }
+        };
+
+        fetchKeys();
+    }, [getLatestKeys]);
 
     return (
         <Layout title="New Transfer" content={
@@ -45,8 +60,8 @@ export default function NewTransfer() {
                     onSubmit={async (data, onProgress) => {
                         await sendMessage(
                             username!,
-                            privateKeyEnc!,
-                            privateKeySign!,
+                            keys.enc_private_key,
+                            keys.sign_private_key,
                             data.receiver!,
                             data.file.name,
                             data.file,

@@ -2,8 +2,8 @@ import * as opaque from "@serenity-kit/opaque";
 import sodium from "libsodium-wrappers-sumo";
 import { Base64 } from 'js-base64';
 
-import { registerStartAPI, registerEndAPI, registerUpdateAPI, loginStartAPI, loginEndAPI, logoutAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 } from "./api";
-import { getCachedPublicKeyEnc, getCachedPublicKeySign } from "./cachePubKey";
+import { registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 } from "./api";
+import { getKeyIdByUsername, getCachedPublicKeyEnc, getCachedPublicKeySign } from "./cachePubKey";
 import { useAuth } from "../hooks/useAuth";
 
 import * as errors from "../messages/errors";
@@ -12,6 +12,125 @@ import * as strings from "../messages/strings";
 
 async function initLibsodium() {
     await sodium.ready;
+}
+
+function generateAndEncryptKeys(exportKeyDecoded: Uint8Array) {
+
+    // Generate encryption key pair
+    const KeyPairEnc = sodium.crypto_box_keypair();
+    const PublicKeyEnc = KeyPairEnc.publicKey;
+    const PrivateKeyEnc = KeyPairEnc.privateKey;
+
+    // Encrypt private key
+    const nonce_enc = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
+    const cpriv_enc = sodium.crypto_secretbox_easy(PrivateKeyEnc, nonce_enc, exportKeyDecoded);
+
+    // Generate signing key pair
+    const KeyPairSign = sodium.crypto_sign_keypair();
+    const PublicKeySign = KeyPairSign.publicKey;
+    const PrivateKeySign = KeyPairSign.privateKey;
+
+    // Encrypt private key
+    const nonce_sign = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
+    const cpriv_sign = sodium.crypto_secretbox_easy(PrivateKeySign, nonce_sign, exportKeyDecoded);
+
+    // Base64 encode all binary data
+    const cpriv_enc_b64 = Base64.fromUint8Array(cpriv_enc, true);
+    const nonce_enc_b64 = Base64.fromUint8Array(nonce_enc, true);
+    const PublicKeyEnc_b64 = Base64.fromUint8Array(PublicKeyEnc, true);
+
+    const cpriv_sign_b64 = Base64.fromUint8Array(cpriv_sign, true);
+    const nonce_sign_b64 = Base64.fromUint8Array(nonce_sign, true);
+    const PublicKeySign_b64 = Base64.fromUint8Array(PublicKeySign, true);
+
+    return {
+        enc_cipher_private_key: cpriv_enc_b64,
+        enc_nonce_private_key: nonce_enc_b64,
+        enc_public_key: PublicKeyEnc_b64,
+        sign_cipher_private_key: cpriv_sign_b64,
+        sign_nonce_private_key: nonce_sign_b64,
+        sign_public_key: PublicKeySign_b64,
+    };
+}
+
+function decryptKeys(keys: any[], exportKeyDecoded: Uint8Array) {
+
+    let decryptedKeys = [];
+
+    // Iterate on all keys
+    for (let key of keys) {
+
+        // Convert the keys from base64 to Uint8Array
+        const cpriv_enc = Base64.toUint8Array(key.enc_cipher_private_key);
+        const nonce_priv_enc = Base64.toUint8Array(key.enc_nonce_private_key);
+        const pub_enc = Base64.toUint8Array(key.enc_public_key);
+
+        const cpriv_sign = Base64.toUint8Array(key.sign_cipher_private_key);
+        const nonce_priv_sign = Base64.toUint8Array(key.sign_nonce_private_key);
+        const pub_sign = Base64.toUint8Array(key.sign_public_key);
+
+        // Decrypt private keys
+        const PrivateKeyEnc = sodium.crypto_secretbox_open_easy(cpriv_enc, nonce_priv_enc, exportKeyDecoded);
+        const PublicKeyEnc = pub_enc;
+
+        const PrivateKeySign = sodium.crypto_secretbox_open_easy(cpriv_sign, nonce_priv_sign, exportKeyDecoded);
+        const PublicKeySign = pub_sign;
+
+        // Store decrypted keys same form as in registration/login to be used in the app
+        decryptedKeys.push({
+            created_at: key.created_at,
+            id: key.id,
+            is_active: key.is_active,
+            owner_id: key.owner_id,
+            revoked_at: key.revoked_at,
+            enc_private_key: Base64.fromUint8Array(PrivateKeyEnc, true),
+            enc_public_key: Base64.fromUint8Array(PublicKeyEnc, true),
+            sign_private_key: Base64.fromUint8Array(PrivateKeySign, true),
+            sign_public_key: Base64.fromUint8Array(PublicKeySign, true),
+        });
+    }
+
+    return decryptedKeys;
+}
+
+function encryptkeys(keys: any[], exportKeyDecoded: Uint8Array) {
+
+    let encryptedKeys = [];
+
+    // Iterate on all keys
+    for (let key of keys) {
+
+        // Convert the keys from base64 to Uint8Array
+        const PrivateKeyEnc = Base64.toUint8Array(key.enc_private_key);
+        const PublicKeyEnc = Base64.toUint8Array(key.enc_public_key);
+
+        const PrivateKeySign = Base64.toUint8Array(key.sign_private_key);
+        const PublicKeySign = Base64.toUint8Array(key.sign_public_key);
+
+        // Encrypt private keys
+        const nonce_priv_enc = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
+        const cpriv_enc = sodium.crypto_secretbox_easy(PrivateKeyEnc, nonce_priv_enc, exportKeyDecoded);
+
+        const nonce_priv_sign = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
+        const cpriv_sign = sodium.crypto_secretbox_easy(PrivateKeySign, nonce_priv_sign, exportKeyDecoded);
+
+        // Store encrypted keys same form as in registration/login to be sent to the server
+        encryptedKeys.push({
+            created_at: key.created_at,
+            id: key.id,
+            is_active: key.is_active,
+            owner_id: key.owner_id,
+            revoked_at: key.revoked_at,
+            enc_cipher_private_key: Base64.fromUint8Array(cpriv_enc, true),
+            enc_nonce_private_key: Base64.fromUint8Array(nonce_priv_enc, true),
+            enc_public_key: Base64.fromUint8Array(PublicKeyEnc, true),
+            sign_cipher_private_key: Base64.fromUint8Array(cpriv_sign, true),
+            sign_nonce_private_key: Base64.fromUint8Array(nonce_priv_sign, true),
+            sign_public_key: Base64.fromUint8Array(PublicKeySign, true),
+        });
+    }
+
+    return encryptedKeys;
 }
 
 async function register(username: string, email: string, password: string) {
@@ -34,37 +153,15 @@ async function register(username: string, email: string, password: string) {
     // Init libsodium
     await initLibsodium();
 
-    // Generate encryption key pair
-    const KeyPairEnc = sodium.crypto_box_keypair();
-    const PublicKeyEnc = KeyPairEnc.publicKey;
-    const PrivateKeyEnc = KeyPairEnc.privateKey;
+    // Generate encryption key pair and encrypt private keys with the export key
+    const keys = generateAndEncryptKeys(exportKeyDecoded);
 
-    // Encrypt private key
-    const nonce_enc = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
-    const cpriv_enc = sodium.crypto_secretbox_easy(PrivateKeyEnc, nonce_enc, exportKeyDecoded);
-
-    // Generate signing key pair
-    const KeyPairSign = sodium.crypto_sign_keypair();
-    const PublicKeySign = KeyPairSign.publicKey;
-    const PrivateKeySign = KeyPairSign.privateKey;
-
-    // Encrypt private key
-    const nonce_sign = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
-    const cpriv_sign = sodium.crypto_secretbox_easy(PrivateKeySign, nonce_sign, exportKeyDecoded);
-
-
-    // Base64 encode all binary data
-    const cpriv_enc_b64 = Base64.fromUint8Array(cpriv_enc, true);
-    const nonce_enc_b64 = Base64.fromUint8Array(nonce_enc, true);
-    const PublicKeyEnc_b64 = Base64.fromUint8Array(PublicKeyEnc, true);
-
-    const cpriv_sign_b64 = Base64.fromUint8Array(cpriv_sign, true);
-    const nonce_sign_b64 = Base64.fromUint8Array(nonce_sign, true);
-    const PublicKeySign_b64 = Base64.fromUint8Array(PublicKeySign, true);
-
-    const result = await registerEndAPI(username, email, registrationRecord, cpriv_enc_b64, nonce_enc_b64, PublicKeyEnc_b64, cpriv_sign_b64, nonce_sign_b64, PublicKeySign_b64);
+    const result = await registerEndAPI(username, email, registrationRecord, keys.enc_cipher_private_key, keys.enc_nonce_private_key, keys.enc_public_key, keys.sign_cipher_private_key, keys.sign_nonce_private_key, keys.sign_public_key);
 
     const role = result.role;
+
+    const decryptedKeys = decryptKeys(result.keys, exportKeyDecoded);
+
 
     // Return success
     return {
@@ -73,20 +170,17 @@ async function register(username: string, email: string, password: string) {
         username,
         role,
         exportKey: Base64.fromUint8Array(exportKeyDecoded, true),
-        privateKeyEnc: Base64.fromUint8Array(PrivateKeyEnc, true),
-        publicKeyEnc: PublicKeyEnc_b64,
-        privateKeySign: Base64.fromUint8Array(PrivateKeySign, true),
-        publicKeySign: PublicKeySign_b64,
+        keys: decryptedKeys,
     };
 }
 
-async function changePassword(username: string, password: string, newPassword: string, PublicKeyEnc_b64: string, PrivateKeyEnc_b64: string, PublicKeySign_b64: string, PrivateKeySign_b64: string) {
+async function changePassword(username: string, password: string, newPassword: string, keys: any[]) {
 
-    // TODO make a login before changing password!!!
+    // Login to verify password and refresh session
     const response = await loginProcess(username, password);
 
     if (!response.success) {
-        throw (errors.errorWrongPassword);
+        throw Error(errors.errorWrongPassword);
     }
 
     const { clientRegistrationState, registrationRequest } = opaque.client.startRegistration({ password: newPassword });
@@ -107,36 +201,49 @@ async function changePassword(username: string, password: string, newPassword: s
     // Init libsodium
     await initLibsodium();
 
-    // Convert the keys from base64 to Uint8Array
-    const PrivateKeyEnc = Base64.toUint8Array(PrivateKeyEnc_b64);
-    const PrivateKeySign = Base64.toUint8Array(PrivateKeySign_b64);
+    // Encrypt the keys with the new export key
+    const encryptedKeys = encryptkeys(keys, exportKeyDecoded);
 
-    // Encrypt private key with new export key
-    const nonce_enc = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
-    const cpriv_enc = sodium.crypto_secretbox_easy(PrivateKeyEnc, nonce_enc, exportKeyDecoded);
+    const response3 = await registerUpdateAPI(registrationRecord, encryptedKeys);
 
-    // Encrypt private key with new export key
-    const nonce_sign = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
-    const cpriv_sign = sodium.crypto_secretbox_easy(PrivateKeySign, nonce_sign, exportKeyDecoded);
-
-    // Base64 encode all binary data
-    const cpriv_enc_b64 = Base64.fromUint8Array(cpriv_enc, true);
-    const nonce_enc_b64 = Base64.fromUint8Array(nonce_enc, true);
-
-    const cpriv_sign_b64 = Base64.fromUint8Array(cpriv_sign, true);
-    const nonce_sign_b64 = Base64.fromUint8Array(nonce_sign, true);
-
-    const response3 = await registerUpdateAPI(registrationRecord, cpriv_enc_b64, nonce_enc_b64, PublicKeyEnc_b64, cpriv_sign_b64, nonce_sign_b64, PublicKeySign_b64);
+    // Decrypt the keys with the new export key
+    const decryptedKeys = decryptKeys(response3.keys, exportKeyDecoded);
 
     // Return success
     return {
         success: true,
         message: "Password change successful!",
         exportKey: Base64.fromUint8Array(exportKeyDecoded, true),
-        privateKeyEnc: Base64.fromUint8Array(PrivateKeyEnc, true),
-        publicKeyEnc: PublicKeyEnc_b64,
-        privateKeySign: Base64.fromUint8Array(PrivateKeySign, true),
-        publicKeySign: PublicKeySign_b64,
+        keys: decryptedKeys,
+    };
+}
+
+async function generateNewKeys(username: string, password: string, exportKey: string) {
+
+    // Login to verify password and refresh session
+    const response = await loginProcess(username, password);
+    if (!response.success) {
+        throw Error(errors.errorWrongPassword);
+    }
+
+    // Decode export key from base64
+    const exportKeyDecoded = Base64.toUint8Array(exportKey).slice(0, 32); // Take only first 32 bytes
+
+    // Init libsodium
+    await initLibsodium();
+
+    // Generate encryption key pair and encrypt private keys with the export key
+    const newKey = generateAndEncryptKeys(exportKeyDecoded);
+
+    const result = await putNewKeyAPI(newKey);
+
+    // Decrypt the keys with the export key
+    const decryptedKeys = decryptKeys(result.keys, exportKeyDecoded);
+
+    return {
+        success: true,
+        message: "New keys generated successfully!",
+        keys: decryptedKeys, // Return all keys including the new one
     };
 }
 
@@ -167,29 +274,12 @@ async function loginProcess(username: string, password: string) {
 
     const result2 = await loginEndAPI(username, finishLoginRequest);
 
-    let { pub_enc, cpriv_enc, nonce_priv_enc, pub_sign, cpriv_sign, nonce_priv_sign, role } = result2;
-
     // Decode it from base64Url
     const exportKeyDecoded = Base64.toUint8Array(exportKey).slice(0, 32); // Take only first 32 bytes
 
-    // Convert the keys from base64 to Uint8Array
-    pub_enc = Base64.toUint8Array(pub_enc);
-    cpriv_enc = Base64.toUint8Array(cpriv_enc);
-    nonce_priv_enc = Base64.toUint8Array(nonce_priv_enc);
+    let { keys, role } = result2;
 
-    pub_sign = Base64.toUint8Array(pub_sign);
-    cpriv_sign = Base64.toUint8Array(cpriv_sign);
-    nonce_priv_sign = Base64.toUint8Array(nonce_priv_sign);
-
-    // Init libsodium
-    await initLibsodium();
-
-    // Decrypt private keys
-    const PrivateKeyEnc = sodium.crypto_secretbox_open_easy(cpriv_enc, nonce_priv_enc, exportKeyDecoded);
-    const PublicKeyEnc = pub_enc;
-
-    const PrivateKeySign = sodium.crypto_secretbox_open_easy(cpriv_sign, nonce_priv_sign, exportKeyDecoded);
-    const PublicKeySign = pub_sign;
+    const decryptedKeys = decryptKeys(keys, exportKeyDecoded);
 
     return {
         success: true,
@@ -197,10 +287,7 @@ async function loginProcess(username: string, password: string) {
         username,
         role,
         exportKey: Base64.fromUint8Array(exportKeyDecoded, true),
-        privateKeyEnc: Base64.fromUint8Array(PrivateKeyEnc, true),
-        publicKeyEnc: Base64.fromUint8Array(PublicKeyEnc, true),
-        privateKeySign: Base64.fromUint8Array(PrivateKeySign, true),
-        publicKeySign: Base64.fromUint8Array(PublicKeySign, true),
+        keys: decryptedKeys,
     };
 }
 
@@ -210,11 +297,9 @@ async function logoutProcess() {
 
 }
 
-async function getMessages(privateKeyEnc: string) {
+async function getMessages(keys: any[]) {
 
     await initLibsodium();
-
-    const PrivateKeyEncDecoded = Base64.toUint8Array(privateKeyEnc);
 
     const response = await getMessagesAPI();
 
@@ -228,7 +313,15 @@ async function getMessages(privateKeyEnc: string) {
         msg.nonce_message = Base64.toUint8Array(msg.nonce_message);
 
         // Get the public key enc of the sender to decrypt the filename and file
-        const PublicKeyEncSender = await getCachedPublicKeyEnc(msg.sender);
+        const PublicKeyEncSender = await getCachedPublicKeyEnc(msg.sender_key_id);
+
+        // Get the private key with msg.receiver_key_id
+        const PrivateKeyEnc = keys.find((k: any) => k.id === msg.receiver_key_id)?.enc_private_key;
+        if (!PrivateKeyEnc) {
+            throw new Error(errors.errorNoValidKeys);
+        }
+
+        const PrivateKeyEncDecoded = Base64.toUint8Array(PrivateKeyEnc);
 
         // Decrypt the filename to display it in the inbox
         const filenameBytes = sodium.crypto_box_open_easy(msg.cfilename, msg.nonce_filename, PublicKeyEncSender, PrivateKeyEncDecoded);
@@ -239,18 +332,23 @@ async function getMessages(privateKeyEnc: string) {
     return response.messages;
 }
 
-async function getOneMessage(username: string, privateKeyEnc: string, message: any, onChunk: (chunk: Uint8Array, filename: string) => Promise<void>, onProgress?: (percent: number) => void) {
+async function getOneMessage(username: string, keys: any[], message: any, onChunk: (chunk: Uint8Array, filename: string) => Promise<void>, onProgress?: (percent: number) => void) {
 
     await initLibsodium();
 
-    const PrivateKeyEncDecoded = Base64.toUint8Array(privateKeyEnc);
+    // Get the private key with message.receiver_key_id
+    const PrivateKeyEnc = keys.find((k: any) => k.id === message.receiver_key_id)?.enc_private_key;
+    if (!PrivateKeyEnc) {
+        throw new Error(errors.errorNoValidKeys);
+    }
+    const PrivateKeyEncDecoded = Base64.toUint8Array(PrivateKeyEnc);
 
     // Get the message download URL
     const response = await getOneMessageAPI(message.file_id);
     const downloadUrl = response.download_url;
 
     // Get the public key sign of the sender to check signature
-    const PublicKeySignSender = await getCachedPublicKeySign(message.sender);
+    const PublicKeySignSender = await getCachedPublicKeySign(message.sender_key_id);
 
     // Construct the signature
     let state = sodium.crypto_sign_init();
@@ -274,7 +372,7 @@ async function getOneMessage(username: string, privateKeyEnc: string, message: a
     sodium.crypto_sign_update(state, new TextEncoder().encode(JSON.stringify(messageMetadata)));
 
     // Get the public key enc of the sender to decrypt the filename and file
-    const PublicKeyEncSender = await getCachedPublicKeyEnc(message.sender);
+    const PublicKeyEncSender = await getCachedPublicKeyEnc(message.sender_key_id);
 
     // Decrypt the filename
     const filenameBytes = sodium.crypto_box_open_easy(message.cfilename, message.nonce_filename, PublicKeyEncSender, PrivateKeyEncDecoded);
@@ -328,7 +426,9 @@ async function sendMessage(username: string, privateKeyEnc: string, privateKeySi
     const PrivateKeySignDecoded = Base64.toUint8Array(privateKeySign);
 
     // Get receiver's public encryption key
-    const PublicKeyEncReceiver = await getCachedPublicKeyEnc(receiver);
+    const senderKeyId = await getKeyIdByUsername(username);
+    const receiverKeyId = await getKeyIdByUsername(receiver);
+    const PublicKeyEncReceiver = await getCachedPublicKeyEnc(receiverKeyId);
 
     // Encrypt the filename
     const nonce_filename = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
@@ -345,7 +445,7 @@ async function sendMessage(username: string, privateKeyEnc: string, privateKeySi
     const timestamp = new Date().toISOString();
 
     // Send the message
-    const response = await sendMessageAPI(receiver, cfilename_b64, nonce_filename_b64, nonce_file_b64, maxDownloads, lifetimeDays, timestamp, file.size);
+    const response = await sendMessageAPI(senderKeyId, receiverKeyId, cfilename_b64, nonce_filename_b64, nonce_file_b64, maxDownloads, lifetimeDays, timestamp, file.size);
 
     // Get the upload URL
     const uploadUrls = response.upload_urls;
@@ -427,4 +527,4 @@ async function sendMessage(username: string, privateKeyEnc: string, privateKeySi
     };
 }
 
-export { register, changePassword, loginProcess, logoutProcess, sendMessage, getMessages, getOneMessage };
+export { register, changePassword, generateNewKeys, loginProcess, logoutProcess, sendMessage, getMessages, getOneMessage };
