@@ -202,7 +202,7 @@ async function deleteAccountAPI(username: string) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
 
-    return (await response.json());
+    return response.status;
 }
 
 async function getPublicKeyAPI(pub_key_id: string) {

@@ -20,6 +20,9 @@ import { formatSize } from "../handlers/utils";
 import AccountActionDialog from "../components/AccountActionDialog";
 import { Mode } from "../components/AccountActionDialog";
 
+import * as errors from "../messages/errors";
+import * as strings from "../messages/strings";
+
 function PlanLimitCard({
     icon,
     title,
@@ -81,7 +84,7 @@ export default function AccountPage() {
             const result = await generateNewKeys(username, currentPassword, exportKey!);
 
             if (!result.success) {
-                throw new Error(result.message || "Failed to generate new keys.");
+                throw new Error(result.message || errors.errorRotateKeys);
             }
 
             updateKeys({
@@ -92,7 +95,7 @@ export default function AccountPage() {
             success(result.message);
 
         } catch (e) {
-            error(e instanceof Error ? e.message : "Failed to generate new keys.");
+            error(e instanceof Error ? e.message : errors.errorRotateKeys);
         }
     }
 
@@ -102,7 +105,7 @@ export default function AccountPage() {
             const result = await changePassword(username, currentPassword, newPassword, keys!);
 
             if (!result.success) {
-                throw new Error(result.message || "Failed to change password.");
+                throw new Error(result.message || errors.errorChangePassword);
             }
 
             updateKeys({
@@ -113,7 +116,7 @@ export default function AccountPage() {
             success(result.message);
 
         } catch (e) {
-            error(e instanceof Error ? e.message : "Failed to change password.");
+            error(e instanceof Error ? e.message : errors.errorChangePassword);
         }
     }
 
@@ -122,11 +125,11 @@ export default function AccountPage() {
 
             const result = await deleteAccountAPI(username);
 
-            if (!result.success) {
-                throw new Error(result.message || "Failed to delete account.");
+            if (result !== 204) {
+                throw new Error(errors.errorDeleteAccount);
             }
 
-            success(result.message);
+            success(strings.msgAccountDeleted);
 
             // wait 1 second to show success message before logging out
             await new Promise(resolve => setTimeout(resolve, 2000));
@@ -134,7 +137,7 @@ export default function AccountPage() {
             navigate("/logout", { replace: true });
 
         } catch (e) {
-            error(e instanceof Error ? e.message : "Failed to delete account.");
+            error(e instanceof Error ? e.message : errors.errorDeleteAccount);
         }
     }
 
@@ -294,7 +297,9 @@ export default function AccountPage() {
                                 Delete Account
                             </Typography>
                             <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
-                                Permanently remove your account and all associated data. This action cannot be undone.
+                                Deleting your account will permanently remove all your data, including current transfers. This information cannot be recovered once your account is deleted.
+
+                                This action cannot be undone.
                             </Typography>
                             <Button sx={{ mt: 2, maxWidth: 200 }} size="small" color="error" variant="contained" startIcon={<DeleteIcon />} onClick={() => setDialogMode("deleteAccount")}>
                                 Delete Account
