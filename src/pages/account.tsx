@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Box, Typography, Button, Stack, Divider, Avatar, Card, CardContent, LinearProgress, Grid, Chip } from "@mui/material";
 import StorageIcon from "@mui/icons-material/Storage";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -14,7 +15,7 @@ import { useServerConfig } from "../hooks/useServerConfig";
 import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
 import { changePassword, generateNewKeys } from "../handlers/crypto";
-import { getAccountInfoAPI } from "../handlers/api";
+import { getAccountInfoAPI, deleteAccountAPI } from "../handlers/api";
 import { formatSize } from "../handlers/utils";
 import AccountActionDialog from "../components/AccountActionDialog";
 import { Mode } from "../components/AccountActionDialog";
@@ -59,6 +60,8 @@ function PlanLimitCard({
 }
 
 export default function AccountPage() {
+
+    const navigate = useNavigate();
 
     const { config } = useServerConfig();
     const { success, error } = useNotification();
@@ -115,7 +118,24 @@ export default function AccountPage() {
     }
 
     async function handleDeleteAccount() {
-        error("Account deletion is not implemented yet.");
+        try {
+
+            const result = await deleteAccountAPI(username);
+
+            if (!result.success) {
+                throw new Error(result.message || "Failed to delete account.");
+            }
+
+            success(result.message);
+
+            // wait 1 second to show success message before logging out
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            navigate("/logout", { replace: true });
+
+        } catch (e) {
+            error(e instanceof Error ? e.message : "Failed to delete account.");
+        }
     }
 
     useEffect(() => {
