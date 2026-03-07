@@ -158,19 +158,13 @@ async function register(username: string, email: string, password: string) {
 
     const result = await registerEndAPI(username, email, registrationRecord, keys.enc_cipher_private_key, keys.enc_nonce_private_key, keys.enc_public_key, keys.sign_cipher_private_key, keys.sign_nonce_private_key, keys.sign_public_key);
 
-    const role = result.role;
-
-    const decryptedKeys = decryptKeys(result.keys, exportKeyDecoded);
-
 
     // Return success
     return {
         success: true,
         message: "Register successful!",
         username,
-        role,
         exportKey: Base64.fromUint8Array(exportKeyDecoded, true),
-        keys: decryptedKeys,
     };
 }
 

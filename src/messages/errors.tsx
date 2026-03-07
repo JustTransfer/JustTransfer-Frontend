@@ -9,6 +9,8 @@ export const errorWrongPassword = "Incorrect password. Please try again.";
 export const errorChangePassword = "Failed to change password."
 export const errorDeleteAccount = "Failed to delete account.";
 export const errorRotateKeys = "Failed to generate new keys.";
+export const errorMailNotVerified = "Email not verified. Please verify your email before logging in.";
+export const errorEmailVerificationFailed = "Email verification failed. The verification link may be invalid or expired.";
 
 // Cryptography Errors
 export const errorMultipleValidKeys = "Multiple valid keys found.";

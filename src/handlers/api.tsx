@@ -52,7 +52,7 @@ async function registerEndAPI(username: string, email: string, client_registrati
         throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
 
-    return (await response.json());
+    return response.status;
 }
 
 type KeyPairsEncodedUpdate = {
@@ -150,7 +150,9 @@ async function loginEndAPI(username: string, client_login_finish_result: string)
         }),
     });
 
-    if (!response.ok) {
+    if (response.status === 403) {
+        throw new Error(errors.errorMailNotVerified);
+    } else if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
 
@@ -160,6 +162,22 @@ async function loginEndAPI(username: string, client_login_finish_result: string)
 async function logoutAPI() {
 
     const response = await fetch(`${apiUrl}/logout`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    return response.status;
+}
+
+async function verifyEmailAPI(token: string) {
+
+    const response = await fetch(`${apiUrl}/verify-email/${token}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -444,4 +462,4 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
     return 0; // Success
 }
 
-export { registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyUsernameAPI, getMessagesAPI, getSentMessagesAPI, getOneMessageAPI, sendMessageAPI, deleteMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };
+export { registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, verifyEmailAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyUsernameAPI, getMessagesAPI, getSentMessagesAPI, getOneMessageAPI, sendMessageAPI, deleteMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };

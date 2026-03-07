@@ -8,6 +8,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import HomePage from './pages/home';
 import AnonymousTransfer from './pages/anonymoustransfer';
 import CreateAccountPage from './pages/createaccount';
+import VerifyEmailPage from './pages/verifyemail';
 import LoginPage from './pages/login';
 import Logout from './pages/logout';
 
@@ -30,7 +31,8 @@ function App() {
             <Route path="/logout" element={<Logout />} />
             <Route path="/register" element={<CreateAccountPage />} />
 
-            <Route path="/register" element={<CreateAccountPage />} />
+            <Route path="/verify-email" element={<VerifyEmailPage />} />
+            <Route path="/verify-email/:id" element={<VerifyEmailPage />} />
 
             <Route path="/anonymous-transfer/:id" element={<AnonymousTransfer />} />
 

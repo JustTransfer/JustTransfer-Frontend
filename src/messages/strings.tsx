@@ -3,6 +3,7 @@ export const msgAccountCreated = "Account created successfully.";
 export const msgLoginSuccessful = "Logged in successfully.";
 export const msgAccountDeleted = "Account deleted successfully.";
 export const msgPasswordChanged = "Password changed successfully.";
+export const msgEmailVerified = "Email verified successfully.";
 
 // Upload messages
 export const msgFileUploaded = "File uploaded successfully.";
