@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Button, TextField, Paper, InputAdornment, IconButton } from "@mui/material";
+import { Box, Typography, Button, Link, TextField, Paper, InputAdornment, IconButton } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 import { useNotification } from "../hooks/useNotificationContext";
@@ -117,6 +117,35 @@ export default function LoginPage() {
                             <Button type="submit" variant="contained" sx={{ mt: 2 }}>
                                 Login
                             </Button>
+                        </Box>
+
+                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 2 }}>
+                            <Typography variant="body2" sx={{ mt: 2 }}>
+                                You don't have an account?
+
+                                <Link
+                                    component="button"
+                                    variant="body2"
+                                    onClick={() => navigate("/register")}
+                                    underline="hover"
+                                    sx={{ ml: 1, verticalAlign: "baseline" }}
+                                >
+                                    Create one
+                                </Link>
+
+                            </Typography>
+                            <Typography variant="body2" sx={{ mt: 1 }}>
+                                Forgot your password?
+                                <Link
+                                    component="button"
+                                    variant="body2"
+                                    onClick={() => navigate("/reset-password")}
+                                    underline="hover"
+                                    sx={{ ml: 1, verticalAlign: "baseline" }}
+                                >
+                                    Reset it
+                                </Link>
+                            </Typography>
                         </Box>
                     </Paper>
                 </Box>

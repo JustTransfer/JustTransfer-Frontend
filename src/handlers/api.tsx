@@ -191,6 +191,47 @@ async function verifyEmailAPI(token: string) {
     return response.status;
 }
 
+async function requestResetPasswordAPI(email: string) {
+
+    const response = await fetch(`${apiUrl}/reset-password/request/${email}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    return response.status;
+}
+
+async function endPasswordResetAPI(token: string, client_registration_finish: string, cpriv_enc: string, nonce_priv_enc: string, pub_enc: string, cpriv_sign: string, nonce_priv_sign: string, pub_sign: string) {
+
+    const response = await fetch(`${apiUrl}/reset-password/end/${token}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            client_registration_finish,
+            cpriv_enc,
+            nonce_priv_enc,
+            pub_enc,
+            cpriv_sign,
+            nonce_priv_sign,
+            pub_sign,
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    return response.status;
+}
+
 async function getAccountInfoAPI() {
 
     const response = await fetch(`${apiUrl}/user`, {
@@ -462,4 +503,4 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
     return 0; // Success
 }
 
-export { registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, verifyEmailAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyUsernameAPI, getMessagesAPI, getSentMessagesAPI, getOneMessageAPI, sendMessageAPI, deleteMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };
+export { registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, verifyEmailAPI, requestResetPasswordAPI, endPasswordResetAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyUsernameAPI, getMessagesAPI, getSentMessagesAPI, getOneMessageAPI, sendMessageAPI, deleteMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };

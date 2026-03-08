@@ -11,6 +11,8 @@ export const errorDeleteAccount = "Failed to delete account.";
 export const errorRotateKeys = "Failed to generate new keys.";
 export const errorMailNotVerified = "Email not verified. Please verify your email before logging in.";
 export const errorEmailVerificationFailed = "Email verification failed. The verification link may be invalid or expired.";
+export const errorPasswordResetRequestFailed = "Password reset request failed. Please try again.";
+export const errorPasswordResetFailed = "Password reset failed. Please try again.";
 
 // Cryptography Errors
 export const errorMultipleValidKeys = "Multiple valid keys found.";

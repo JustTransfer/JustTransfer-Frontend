@@ -2,7 +2,7 @@ import * as opaque from "@serenity-kit/opaque";
 import sodium from "libsodium-wrappers-sumo";
 import { Base64 } from 'js-base64';
 
-import { registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 } from "./api";
+import { registerStartAPI, registerEndAPI, registerUpdateAPI, endPasswordResetAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 } from "./api";
 import { getKeyIdByUsername, getCachedPublicKeyEnc, getCachedPublicKeySign } from "./cachePubKey";
 import { useAuth } from "../hooks/useAuth";
 
@@ -209,6 +209,47 @@ async function changePassword(username: string, password: string, newPassword: s
         message: "Password change successful!",
         exportKey: Base64.fromUint8Array(exportKeyDecoded, true),
         keys: decryptedKeys,
+    };
+}
+
+async function resetPassword(username: string, password: string, token: string) {
+
+    const { clientRegistrationState, registrationRequest } = opaque.client.startRegistration({ password: password });
+
+    const response2 = await registerStartAPI(username, registrationRequest);
+
+    const registrationResponse = response2.result;
+
+    const { exportKey, serverStaticPublicKey, registrationRecord } = opaque.client.finishRegistration({
+        clientRegistrationState,
+        registrationResponse,
+        password: password,
+    });
+
+    // Decode it from base64Url
+    const exportKeyDecoded = Base64.toUint8Array(exportKey).slice(0, 32); // Take only first 32 bytes
+
+    // Init libsodium
+    await initLibsodium();
+
+    // Generate new keys
+    const encryptedKeys = generateAndEncryptKeys(exportKeyDecoded);
+
+    const response3 = await endPasswordResetAPI(
+        token,
+        registrationRecord,
+        encryptedKeys.enc_cipher_private_key,
+        encryptedKeys.enc_nonce_private_key,
+        encryptedKeys.enc_public_key,
+        encryptedKeys.sign_cipher_private_key,
+        encryptedKeys.sign_nonce_private_key,
+        encryptedKeys.sign_public_key
+    );
+
+    // Return success
+    return {
+        success: true,
+        message: "Password reset successful!",
     };
 }
 
@@ -521,4 +562,4 @@ async function sendMessage(username: string, privateKeyEnc: string, privateKeySi
     };
 }
 
-export { register, changePassword, generateNewKeys, loginProcess, logoutProcess, sendMessage, getMessages, getOneMessage };
+export { register, changePassword, generateNewKeys, resetPassword, loginProcess, logoutProcess, sendMessage, getMessages, getOneMessage };
