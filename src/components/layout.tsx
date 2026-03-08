@@ -53,6 +53,10 @@ const defaultTheme = createTheme({
     components: {
         MuiButton: {
             styleOverrides: {
+                root: {
+                    textTransform: "none",
+                    fontSize: "1rem",
+                },
                 containedPrimary: {
                     "&:hover": {
                         backgroundColor: "#a813a8",
