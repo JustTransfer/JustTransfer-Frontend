@@ -102,7 +102,7 @@ export default function ResetPasswordPage() {
                     </Typography>
 
                     <Typography variant="body1" sx={{ mb: 3 }}>
-                        Enter your new password below to reset your password.
+                        Enter your new password below for the account <strong>{username}</strong>.
                     </Typography>
 
                     <Alert severity="warning" sx={{ mb: 3 }}>
