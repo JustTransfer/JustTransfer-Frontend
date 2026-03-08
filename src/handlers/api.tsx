@@ -52,7 +52,7 @@ async function registerEndAPI(username: string, email: string, client_registrati
         throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
 
-    return (await response.json());
+    return response.status;
 }
 
 type KeyPairsEncodedUpdate = {
@@ -150,7 +150,9 @@ async function loginEndAPI(username: string, client_login_finish_result: string)
         }),
     });
 
-    if (!response.ok) {
+    if (response.status === 403) {
+        throw new Error(errors.errorMailNotVerified);
+    } else if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
     }
 
@@ -164,6 +166,63 @@ async function logoutAPI() {
         headers: {
             "Content-Type": "application/json",
         },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    return response.status;
+}
+
+async function verifyEmailAPI(token: string) {
+
+    const response = await fetch(`${apiUrl}/verify-email/${token}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    return response.status;
+}
+
+async function requestResetPasswordAPI(email: string) {
+
+    const response = await fetch(`${apiUrl}/reset-password/request/${email}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    return response.status;
+}
+
+async function endPasswordResetAPI(token: string, client_registration_finish: string, cpriv_enc: string, nonce_priv_enc: string, pub_enc: string, cpriv_sign: string, nonce_priv_sign: string, pub_sign: string) {
+
+    const response = await fetch(`${apiUrl}/reset-password/end/${token}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            client_registration_finish,
+            cpriv_enc,
+            nonce_priv_enc,
+            pub_enc,
+            cpriv_sign,
+            nonce_priv_sign,
+            pub_sign,
+        }),
     });
 
     if (!response.ok) {
@@ -444,4 +503,4 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
     return 0; // Success
 }
 
-export { registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyUsernameAPI, getMessagesAPI, getSentMessagesAPI, getOneMessageAPI, sendMessageAPI, deleteMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };
+export { registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, verifyEmailAPI, requestResetPasswordAPI, endPasswordResetAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyUsernameAPI, getMessagesAPI, getSentMessagesAPI, getOneMessageAPI, sendMessageAPI, deleteMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };

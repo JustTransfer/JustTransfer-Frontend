@@ -84,15 +84,8 @@ export default function CreateAccountPage() {
             if (result.success) {
                 success(strings.msgAccountCreated);
 
-                login({
-                    username: data.username as string,
-                    role: result.role,
-                    exportKey: result.exportKey!,
-                    keys: result.keys!,
-                });
-
                 setTimeout(() => {
-                    navigate("/new-transfer");
+                    navigate("/verify-email");
                 }, 1000);
 
             } else {
