@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 
 import { useNotification } from "../hooks/useNotificationContext";
@@ -17,16 +17,20 @@ export default function VerifyEmailPage() {
     const { success, error } = useNotification();
     const navigate = useNavigate();
 
+    const [state, setState] = useState<"verifying" | "success" | "error">("verifying");
+
     useEffect(() => {
         if (id) {
             verifyEmailAPI(id)
                 .then(() => {
+                    setState("success");
                     success(strings.msgEmailVerified);
                     setTimeout(() => {
                         navigate("/login");
                     }, 2000);
                 })
                 .catch((err) => {
+                    setState("error");
                     error(err.message || errors.errorEmailVerificationFailed);
                     setTimeout(() => {
                         navigate("/");
@@ -47,8 +51,10 @@ export default function VerifyEmailPage() {
                         flexDirection: "column",
                     }}
                 >
-                    <Typography variant="h3" align="center" sx={{ mt: 5 }}>
-                        Verifying your email...
+                    <Typography variant="h4" align="center" sx={{ mt: 5 }}>
+                        {state === "verifying" && "Verifying your email..."}
+                        {state === "success" && "Email verified successfully! Redirecting to login..."}
+                        {state === "error" && "Email verification failed! Redirecting to home..."}
                     </Typography>
                 </ Box>
             ) : (
@@ -58,10 +64,14 @@ export default function VerifyEmailPage() {
                         width: "100%",
                         display: "flex",
                         flexDirection: "column",
+                        gap: 1,
                     }}
                 >
-                    <Typography variant="h3" align="center" sx={{ mt: 5 }}>
-                        Please check your email for the verification link!
+                    <Typography variant="h4" align="center" sx={{ mt: 5, mx: 2, lineHeight: 1.6 }}>
+                        A verification link has been sent to your email. <br />
+                    </Typography>
+                    <Typography variant="h6" align="center" sx={{ mt: 0, mx: 2, lineHeight: 1.6 }}>
+                        Please check your inbox and click the link to verify your account.
                     </Typography>
                 </ Box>
             )
