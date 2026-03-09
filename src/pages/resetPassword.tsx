@@ -112,7 +112,7 @@ export default function ResetPasswordPage() {
                     <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }} onSubmit={handleSubmit}>
 
                         <TextField
-                            label="Password"
+                            label="New Password"
                             name="password"
                             type={showPassword ? "text" : "password"}
                             variant="outlined"
@@ -140,7 +140,7 @@ export default function ResetPasswordPage() {
                         <PasswordStrength password={password} onStrengthChange={setIsStrong} />
 
                         <TextField
-                            label="Confirm Password"
+                            label="Confirm New Password"
                             name="confirmPassword"
                             type="password"
                             variant="outlined"

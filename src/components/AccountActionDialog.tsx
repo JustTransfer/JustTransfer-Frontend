@@ -10,7 +10,8 @@ import {
     Typography,
     Box,
     InputAdornment,
-    IconButton
+    IconButton,
+    Alert
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
@@ -138,6 +139,12 @@ export default function AccountActionDialog({
                     <Typography variant="body2" color="text.secondary">
                         {description}
                     </Typography>
+
+                    {isDelete && (
+                        <Alert severity="warning" sx={{ mb: 3 }}>
+                            This action is irreversible! All your sent and received transfers will be deleted.
+                        </Alert>
+                    )}
 
                     <TextField
                         label="Current Password"

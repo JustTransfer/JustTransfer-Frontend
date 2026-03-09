@@ -13,6 +13,7 @@ export const errorMailNotVerified = "Email not verified. Please verify your emai
 export const errorEmailVerificationFailed = "Email verification failed. The verification link may be invalid or expired.";
 export const errorPasswordResetRequestFailed = "Password reset request failed. Please try again.";
 export const errorPasswordResetFailed = "Password reset failed. Please try again.";
+export const errorMaxUserAccountsReached = "The server has reached the maximum number of user accounts. Please try again later.";
 
 // Cryptography Errors
 export const errorMultipleValidKeys = "Multiple valid keys found.";
