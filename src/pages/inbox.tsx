@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, Button, IconButton, Paper, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, ListItem, ListItemIcon, ListItemText, Stack, Chip } from "@mui/material";
+import { Box, Typography, Button, IconButton, Paper, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, ListItem, ListItemIcon, ListItemText, Stack, Chip, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DownloadIcon from '@mui/icons-material/Download';
 import InboxIcon from '@mui/icons-material/Inbox';
@@ -25,7 +25,7 @@ import { deleteMessageAPI } from "../handlers/api";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
-import exp from "constants";
+
 
 type Props = {
     msg: any;
@@ -86,6 +86,19 @@ export default function Inbox() {
     const [messages, setMessages] = useState<Array<any>>([]);
     const [downloadProgress, setDownloadProgress] = useState<Record<string, number>>({});
     const [loading, setLoading] = useState(true);
+
+    const [openDialog, setOpenDialog] = useState(false);
+    const [messageToDelete, setMessageToDelete] = useState<any>(null);
+
+    const handleClickOpenDialog = (message: any) => {
+        setMessageToDelete(message);
+        setOpenDialog(true);
+    };
+
+    const handleCloseDialog = () => {
+        setMessageToDelete(null);
+        setOpenDialog(false);
+    };
 
     async function deleteMessage(id: string) {
         try {
@@ -288,7 +301,7 @@ export default function Inbox() {
                                         msg={msg}
                                         progress={downloadProgress[msg.id]}
                                         onDownload={() => downloadFile(msg)}
-                                        onDelete={() => deleteMessage(msg.id)}
+                                        onDelete={() => handleClickOpenDialog(msg)}
                                     />
                                 </ListItem>
                             ))}
@@ -308,6 +321,31 @@ export default function Inbox() {
 
                     )}
                 </Box>
+
+                <Dialog
+                    open={openDialog}
+                    onClose={handleCloseDialog}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">
+                        {"Delete Message"}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            Are you sure you want to delete <strong>{messageToDelete?.filename}</strong>? This action cannot be undone.
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions sx={{ gap: 2 }}>
+                        <Button onClick={handleCloseDialog}>Cancel</Button>
+                        <Button onClick={() => {
+                            deleteMessage(messageToDelete.id);
+                            handleCloseDialog();
+                        }} color="error" autoFocus>
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </ Box >
         } />
     );
