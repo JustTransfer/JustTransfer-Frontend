@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import React, { useState, useRef } from "react";
-import { Box, Typography, TextField, Paper, Button, Alert, Chip } from "@mui/material";
-import Stack from '@mui/material/Stack';
+import { Box, Typography, TextField, Paper, Button, Alert, Chip, InputAdornment, IconButton } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -25,6 +25,11 @@ export default function AnonymousTransfer() {
 
     const { success, error } = useNotification();
     const { id } = useParams();
+
+    const [showPassword, setShowPassword] = useState(false);
+    const handleTogglePassword = () => {
+        setShowPassword(prev => !prev);
+    };
 
     const [exportKey, setExportKey] = useState<string>("");
     const [messageData, setMessageData] = useState<any>(null);
@@ -56,13 +61,13 @@ export default function AnonymousTransfer() {
         const formData = new FormData(form);
 
         const data = {
-            passphrase: formData.get("passphrase"),
+            password: formData.get("password"),
         };
 
         try {
             setIsDownloading(false);
             setDownloadProgress(0);
-            const result = await getOneAnonymousMessageMetadata(data.passphrase as string, id!);
+            const result = await getOneAnonymousMessageMetadata(data.password as string, id!);
 
             setExportKey(result.exportKey);
             setMessageData(result.messageData);
@@ -220,7 +225,29 @@ export default function AnonymousTransfer() {
                             </Box>
                         ) :
                             <Box>
-                                <TextField label="Passphrase" name="passphrase" type="password" variant="outlined" fullWidth required />
+                                <TextField
+                                    label="Password"
+                                    name="password"
+                                    type={showPassword ? "text" : "password"}
+                                    variant="outlined"
+                                    fullWidth
+                                    required
+
+                                    InputProps={{
+                                        endAdornment: (
+                                            < InputAdornment position="end" >
+                                                <IconButton
+                                                    aria-label={
+                                                        showPassword ? 'hide the password' : 'display the password'
+                                                    }
+                                                    onClick={handleTogglePassword}
+                                                >
+                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        )
+                                    }}
+                                />
                                 <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>
                                     Submit
                                 </Button>
