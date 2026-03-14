@@ -91,17 +91,7 @@ async function registerUpdateAPI(client_registration_finish: string, keys: KeyPa
 
 }
 
-type NewKeyPairsEncoded = {
-    enc_public_key: string;
-    enc_nonce_private_key: string;
-    enc_cipher_private_key: string;
-
-    sign_public_key: string;
-    sign_nonce_private_key: string;
-    sign_cipher_private_key: string;
-}
-
-async function putNewKeyAPI(key: NewKeyPairsEncoded) {
+async function putNewKeyAPI(enc_public_key: string, enc_nonce_private_key: string, enc_cipher_private_key: string, sign_public_key: string, sign_nonce_private_key: string, sign_cipher_private_key: string) {
 
     const response = await fetch(`${apiUrl}/user/addkey`, {
         method: "PUT",
@@ -109,7 +99,12 @@ async function putNewKeyAPI(key: NewKeyPairsEncoded) {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            key,
+            enc_public_key,
+            enc_nonce_private_key,
+            enc_cipher_private_key,
+            sign_public_key,
+            sign_nonce_private_key,
+            sign_cipher_private_key,
         }),
     });
 
