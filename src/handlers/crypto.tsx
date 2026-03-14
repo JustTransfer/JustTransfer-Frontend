@@ -270,7 +270,7 @@ async function generateNewKeys(username: string, password: string, exportKey: st
     // Generate encryption key pair and encrypt private keys with the export key
     const newKey = generateAndEncryptKeys(exportKeyDecoded);
 
-    const result = await putNewKeyAPI(newKey);
+    const result = await putNewKeyAPI(newKey.enc_public_key, newKey.enc_nonce_private_key, newKey.enc_cipher_private_key, newKey.sign_public_key, newKey.sign_nonce_private_key, newKey.sign_cipher_private_key);
 
     // Decrypt the keys with the export key
     const decryptedKeys = decryptKeys(result.keys, exportKeyDecoded);
