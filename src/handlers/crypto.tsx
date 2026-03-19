@@ -345,7 +345,6 @@ async function getMessages(keys: any[]) {
         msg.signature = Base64.toUint8Array(msg.signature);
         msg.cfilename = Base64.toUint8Array(msg.cfilename);
         msg.nonce_filename = Base64.toUint8Array(msg.nonce_filename);
-        msg.nonce_message = Base64.toUint8Array(msg.nonce_message);
 
         // Get the public key enc of the sender to decrypt the filename and file
         const PublicKeyEncSender = await getCachedPublicKeyEnc(msg.sender_key_id);
@@ -393,7 +392,6 @@ async function getOneMessage(username: string, keys: any[], message: any, onChun
         cfilename: message.cfilename,
         nonce_filename: message.nonce_filename,
         file_id: message.file_id,
-        nonce_file: message.nonce_message,
         sender: message.sender,
         receiver: username!,
         max_downloads: message.max_downloads,
@@ -472,15 +470,11 @@ async function sendMessage(username: string, privateKeyEnc: string, privateKeySi
     const cfilename_b64 = Base64.fromUint8Array(cfilename, true);
     const nonce_filename_b64 = Base64.fromUint8Array(nonce_filename, true);
 
-    // Generate the nonce for the file
-    const nonce_file = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
-    const nonce_file_b64 = Base64.fromUint8Array(nonce_file, true);
-
     // Get the current timestamp
     const timestamp = new Date().toISOString();
 
     // Send the message
-    const response = await sendMessageAPI(senderKeyId, receiverKeyId, cfilename_b64, nonce_filename_b64, nonce_file_b64, maxDownloads, lifetimeDays, timestamp, file.size);
+    const response = await sendMessageAPI(senderKeyId, receiverKeyId, cfilename_b64, nonce_filename_b64, maxDownloads, lifetimeDays, timestamp, file.size);
 
     // Get the upload URL
     const uploadUrls = response.upload_urls;
@@ -499,7 +493,6 @@ async function sendMessage(username: string, privateKeyEnc: string, privateKeySi
         cfilename: cfilename,
         nonce_filename: nonce_filename,
         file_id: messageFileId,
-        nonce_file: nonce_file,
         sender: username!,
         receiver: receiver,
         max_downloads: maxDownloads,
