@@ -55,7 +55,6 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
     // Get the Encoded fileds of the message
     cfilename = Base64.toUint8Array(cfilename);
     nonce_filename = Base64.toUint8Array(nonce_filename);
-    header = Base64.toUint8Array(header);
 
     // Decrypt the filename and check auth data
     const auth_data = {
@@ -64,10 +63,14 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
         creation_time: creation_time,
         file_size: file_size,
         chunk_size: chunk_size,
+        header: header,
     };
 
-    let filename: string;
+    // Convert header to Uint8Array for decryption
+    header = Base64.toUint8Array(header);
 
+    // Decrypt the filename and verify the auth data using the export key
+    let filename: string;
     try {
         const filenameBytes = sodium.crypto_aead_aegis256_decrypt(null, cfilename, new TextEncoder().encode(JSON.stringify(auth_data)), nonce_filename, exportKeyMetadataDecoded);
         filename = new TextDecoder().decode(filenameBytes);
@@ -161,26 +164,27 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
     // Get the current timestamp
     const timestamp = new Date().toISOString();
 
-    // Encrypt the filename and construct the auth data
+    // Initialize the secret stream for file encryption
+    const { state, header } = sodium.crypto_secretstream_xchacha20poly1305_init_push(exportKeyFileDecoded);
+    const header_b64 = Base64.fromUint8Array(header, true);
+    const totalLength = file.size;
+
+    // Construct the auth data for the message
     const auth_data = {
         max_downloads: maxDownloads,
         lifetime: lifetimeDays,
         creation_time: timestamp,
         file_size: file.size,
         chunk_size: chunkSize,
+        header: header_b64,
     };
 
+    // Authenticate the auth data and encrypt the filename
     const nonce_filename = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
     const cfilename = sodium.crypto_aead_aegis256_encrypt(new TextEncoder().encode(fileName), new TextEncoder().encode(JSON.stringify(auth_data)), null, nonce_filename, exportKeyMetadataDecoded);
 
     const cfilename_b64 = Base64.fromUint8Array(cfilename, true);
     const nonce_filename_b64 = Base64.fromUint8Array(nonce_filename, true);
-
-    // Encrypt the file in chunks
-    const { state, header } = sodium.crypto_secretstream_xchacha20poly1305_init_push(exportKeyFileDecoded);
-    const header_b64 = Base64.fromUint8Array(header, true);
-    const totalLength = file.size;
-    //const totalLengthWithTags = totalLength + Math.ceil(totalLength / chunkSize) * sodium.crypto_secretstream_xchacha20poly1305_ABYTES;
 
     // Send the initial request to get an upload ID
     const response2 = await sendAnonymousMessageAPI(id, registrationRecord, cfilename_b64, nonce_filename_b64, header_b64, maxDownloads, lifetimeDays, timestamp, totalLength);
