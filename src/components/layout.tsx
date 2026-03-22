@@ -1,13 +1,11 @@
 import * as React from 'react';
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import { styled, useTheme, createTheme, ThemeProvider } from '@mui/material/styles';
+import { useTheme, createTheme, ThemeProvider } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import LogoutIcon from '@mui/icons-material/Logout';
-import AddBoxIcon from '@mui/icons-material/AddBox';
 
 import { Button } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -21,7 +19,6 @@ import Link from '@mui/material/Link';
 
 import { useAuth } from "../hooks/useAuth";
 import { frontendUrl } from '../handlers/config';
-import { Boy } from '@mui/icons-material';
 
 const headerHeight = "65px";
 const logoMarginTop = '-10px';
@@ -68,6 +65,7 @@ const defaultTheme = createTheme({
 });
 
 function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
+
     return (
         <Box
             sx={{
@@ -104,13 +102,15 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                             Links
                         </Typography>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                            <Link href="/" color="inherit" underline="hover">
+                            <Link component={RouterLink} to="/" color="inherit" underline="hover">
                                 Home
                             </Link>
-                            <Link href="/register" color="inherit" underline="hover">
+
+                            <Link component={RouterLink} to="/register" color="inherit" underline="hover">
                                 Create Account
                             </Link>
-                            <Link href="/login" color="inherit" underline="hover">
+
+                            <Link component={RouterLink} to="/login" color="inherit" underline="hover">
                                 Login
                             </Link>
                         </Box>
@@ -123,23 +123,25 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                         </Typography>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
                             <Link
-                                href="https://github.com/JustinFerrara14"
+                                href="https://github.com/JustTransfer/"
                                 target="_blank"
-                                rel="noopener"
+                                rel="noreferrer"
                                 color="inherit"
                                 underline="hover"
                             >
                                 GitHub
                             </Link>
                             <Link
-                                href="#"
+                                href="https://justtransfer.github.io/"
+                                target="_blank"
+                                rel="noreferrer"
                                 color="inherit"
                                 underline="hover"
                             >
-                                Documentation
+                                Whitepaper
                             </Link>
                             <Link
-                                href="mailto:contact@justtransfer.com"
+                                href="mailto:info@justtransfer.ch"
                                 color="inherit"
                                 underline="hover"
                             >
@@ -154,13 +156,13 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                             Legal
                         </Typography>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                            <Link href="#" color="inherit" underline="hover">
+                            <Link component={RouterLink} to="/terms" color="inherit" underline="hover">
                                 Terms of Service
                             </Link>
-                            <Link href="#" color="inherit" underline="hover">
+                            <Link component={RouterLink} to="/privacy" color="inherit" underline="hover">
                                 Privacy Policy
                             </Link>
-                            <Link href="#" color="inherit" underline="hover">
+                            <Link component={RouterLink} to="/legal" color="inherit" underline="hover">
                                 Term of Use
                             </Link>
                         </Box>
