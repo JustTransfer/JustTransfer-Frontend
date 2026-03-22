@@ -1,13 +1,11 @@
 import * as React from 'react';
-import { useEffect } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import { styled, useTheme, createTheme, ThemeProvider } from '@mui/material/styles';
+import { useTheme, createTheme, ThemeProvider } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import LogoutIcon from '@mui/icons-material/Logout';
-import AddBoxIcon from '@mui/icons-material/AddBox';
 
 import { Button } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -21,7 +19,6 @@ import Link from '@mui/material/Link';
 
 import { useAuth } from "../hooks/useAuth";
 import { frontendUrl } from '../handlers/config';
-import { Boy } from '@mui/icons-material';
 
 const headerHeight = "65px";
 const logoMarginTop = '-10px';
@@ -68,8 +65,6 @@ const defaultTheme = createTheme({
 });
 
 function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
-
-    const navigate = useNavigate();
 
     return (
         <Box
