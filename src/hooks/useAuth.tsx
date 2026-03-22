@@ -1,8 +1,6 @@
 import { createContext, useContext, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useLocalStorage } from "./useLocalStorage";
-
 import * as errors from "../messages/errors";
 
 type Key = {
@@ -75,13 +73,13 @@ export const AuthProvider = ({ children }: any) => {
         if (!validKeys || validKeys.length === 0) {
             throw new Error(errors.errorNoValidKeys);
         } else if (validKeys && validKeys.length > 1) {
-            throw new Error (errors.errorMultipleValidKeys);
+            throw new Error(errors.errorMultipleValidKeys);
         }
 
         return validKeys[0];
     }
 
-        
+
     const logout = async () => {
         setUsername(null);
         setRole(null);
