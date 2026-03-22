@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route } from "react-router-dom";
 
+import ScrollToTop from './components/scrollToTop';
 import { NotificationProvider } from './hooks/useNotificationContext';
 import { ServerConfigProvider } from './hooks/useServerConfig';
 import { AuthProvider } from "./hooks/useAuth";
@@ -27,6 +28,7 @@ function App() {
     <NotificationProvider>
       <ServerConfigProvider>
         <AuthProvider>
+          <ScrollToTop />
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
