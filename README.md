@@ -139,3 +139,11 @@ This README is focused on the frontend app. Deployment hardening, TLS, and backe
 - `npm run start` - start development server
 - `npm run build` - create production build
 - `npm test` - run test suite
+
+## Contributing
+
+Contributions are welcome.
+
+- Open an issue to discuss bug fixes or feature ideas
+- Fork the repository and submit a pull request with your changes
+- Ensure code is well-documented and includes tests where appropriate
