@@ -54,7 +54,7 @@ export default function Transfers() {
                     justifyContent: "center", width: '80%', gap: 2
                 }}>
                     <Typography variant="h5">
-                        Sent account transfers
+                        Active direct transfers
                     </Typography>
                     <IconButton aria-label="delete" color="primary" size="large" sx={{ marginLeft: 'auto' }} onClick={getMessagesSentLocal}>
                         <RefreshIcon />

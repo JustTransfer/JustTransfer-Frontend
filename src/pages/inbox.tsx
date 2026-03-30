@@ -233,7 +233,7 @@ export default function Inbox() {
                     justifyContent: "center", width: '80%', gap: 2
                 }}>
                     <Typography variant="h5">
-                        Received account transfers
+                        Received direct transfers
                     </Typography>
                     <IconButton aria-label="delete" color="primary" size="large" sx={{ marginLeft: 'auto' }} onClick={getMessagesLocal}>
                         <RefreshIcon />

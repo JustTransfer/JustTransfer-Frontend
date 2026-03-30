@@ -8,6 +8,8 @@ type NotificationContextType = {
     notify: (message: string, type?: NotificationType) => void;
     success: (message: string) => void;
     error: (message: string) => void;
+    info: (message: string) => void;
+    warning: (message: string) => void;
 };
 
 type NotificationItem = {
@@ -38,7 +40,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     const warning = (msg: string) => notify(msg, "warning");
 
     return (
-        <NotificationContext.Provider value={{ notify, success, error }}>
+        <NotificationContext.Provider value={{ notify, success, error, info, warning }}>
             {children}
 
             {notifications.map((n, index) => (

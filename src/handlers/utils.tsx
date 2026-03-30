@@ -74,7 +74,7 @@ export function expireColor(msg: any) {
   return "text.secondary";
 }
 
-export function relativeExpire(msg: any) {
+export function relativeExpire(msg: any, short = false) {
   const { expire, dayDiff, expired } = getExpiration(msg);
 
   if (expired) return "Expired";
@@ -82,10 +82,11 @@ export function relativeExpire(msg: any) {
   const time = expire.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
   if (dayDiff === 0)
-    return `Expires today at ${time}`;
+    return short ? `Today at ${time}` : `Expires today at ${time}`;
 
   if (dayDiff === 1)
-    return `Expires tomorrow at ${time}`;
+    return short ? `Tomorrow at ${time}` : `Expires tomorrow at ${time}`;
 
-  return `Expires ${expire.toLocaleDateString()} at ${time}`;
+  // return `Expires ${expire.toLocaleDateString()} at ${time}`;
+  return short ? `${expire.toLocaleDateString()} at ${time}` : `Expires on ${expire.toLocaleDateString()} at ${time}`;
 }

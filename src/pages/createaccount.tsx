@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Button, TextField, Paper, IconButton, InputAdornment } from "@mui/material";
+import { Box, Typography, Button, TextField, Paper, IconButton, InputAdornment, Link } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Alert from '@mui/material/Alert';
 import { LinearProgress } from "@mui/material";
@@ -104,87 +104,98 @@ export default function CreateAccountPage() {
                     width: "100%",
                     display: "flex",
                     flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
                 }}
             >
-                <Box
-                    sx={{
-                        flex: 1,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                    }}
-                >
-                    <Paper elevation={4} sx={{ p: 6, borderRadius: 3, width: 400, textAlign: "center" }}>
-                        <Typography variant="h4" sx={{ mb: 4, fontWeight: "bold", color: "black" }}>
+                <Paper elevation={4} sx={{ p: 6, borderRadius: 3, width: 400, textAlign: "center" }}>
+
+                    <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1 }}>
+                        Create Account
+                    </Typography>
+
+                    <Typography variant="subtitle1" sx={{ color: "text.secondary" }}>
+                        Join now to securely share your files!
+                    </Typography>
+
+                    <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 4 }} onSubmit={handleSubmit}>
+                        <TextField
+                            label="Username"
+                            name="username"
+                            type="text"
+                            variant="outlined"
+                            fullWidth
+                            required
+                            error={errorInvalidUsername}
+                            helperText={errorInvalidUsername ? errors.errorInvalidUsername : ""}
+                        />
+                        <TextField
+                            label="Email"
+                            name="email"
+                            type="email"
+                            variant="outlined"
+                            fullWidth
+                            required
+                        />
+                        <TextField
+                            label="Password"
+                            name="password"
+                            type={showPassword ? "text" : "password"}
+                            variant="outlined"
+                            fullWidth
+                            required
+                            onChange={(e) => setPassword(e.target.value)}
+                            error={errorWeakPassword}
+                            helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
+                            InputProps={{
+                                endAdornment: (
+                                    < InputAdornment position="end" >
+                                        <IconButton
+                                            aria-label={
+                                                showPassword ? 'hide the password' : 'display the password'
+                                            }
+                                            onClick={handleTogglePassword}
+                                        >
+                                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                )
+                            }}
+                        />
+
+                        <PasswordStrength password={password} onStrengthChange={setIsStrong} />
+
+                        <TextField
+                            label="Confirm Password"
+                            name="confirmPassword"
+                            type="password"
+                            variant="outlined"
+                            fullWidth
+                            required
+                            error={errorPasswordMismatch}
+                            helperText={errorPasswordMismatch ? errors.errorPasswordMismatch : ""}
+                        />
+                        <Button
+                            type="submit"
+                            variant="contained"
+                        >
                             Create Account
-                        </Typography>
+                        </Button>
+                    </Box>
+                </Paper>
 
-                        <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }} onSubmit={handleSubmit}>
-                            <TextField
-                                label="Username"
-                                name="username"
-                                type="text"
-                                variant="outlined"
-                                fullWidth
-                                required
-                                error={errorInvalidUsername}
-                                helperText={errorInvalidUsername ? errors.errorInvalidUsername : ""}
-                            />
-                            <TextField
-                                label="Email"
-                                name="email"
-                                type="email"
-                                variant="outlined"
-                                fullWidth
-                                required
-                            />
-                            <TextField
-                                label="Password"
-                                name="password"
-                                type={showPassword ? "text" : "password"}
-                                variant="outlined"
-                                fullWidth
-                                required
-                                onChange={(e) => setPassword(e.target.value)}
-                                error={errorWeakPassword}
-                                helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
-                                InputProps={{
-                                    endAdornment: (
-                                        < InputAdornment position="end" >
-                                            <IconButton
-                                                aria-label={
-                                                    showPassword ? 'hide the password' : 'display the password'
-                                                }
-                                                onClick={handleTogglePassword}
-                                            >
-                                                {showPassword ? <VisibilityOff /> : <Visibility />}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    )
-                                }}
-                            />
-
-                            <PasswordStrength password={password} onStrengthChange={setIsStrong} />
-
-                            <TextField
-                                label="Confirm Password"
-                                name="confirmPassword"
-                                type="password"
-                                variant="outlined"
-                                fullWidth
-                                required
-                                error={errorPasswordMismatch}
-                                helperText={errorPasswordMismatch ? errors.errorPasswordMismatch : ""}
-                            />
-                            <Button
-                                type="submit"
-                                variant="contained"
-                            >
-                                Create Account
-                            </Button>
-                        </Box>
-                    </Paper>
-                </Box>
+                <Typography variant="body2" sx={{ mt: 2 }}>
+                    Already have an account?
+                    <Link
+                        component="button"
+                        variant="body2"
+                        onClick={() => navigate("/login")}
+                        underline="hover"
+                        sx={{ ml: 1, verticalAlign: "baseline" }}
+                    >
+                        Login
+                    </Link>
+                </Typography>
             </Box>
         } />
     );

@@ -3,6 +3,7 @@ import { Box, Typography, TextField, Paper, Button, Alert, IconButton, InputAdor
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import DescriptionIcon from '@mui/icons-material/Description';
 import LinearProgress, { LinearProgressProps } from '@mui/material/LinearProgress';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -14,19 +15,37 @@ import * as errors from "../messages/errors";
 import PasswordStrength from "./passwordStrength";
 import { formatSize, isValidUsername } from "../handlers/utils";
 
-type FileTransferFormProps = {
-    type: "anonymous" | "connected"; // determines if password or receiver is used
-    maxFileSize: number;
-    maxDownloads: number;
-    maxLifetime: number;
-    onSubmit: (data: {
-        receiver?: string;
-        password?: string;
-        file: File;
-        lifetime: number;
+type FileTransferFormProps =
+    | {
+        type: "anonymous";
+        maxFileSize: number;
         maxDownloads: number;
-    }, onProgress: (percent: number) => void) => Promise<string | void>;
-};
+        maxLifetime: number;
+        onSubmit: (
+            data: {
+                password: string;
+                file: File;
+                lifetime: number;
+                maxDownloads: number;
+            },
+            onProgress: (percent: number) => void
+        ) => Promise<string | void>;
+    }
+    | {
+        type: "connected";
+        maxFileSize: number;
+        maxDownloads: number;
+        maxLifetime: number;
+        onSubmit: (
+            data: {
+                receiver: string;
+                file: File;
+                lifetime: number;
+                maxDownloads: number;
+            },
+            onProgress: (percent: number) => void
+        ) => Promise<string | void>;
+    };
 
 export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxLifetime, onSubmit }: FileTransferFormProps) {
 
@@ -184,40 +203,90 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
     };
 
     return (
-        <Paper elevation={4} sx={{ p: 4, borderRadius: 3, width: 500, textAlign: "center" }}>
+        <Paper elevation={4} sx={{ p: 4, borderRadius: 3, width: 450, textAlign: "center" }}>
+
             <Box component="form" ref={formRef} onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-                <Typography variant="h6">Click to add a file to transfer.</Typography>
-                <AddBoxIcon sx={{ color: "primary.main", transform: "scale(4)", "&:hover": { cursor: "pointer", transform: "scale(4.1)" }, marginBottom: 3, marginTop: 3 }} onClick={handleIconClick} />
-                <input type="file" ref={fileInputRef} style={{ display: "none" }} onChange={handleFileChange} />
-                {selectedFile ? (
-                    <Typography variant="body2" color="text.secondary">{selectedFile.name} ({formatSize(selectedFile.size)})</Typography>
-                ) : (
-                    <Typography variant="body2" color="text.secondary">No file selected</Typography>
-                )}
+
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    style={{ display: "none" }}
+                    onChange={handleFileChange}
+                />
+
+                <Box
+                    onClick={handleIconClick}
+                    sx={{
+                        width: "84%",
+                        border: "2px dashed",
+                        borderColor: "grey.400",
+                        backgroundColor: "action.hover",
+                        borderRadius: 3,
+                        p: 4,
+                        cursor: "pointer",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 1,
+                        transition: "0.2s",
+                    }}
+                >
+
+                    {selectedFile ? (
+                        <>
+                            <DescriptionIcon sx={{ fontSize: 80, color: "primary.main" }} />
+                            <Typography variant="body2" color="subtitle1" fontWeight="bold">
+                                {`${selectedFile.name} (${formatSize(selectedFile.size)})`}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                Click to change file
+                            </Typography>
+                        </>
+
+                    ) : (
+                        <>
+                            <AddBoxIcon sx={{ fontSize: 80, color: "primary.main" }} />
+                            <Typography variant="subtitle1" fontWeight="bold">
+                                No file selected
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                Click to add a file
+                            </Typography>
+                        </>
+                    )}
+                </Box>
 
                 {type === "anonymous" ? (
                     <>
-                        <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
-                            onChange={(e) => setPassword(e.target.value)}
-                            error={errorWeakPassword}
-                            helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
-                            InputProps={{
-                                endAdornment: (
-                                    < InputAdornment position="end" >
-                                        <IconButton
-                                            aria-label={
-                                                showPassword ? 'hide the password' : 'display the password'
-                                            }
-                                            onClick={handleTogglePassword}
-                                        >
-                                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                )
-                            }}
-                        />
+                        <Box sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 2,
+                            width: "100%",
+                        }}>
+                            <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
+                                onChange={(e) => setPassword(e.target.value)}
+                                error={errorWeakPassword}
+                                helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
+                                InputProps={{
+                                    endAdornment: (
+                                        < InputAdornment position="end" >
+                                            <IconButton
+                                                aria-label={
+                                                    showPassword ? 'hide the password' : 'display the password'
+                                                }
+                                                onClick={handleTogglePassword}
+                                            >
+                                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    )
+                                }}
+                            />
 
-                        <PasswordStrength password={password} onStrengthChange={setIsStrong} />
+                            <PasswordStrength password={password} onStrengthChange={setIsStrong} />
+                        </Box>
 
                         <TextField label="Confirm Password" name="confirmPassword" type="password" variant="outlined" fullWidth required
                             error={errorPassword}
@@ -239,7 +308,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 {isSending ?
                     <LinearProgressWithLabel value={progress} />
                     :
-                    <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>Send</Button>
+                    <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>Send File</Button>
                 }
             </Box>
 
