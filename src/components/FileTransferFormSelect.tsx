@@ -126,6 +126,9 @@ export default function FileTransferFormSelect({ type, propsLink, propsDirect }:
                         width: "50%",
                         backgroundColor: selectedType === "anonymous" ? "primary.main" : "grey.400",
                         gap: 2,
+                        ":hover": {
+                            backgroundColor: selectedType === "anonymous" ? "primary.dark" : "grey.500",
+                        },
                     }}
                 >
                     <LinkIcon />
@@ -139,6 +142,9 @@ export default function FileTransferFormSelect({ type, propsLink, propsDirect }:
                         width: "50%",
                         backgroundColor: selectedType === "connected" ? "primary.main" : "grey.400",
                         gap: 2,
+                        ":hover": {
+                            backgroundColor: selectedType === "connected" ? "primary.dark" : "grey.500",
+                        },
                     }}
                 >
                     <PersonAddIcon sx={{ transform: "scaleX(-1)" }} />
