@@ -49,7 +49,7 @@ export default function NewTransfer() {
             }}>
 
                 <Typography variant="h3">
-                    Make a new account transfer here!
+                    Make a new direct transfer here!
                 </Typography>
 
                 <FileTransferForm

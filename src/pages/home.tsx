@@ -77,7 +77,7 @@ export default function HomePage() {
         </Box>
 
         <Typography variant="body2" color="text.secondary">
-          To make an account transfer, please{" "}
+          To make an direct transfer, please{" "}
           <Link to="/login">login</Link>.
         </Typography>
       </ Box>

@@ -10,8 +10,8 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { Button } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import LinkIcon from "@mui/icons-material/Link";
-import SettingsIcon from '@mui/icons-material/Settings';
 
 import SendIcon from '@mui/icons-material/Send';
 import Container from "@mui/material/Container";
@@ -331,13 +331,13 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                         Link Transfer
                                     </Button>
                                     <Button
-                                        startIcon={<AccountCircleIcon />}
+                                        startIcon={<SendIcon />}
                                         fullWidth
                                         size="large"
                                         onClick={() => navigate("/new-transfer")}
                                         sx={menuButtonStyle("/new-transfer")}
                                     >
-                                        Account Transfer
+                                        Direct Transfer
                                     </Button>
                                     <Button
                                         startIcon={<CloudDownloadIcon />}
@@ -349,13 +349,13 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                         Inbox
                                     </Button>
                                     <Button
-                                        startIcon={<SendIcon />}
+                                        startIcon={<CloudUploadIcon />}
                                         fullWidth
                                         size="large"
                                         onClick={() => navigate("/transfers")}
                                         sx={menuButtonStyle("/transfers")}
                                     >
-                                        Transfers
+                                        Active Transfers
                                     </Button>
                                 </Box>
 
@@ -369,7 +369,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                     pt: 2,
                                 }}>
                                     <Button
-                                        startIcon={<SettingsIcon />}
+                                        startIcon={<AccountCircleIcon />}
                                         fullWidth
                                         size="large"
                                         onClick={() => navigate("/account")}
