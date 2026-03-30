@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Box, Typography, Button } from "@mui/material";
 
+import { useNotification } from "../hooks/useNotificationContext";
 import * as errors from "../messages/errors";
 import FileTransferForm from "./FileTransferForm";
 
@@ -48,14 +49,23 @@ type FileTransferFormProps =
 
 export default function FileTransferFormSelect({ type, propsLink, propsDirect }: FileTransferFormPropsSelect) {
 
+    const { warning } = useNotification();
+
     const [selectedType, setSelectedType] = useState<"anonymous" | "connected">(
         type === "connected" ? "connected" : "anonymous"
     );
 
     // If type is "both", allow to switch between "anonymous" and "connected". Otherwise, set selectedType to the provided type and disable switching.
     const handleTypeChange = (newType: "anonymous" | "connected") => {
+
+        if (newType === selectedType) {
+            return;
+        }
+
         if (type === "both") {
             setSelectedType(newType);
+        } else {
+            warning("Login to access this feature.");
         }
     };
 

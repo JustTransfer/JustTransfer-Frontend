@@ -254,7 +254,9 @@ export default function Layout({ title, content }: { title: string; content: Rea
                             cursor: "pointer",
                             marginTop: logoMarginTop,
                         }}
-                        onClick={() => navigate("/")}
+                        onClick={
+                            () => navigate(isLoggedIn ? "/new-transfer" : "/")
+                        }
                     />
 
                     {/* Title */}
@@ -322,22 +324,13 @@ export default function Layout({ title, content }: { title: string; content: Rea
                             >
                                 <Box sx={{ display: "flex", flexDirection: "column", gap: 2, justifyContent: "space-between" }}>
                                     <Button
-                                        startIcon={<LinkIcon />}
-                                        fullWidth
-                                        size="large"
-                                        onClick={() => navigate("/")}
-                                        sx={menuButtonStyle("/")}
-                                    >
-                                        Link Transfer
-                                    </Button>
-                                    <Button
                                         startIcon={<SendIcon />}
                                         fullWidth
                                         size="large"
                                         onClick={() => navigate("/new-transfer")}
                                         sx={menuButtonStyle("/new-transfer")}
                                     >
-                                        Direct Transfer
+                                        New Transfer
                                     </Button>
                                     <Button
                                         startIcon={<CloudDownloadIcon />}
