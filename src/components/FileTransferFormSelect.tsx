@@ -52,7 +52,7 @@ export default function FileTransferFormSelect({ type, propsLink, propsDirect }:
     const { warning } = useNotification();
 
     const [selectedType, setSelectedType] = useState<"anonymous" | "connected">(
-        type === "connected" ? "connected" : "anonymous"
+        type === "both" ? "connected" : type
     );
 
     // If type is "both", allow to switch between "anonymous" and "connected". Otherwise, set selectedType to the provided type and disable switching.
