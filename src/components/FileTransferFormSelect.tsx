@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Button } from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
 
 import * as errors from "../messages/errors";
 import FileTransferForm from "./FileTransferForm";
@@ -72,11 +72,37 @@ export default function FileTransferFormSelect({ type, propsLink, propsDirect }:
 
             <Box sx={{
                 display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexDirection: "column",
+                gap: 2,
+            }}>
+                <Typography variant="h3">
+                    <Box component="span" fontWeight="bold">
+                        Transfer{" "}
+                    </Box>
+                    <Box component="span" fontWeight="bold" color="primary.main">
+                        Securely!
+                    </Box>
+                </Typography>
+                <Typography
+                    variant="h6"
+                    color="text.secondary"
+                    textAlign="center"
+                    sx={{ lineHeight: 1.3 }}
+                >
+                    Open source end-to-end encrypted<br />file transfers.
+                </Typography>
+            </Box>
+
+            <Box sx={{
+                display: "flex",
                 flexDirection: "row",
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 2,
-                width: 450,
+                width: "100%",
+                maxWidth: 510,
                 mb: 1,
             }}>
                 <Button

@@ -33,30 +33,7 @@ export default function HomePage() {
           flexDirection: "column",
           gap: 6,
         }}>
-          <Box sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexDirection: "column",
-            gap: 2,
-          }}>
-            <Typography variant="h3">
-              <Box component="span" fontWeight="bold">
-                Transfer{" "}
-              </Box>
-              <Box component="span" fontWeight="bold" color="primary.main">
-                Securely!
-              </Box>
-            </Typography>
-            <Typography
-              variant="h6"
-              color="text.secondary"
-              textAlign="center"
-              sx={{ lineHeight: 1.3 }}
-            >
-              Open source end-to-end encrypted<br />file transfers.
-            </Typography>
-          </Box>
+
           <FileTransferFormSelect
             type="anonymous"
             propsLink={{

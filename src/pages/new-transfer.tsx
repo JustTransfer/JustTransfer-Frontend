@@ -49,10 +49,6 @@ export default function NewTransfer() {
                 gap: 10,
             }}>
 
-                <Typography variant="h3">
-                    Make a new direct transfer here!
-                </Typography>
-
                 <FileTransferFormSelect
                     type="both"
                     propsLink={{
