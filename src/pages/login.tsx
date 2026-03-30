@@ -78,77 +78,74 @@ export default function LoginPage() {
                     width: "100%",
                     display: "flex",
                     flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
                 }}
             >
-                <Box
-                    sx={{
-                        flex: 1,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                    }}
-                >
-                    <Paper elevation={4} sx={{ p: 6, borderRadius: 3, width: 400, textAlign: "center" }}>
-                        <Typography variant="h4" sx={{ mb: 4, fontWeight: "bold", color: "black" }}>
+
+                <Paper elevation={4} sx={{ p: 6, borderRadius: 3, width: 400, textAlign: "center" }}>
+
+                    <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1 }}>
+                        Login
+                    </Typography>
+
+                    <Typography variant="subtitle1" sx={{ color: "text.secondary" }}>
+                        Login to access your encrypted transfers.
+                    </Typography>
+
+                    <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 4 }} onSubmit={handleSubmit}>
+                        <TextField label="Username" name="username" type="text" variant="outlined" fullWidth required
+                            error={errorInvalidUsername}
+                            helperText={errorInvalidUsername ? errors.errorInvalidUsername : ""}
+                        />
+                        <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
+                            InputProps={{
+                                endAdornment: (
+                                    < InputAdornment position="end" >
+                                        <IconButton
+                                            aria-label={
+                                                showPassword ? 'hide the password' : 'display the password'
+                                            }
+                                            onClick={handleTogglePassword}
+                                        >
+                                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                )
+                            }}
+                        />
+                        <Button type="submit" variant="contained" sx={{ mt: 2 }}>
                             Login
-                        </Typography>
+                        </Button>
+                    </Box>
+                </Paper>
 
-                        <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }} onSubmit={handleSubmit}>
-                            <TextField label="Username" name="username" type="text" variant="outlined" fullWidth required
-                                error={errorInvalidUsername}
-                                helperText={errorInvalidUsername ? errors.errorInvalidUsername : ""}
-                            />
-                            <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
-                                InputProps={{
-                                    endAdornment: (
-                                        < InputAdornment position="end" >
-                                            <IconButton
-                                                aria-label={
-                                                    showPassword ? 'hide the password' : 'display the password'
-                                                }
-                                                onClick={handleTogglePassword}
-                                            >
-                                                {showPassword ? <VisibilityOff /> : <Visibility />}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    )
-                                }}
-                            />
-                            <Button type="submit" variant="contained" sx={{ mt: 2 }}>
-                                Login
-                            </Button>
-                        </Box>
+                <Typography variant="body2" sx={{ mt: 2 }}>
+                    You don't have an account?
 
-                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 2 }}>
-                            <Typography variant="body2" sx={{ mt: 2 }}>
-                                You don't have an account?
+                    <Link
+                        component="button"
+                        variant="body2"
+                        onClick={() => navigate("/register")}
+                        underline="hover"
+                        sx={{ ml: 1, verticalAlign: "baseline" }}
+                    >
+                        Create one
+                    </Link>
 
-                                <Link
-                                    component="button"
-                                    variant="body2"
-                                    onClick={() => navigate("/register")}
-                                    underline="hover"
-                                    sx={{ ml: 1, verticalAlign: "baseline" }}
-                                >
-                                    Create one
-                                </Link>
-
-                            </Typography>
-                            <Typography variant="body2" sx={{ mt: 1 }}>
-                                Forgot your password?
-                                <Link
-                                    component="button"
-                                    variant="body2"
-                                    onClick={() => navigate("/reset-password")}
-                                    underline="hover"
-                                    sx={{ ml: 1, verticalAlign: "baseline" }}
-                                >
-                                    Reset it
-                                </Link>
-                            </Typography>
-                        </Box>
-                    </Paper>
-                </Box>
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                    Forgot your password?
+                    <Link
+                        component="button"
+                        variant="body2"
+                        onClick={() => navigate("/reset-password")}
+                        underline="hover"
+                        sx={{ ml: 1, verticalAlign: "baseline" }}
+                    >
+                        Reset it
+                    </Link>
+                </Typography>
             </Box>
         } />
     );
