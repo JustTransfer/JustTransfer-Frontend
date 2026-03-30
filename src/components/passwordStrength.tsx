@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, LinearProgress, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import zxcvbn from "zxcvbn";
 
 interface PasswordStrengthProps {
@@ -11,6 +11,7 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ password, onStrengt
     const [score, setScore] = useState(0);
     const [isStrong, setIsStrong] = useState(false);
 
+    // Strong password if >= 2 (Fair or better)
     useEffect(() => {
         const result = zxcvbn(password);
         setScore(result.score);
@@ -20,28 +21,38 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ password, onStrengt
     }, [password, onStrengthChange]);
 
     const scoreLabels = ["Very Weak", "Weak", "Fair", "Good", "Strong"];
-    const barColor =
-        score <= 1 ? "red" :
-            score === 2 ? "orange" :
-                score === 3 ? "yellowgreen" :
-                    "green";
+    const colors = [
+        "orange",
+        "yellowgreen",
+        "green",
+        "green",
+    ];
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, width: '100%' }}>
-            <LinearProgress
-                variant="determinate"
-                value={Math.max(1, score * 25)} // score is 0-4, convert to percentage
-                sx={{
-                    height: 10,
-                    borderRadius: 5,
-                    backgroundColor: '#e0e0e0',
-                    '& .MuiLinearProgress-bar': {
-                        backgroundColor: barColor,
-                        transition: 'transform 100ms linear', // faster animation
-                    },
-                }}
-            />
-            <Typography variant="caption" sx={{ color: 'text.primary', textAlign: 'right' }}>
+
+            <Box sx={{ display: "flex", gap: 0.5 }}>
+                {[0, 1, 2, 3].map((index) => {
+                    const active = score >= index + 1;
+
+                    return (
+                        <Box
+                            key={index}
+                            sx={{
+                                flex: 1,
+                                height: 10,
+                                borderRadius: 5,
+                                backgroundColor: active
+                                    ? colors[index]
+                                    : 'rgba(0, 0, 0, 0.1)',
+                                transition: "0.2s",
+                            }}
+                        />
+                    );
+                })}
+            </Box>
+
+            <Typography variant="caption" sx={{ color: 'text.primary', textAlign: 'left' }}>
                 {"Password strength: " + scoreLabels[score]}
             </Typography>
         </Box>

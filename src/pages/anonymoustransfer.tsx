@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, use } from "react";
 import { Box, Typography, TextField, Paper, Button, Alert, Chip, InputAdornment, IconButton } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Table from '@mui/material/Table';
@@ -9,6 +9,8 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import DownloadIcon from '@mui/icons-material/Download';
+import LockIcon from '@mui/icons-material/Lock';
+import DescriptionIcon from '@mui/icons-material/Description';
 import LinearProgress, { LinearProgressProps } from '@mui/material/LinearProgress';
 // @ts-ignore
 import streamSaver from 'streamsaver';
@@ -16,7 +18,7 @@ import streamSaver from 'streamsaver';
 import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
 import { getOneAnonymousMessageMetadata, getOneAnonymousMessage } from "../handlers/crypto_anonymous";
-import { formatSize } from "../handlers/utils";
+import { formatSize, relativeExpire, formatCreated } from "../handlers/utils";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
@@ -167,48 +169,111 @@ export default function AnonymousTransfer() {
                     justifyContent: "center",
                     flexDirection: "column",
                     gap: 10,
+                    mt: 10,
                 }}
             >
-                <Typography variant="h3">
-                    Link Transfer
-                </Typography>
 
-                <Paper elevation={4} sx={{ p: 6, borderRadius: 3, width: 500, textAlign: "center" }}>
+                <Paper elevation={4} sx={{ p: 6, borderRadius: 3, width: 450, textAlign: "center" }}>
                     <Box component="form" sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }} onSubmit={handleSubmit}>
 
                         {messageData ? (
                             <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
-                                <Typography variant="h5">Message details</Typography>
-                                <Table size="small">
-                                    <TableBody>
-                                        <TableRow>
-                                            <TableCell><b>Filename</b></TableCell>
-                                            <TableCell>{messageData.filename}</TableCell>
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell><b>Creation Time</b></TableCell>
-                                            <TableCell>{new Date(messageData.creation_time).toLocaleString()}</TableCell>
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell><b>Expiration Time</b></TableCell>
-                                            <TableCell>{new Date(
-                                                new Date(messageData.creation_time).getTime() + messageData.lifetime * 24 * 60 * 60 * 1000
-                                            ).toLocaleString()}</TableCell>
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell><b>Size (bytes)</b></TableCell>
-                                            <TableCell>{formatSize(messageData.file_size)}</TableCell>
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell><b>Downloads</b></TableCell>
-                                            <TableCell>{messageData.number_downloads}</TableCell>
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell><b>Max Downloads</b></TableCell>
-                                            <TableCell>{messageData.max_downloads === 0 ? "Unlimited" : messageData.max_downloads}</TableCell>
-                                        </TableRow>
-                                    </TableBody>
-                                </Table>
+
+                                <Box sx={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    gap: 1,
+                                    width: "100%",
+                                }}>
+                                    <Box sx={{
+                                        p: 2,
+                                        borderRadius: 2,
+                                        backgroundColor: "action.hover",
+                                    }}>
+                                        <DescriptionIcon sx={{ fontSize: 60, color: "primary.main" }} />
+                                    </Box>
+
+                                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                                        {messageData.filename}
+                                    </Typography>
+
+                                    <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                                        Transfer ready for decryption and download.
+                                    </Typography>
+                                </Box>
+
+
+                                <Box
+                                    sx={{
+                                        display: "grid",
+                                        gridTemplateColumns: "1fr 1fr",
+                                        gap: 2,
+                                        width: "100%",
+                                        mt: 2,
+                                    }}
+                                >
+                                    {/* Top-left: Size */}
+                                    <Box
+                                        sx={{
+                                            p: 2,
+                                            borderRadius: 2,
+                                            backgroundColor: "action.hover",
+                                            textAlign: "left",
+                                        }}
+                                    >
+                                        <Typography variant="caption" color="text.secondary">Size</Typography>
+                                        <Typography variant="subtitle1" fontWeight="bold">{formatSize(messageData.file_size)}</Typography>
+                                    </Box>
+
+                                    {/* Top-right: Downloads */}
+                                    <Box
+                                        sx={{
+                                            p: 2,
+                                            borderRadius: 2,
+                                            backgroundColor: "action.hover",
+                                            textAlign: "left",
+                                        }}
+                                    >
+                                        <Typography variant="caption" color="text.secondary">Downloads</Typography>
+                                        <Typography variant="subtitle1" fontWeight="bold">
+                                            {messageData.number_downloads}/{messageData.max_downloads === 0 ? "∞" : messageData.max_downloads}
+                                        </Typography>
+                                    </Box>
+
+                                    {/* Bottom-left: Created */}
+                                    <Box
+                                        sx={{
+                                            p: 2,
+                                            borderRadius: 2,
+                                            backgroundColor: "action.hover",
+                                            textAlign: "left",
+                                        }}
+                                    >
+                                        <Typography variant="caption" color="text.secondary">Created</Typography>
+                                        <Typography variant="subtitle1" fontWeight="bold">
+                                            {formatCreated(messageData.creation_time)}
+                                        </Typography>
+                                    </Box>
+
+                                    {/* Bottom-right: Expires */}
+                                    <Box
+                                        sx={{
+                                            p: 2,
+                                            borderRadius: 2,
+                                            backgroundColor: "action.hover",
+                                            textAlign: "left",
+                                        }}
+                                    >
+                                        {/* left align the label*/}
+                                        <Typography variant="caption" color="text.secondary">
+                                            Expires
+                                        </Typography>
+                                        <Typography variant="subtitle1" fontWeight="bold">
+                                            {relativeExpire(messageData, true)}
+                                        </Typography>
+                                    </Box>
+                                </Box>
                                 {limitReached ? (
                                     <Chip label="Limit reached" />
                                 ) : isDownloading ? (
@@ -218,13 +283,41 @@ export default function AnonymousTransfer() {
                                         variant="contained"
                                         startIcon={<DownloadIcon />}
                                         onClick={downloadFile}
+                                        fullWidth
                                     >
-                                        Download
+                                        Download File
                                     </Button>
                                 }
                             </Box>
                         ) :
-                            <Box>
+                            <Box sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                gap: 2,
+                                width: "100%",
+                            }}>
+                                <Box sx={{
+                                    p: 2,
+                                    borderRadius: 2,
+                                    backgroundColor: "action.hover",
+                                }}>
+                                    <LockIcon color="primary" sx={{ fontSize: 60 }} />
+                                </Box>
+                                <Box sx={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    gap: 1,
+                                    width: "100%",
+                                }}>
+                                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                                        Protected Link Transfer
+                                    </Typography>
+                                    <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4 }}>
+                                        This transfer is protected with a password. Please enter the password to view the transfer details and download the file.
+                                    </Typography>
+                                </Box>
                                 <TextField
                                     label="Password"
                                     name="password"
@@ -249,7 +342,7 @@ export default function AnonymousTransfer() {
                                     }}
                                 />
                                 <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>
-                                    Submit
+                                    Unlock Transfer
                                 </Button>
                             </Box>
                         }

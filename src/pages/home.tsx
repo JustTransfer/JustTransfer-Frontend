@@ -33,9 +33,30 @@ export default function HomePage() {
           flexDirection: "column",
           gap: 6,
         }}>
-          <Typography variant="h3">
-            Make a new link transfer here!
-          </Typography>
+          <Box sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexDirection: "column",
+            gap: 2,
+          }}>
+            <Typography variant="h3">
+              <Box component="span" fontWeight="bold">
+                Transfer{" "}
+              </Box>
+              <Box component="span" fontWeight="bold" color="primary.main">
+                Securely!
+              </Box>
+            </Typography>
+            <Typography
+              variant="h6"
+              color="text.secondary"
+              textAlign="center"
+              sx={{ lineHeight: 1.3 }}
+            >
+              Open source end-to-end encrypted<br />file transfers.
+            </Typography>
+          </Box>
           <FileTransferForm
             type="anonymous"
             maxFileSize={config?.max_file_size_anonymous!}
@@ -59,7 +80,7 @@ export default function HomePage() {
           To make an account transfer, please{" "}
           <Link to="/login">login</Link>.
         </Typography>
-      </Box>
+      </ Box>
     } />
   );
 }
