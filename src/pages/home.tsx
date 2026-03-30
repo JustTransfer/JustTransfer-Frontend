@@ -10,7 +10,7 @@ import { formatSize } from "../handlers/utils";
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
 
-import FileTransferForm from "../components/FileTransferForm";
+import FileTransferFormSelect from "../components/FileTransferFormSelect";
 
 export default function HomePage() {
   const { config } = useServerConfig();
@@ -57,21 +57,30 @@ export default function HomePage() {
               Open source end-to-end encrypted<br />file transfers.
             </Typography>
           </Box>
-          <FileTransferForm
+          <FileTransferFormSelect
             type="anonymous"
-            maxFileSize={config?.max_file_size_anonymous!}
-            maxDownloads={config?.max_downloads_anonymous!}
-            maxLifetime={config?.max_lifetime_anonymous!}
-            onSubmit={async (data, onProgress) => {
-              const result = await sendMessageAnonymous(
-                data.password!,
-                data.file.name,
-                data.file,
-                data.lifetime,
-                data.maxDownloads,
-                onProgress
-              );
-              return result.link; // return string for the link
+            propsLink={{
+              maxFileSize: config?.max_file_size_anonymous!,
+              maxDownloads: config?.max_downloads_anonymous!,
+              maxLifetime: config?.max_lifetime_anonymous!,
+              onSubmit: async (data, onProgress) => {
+                const result = await sendMessageAnonymous(
+                  data.password,
+                  data.file.name,
+                  data.file,
+                  data.lifetime,
+                  data.maxDownloads,
+                  onProgress
+                );
+                return result.link;
+              },
+            }}
+            propsDirect={{
+              // still required by the type, even if unused
+              maxFileSize: 0,
+              maxDownloads: 0,
+              maxLifetime: 0,
+              onSubmit: async () => { },
             }}
           />
         </Box>

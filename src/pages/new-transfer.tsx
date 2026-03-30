@@ -5,12 +5,13 @@ import { Box, Typography, TextField, Paper, Button, Alert } from "@mui/material"
 import { useServerConfig } from "../hooks/useServerConfig";
 import Layout from "../components/layout";
 import { sendMessage } from "../handlers/crypto";
+import { sendMessageAnonymous } from "../handlers/crypto_anonymous";
 import { formatSize } from "../handlers/utils";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
 
-import FileTransferForm from "../components/FileTransferForm";
+import FileTransferFormSelect from "../components/FileTransferFormSelect";
 import { useAuth } from "../hooks/useAuth";
 import { get } from "http";
 
@@ -52,23 +53,41 @@ export default function NewTransfer() {
                     Make a new direct transfer here!
                 </Typography>
 
-                <FileTransferForm
-                    type="connected"
-                    maxFileSize={maxFileSize!}
-                    maxDownloads={maxDownloads}
-                    maxLifetime={maxLifetime}
-                    onSubmit={async (data, onProgress) => {
-                        await sendMessage(
-                            username!,
-                            keys.enc_private_key,
-                            keys.sign_private_key,
-                            data.receiver!,
-                            data.file.name,
-                            data.file,
-                            data.lifetime,
-                            data.maxDownloads,
-                            onProgress
-                        );
+                <FileTransferFormSelect
+                    type="both"
+                    propsLink={{
+                        maxFileSize: config?.max_file_size_anonymous!,
+                        maxDownloads: config?.max_downloads_anonymous!,
+                        maxLifetime: config?.max_lifetime_anonymous!,
+                        onSubmit: async (data, onProgress) => {
+                            const result = await sendMessageAnonymous(
+                                data.password,
+                                data.file.name,
+                                data.file,
+                                data.lifetime,
+                                data.maxDownloads,
+                                onProgress
+                            );
+                            return result.link;
+                        },
+                    }}
+                    propsDirect={{
+                        maxFileSize: maxFileSize,
+                        maxDownloads: maxDownloads,
+                        maxLifetime: maxLifetime,
+                        onSubmit: async (data, onProgress) => {
+                            await sendMessage(
+                                username!,
+                                keys.enc_private_key,
+                                keys.sign_private_key,
+                                data.receiver!,
+                                data.file.name,
+                                data.file,
+                                data.lifetime,
+                                data.maxDownloads,
+                                onProgress
+                            );
+                        }
                     }}
                 />
             </Box>

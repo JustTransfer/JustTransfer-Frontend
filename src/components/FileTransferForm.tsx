@@ -15,19 +15,37 @@ import * as errors from "../messages/errors";
 import PasswordStrength from "./passwordStrength";
 import { formatSize, isValidUsername } from "../handlers/utils";
 
-type FileTransferFormProps = {
-    type: "anonymous" | "connected"; // determines if password or receiver is used
-    maxFileSize: number;
-    maxDownloads: number;
-    maxLifetime: number;
-    onSubmit: (data: {
-        receiver?: string;
-        password?: string;
-        file: File;
-        lifetime: number;
+type FileTransferFormProps =
+    | {
+        type: "anonymous";
+        maxFileSize: number;
         maxDownloads: number;
-    }, onProgress: (percent: number) => void) => Promise<string | void>;
-};
+        maxLifetime: number;
+        onSubmit: (
+            data: {
+                password: string;
+                file: File;
+                lifetime: number;
+                maxDownloads: number;
+            },
+            onProgress: (percent: number) => void
+        ) => Promise<string | void>;
+    }
+    | {
+        type: "connected";
+        maxFileSize: number;
+        maxDownloads: number;
+        maxLifetime: number;
+        onSubmit: (
+            data: {
+                receiver: string;
+                file: File;
+                lifetime: number;
+                maxDownloads: number;
+            },
+            onProgress: (percent: number) => void
+        ) => Promise<string | void>;
+    };
 
 export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxLifetime, onSubmit }: FileTransferFormProps) {
 
@@ -186,6 +204,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
 
     return (
         <Paper elevation={4} sx={{ p: 4, borderRadius: 3, width: 450, textAlign: "center" }}>
+
             <Box component="form" ref={formRef} onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
 
                 <input
