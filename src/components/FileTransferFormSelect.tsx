@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Box, Typography, Button } from "@mui/material";
+import LinkIcon from '@mui/icons-material/Link';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 import { useNotification } from "../hooks/useNotificationContext";
 import * as errors from "../messages/errors";
@@ -75,7 +77,7 @@ export default function FileTransferFormSelect({ type, propsLink, propsDirect }:
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            gap: 2,
+            gap: 1,
             width: "100%",
             mb: 1,
         }}>
@@ -86,6 +88,7 @@ export default function FileTransferFormSelect({ type, propsLink, propsDirect }:
                 justifyContent: "center",
                 flexDirection: "column",
                 gap: 2,
+                mb: 2,
             }}>
                 <Typography variant="h3">
                     <Box component="span" fontWeight="bold">
@@ -113,7 +116,7 @@ export default function FileTransferFormSelect({ type, propsLink, propsDirect }:
                 gap: 2,
                 width: "100%",
                 maxWidth: 510,
-                mb: 1,
+                mb: 0.5,
             }}>
                 <Button
                     variant="contained"
@@ -122,8 +125,10 @@ export default function FileTransferFormSelect({ type, propsLink, propsDirect }:
                         mt: 2,
                         width: "50%",
                         backgroundColor: selectedType === "anonymous" ? "primary.main" : "grey.400",
+                        gap: 2,
                     }}
                 >
+                    <LinkIcon />
                     Link Transfer
                 </Button>
                 <Button
@@ -133,8 +138,10 @@ export default function FileTransferFormSelect({ type, propsLink, propsDirect }:
                         mt: 2,
                         width: "50%",
                         backgroundColor: selectedType === "connected" ? "primary.main" : "grey.400",
+                        gap: 2,
                     }}
                 >
+                    <PersonAddIcon sx={{ transform: "scaleX(-1)" }} />
                     Direct Transfer
                 </Button>
             </Box>
