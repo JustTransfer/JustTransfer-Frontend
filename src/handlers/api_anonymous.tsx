@@ -94,7 +94,7 @@ async function sendAnonymousMessageStartAPI(client_registration_start: string) {
     return (await response.json());
 }
 
-async function sendAnonymousMessageAPI(id: string, client_registration_finish: string, cfilename: string, nonce_filename: string, header: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
+async function sendAnonymousMessageAPI(id: string, client_registration_finish: string, cfilename: string, nonce_filename: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
 
     const response = await fetch(`${apiUrl}/anonymous/message`, {
         method: "POST",
@@ -106,7 +106,6 @@ async function sendAnonymousMessageAPI(id: string, client_registration_finish: s
             client_registration_finish,
             cfilename,
             nonce_filename,
-            header,
             max_downloads,
             lifetime,
             creation_time,
