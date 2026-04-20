@@ -345,7 +345,7 @@ async function getOneMessageAPI(file_id: string) {
     return (await response.json());
 }
 
-async function sendMessageAPI(sender_key_id: string, receiver_key_id: string, cfilename: string, nonce_filename: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
+async function sendMessageAPI(sender_key_id: string, receiver_key_id: string, kem_ciphertext_filename: string, cfilename: string, nonce_filename: string, kem_ciphertext_file: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
 
 
     const response = await fetch(`${apiUrl}/message`, {
@@ -356,8 +356,10 @@ async function sendMessageAPI(sender_key_id: string, receiver_key_id: string, cf
         body: JSON.stringify({
             sender_key_id,
             receiver_key_id,
+            kem_ciphertext_filename,
             cfilename,
             nonce_filename,
+            kem_ciphertext_file,
             max_downloads,
             lifetime,
             creation_time,

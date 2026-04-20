@@ -48,7 +48,7 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
 
     // Get the message metadata
     const result2 = await getAnonymousMessageMetadataAPI(message_id);
-    let { id, cfilename, nonce_filename, file_id, header, creation_time, lifetime, max_downloads, number_downloads, file_size, chunk_size, mac } = result2.message;
+    let { id, cfilename, nonce_filename, file_id, creation_time, lifetime, max_downloads, number_downloads, file_size, chunk_size, mac } = result2.message;
 
     await initLibsodium();
 
@@ -63,11 +63,7 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
         creation_time: creation_time,
         file_size: file_size,
         chunk_size: chunk_size,
-        header: header,
     };
-
-    // Convert header to Uint8Array for decryption
-    header = Base64.toUint8Array(header);
 
     // Decrypt the filename and verify the auth data using the export key
     let filename: string;
@@ -83,7 +79,7 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
         exportKey,
         message: "Message metadata retrieved successfully!",
         messageData: {
-            id, cfilename, filename, nonce_filename, message_id, file_id, header, creation_time, lifetime, max_downloads, number_downloads, file_size, chunk_size
+            id, cfilename, filename, nonce_filename, message_id, file_id, creation_time, lifetime, max_downloads, number_downloads, file_size, chunk_size
         }
     };
 }
@@ -100,27 +96,31 @@ async function getOneAnonymousMessage(exportKey: string, message: any, onChunk: 
     const repsonse = await getAnonymousMessageAPI(message_id);
     const downloadUrl = repsonse.download_url;
 
-    // Get the message content
+    // Get the key for the file decryption
     const exportKeyFileDecoded = Base64.toUint8Array(exportKey).slice(32, 64);
-    const state = sodium.crypto_secretstream_xchacha20poly1305_init_pull(message.header, exportKeyFileDecoded);
 
     const decryptChunk = (chunk: Uint8Array) => {
-        const { message: decryptedChunk, tag: tag } = sodium.crypto_secretstream_xchacha20poly1305_pull(state, chunk);
-        return { decryptedChunk, tag };
+        const nonce_chunk = chunk.slice(0, sodium.crypto_aead_aegis256_NPUBBYTES);
+        const ciphertext_chunk = chunk.slice(sodium.crypto_aead_aegis256_NPUBBYTES);
+
+        try {
+            const decryptedChunk = sodium.crypto_aead_aegis256_decrypt(null, ciphertext_chunk, null, nonce_chunk, exportKeyFileDecoded);
+            return { decryptedChunk };
+        } catch (e) {
+            console.error("Decryption of chunk failed");
+            return { decryptedChunk: null };
+        }
     };
 
-    const tagSize = sodium.crypto_secretstream_xchacha20poly1305_ABYTES;
+    const tagSize = sodium.crypto_aead_aegis256_NPUBBYTES + sodium.crypto_aead_aegis256_ABYTES; // For each chunk: nonce at the beginning + MAC at the end
     await downloadFileFromS3(message.chunk_size, tagSize, async (chunk: any) => {
-        const { decryptedChunk, tag } = decryptChunk(chunk);
+        const { decryptedChunk } = decryptChunk(chunk);
         if (decryptedChunk) {
-            await onChunk(decryptedChunk, message.filename); // send chunk progressively
+            await onChunk(decryptedChunk, message.filename); // 
+            return 1; // Decryption successful
         }
 
-        if (tag === undefined) {
-            return -1;
-        }
-
-        return tag;
+        return -1;
     }, downloadUrl, onProgress);
 
     return message;
@@ -163,10 +163,6 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
 
     // Get the current timestamp
     const timestamp = new Date().toISOString();
-
-    // Initialize the secret stream for file encryption
-    const { state, header } = sodium.crypto_secretstream_xchacha20poly1305_init_push(exportKeyFileDecoded);
-    const header_b64 = Base64.fromUint8Array(header, true);
     const totalLength = file.size;
 
     // Construct the auth data for the message
@@ -176,7 +172,6 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
         creation_time: timestamp,
         file_size: file.size,
         chunk_size: chunkSize,
-        header: header_b64,
     };
 
     // Authenticate the auth data and encrypt the filename
@@ -187,7 +182,7 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
     const nonce_filename_b64 = Base64.fromUint8Array(nonce_filename, true);
 
     // Send the initial request to get an upload ID
-    const response2 = await sendAnonymousMessageAPI(id, registrationRecord, cfilename_b64, nonce_filename_b64, header_b64, maxDownloads, lifetimeDays, timestamp, totalLength);
+    const response2 = await sendAnonymousMessageAPI(id, registrationRecord, cfilename_b64, nonce_filename_b64, maxDownloads, lifetimeDays, timestamp, totalLength);
     const uploadUrls = response2.upload_urls;
     const transferId = response2.transfer_id;
     const upload_id = response2.upload_id;
@@ -200,17 +195,22 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
     let ETags: string[] = [];
 
     for (let offset = 0; offset < file.size; offset += chunkSize) {
+
+        // Get the chunk from the file
         const slice = file.slice(offset, offset + chunkSize);
         const buf = new Uint8Array(await slice.arrayBuffer());
-        const isFinal = offset + chunkSize >= file.size;
 
-        const tag = isFinal
-            ? sodium.crypto_secretstream_xchacha20poly1305_TAG_FINAL
-            : 0;
-        const encryptedChunk = sodium.crypto_secretstream_xchacha20poly1305_push(state, buf, null, tag);
+        // Encrypt the chunk
+        const nonce_chunk = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
+        const encryptedChunk = sodium.crypto_aead_aegis256_encrypt(buf, null, null, nonce_chunk, exportKeyFileDecoded);
+
+        // Add nonce at the beginning of the chunk
+        const encryptedChunkWithNonce = new Uint8Array(nonce_chunk.length + encryptedChunk.length);
+        encryptedChunkWithNonce.set(nonce_chunk, 0);
+        encryptedChunkWithNonce.set(encryptedChunk, nonce_chunk.length);
 
         // Upload the chunk to S3
-        const chunkUploadResp = await uploadFileToS3(uploadUrls[offset / chunkSize], encryptedChunk, void 0);
+        const chunkUploadResp = await uploadFileToS3(uploadUrls[offset / chunkSize], encryptedChunkWithNonce, void 0);
         ETags.push(chunkUploadResp.ETag);
 
         // Update progress

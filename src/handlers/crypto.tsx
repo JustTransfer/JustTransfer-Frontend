@@ -17,22 +17,22 @@ async function initLibsodium() {
 function generateAndEncryptKeys(exportKeyDecoded: Uint8Array) {
 
     // Generate encryption key pair
-    const KeyPairEnc = sodium.crypto_box_keypair();
+    const KeyPairEnc = sodium.crypto_kem_keypair();
     const PublicKeyEnc = KeyPairEnc.publicKey;
     const PrivateKeyEnc = KeyPairEnc.privateKey;
 
     // Encrypt private key
-    const nonce_enc = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
-    const cpriv_enc = sodium.crypto_secretbox_easy(PrivateKeyEnc, nonce_enc, exportKeyDecoded);
+    const nonce_enc = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
+    const cpriv_enc = sodium.crypto_aead_aegis256_encrypt(PrivateKeyEnc, null, null, nonce_enc, exportKeyDecoded);
 
     // Generate signing key pair
-    const KeyPairSign = sodium.crypto_sign_keypair();
+    const KeyPairSign = sodium.crypto_sign_keypair(); // TODO change to PQ
     const PublicKeySign = KeyPairSign.publicKey;
     const PrivateKeySign = KeyPairSign.privateKey;
 
     // Encrypt private key
-    const nonce_sign = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
-    const cpriv_sign = sodium.crypto_secretbox_easy(PrivateKeySign, nonce_sign, exportKeyDecoded);
+    const nonce_sign = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
+    const cpriv_sign = sodium.crypto_aead_aegis256_encrypt(PrivateKeySign, null, null, nonce_sign, exportKeyDecoded);
 
     // Base64 encode all binary data
     const cpriv_enc_b64 = Base64.fromUint8Array(cpriv_enc, true);
@@ -70,10 +70,10 @@ function decryptKeys(keys: any[], exportKeyDecoded: Uint8Array) {
         const pub_sign = Base64.toUint8Array(key.sign_public_key);
 
         // Decrypt private keys
-        const PrivateKeyEnc = sodium.crypto_secretbox_open_easy(cpriv_enc, nonce_priv_enc, exportKeyDecoded);
+        const PrivateKeyEnc = sodium.crypto_aead_aegis256_decrypt(null, cpriv_enc, null, nonce_priv_enc, exportKeyDecoded);
         const PublicKeyEnc = pub_enc;
 
-        const PrivateKeySign = sodium.crypto_secretbox_open_easy(cpriv_sign, nonce_priv_sign, exportKeyDecoded);
+        const PrivateKeySign = sodium.crypto_aead_aegis256_decrypt(null, cpriv_sign, null, nonce_priv_sign, exportKeyDecoded);
         const PublicKeySign = pub_sign;
 
         // Store decrypted keys same form as in registration/login to be used in the app
@@ -108,11 +108,11 @@ function encryptkeys(keys: any[], exportKeyDecoded: Uint8Array) {
         const PublicKeySign = Base64.toUint8Array(key.sign_public_key);
 
         // Encrypt private keys
-        const nonce_priv_enc = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
-        const cpriv_enc = sodium.crypto_secretbox_easy(PrivateKeyEnc, nonce_priv_enc, exportKeyDecoded);
+        const nonce_priv_enc = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
+        const cpriv_enc = sodium.crypto_aead_aegis256_encrypt(PrivateKeyEnc, null, null, nonce_priv_enc, exportKeyDecoded);
 
-        const nonce_priv_sign = sodium.randombytes_buf(sodium.crypto_secretbox_NONCEBYTES);
-        const cpriv_sign = sodium.crypto_secretbox_easy(PrivateKeySign, nonce_priv_sign, exportKeyDecoded);
+        const nonce_priv_sign = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
+        const cpriv_sign = sodium.crypto_aead_aegis256_encrypt(PrivateKeySign, null, null, nonce_priv_sign, exportKeyDecoded);
 
         // Store encrypted keys same form as in registration/login to be sent to the server
         encryptedKeys.push({
@@ -342,9 +342,11 @@ async function getMessages(keys: any[]) {
     for (let msg of response.messages) {
 
         // Get the Encoded fileds of the message
-        msg.signature = Base64.toUint8Array(msg.signature);
+        msg.kem_ciphertext_filename = Base64.toUint8Array(msg.kem_ciphertext_filename);
         msg.cfilename = Base64.toUint8Array(msg.cfilename);
         msg.nonce_filename = Base64.toUint8Array(msg.nonce_filename);
+        msg.kem_ciphertext_file = Base64.toUint8Array(msg.kem_ciphertext_file);
+        msg.signature = Base64.toUint8Array(msg.signature);
 
         // Get the public key enc of the sender to decrypt the filename and file
         const PublicKeyEncSender = await getCachedPublicKeyEnc(msg.sender_key_id);
@@ -358,7 +360,9 @@ async function getMessages(keys: any[]) {
         const PrivateKeyEncDecoded = Base64.toUint8Array(PrivateKeyEnc);
 
         // Decrypt the filename to display it in the inbox
-        const filenameBytes = sodium.crypto_box_open_easy(msg.cfilename, msg.nonce_filename, PublicKeyEncSender, PrivateKeyEncDecoded);
+        const sharedSecretFilename = sodium.crypto_kem_dec(msg.kem_ciphertext_filename, PrivateKeyEncDecoded);
+        const filenameBytes = sodium.crypto_aead_aegis256_decrypt(null, msg.cfilename, null, msg.nonce_filename, sharedSecretFilename);
+
         msg.filename = new TextDecoder().decode(filenameBytes);
     }
 
@@ -408,10 +412,11 @@ async function getOneMessage(username: string, keys: any[], message: any, onChun
     const PublicKeyEncSender = await getCachedPublicKeyEnc(message.sender_key_id);
 
     // Decrypt the filename
-    const filenameBytes = sodium.crypto_box_open_easy(message.cfilename, message.nonce_filename, PublicKeyEncSender, PrivateKeyEncDecoded);
+    const shared_key_filename = sodium.crypto_kem_dec(message.kem_ciphertext_filename, PrivateKeyEncDecoded);
+    const filenameBytes = sodium.crypto_aead_aegis256_decrypt(null, message.cfilename, null, message.nonce_filename, shared_key_filename);
     message.filename = new TextDecoder().decode(filenameBytes);
 
-    const shared_key = sodium.crypto_box_beforenm(PublicKeyEncSender, PrivateKeyEncDecoded);
+    const shared_key = sodium.crypto_kem_dec(message.kem_ciphertext_file, PrivateKeyEncDecoded);
 
     const decryptChunk = (chunk: Uint8Array) => {
 
@@ -419,10 +424,10 @@ async function getOneMessage(username: string, keys: any[], message: any, onChun
         sodium.crypto_sign_update(state, chunk);
 
         // Decrypt chunk
-        const nonce_chunk = chunk.slice(0, sodium.crypto_box_NONCEBYTES);
-        const ciphertext_chunk = chunk.slice(sodium.crypto_box_NONCEBYTES);
+        const nonce_chunk = chunk.slice(0, sodium.crypto_aead_aegis256_NPUBBYTES);
+        const ciphertext_chunk = chunk.slice(sodium.crypto_aead_aegis256_NPUBBYTES);
         try {
-            const decryptedChunk = sodium.crypto_box_open_easy_afternm(ciphertext_chunk, nonce_chunk, shared_key);
+            const decryptedChunk = sodium.crypto_aead_aegis256_decrypt(null, ciphertext_chunk, null, nonce_chunk, shared_key);
             return { decryptedChunk };
         } catch (e) {
             console.error("Decryption of chunk failed");
@@ -430,7 +435,7 @@ async function getOneMessage(username: string, keys: any[], message: any, onChun
         }
     };
 
-    const tagSize = sodium.crypto_box_NONCEBYTES + sodium.crypto_box_MACBYTES; // For each chunk: nonce at the beginning + MAC at the end
+    const tagSize = sodium.crypto_aead_aegis256_NPUBBYTES + sodium.crypto_aead_aegis256_ABYTES; // For each chunk: nonce at the beginning + MAC at the end
     await downloadFileFromS3(message.chunk_size, tagSize, async (chunk: any) => {
         const { decryptedChunk } = decryptChunk(chunk);
         if (decryptedChunk) {
@@ -463,9 +468,17 @@ async function sendMessage(username: string, privateKeyEnc: string, privateKeySi
     const receiverKeyId = await getKeyIdByUsername(receiver);
     const PublicKeyEncReceiver = await getCachedPublicKeyEnc(receiverKeyId);
 
+    // Generate shared secret
+    const { ciphertext: kemCiphertextFilename, sharedSecret: sharedSecretFilename } = sodium.crypto_kem_enc(PublicKeyEncReceiver);
+    const { ciphertext: kemCiphertextFile, sharedSecret: sharedSecretFile } = sodium.crypto_kem_enc(PublicKeyEncReceiver);
+
+    const kemCiphertextFilename_b64 = Base64.fromUint8Array(kemCiphertextFilename, true);
+    const kemCiphertextFile_b64 = Base64.fromUint8Array(kemCiphertextFile, true);
+
+
     // Encrypt the filename
-    const nonce_filename = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
-    const cfilename = sodium.crypto_box_easy(new TextEncoder().encode(fileName), nonce_filename, PublicKeyEncReceiver, PrivateKeyEncDecoded);
+    const nonce_filename = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
+    const cfilename = sodium.crypto_aead_aegis256_encrypt(new TextEncoder().encode(fileName), null, null, nonce_filename, sharedSecretFilename);
 
     const cfilename_b64 = Base64.fromUint8Array(cfilename, true);
     const nonce_filename_b64 = Base64.fromUint8Array(nonce_filename, true);
@@ -474,7 +487,7 @@ async function sendMessage(username: string, privateKeyEnc: string, privateKeySi
     const timestamp = new Date().toISOString();
 
     // Send the message
-    const response = await sendMessageAPI(senderKeyId, receiverKeyId, cfilename_b64, nonce_filename_b64, maxDownloads, lifetimeDays, timestamp, file.size);
+    const response = await sendMessageAPI(senderKeyId, receiverKeyId, kemCiphertextFilename_b64, cfilename_b64, nonce_filename_b64, kemCiphertextFile_b64, maxDownloads, lifetimeDays, timestamp, file.size);
 
     // Get the upload URL
     const uploadUrls = response.upload_urls;
@@ -507,7 +520,6 @@ async function sendMessage(username: string, privateKeyEnc: string, privateKeySi
 
     // Encrypt the file in chunks
     const totalLength = file.size;
-    const totalLengthWithTags = totalLength + Math.ceil(totalLength / chunkSize) * (sodium.crypto_box_MACBYTES + sodium.crypto_box_NONCEBYTES);
 
     if (uploadUrls.length !== Math.ceil(file.size / chunkSize)) {
         throw new Error(errors.errorAPIRequestFailed);
@@ -515,17 +527,13 @@ async function sendMessage(username: string, privateKeyEnc: string, privateKeySi
 
     let ETags: string[] = [];
 
-    const shared_key = sodium.crypto_box_beforenm(PublicKeyEncReceiver, PrivateKeyEncDecoded);
-
     for (let offset = 0; offset < file.size; offset += chunkSize) {
         const slice = file.slice(offset, offset + chunkSize);
         const buf = new Uint8Array(await slice.arrayBuffer());
 
-        // Generate nonce for this chunk
-        const nonce_chunk = sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES);
-
         // Encrypt the chunk
-        const encryptedChunk = sodium.crypto_box_easy_afternm(buf, nonce_chunk, shared_key)
+        const nonce_chunk = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
+        const encryptedChunk = sodium.crypto_aead_aegis256_encrypt(buf, null, null, nonce_chunk, sharedSecretFile);
 
         // Add nonce at the beginning of the chunk
         const encryptedChunkWithNonce = new Uint8Array(nonce_chunk.length + encryptedChunk.length);
