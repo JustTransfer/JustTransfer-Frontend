@@ -342,9 +342,11 @@ async function getMessages(keys: any[]) {
     for (let msg of response.messages) {
 
         // Get the Encoded fileds of the message
-        msg.signature = Base64.toUint8Array(msg.signature);
+        msg.kem_ciphertext_filename = Base64.toUint8Array(msg.kem_ciphertext_filename);
         msg.cfilename = Base64.toUint8Array(msg.cfilename);
         msg.nonce_filename = Base64.toUint8Array(msg.nonce_filename);
+        msg.kem_ciphertext_file = Base64.toUint8Array(msg.kem_ciphertext_file);
+        msg.signature = Base64.toUint8Array(msg.signature);
 
         // Get the public key enc of the sender to decrypt the filename and file
         const PublicKeyEncSender = await getCachedPublicKeyEnc(msg.sender_key_id);
@@ -358,7 +360,7 @@ async function getMessages(keys: any[]) {
         const PrivateKeyEncDecoded = Base64.toUint8Array(PrivateKeyEnc);
 
         // Decrypt the filename to display it in the inbox
-        const sharedSecretFilename = sodium.crypto_kem_dec(kemCiphertextFilename, PrivateKeyEncDecoded);
+        const sharedSecretFilename = sodium.crypto_kem_dec(msg.kem_ciphertext_filename, PrivateKeyEncDecoded);
         const filenameBytes = sodium.crypto_aead_aegis256_decrypt(null, msg.cfilename, null, msg.nonce_filename, sharedSecretFilename);
 
         msg.filename = new TextDecoder().decode(filenameBytes);
@@ -410,11 +412,11 @@ async function getOneMessage(username: string, keys: any[], message: any, onChun
     const PublicKeyEncSender = await getCachedPublicKeyEnc(message.sender_key_id);
 
     // Decrypt the filename
-    const shared_key_filename = sodium.crypto_kem_dec(kemCiphertextFilename, PrivateKeyEncDecoded);
+    const shared_key_filename = sodium.crypto_kem_dec(message.kem_ciphertext_filename, PrivateKeyEncDecoded);
     const filenameBytes = sodium.crypto_aead_aegis256_decrypt(null, message.cfilename, null, message.nonce_filename, shared_key_filename);
     message.filename = new TextDecoder().decode(filenameBytes);
 
-    const shared_key = sodium.crypto_kem_dec(kemCiphertextFile, PrivateKeyEncDecoded);
+    const shared_key = sodium.crypto_kem_dec(message.kem_ciphertext_file, PrivateKeyEncDecoded);
 
     const decryptChunk = (chunk: Uint8Array) => {
 
@@ -466,8 +468,15 @@ async function sendMessage(username: string, privateKeyEnc: string, privateKeySi
     const receiverKeyId = await getKeyIdByUsername(receiver);
     const PublicKeyEncReceiver = await getCachedPublicKeyEnc(receiverKeyId);
 
-    // Encrypt the filename
+    // Generate shared secret
     const { ciphertext: kemCiphertextFilename, sharedSecret: sharedSecretFilename } = sodium.crypto_kem_enc(PublicKeyEncReceiver);
+    const { ciphertext: kemCiphertextFile, sharedSecret: sharedSecretFile } = sodium.crypto_kem_enc(PublicKeyEncReceiver);
+
+    const kemCiphertextFilename_b64 = Base64.fromUint8Array(kemCiphertextFilename, true);
+    const kemCiphertextFile_b64 = Base64.fromUint8Array(kemCiphertextFile, true);
+
+
+    // Encrypt the filename
     const nonce_filename = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
     const cfilename = sodium.crypto_aead_aegis256_encrypt(new TextEncoder().encode(fileName), null, null, nonce_filename, sharedSecretFilename);
 
@@ -478,7 +487,7 @@ async function sendMessage(username: string, privateKeyEnc: string, privateKeySi
     const timestamp = new Date().toISOString();
 
     // Send the message
-    const response = await sendMessageAPI(senderKeyId, receiverKeyId, cfilename_b64, nonce_filename_b64, maxDownloads, lifetimeDays, timestamp, file.size);
+    const response = await sendMessageAPI(senderKeyId, receiverKeyId, kemCiphertextFilename_b64, cfilename_b64, nonce_filename_b64, kemCiphertextFile_b64, maxDownloads, lifetimeDays, timestamp, file.size);
 
     // Get the upload URL
     const uploadUrls = response.upload_urls;
@@ -517,8 +526,6 @@ async function sendMessage(username: string, privateKeyEnc: string, privateKeySi
     }
 
     let ETags: string[] = [];
-
-    const { ciphertext: kemCiphertextFile, sharedSecret: sharedSecretFile } = sodium.crypto_kem_enc(PublicKeyEncReceiver);
 
     for (let offset = 0; offset < file.size; offset += chunkSize) {
         const slice = file.slice(offset, offset + chunkSize);
