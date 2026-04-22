@@ -105,14 +105,17 @@ async function getOneAnonymousMessage(exportKey: string, message: any, onChunk: 
     let mac_state = sodium.crypto_auth_hmacsha512256_init(exportKeyMacDecoded);
 
     // Construct the auth data for the message
-    const auth_data = {
+    const full_auth_data = {
+        cfilename: message.cfilename,
+        nonce_filename: message.nonce_filename,
+        file_id: message.file_id,
         max_downloads: message.max_downloads,
         lifetime: message.lifetime,
         creation_time: message.creation_time,
         file_size: message.file_size,
         chunk_size: message.chunk_size,
     };
-    const auth_data_encoded = new TextEncoder().encode(JSON.stringify(auth_data));
+    const auth_data_encoded = new TextEncoder().encode(JSON.stringify(full_auth_data));
 
     // Authenticate the auth data with global MAC
     sodium.crypto_auth_hmacsha512256_update(mac_state, auth_data_encoded);
@@ -193,9 +196,6 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
     const timestamp = new Date().toISOString();
     const totalLength = file.size;
 
-    // Init the global MAC
-    let mac_state = sodium.crypto_auth_hmacsha512256_init(exportKeyMacDecoded);
-
     // Construct the auth data for the message
     const auth_data = {
         max_downloads: maxDownloads,
@@ -205,9 +205,6 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
         chunk_size: chunkSize,
     };
     const auth_data_encoded = new TextEncoder().encode(JSON.stringify(auth_data));
-
-    // Authenticate the auth data with global MAC
-    sodium.crypto_auth_hmacsha512256_update(mac_state, auth_data_encoded);
 
     // Authenticate the auth data and encrypt the filename
     const nonce_filename = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
@@ -226,6 +223,23 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
     if (uploadUrls.length !== Math.ceil(file.size / chunkSize)) {
         throw new Error(errors.errorAPIRequestFailed);
     }
+
+    // Init the global MAC
+    let mac_state = sodium.crypto_auth_hmacsha512256_init(exportKeyMacDecoded);
+
+    const full_auth_data = {
+        cfilename: cfilename,
+        nonce_filename: nonce_filename,
+        file_id: message_file_id,
+        max_downloads: maxDownloads,
+        lifetime: lifetimeDays,
+        creation_time: timestamp,
+        file_size: file.size,
+        chunk_size: chunkSize,
+    };
+
+    // Authenticate the auth data with global MAC
+    sodium.crypto_auth_hmacsha512256_update(mac_state, new TextEncoder().encode(JSON.stringify(full_auth_data)));
 
     let ETags: string[] = [];
 
