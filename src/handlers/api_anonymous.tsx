@@ -126,7 +126,7 @@ async function sendAnonymousMessageAPI(id: string, client_registration_finish: s
 // Upload and Download to/from S3
 //
 
-async function finishUploadFileToS3Anonymous(file_id: string, upload_id: string, etags: string[]) {
+async function finishUploadFileToS3Anonymous(file_id: string, upload_id: string, etags: string[], mac: string) {
 
     const response = await fetch(`${apiUrl}/anonymous/message/uploadfinish/${file_id}`, {
         method: "POST",
@@ -136,6 +136,7 @@ async function finishUploadFileToS3Anonymous(file_id: string, upload_id: string,
         body: JSON.stringify({
             upload_id,
             etags,
+            mac,
         }),
     });
 
