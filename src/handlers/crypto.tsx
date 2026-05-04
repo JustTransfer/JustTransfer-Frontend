@@ -346,10 +346,31 @@ async function getMessages(keys: any[]) {
         msg.cfilename = Base64.toUint8Array(msg.cfilename);
         msg.nonce_filename = Base64.toUint8Array(msg.nonce_filename);
         msg.kem_ciphertext_file = Base64.toUint8Array(msg.kem_ciphertext_file);
+        msg.signature_metadata = Base64.toUint8Array(msg.signature_metadata);
         msg.signature = Base64.toUint8Array(msg.signature);
 
-        // Get the public key enc of the sender to decrypt the filename and file
-        const PublicKeyEncSender = await getCachedPublicKeyEnc(msg.sender_key_id);
+        // Get the public keys sign of the sender
+        const PublicKeySignSender = await getCachedPublicKeySign(msg.sender_key_id);
+
+        // Check the signature of metadata
+        const messageMetadata = {
+            cfilename: msg.cfilename,
+            nonce_filename: msg.nonce_filename,
+            file_id: msg.file_id,
+            sender: msg.sender,
+            receiver: msg.receiver,
+            max_downloads: msg.max_downloads,
+            lifetime: msg.lifetime,
+            creation_time: msg.creation_time,
+            file_size: msg.file_size,
+            chunk_size: msg.chunk_size,
+        };
+
+        msg.signatureValid = sodium.crypto_sign_verify_detached(msg.signature_metadata, new TextEncoder().encode(JSON.stringify(messageMetadata)), PublicKeySignSender);
+        if (!msg.signatureValid) {
+            msg.filename = "Invalid signature";
+            continue; // Skip this message
+        }
 
         // Get the private key with msg.receiver_key_id
         const PrivateKeyEnc = keys.find((k: any) => k.id === msg.receiver_key_id)?.enc_private_key;
@@ -515,8 +536,13 @@ async function sendMessage(username: string, privateKeyEnc: string, privateKeySi
         chunk_size: chunkSize,
     };
 
+    const metadata_json_string = new TextEncoder().encode(JSON.stringify(metadata))
+
+    // Sign the metadata of the message
+    const signature_metadata = sodium.crypto_sign_detached(metadata_json_string, PrivateKeySignDecoded);
+
     // Update the signature with the metadata JSON structure
-    sodium.crypto_sign_update(state, new TextEncoder().encode(JSON.stringify(metadata)));
+    sodium.crypto_sign_update(state, metadata_json_string);
 
     // Encrypt the file in chunks
     const totalLength = file.size;
@@ -555,7 +581,7 @@ async function sendMessage(username: string, privateKeyEnc: string, privateKeySi
     const signature = sodium.crypto_sign_final_create(state, PrivateKeySignDecoded);
 
     // Finalize the upload
-    const response3 = await finishUploadFileToS3(messageFileId, upload_id, ETags, Base64.fromUint8Array(signature, true));
+    const response3 = await finishUploadFileToS3(messageFileId, upload_id, ETags, Base64.fromUint8Array(signature_metadata, true), Base64.fromUint8Array(signature, true));
 
     return {
         success: true,

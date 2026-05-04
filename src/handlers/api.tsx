@@ -347,7 +347,6 @@ async function getOneMessageAPI(file_id: string) {
 
 async function sendMessageAPI(sender_key_id: string, receiver_key_id: string, kem_ciphertext_filename: string, cfilename: string, nonce_filename: string, kem_ciphertext_file: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
 
-
     const response = await fetch(`${apiUrl}/message`, {
         method: "POST",
         headers: {
@@ -415,7 +414,7 @@ async function uploadFileToS3(url: string, cfile: Uint8Array, onProgress?: (perc
     return { ETag: response.headers.get("ETag") || "" };
 }
 
-async function finishUploadFileToS3(file_id: string, upload_id: string, etags: string[], signature: string) {
+async function finishUploadFileToS3(file_id: string, upload_id: string, etags: string[], signature_metadata: string, signature: string) {
 
     const response = await fetch(`${apiUrl}/message/uploadfinish/${file_id}`, {
         method: "POST",
@@ -425,6 +424,7 @@ async function finishUploadFileToS3(file_id: string, upload_id: string, etags: s
         body: JSON.stringify({
             upload_id,
             etags,
+            signature_metadata,
             signature,
         }),
     });

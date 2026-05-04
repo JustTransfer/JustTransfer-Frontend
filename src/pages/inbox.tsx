@@ -7,6 +7,7 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PersonIcon from '@mui/icons-material/Person';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 
 import CircularProgress, {
     CircularProgressProps,
@@ -40,7 +41,20 @@ function DownloadSection({ msg, progress, onDownload, onDelete }: Props) {
 
     // Invalid signature -> block download
     if (msg.signatureValid === false) {
-        return <Chip color="error" label="Tampered" />;
+        return (
+            <Box sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 2,
+            }}>
+                <Chip color="error" label="Tampered" />
+
+                <IconButton color="primary" onClick={onDelete}>
+                    <DeleteIcon />
+                </IconButton >
+            </Box>
+        );
     }
 
     // Already fully used
@@ -260,7 +274,13 @@ export default function Inbox() {
                                     }}
                                 >
                                     <ListItemIcon>
-                                        <InsertDriveFileIcon color="primary" />
+                                        {msg.signatureValid === false && (
+                                            <ErrorOutlineOutlinedIcon color="error" />
+                                        ) || (
+                                                <InsertDriveFileIcon color="primary" />
+                                            )
+
+                                        }
                                     </ListItemIcon>
 
                                     <ListItemText
