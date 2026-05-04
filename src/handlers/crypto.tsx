@@ -349,7 +349,7 @@ async function getMessages(keys: any[]) {
         msg.signature_metadata = Base64.toUint8Array(msg.signature_metadata);
         msg.signature = Base64.toUint8Array(msg.signature);
 
-        // Get the public key enc of the sender
+        // Get the public keys enc and sign of the sender
         const PublicKeyEncSender = await getCachedPublicKeyEnc(msg.sender_key_id);
         const PublicKeySignSender = await getCachedPublicKeySign(msg.sender_key_id);
 
@@ -369,7 +369,6 @@ async function getMessages(keys: any[]) {
 
         msg.signatureValid = sodium.crypto_sign_verify_detached(msg.signature_metadata, new TextEncoder().encode(JSON.stringify(messageMetadata)), PublicKeySignSender);
         if (!msg.signatureValid) {
-            console.error("Invalid signature for message metadata. Message might be tampered with.");
             msg.filename = "Invalid signature";
             continue; // Skip this message
         }
