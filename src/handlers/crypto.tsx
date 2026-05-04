@@ -349,8 +349,7 @@ async function getMessages(keys: any[]) {
         msg.signature_metadata = Base64.toUint8Array(msg.signature_metadata);
         msg.signature = Base64.toUint8Array(msg.signature);
 
-        // Get the public keys enc and sign of the sender
-        const PublicKeyEncSender = await getCachedPublicKeyEnc(msg.sender_key_id);
+        // Get the public keys sign of the sender
         const PublicKeySignSender = await getCachedPublicKeySign(msg.sender_key_id);
 
         // Check the signature of metadata
