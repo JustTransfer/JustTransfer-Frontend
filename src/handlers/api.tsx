@@ -190,11 +190,14 @@ async function verifyEmailAPI(token: string) {
 
 async function requestResetPasswordAPI(email: string) {
 
-    const response = await fetch(`${apiUrl}/reset-password/request/${email}`, {
+    const response = await fetch(`${apiUrl}/reset-password/request`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+            email,
+        }),
     });
 
     if (!response.ok) {
