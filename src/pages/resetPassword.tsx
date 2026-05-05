@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { Box, Typography, Paper, TextField, Button, InputAdornment, IconButton, Alert } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
@@ -13,11 +13,12 @@ import * as strings from "../messages/strings";
 
 export default function ResetPasswordPage() {
 
-    const { id, encodedUsername } = useParams();
-    const username = decodeURIComponent(encodedUsername || "");
+    const { id } = useParams();
 
     const { success, error } = useNotification();
     const navigate = useNavigate();
+
+    const [username, setUsername] = useState("");
 
     const [errorPasswordMismatch, setErrorPasswordMismatch] = useState(false);
     const [errorWeakPassword, setErrorWeakPassword] = useState(false);
@@ -29,6 +30,25 @@ export default function ResetPasswordPage() {
     const handleTogglePassword = () => {
         setShowPassword(prev => !prev);
     };
+
+    // Get username from fragment identifier if present
+    useEffect(() => {
+        const hash = window.location.hash;
+        let decodedUsername = "";
+
+        if (hash) {
+            decodedUsername = decodeURIComponent(hash.substring(1));
+            setUsername(decodedUsername);
+        }
+
+        // check if id and username are set
+        if (!id || !decodedUsername) {
+            error(errors.errorInvalidResetLink);
+            setTimeout(() => {
+                navigate("/");
+            }, 2000);
+        }
+    }, []);
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -102,7 +122,7 @@ export default function ResetPasswordPage() {
                     </Typography>
 
                     <Typography variant="body1" sx={{ mb: 3 }}>
-                        Enter your new password below for the account <strong>{username}</strong>.
+                        Enter a new password for account with username <strong>{username}</strong>. This action is irreversible!
                     </Typography>
 
                     <Alert severity="warning" sx={{ mb: 3 }}>

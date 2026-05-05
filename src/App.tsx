@@ -39,7 +39,7 @@ function App() {
             <Route path="/verify-email/:id" element={<VerifyEmailPage />} />
 
             <Route path="/reset-password" element={<ResetPasswordRequestPage />} />
-            <Route path="/reset-password/:id/:encodedUsername" element={<ResetPasswordPage />} />
+            <Route path="/reset-password/:id" element={<ResetPasswordPage />} />
 
             <Route path="/anonymous-transfer/:id" element={<AnonymousTransfer />} />
 

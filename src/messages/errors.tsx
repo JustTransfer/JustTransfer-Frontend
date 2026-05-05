@@ -29,6 +29,7 @@ export const errorPasswordMismatch = "Passwords do not match.";
 export const errorSamePassword = "New password cannot be the same as the current password.";
 export const errorWeakPassword = "Password is too weak. Please choose a stronger password.";
 export const errorPageNotFound = "Page not found.";
+export const errorInvalidResetLink = "Invalid password reset link.";
 export const errorInvalidUsernameShort = "Invalid username format."
 export const errorInvalidUsername = "Invalid username, use 3-20 characters, letters, numbers and - only.";
 
