@@ -201,20 +201,17 @@ export default function AccountPage() {
                                 </Avatar>
 
                                 <Box>
-                                    <Typography variant="h6">{username}</Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        {email}
-                                    </Typography>
-
-                                    {role === "premium" && (
-                                        <Typography variant="caption" color="primary">
-                                            Premium User
-                                        </Typography>
-                                    ) || (
-                                            <Typography variant="caption" color="text.secondary">
-                                                Free User
+                                    {(username && email) ?
+                                        <>
+                                            <Typography variant="h6">{username}</Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                {email}
                                             </Typography>
-                                        )}
+                                        </>
+                                        : (
+                                            <Typography variant="h6">Loading...</Typography>
+                                        )
+                                    }
                                 </Box>
                             </Box>
 
@@ -227,10 +224,21 @@ export default function AccountPage() {
                                         Plan Overview
                                     </Typography>
 
-                                    <Chip
-                                        label={role === "premium" ? "Premium Plan" : "Free Plan"}
-                                        color={role === "premium" ? "primary" : "default"}
-                                    />
+                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                                        <Chip
+                                            label={role === "premium" ? "Premium Plan" : "Free Plan"}
+                                            color={role === "premium" ? "primary" : "default"}
+                                        />
+                                        {role !== "premium" && (
+                                            <Button
+                                                size="small"
+                                                variant="contained"
+                                                onClick={() => navigate("/")}
+                                            >
+                                                Upgrade
+                                            </Button>
+                                        )}
+                                    </Box>
                                 </Box>
 
                                 {!config ? (
