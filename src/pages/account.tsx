@@ -51,7 +51,7 @@ function PlanLimitCard({
                     </Box>
                 </Stack>
 
-                <Box>
+                <Box sx={{ minHeight: 3 }}>
                     {progress !== undefined && (
                         <LinearProgress
                             variant="determinate"
@@ -251,7 +251,7 @@ export default function AccountPage() {
 
                                         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                             <PlanLimitCard
-                                                icon={<SyncAltIcon color="primary" />}
+                                                icon={<SyncAltIcon color="primary" fontSize="large" />}
                                                 title="Monthly Transfers"
                                                 value={`${numberTransfers} / ${role === "premium" ? config.max_transfer_month_connected_premium : config.max_transfer_month_connected}`}
                                                 progress={(numberTransfers / (role === "premium" ? config.max_transfer_month_connected_premium : config.max_transfer_month_connected)) * 100}
@@ -260,7 +260,7 @@ export default function AccountPage() {
 
                                         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                             <PlanLimitCard
-                                                icon={<ScheduleIcon color="primary" />}
+                                                icon={<ScheduleIcon color="primary" fontSize="large" />}
                                                 title="Maximum Lifetime"
                                                 value={
                                                     role === "premium"
@@ -273,7 +273,7 @@ export default function AccountPage() {
 
                                         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                             <PlanLimitCard
-                                                icon={<StorageIcon color="primary" />}
+                                                icon={<StorageIcon color="primary" fontSize="large" />}
                                                 title="Max File Size"
                                                 value={
                                                     role === "premium"
@@ -286,7 +286,7 @@ export default function AccountPage() {
 
                                         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                             <PlanLimitCard
-                                                icon={<DownloadIcon color="primary" />}
+                                                icon={<DownloadIcon color="primary" fontSize="large" />}
                                                 title="Downloads"
                                                 value={
                                                     role === "premium"
