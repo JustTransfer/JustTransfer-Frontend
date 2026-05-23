@@ -193,7 +193,7 @@ export default function AccountPage() {
                                         fontWeight: 700,
                                         letterSpacing: 1,
                                         color: "#ffffff",
-                                        background: "linear-gradient(135deg, #c850c0 0%, #4158d0 100%)",
+                                        background: "linear-gradient(135deg, #E906E5 10%, #4158d0 100%)",
                                         boxShadow: "0 10px 22px rgba(65, 88, 208, 0.25)",
                                     }}
                                 >
