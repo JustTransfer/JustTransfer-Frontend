@@ -17,7 +17,8 @@ export default function HomePage() {
     const navigate = useNavigate();
     const { config } = useServerConfig();
 
-    const maxWidthPage = 1600;
+    const maxWidthPage = 1400;
+    const sectionPaddingX = { xs: 2, md: 4 };
 
     const anonymousLimits = {
         maxFileSize: config?.max_file_size_anonymous || 0,
@@ -58,7 +59,7 @@ export default function HomePage() {
                         borderRadius: 4,
                         overflow: "hidden",
                         boxShadow: "0 18px 40px rgba(83, 24, 60, 0.12)",
-                        px: { xs: 2, md: 6 },
+                        px: sectionPaddingX,
                         pt: { xs: 6, md: 6 },
                         pb: { xs: 6, md: 6 },
                         background: "radial-gradient(1200px 500px at 15% -10%, #ffa6da 0%, #fff7fb 45%, #ffffff 100%)",
@@ -153,7 +154,7 @@ export default function HomePage() {
                         maxWidth: maxWidthPage,
                         mx: "auto",
                         py: 9,
-                        px: { xs: 2, md: 4 },
+                        px: sectionPaddingX,
                         backgroundColor: "#ffffff",
                         borderRadius: 4,
                         border: "1px solid #f1e7ee",
@@ -211,7 +212,7 @@ export default function HomePage() {
                         maxWidth: maxWidthPage,
                         mx: "auto",
                         py: 8,
-                        px: { xs: 2, md: 4 },
+                        px: sectionPaddingX,
                         backgroundColor: "#fff7fb",
                         borderRadius: 4,
                         border: "1px solid #f1e7ee",
@@ -295,7 +296,7 @@ export default function HomePage() {
                         maxWidth: maxWidthPage,
                         mx: "auto",
                         py: 8,
-                        px: { xs: 2, md: 4 },
+                        px: sectionPaddingX,
                         backgroundColor: "#ffffff",
                         borderRadius: 4,
                         border: "1px solid #f1e7ee",
@@ -335,7 +336,7 @@ export default function HomePage() {
                         maxWidth: maxWidthPage,
                         mx: "auto",
                         py: 8,
-                        px: { xs: 2, md: 4 },
+                        px: sectionPaddingX,
                         backgroundColor: "#fff7fb",
                         borderRadius: 4,
                         border: "1px solid #f1e7ee",
@@ -425,7 +426,7 @@ export default function HomePage() {
                         maxWidth: maxWidthPage,
                         mx: "auto",
                         py: 4,
-                        px: { xs: 2, md: 4 },
+                        px: sectionPaddingX,
                         background: "linear-gradient(135deg, #3d0b2b 0%, #7b1451 50%, #d02c8b 100%)",
                         borderRadius: 4,
                         border: "1px solid #f1e7ee",

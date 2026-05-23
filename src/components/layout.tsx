@@ -402,7 +402,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                     }} >
 
                         {/* MAIN CONTENT */}
-                        <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }} >
+                        <Container maxWidth={false} disableGutters sx={{ mt: 4, mb: 4 }}>
                             {content}
                         </Container>
 
