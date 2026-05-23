@@ -183,7 +183,18 @@ export default function AccountPage() {
                         <Stack spacing={4} sx={{ width: "100%" }}>
 
                             <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
-                                <Avatar sx={{ width: 80, height: 80 }}>
+                                <Avatar
+                                    sx={{
+                                        width: 92,
+                                        height: 92,
+                                        fontSize: 40,
+                                        fontWeight: 700,
+                                        letterSpacing: 1,
+                                        color: "#ffffff",
+                                        background: "linear-gradient(135deg, #c850c0 0%, #4158d0 100%)",
+                                        boxShadow: "0 10px 22px rgba(65, 88, 208, 0.25)",
+                                    }}
+                                >
                                     {username?.[0]?.toUpperCase()}
                                 </Avatar>
 
@@ -282,44 +293,95 @@ export default function AccountPage() {
 
                             <Divider />
 
-                            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                                <Typography variant="h5">
-                                    Rotate Keys
-                                </Typography>
-                                <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
-                                    Generate new encryption and signing keys.
-                                </Typography>
-                                <Button sx={{ mt: 2, maxWidth: 200 }} size="small" variant="contained" startIcon={<RefreshIcon />} onClick={() => setDialogMode("rotateKeys")}>
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    flexDirection: { xs: "column", md: "row" },
+                                    gap: 2,
+                                    alignItems: { md: "center" },
+                                    justifyContent: "space-between",
+                                }}
+                            >
+                                <Box>
+                                    <Typography variant="h5">
+                                        Rotate Keys
+                                    </Typography>
+                                    <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
+                                        Generate new encryption and signing keys.
+                                    </Typography>
+                                </Box>
+                                <Button
+                                    sx={{ mt: { xs: 2, md: 0 }, alignSelf: { xs: "flex-start", md: "center" }, maxWidth: 200 }}
+                                    size="small"
+                                    variant="contained"
+                                    startIcon={<RefreshIcon />}
+                                    onClick={() => setDialogMode("rotateKeys")}
+                                >
                                     Rotate Keys
                                 </Button>
                             </Box>
 
                             <Divider />
 
-                            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                                <Typography variant="h5">
-                                    Change Password
-                                </Typography>
-                                <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
-                                    Update your account password.
-                                </Typography>
-                                <Button sx={{ mt: 2, maxWidth: 200 }} size="small" variant="contained" startIcon={<DialpadIcon />} onClick={() => setDialogMode("changePassword")}>
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    flexDirection: { xs: "column", md: "row" },
+                                    gap: 2,
+                                    alignItems: { md: "center" },
+                                    justifyContent: "space-between",
+                                }}
+                            >
+                                <Box>
+                                    <Typography variant="h5">
+                                        Change Password
+                                    </Typography>
+                                    <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
+                                        Update your account password.
+                                    </Typography>
+                                </Box>
+                                <Button
+                                    sx={{ mt: { xs: 2, md: 0 }, alignSelf: { xs: "flex-start", md: "center" }, maxWidth: 200 }}
+                                    size="small"
+                                    variant="contained"
+                                    startIcon={<DialpadIcon />}
+                                    onClick={() => setDialogMode("changePassword")}
+                                >
                                     Change Password
                                 </Button>
                             </Box>
 
                             <Divider />
 
-                            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                                <Typography variant="h5" color="error">
-                                    Delete Account
-                                </Typography>
-                                <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
-                                    Deleting your account will permanently remove all your data, including current transfers. This information cannot be recovered once your account is deleted.
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    flexDirection: { xs: "column", md: "row" },
+                                    gap: 2,
+                                    alignItems: { md: "center" },
+                                    justifyContent: "space-between",
+                                }}
+                            >
+                                <Box>
+                                    <Typography variant="h5" color="error">
+                                        Delete Account
+                                    </Typography>
+                                    <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
+                                        Deleting your account will permanently remove all your data, including current transfers.
+                                        <br />
+                                        This information cannot be recovered once your account is deleted.
 
-                                    This action cannot be undone.
-                                </Typography>
-                                <Button sx={{ mt: 2, maxWidth: 200 }} size="small" color="error" variant="contained" startIcon={<DeleteIcon />} onClick={() => setDialogMode("deleteAccount")}>
+                                        This action cannot be undone.
+                                    </Typography>
+                                </Box>
+                                <Button
+                                    sx={{ mt: { xs: 2, md: 0 }, alignSelf: { xs: "flex-start", md: "center" }, maxWidth: 200 }}
+                                    size="small"
+                                    color="error"
+                                    variant="contained"
+                                    startIcon={<DeleteIcon />}
+                                    onClick={() => setDialogMode("deleteAccount")}
+                                >
                                     Delete Account
                                 </Button>
                             </Box>
