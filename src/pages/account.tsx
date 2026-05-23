@@ -51,12 +51,14 @@ function PlanLimitCard({
                     </Box>
                 </Stack>
 
-                {progress !== undefined && (
-                    <LinearProgress
-                        variant="determinate"
-                        value={Math.min(progress, 100)}
-                    />
-                )}
+                <Box>
+                    {progress !== undefined && (
+                        <LinearProgress
+                            variant="determinate"
+                            value={Math.min(progress, 100)}
+                        />
+                    )}
+                </Box>
             </Stack>
         </Card>
     );
