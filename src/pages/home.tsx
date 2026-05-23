@@ -17,6 +17,8 @@ export default function HomePage() {
     const navigate = useNavigate();
     const { config } = useServerConfig();
 
+    const maxWidthPage = 1600;
+
     const anonymousLimits = {
         maxFileSize: config?.max_file_size_anonymous || 0,
         maxDownloads: config?.max_downloads_anonymous || 0,
@@ -37,19 +39,33 @@ export default function HomePage() {
 
     return (
         <Layout title="Home" content={
-            <Box sx={{ flex: 1, width: "100%", backgroundColor: "#fff" }}>
+            <Box
+                sx={{
+                    flex: 1,
+                    width: "100%",
+                    backgroundColor: "transparent",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: { xs: 3, md: 4 },
+                    py: { xs: 3, md: 0 },
+                }}
+            >
                 <Box
                     sx={{
-                        pt: { xs: 10, md: 14 },
-                        pb: { xs: 6, md: 10 },
-                        background: "radial-gradient(1200px 500px at 15% -10%, #fde7f4 0%, #fff7fb 45%, #ffffff 100%)",
+                        mx: "auto",
+                        width: "100%",
+                        maxWidth: maxWidthPage,
+                        borderRadius: 4,
+                        overflow: "hidden",
+                        boxShadow: "0 18px 40px rgba(83, 24, 60, 0.12)",
+                        px: { xs: 2, md: 6 },
+                        pt: { xs: 6, md: 6 },
+                        pb: { xs: 6, md: 6 },
+                        background: "radial-gradient(1200px 500px at 15% -10%, #ffa6da 0%, #fff7fb 45%, #ffffff 100%)",
                     }}
                 >
                     <Box
                         sx={{
-                            maxWidth: 1200,
-                            mx: "auto",
-                            px: { xs: 2, md: 4 },
                             display: "grid",
                             gridTemplateColumns: { xs: "1fr", md: "1.1fr 0.9fr" },
                             gap: { xs: 4, md: 6 },
@@ -57,16 +73,6 @@ export default function HomePage() {
                         }}
                     >
                         <Box>
-                            <Chip
-                                label="End-to-end encryption enabled"
-                                size="small"
-                                sx={{
-                                    mb: 2,
-                                    backgroundColor: "#ffe6f6",
-                                    color: "#6b1b5a",
-                                    fontWeight: 600,
-                                }}
-                            />
                             <Typography
                                 variant="h3"
                                 sx={{
@@ -76,19 +82,19 @@ export default function HomePage() {
                                     color: "#2b0f1f",
                                 }}
                             >
-                                Send large files securely — no compromises.
+                                Send large files securely - no compromises.
                             </Typography>
                             <Typography variant="body1" sx={{ color: "#5a4454", mb: 3, maxWidth: 520 }}>
                                 Anonymous transfers up to {formatSize(anonymousLimits.maxFileSize)} with {anonymousLimits.maxDownloads} downloads and {anonymousLimits.maxLifetime}-day expiry. Share a secure link in seconds.
                             </Typography>
                             <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 3 }}>
                                 <Chip label="No account needed" size="small" />
-                                <Chip label="Password protection" size="small" />
+                                <Chip label="End-to-end encryption" size="small" />
                                 <Chip label="Auto-delete" size="small" />
                             </Box>
                             <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-                                <Button variant="contained" href="#transfer-form">
-                                    Start transfer
+                                <Button variant="contained" href="#how-it-works">
+                                    See how it works
                                 </Button>
                                 <Button variant="outlined" onClick={() => navigate("/login")}>
                                     Login for direct transfer
@@ -106,11 +112,9 @@ export default function HomePage() {
                                 border: "1px solid #f0dbea",
                             }}
                         >
-                            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                                Create a secure link
-                            </Typography>
                             <FileTransferFormSelect
                                 type="anonymous"
+                                showIntro={false}
                                 propsLink={{
                                     maxFileSize: anonymousLimits.maxFileSize,
                                     maxDownloads: anonymousLimits.maxDownloads,
@@ -142,16 +146,29 @@ export default function HomePage() {
                     </Box>
                 </Box>
 
-                <Box sx={{ width: "100%", py: 9, px: { xs: 2, md: 4 } }}>
-                    <Box sx={{ maxWidth: 1180, mx: "auto", textAlign: "center", mb: 6 }}>
-                        <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
-                            The secure path
+                <Box
+                    id="how-it-works"
+                    sx={{
+                        width: "100%",
+                        maxWidth: maxWidthPage,
+                        mx: "auto",
+                        py: 9,
+                        px: { xs: 2, md: 4 },
+                        backgroundColor: "#ffffff",
+                        borderRadius: 4,
+                        border: "1px solid #f1e7ee",
+                        boxShadow: "0 18px 40px rgba(83, 24, 60, 0.08)",
+                    }}
+                >
+                    <Box sx={{ maxWidth: maxWidthPage, mx: "auto", textAlign: "center", mb: 6 }}>
+                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+                            How a secure transfer works
                         </Typography>
                         <Typography variant="body1" sx={{ color: "#7a6474", fontSize: "1.05rem" }}>
-                            Three simple steps to share safely.
+                            Upload, share a link, and download with your password.
                         </Typography>
                     </Box>
-                    <Box sx={{ maxWidth: 1180, mx: "auto", display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" }, gap: 3.5 }}>
+                    <Box sx={{ maxWidth: maxWidthPage, mx: "auto", display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" }, gap: 3.5 }}>
                         <Box sx={{ p: 4, borderRadius: 4, border: "1px solid #f1e7ee", backgroundColor: "#ffffff" }}>
                             <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2.5 }}>
                                 <Box sx={{ width: 46, height: 46, borderRadius: "50%", backgroundColor: "#fbe3f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -160,7 +177,7 @@ export default function HomePage() {
                                 <Typography variant="h6" sx={{ fontWeight: 700 }}>1. Upload</Typography>
                             </Box>
                             <Typography variant="body1" color="text.secondary" sx={{ fontSize: "1.02rem" }}>
-                                Choose your file and set a password.
+                                Select a file and add a password for encryption.
                             </Typography>
                         </Box>
                         <Box sx={{ p: 4, borderRadius: 4, border: "1px solid #f1e7ee", backgroundColor: "#ffffff" }}>
@@ -171,7 +188,7 @@ export default function HomePage() {
                                 <Typography variant="h6" sx={{ fontWeight: 700 }}>2. Share</Typography>
                             </Box>
                             <Typography variant="body1" color="text.secondary" sx={{ fontSize: "1.02rem" }}>
-                                Send the secure link to anyone.
+                                Share the encrypted link with anyone.
                             </Typography>
                         </Box>
                         <Box sx={{ p: 4, borderRadius: 4, border: "1px solid #f1e7ee", backgroundColor: "#ffffff" }}>
@@ -182,16 +199,36 @@ export default function HomePage() {
                                 <Typography variant="h6" sx={{ fontWeight: 700 }}>3. Download</Typography>
                             </Box>
                             <Typography variant="body1" color="text.secondary" sx={{ fontSize: "1.02rem" }}>
-                                Recipients decrypt with your password.
+                                Recipients unlock the file using your password.
                             </Typography>
                         </Box>
                     </Box>
                 </Box>
 
-                <Box sx={{ width: "100%", py: 8, px: { xs: 2, md: 4 }, backgroundColor: "#fff7fb" }}>
+                <Box
+                    sx={{
+                        width: "100%",
+                        maxWidth: maxWidthPage,
+                        mx: "auto",
+                        py: 8,
+                        px: { xs: 2, md: 4 },
+                        backgroundColor: "#fff7fb",
+                        borderRadius: 4,
+                        border: "1px solid #f1e7ee",
+                        boxShadow: "0 18px 40px rgba(83, 24, 60, 0.08)",
+                    }}
+                >
+                    <Box sx={{ textAlign: "center", mb: 4 }}>
+                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+                            Built-in privacy protections
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: "#7a6474" }}>
+                            Encryption, anonymous sharing, and automatic expiry are always on.
+                        </Typography>
+                    </Box>
                     <Box
                         sx={{
-                            maxWidth: 980,
+                            maxWidth: maxWidthPage,
                             mx: "auto",
                             p: { xs: 3, md: 4 },
                             borderRadius: 4,
@@ -202,9 +239,9 @@ export default function HomePage() {
                     >
                         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 2, mb: 3 }}>
                             <Box>
-                                <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>Privacy is our DNA</Typography>
+                                <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>Encrypted by default</Typography>
                                 <Typography variant="body1" sx={{ color: "#5a4454", mb: 2 }}>
-                                    Every transfer is encrypted end-to-end so your data stays private and protected.
+                                    Files are encrypted on your device before they leave it.
                                 </Typography>
                             </Box>
                             <Button
@@ -252,11 +289,23 @@ export default function HomePage() {
                     </Box>
                 </Box>
 
-                <Box sx={{ width: "100%", py: 8, px: { xs: 2, md: 4 } }}>
-                    <Typography variant="h5" sx={{ fontWeight: 700, mb: 4, textAlign: "center" }}>
+                <Box
+                    sx={{
+                        width: "100%",
+                        maxWidth: maxWidthPage,
+                        mx: "auto",
+                        py: 8,
+                        px: { xs: 2, md: 4 },
+                        backgroundColor: "#ffffff",
+                        borderRadius: 4,
+                        border: "1px solid #f1e7ee",
+                        boxShadow: "0 18px 40px rgba(83, 24, 60, 0.08)",
+                    }}
+                >
+                    <Typography variant="h4" sx={{ fontWeight: 700, mb: 4, textAlign: "center" }}>
                         Choose your transfer style
                     </Typography>
-                    <Box sx={{ maxWidth: 900, mx: "auto", display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)" }, gap: 3 }}>
+                    <Box sx={{ maxWidth: maxWidthPage, mx: "auto", display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)" }, gap: 3 }}>
                         <Box sx={{ p: 3.5, borderRadius: 4, border: "1px solid #e3c3d6", background: "linear-gradient(135deg, #ffffff 0%, #ffeef7 100%)", boxShadow: "0 18px 48px rgba(83, 24, 60, 0.16)" }}>
                             <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2, color: "primary.main" }}>
                                 Link transfer
@@ -280,11 +329,28 @@ export default function HomePage() {
                     </Box>
                 </Box>
 
-                <Box sx={{ width: "100%", py: 8, px: { xs: 2, md: 4 }, backgroundColor: "#fff7fb" }}>
-                    <Typography variant="h5" sx={{ fontWeight: 700, mb: 4, textAlign: "center" }}>
-                        Simple, transparent pricing
-                    </Typography>
-                    <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(4, 1fr)" }, gap: 2, maxWidth: 1100, mx: "auto" }}>
+                <Box
+                    sx={{
+                        width: "100%",
+                        maxWidth: maxWidthPage,
+                        mx: "auto",
+                        py: 8,
+                        px: { xs: 2, md: 4 },
+                        backgroundColor: "#fff7fb",
+                        borderRadius: 4,
+                        border: "1px solid #f1e7ee",
+                        boxShadow: "0 18px 40px rgba(83, 24, 60, 0.08)",
+                    }}
+                >
+                    <Box sx={{ textAlign: "center", mb: 4 }}>
+                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+                            Plans and pricing
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: "#7a6474" }}>
+                            Free link transfers today. Premium plans launch soon.
+                        </Typography>
+                    </Box>
+                    <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(4, 1fr)" }, gap: 2, maxWidth: maxWidthPage, mx: "auto" }}>
                         <Box sx={{ p: 3.5, border: "1px solid #dfbcd1", borderRadius: 4, textAlign: "center", background: "linear-gradient(160deg, #ffffff 0%, #ffedf7 100%)", boxShadow: "0 18px 46px rgba(83, 24, 60, 0.16)" }}>
                             <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>Link Transfer</Typography>
                             <Typography variant="h4" sx={{ color: "primary.main", fontWeight: 700, mb: 2 }}>$0</Typography>
@@ -353,14 +419,25 @@ export default function HomePage() {
                     </Box>
                 </Box>
 
-                <Box sx={{ width: "100%", py: 8, px: { xs: 2, md: 4 } }}>
+                <Box
+                    sx={{
+                        width: "100%",
+                        maxWidth: maxWidthPage,
+                        mx: "auto",
+                        py: 4,
+                        px: { xs: 2, md: 4 },
+                        background: "linear-gradient(135deg, #3d0b2b 0%, #7b1451 50%, #d02c8b 100%)",
+                        borderRadius: 4,
+                        border: "1px solid #f1e7ee",
+                        boxShadow: "0 18px 40px rgba(83, 24, 60, 0.08)",
+                    }}
+                >
                     <Box
                         sx={{
-                            maxWidth: 1000,
+                            maxWidth: maxWidthPage,
                             mx: "auto",
                             p: { xs: 3, md: 5 },
                             borderRadius: 4,
-                            background: "linear-gradient(135deg, #3d0b2b 0%, #7b1451 50%, #d02c8b 100%)",
                             color: "#fff",
                             textAlign: "center",
                         }}
