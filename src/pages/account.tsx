@@ -68,7 +68,7 @@ export default function AccountPage() {
 
     const pageSx = {
         width: "100%",
-        px: { xs: 2, md: 4 },
+        px: { xs: 2, md: 0 },
         py: { xs: 3, md: 5 },
     };
 
@@ -80,7 +80,7 @@ export default function AccountPage() {
         border: "1px solid #f1e7ee",
         boxShadow: "0 18px 40px rgba(83, 24, 60, 0.08)",
         backgroundColor: "#ffffff",
-        p: { xs: 3, md: 4 },
+        p: { xs: 2.5, md: 4 },
     };
 
     const navigate = useNavigate();
@@ -181,223 +181,221 @@ export default function AccountPage() {
             title="Account Settings"
             content={
                 <Box sx={pageSx}>
-                    <Box sx={contentCardSx}>
-                        <Stack spacing={4} sx={{ width: "100%" }}>
+                    <Stack spacing={4} sx={contentCardSx}>
 
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
-                                <Avatar
-                                    sx={{
-                                        width: 92,
-                                        height: 92,
-                                        fontSize: 40,
-                                        fontWeight: 700,
-                                        letterSpacing: 1,
-                                        color: "#ffffff",
-                                        background: "linear-gradient(135deg, #E906E5 10%, #4158d0 100%)",
-                                        boxShadow: "0 10px 22px rgba(65, 88, 208, 0.25)",
-                                    }}
-                                >
-                                    {username?.[0]?.toUpperCase()}
-                                </Avatar>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+                            <Avatar
+                                sx={{
+                                    width: 92,
+                                    height: 92,
+                                    fontSize: 40,
+                                    fontWeight: 700,
+                                    letterSpacing: 1,
+                                    color: "#ffffff",
+                                    background: "linear-gradient(135deg, #E906E5 10%, #4158d0 100%)",
+                                    boxShadow: "0 10px 22px rgba(65, 88, 208, 0.25)",
+                                }}
+                            >
+                                {username?.[0]?.toUpperCase()}
+                            </Avatar>
 
-                                <Box>
-                                    {(username && email) ?
-                                        <>
-                                            <Typography variant="h6">{username}</Typography>
-                                            <Typography variant="body2" color="text.secondary">
-                                                {email}
-                                            </Typography>
-                                        </>
-                                        : (
-                                            <Typography variant="h6">Loading...</Typography>
-                                        )
-                                    }
+                            <Box>
+                                {(username && email) ?
+                                    <>
+                                        <Typography variant="h6">{username}</Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            {email}
+                                        </Typography>
+                                    </>
+                                    : (
+                                        <Typography variant="h6">Loading...</Typography>
+                                    )
+                                }
+                            </Box>
+                        </Box>
+
+                        <Divider />
+
+                        <Stack spacing={3}>
+
+                            <Box display="flex" alignItems="center" justifyContent="space-between">
+                                <Typography variant="h5">
+                                    Plan Overview
+                                </Typography>
+
+                                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                                    <Chip
+                                        label={role === "premium" ? "Premium Plan" : "Free Plan"}
+                                        color={role === "premium" ? "primary" : "default"}
+                                    />
+                                    {role !== "premium" && (
+                                        <Button
+                                            size="small"
+                                            variant="contained"
+                                            onClick={() => navigate("/")}
+                                        >
+                                            Upgrade
+                                        </Button>
+                                    )}
                                 </Box>
                             </Box>
 
-                            <Divider />
+                            {!config ? (
+                                <Typography variant="body2">
+                                    Loading plan limits...
+                                </Typography>
+                            ) : (
 
-                            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                                <Grid container spacing={3} mt={1}>
 
-                                <Box display="flex" alignItems="center" justifyContent="space-between">
-                                    <Typography variant="h5">
-                                        Plan Overview
-                                    </Typography>
-
-                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                                        <Chip
-                                            label={role === "premium" ? "Premium Plan" : "Free Plan"}
-                                            color={role === "premium" ? "primary" : "default"}
+                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                        <PlanLimitCard
+                                            icon={<SyncAltIcon color="primary" fontSize="large" />}
+                                            title="Monthly Transfers"
+                                            value={`${numberTransfers} / ${role === "premium" ? config.max_transfer_month_connected_premium : config.max_transfer_month_connected}`}
+                                            progress={(numberTransfers / (role === "premium" ? config.max_transfer_month_connected_premium : config.max_transfer_month_connected)) * 100}
                                         />
-                                        {role !== "premium" && (
-                                            <Button
-                                                size="small"
-                                                variant="contained"
-                                                onClick={() => navigate("/")}
-                                            >
-                                                Upgrade
-                                            </Button>
-                                        )}
-                                    </Box>
-                                </Box>
-
-                                {!config ? (
-                                    <Typography variant="body2">
-                                        Loading plan limits...
-                                    </Typography>
-                                ) : (
-
-                                    <Grid container spacing={3} mt={1}>
-
-                                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                            <PlanLimitCard
-                                                icon={<SyncAltIcon color="primary" fontSize="large" />}
-                                                title="Monthly Transfers"
-                                                value={`${numberTransfers} / ${role === "premium" ? config.max_transfer_month_connected_premium : config.max_transfer_month_connected}`}
-                                                progress={(numberTransfers / (role === "premium" ? config.max_transfer_month_connected_premium : config.max_transfer_month_connected)) * 100}
-                                            />
-                                        </Grid>
-
-                                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                            <PlanLimitCard
-                                                icon={<ScheduleIcon color="primary" fontSize="large" />}
-                                                title="Maximum Lifetime"
-                                                value={
-                                                    role === "premium"
-                                                        ? config.max_lifetime_connected_premium
-                                                        : config.max_lifetime_connected
-                                                }
-                                                unit="Days"
-                                            />
-                                        </Grid>
-
-                                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                            <PlanLimitCard
-                                                icon={<StorageIcon color="primary" fontSize="large" />}
-                                                title="Max File Size"
-                                                value={
-                                                    role === "premium"
-                                                        ? formatSize(config.max_file_size_connected_premium)
-                                                        : formatSize(config.max_file_size_connected)
-                                                }
-                                                unit="per transfer"
-                                            />
-                                        </Grid>
-
-                                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                            <PlanLimitCard
-                                                icon={<DownloadIcon color="primary" fontSize="large" />}
-                                                title="Downloads"
-                                                value={
-                                                    role === "premium"
-                                                        ? config.max_downloads_connected_premium
-                                                        : config.max_downloads_connected
-                                                }
-                                                unit="per transfer"
-                                            />
-                                        </Grid>
                                     </Grid>
 
-                                )}
-                            </Box>
+                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                        <PlanLimitCard
+                                            icon={<ScheduleIcon color="primary" fontSize="large" />}
+                                            title="Maximum Lifetime"
+                                            value={
+                                                role === "premium"
+                                                    ? config.max_lifetime_connected_premium
+                                                    : config.max_lifetime_connected
+                                            }
+                                            unit="Days"
+                                        />
+                                    </Grid>
 
-                            <Divider />
+                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                        <PlanLimitCard
+                                            icon={<StorageIcon color="primary" fontSize="large" />}
+                                            title="Max File Size"
+                                            value={
+                                                role === "premium"
+                                                    ? formatSize(config.max_file_size_connected_premium)
+                                                    : formatSize(config.max_file_size_connected)
+                                            }
+                                            unit="per transfer"
+                                        />
+                                    </Grid>
 
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    flexDirection: { xs: "column", md: "row" },
-                                    gap: 2,
-                                    alignItems: { md: "center" },
-                                    justifyContent: "space-between",
-                                }}
-                            >
-                                <Box>
-                                    <Typography variant="h5">
-                                        Rotate Keys
-                                    </Typography>
-                                    <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
-                                        Generate new encryption and signing keys.
-                                    </Typography>
-                                </Box>
-                                <Button
-                                    sx={{ mt: { xs: 2, md: 0 }, alignSelf: { xs: "flex-start", md: "center" }, maxWidth: 200 }}
-                                    size="small"
-                                    variant="contained"
-                                    startIcon={<RefreshIcon />}
-                                    onClick={() => setDialogMode("rotateKeys")}
-                                >
+                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                        <PlanLimitCard
+                                            icon={<DownloadIcon color="primary" fontSize="large" />}
+                                            title="Downloads"
+                                            value={
+                                                role === "premium"
+                                                    ? config.max_downloads_connected_premium
+                                                    : config.max_downloads_connected
+                                            }
+                                            unit="per transfer"
+                                        />
+                                    </Grid>
+                                </Grid>
+
+                            )}
+                        </Stack>
+
+                        <Divider />
+
+                        <Box
+                            sx={{
+                                display: "flex",
+                                flexDirection: { xs: "column", md: "row" },
+                                gap: 2,
+                                alignItems: { md: "center" },
+                                justifyContent: "space-between",
+                            }}
+                        >
+                            <Box>
+                                <Typography variant="h5">
                                     Rotate Keys
-                                </Button>
+                                </Typography>
+                                <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
+                                    Generate new encryption and signing keys.
+                                </Typography>
                             </Box>
-
-                            <Divider />
-
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    flexDirection: { xs: "column", md: "row" },
-                                    gap: 2,
-                                    alignItems: { md: "center" },
-                                    justifyContent: "space-between",
-                                }}
+                            <Button
+                                sx={{ mt: { xs: 2, md: 0 }, alignSelf: { xs: "flex-start", md: "center" }, maxWidth: 200 }}
+                                size="small"
+                                variant="contained"
+                                startIcon={<RefreshIcon />}
+                                onClick={() => setDialogMode("rotateKeys")}
                             >
-                                <Box>
-                                    <Typography variant="h5">
-                                        Change Password
-                                    </Typography>
-                                    <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
-                                        Update your account password.
-                                    </Typography>
-                                </Box>
-                                <Button
-                                    sx={{ mt: { xs: 2, md: 0 }, alignSelf: { xs: "flex-start", md: "center" }, maxWidth: 200 }}
-                                    size="small"
-                                    variant="contained"
-                                    startIcon={<DialpadIcon />}
-                                    onClick={() => setDialogMode("changePassword")}
-                                >
+                                Rotate Keys
+                            </Button>
+                        </Box>
+
+                        <Divider />
+
+                        <Box
+                            sx={{
+                                display: "flex",
+                                flexDirection: { xs: "column", md: "row" },
+                                gap: 2,
+                                alignItems: { md: "center" },
+                                justifyContent: "space-between",
+                            }}
+                        >
+                            <Box>
+                                <Typography variant="h5">
                                     Change Password
-                                </Button>
+                                </Typography>
+                                <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
+                                    Update your account password.
+                                </Typography>
                             </Box>
-
-                            <Divider />
-
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    flexDirection: { xs: "column", md: "row" },
-                                    gap: 2,
-                                    alignItems: { md: "center" },
-                                    justifyContent: "space-between",
-                                }}
+                            <Button
+                                sx={{ mt: { xs: 2, md: 0 }, alignSelf: { xs: "flex-start", md: "center" }, maxWidth: 200 }}
+                                size="small"
+                                variant="contained"
+                                startIcon={<DialpadIcon />}
+                                onClick={() => setDialogMode("changePassword")}
                             >
-                                <Box>
-                                    <Typography variant="h5" color="error">
-                                        Delete Account
-                                    </Typography>
-                                    <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
-                                        Deleting your account will permanently remove all your data, including current transfers.
-                                        <br />
-                                        This information cannot be recovered once your account is deleted.
+                                Change Password
+                            </Button>
+                        </Box>
 
-                                        This action cannot be undone.
-                                    </Typography>
-                                </Box>
-                                <Button
-                                    sx={{ mt: { xs: 2, md: 0 }, alignSelf: { xs: "flex-start", md: "center" }, maxWidth: 200 }}
-                                    size="small"
-                                    color="error"
-                                    variant="contained"
-                                    startIcon={<DeleteIcon />}
-                                    onClick={() => setDialogMode("deleteAccount")}
-                                >
+                        <Divider />
+
+                        <Box
+                            sx={{
+                                display: "flex",
+                                flexDirection: { xs: "column", md: "row" },
+                                gap: 2,
+                                alignItems: { md: "center" },
+                                justifyContent: "space-between",
+                            }}
+                        >
+                            <Box>
+                                <Typography variant="h5" color="error">
                                     Delete Account
-                                </Button>
-                            </Box>
+                                </Typography>
+                                <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
+                                    Deleting your account will permanently remove all your data, including current transfers.
+                                    <br />
+                                    This information cannot be recovered once your account is deleted.
 
-                        </ Stack>
-                    </Box>
+                                    This action cannot be undone.
+                                </Typography>
+                            </Box>
+                            <Button
+                                sx={{ mt: { xs: 2, md: 0 }, alignSelf: { xs: "flex-start", md: "center" }, maxWidth: 200 }}
+                                size="small"
+                                color="error"
+                                variant="contained"
+                                startIcon={<DeleteIcon />}
+                                onClick={() => setDialogMode("deleteAccount")}
+                            >
+                                Delete Account
+                            </Button>
+                        </Box>
+
+                    </ Stack>
 
                     <AccountActionDialog
                         open={dialogMode !== null}
@@ -426,7 +424,7 @@ export default function AccountPage() {
                             }
                         }}
                     />
-                </ Box>
+                </Box>
             }
         />
     );

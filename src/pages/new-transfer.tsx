@@ -52,98 +52,92 @@ export default function NewTransfer() {
                         width: "100%",
                         maxWidth: maxWidthPage,
                         mx: "auto",
+                        borderRadius: 4,
+                        border: "1px solid #f1e7ee",
+                        boxShadow: "0 18px 40px rgba(83, 24, 60, 0.08)",
+                        background: "radial-gradient(1200px 500px at 15% -10%, #ffa6da 0%, #fff7fb 45%, #ffffff 100%)",
+                        p: { xs: 2.5, md: 4 },
                     }}
                 >
                     <Box
                         sx={{
-                            width: "100%",
-                            borderRadius: 4,
-                            border: "1px solid #f1e7ee",
-                            boxShadow: "0 18px 40px rgba(83, 24, 60, 0.08)",
-                            background: "radial-gradient(1200px 500px at 15% -10%, #ffa6da 0%, #fff7fb 45%, #ffffff 100%)",
-                            p: { xs: 2.5, md: 4 },
+                            display: "grid",
+                            gridTemplateColumns: { xs: "1fr", md: "1.05fr 0.95fr" },
+                            gap: { xs: 4, md: 6 },
+                            alignItems: "start",
                         }}
                     >
                         <Box
                             sx={{
-                                display: "grid",
-                                gridTemplateColumns: { xs: "1fr", md: "1.05fr 0.95fr" },
-                                gap: { xs: 4, md: 6 },
-                                alignItems: "start",
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "flex-start",
+                                justifyContent: "center",
+                                mt: { xs: 0, md: 25 },
                             }}
                         >
-                            <Box
+                            <Typography
+                                variant="h3"
                                 sx={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "flex-start",
-                                    justifyContent: "center",
-                                    mt: { xs: 0, md: 25 },
+                                    fontWeight: 700,
+                                    letterSpacing: "-0.02em",
+                                    mb: 2,
+                                    color: "#2b0f1f",
                                 }}
                             >
-                                <Typography
-                                    variant="h3"
-                                    sx={{
-                                        fontWeight: 700,
-                                        letterSpacing: "-0.02em",
-                                        mb: 2,
-                                        color: "#2b0f1f",
-                                    }}
-                                >
-                                    Send files with end-to-end encryption.
-                                </Typography>
-                                <Typography variant="body1" sx={{ color: "#5a4454", mb: 3, maxWidth: 520 }}>
-                                    Create secure links or send directly to a user account. Transfers stay encrypted and auto-expire.
-                                </Typography>
-                            </Box>
+                                Send files with end-to-end encryption.
+                            </Typography>
+                            <Typography variant="body1" sx={{ color: "#5a4454", mb: 3, maxWidth: 520 }}>
+                                Create secure links or send directly to a user account. Transfers stay encrypted and auto-expire.
+                            </Typography>
+                        </Box>
 
-                            <Box
-                                sx={{
-                                    backgroundColor: "#ffffff",
-                                    borderRadius: 3,
-                                    p: { xs: 2.5, md: 3.5 },
-                                    boxShadow: "0 24px 60px rgba(119, 41, 93, 0.15)",
-                                    border: "1px solid #f0dbea",
+                        <Box
+                            sx={{
+                                backgroundColor: "#ffffff",
+                                borderRadius: 3,
+                                p: { xs: 2.5, md: 3.5 },
+                                boxShadow: "0 24px 60px rgba(119, 41, 93, 0.15)",
+                                border: "1px solid #f0dbea",
+                            }}
+                        >
+                            <FileTransferFormSelect
+                                type="both"
+                                propsLink={{
+                                    maxFileSize: config?.max_file_size_anonymous!,
+                                    maxDownloads: config?.max_downloads_anonymous!,
+                                    maxLifetime: config?.max_lifetime_anonymous!,
+                                    onSubmit: async (data, onProgress) => {
+                                        const result = await sendMessageAnonymous(
+                                            data.password,
+                                            data.file.name,
+                                            data.file,
+                                            data.lifetime,
+                                            data.maxDownloads,
+                                            onProgress
+                                        );
+                                        return result.link;
+                                    },
                                 }}
-                            >
-                                <FileTransferFormSelect
-                                    type="both"
-                                    propsLink={{
-                                        maxFileSize: config?.max_file_size_anonymous!,
-                                        maxDownloads: config?.max_downloads_anonymous!,
-                                        maxLifetime: config?.max_lifetime_anonymous!,
-                                        onSubmit: async (data, onProgress) => {
-                                            const result = await sendMessageAnonymous(
-                                                data.password,
-                                                data.file.name,
-                                                data.file,
-                                                data.lifetime,
-                                                data.maxDownloads,
-                                                onProgress
-                                            );
-                                            return result.link;
-                                        },
-                                    }}
-                                    propsDirect={{
-                                        maxFileSize: maxFileSize,
-                                        maxDownloads: maxDownloads,
-                                        maxLifetime: maxLifetime,
-                                        onSubmit: async (data, onProgress) => {
-                                            await sendMessage(
-                                                username!,
-                                                keys.enc_private_key,
-                                                keys.sign_private_key,
-                                                data.receiver!,
-                                                data.file.name,
-                                                data.file,
-                                                data.lifetime,
-                                                data.maxDownloads,
-                                                onProgress
-                                            );
-                                        }
-                                    }}
-                                />
-                            </Box>
+                                propsDirect={{
+                                    maxFileSize: maxFileSize,
+                                    maxDownloads: maxDownloads,
+                                    maxLifetime: maxLifetime,
+                                    onSubmit: async (data, onProgress) => {
+                                        await sendMessage(
+                                            username!,
+                                            keys.enc_private_key,
+                                            keys.sign_private_key,
+                                            data.receiver!,
+                                            data.file.name,
+                                            data.file,
+                                            data.lifetime,
+                                            data.maxDownloads,
+                                            onProgress
+                                        );
+                                    }
+                                }}
+                            />
                         </Box>
                     </Box>
                 </Box>
