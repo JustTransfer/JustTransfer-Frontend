@@ -399,6 +399,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                         borderRadius: 2,
                         p: 8,
                         minHeight: `calc(100vh - ${headerHeight} - 60px)`,
+                        ml: isLoggedIn ? leftBarWidth : 0,
                     }} >
 
                         {/* MAIN CONTENT */}
@@ -412,6 +413,6 @@ export default function Layout({ title, content }: { title: string; content: Rea
                 {/* Footer*/}
                 <Footer isLoggedIn={isLoggedIn} />
             </Box>
-        </ThemeProvider >
+        </ThemeProvider>
     );
 }

@@ -64,7 +64,7 @@ function App() {
             <Route path="/new-transfer" element={
               <ProtectedRoute>
                 <NewTransfer />
-              </ProtectedRoute >}
+              </ProtectedRoute>}
             />
 
             <Route path="*" element={<Error />} />

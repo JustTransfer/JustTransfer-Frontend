@@ -74,7 +74,7 @@ export default function AccountPage() {
 
     const contentCardSx = {
         width: "100%",
-        maxWidth: 1200,
+        maxWidth: 1400,
         mx: "auto",
         borderRadius: 4,
         border: "1px solid #f1e7ee",

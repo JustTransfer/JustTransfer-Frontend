@@ -52,7 +52,7 @@ function DownloadSection({ msg, progress, onDownload, onDelete }: Props) {
 
                 <IconButton color="primary" onClick={onDelete}>
                     <DeleteIcon />
-                </IconButton >
+                </IconButton>
             </Box>
         );
     }
@@ -86,7 +86,7 @@ function DownloadSection({ msg, progress, onDownload, onDelete }: Props) {
 
             <IconButton color="primary" onClick={onDelete}>
                 <DeleteIcon />
-            </IconButton >
+            </IconButton>
         </Box>
     );
 }
@@ -96,7 +96,7 @@ export default function Inbox() {
 
     const containerSx = {
         width: "100%",
-        maxWidth: 1100,
+        maxWidth: 1400,
         mx: "auto",
     };
 
@@ -260,12 +260,13 @@ export default function Inbox() {
             <Box
                 sx={{
                     flex: 1,
+                    width: "100%",
                     display: "flex",
                     alignItems: "center",
                     flexDirection: "column",
                     gap: 3,
-                    px: { xs: 2, md: 4 },
-                    py: { xs: 3, md: 4 },
+                    px: { xs: 2, md: 0 },
+                    py: { xs: 3, md: 5 },
                 }}
             >
                 <Box sx={containerSx}>
@@ -393,7 +394,7 @@ export default function Inbox() {
                         </Button>
                     </DialogActions>
                 </Dialog>
-            </ Box >
+            </Box>
         } />
     );
 };
