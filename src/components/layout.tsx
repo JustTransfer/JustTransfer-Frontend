@@ -203,7 +203,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
     const theme = useTheme();
 
     const { username } = useAuth();
-    const isLoggedIn = !!username;
+    const isLoggedIn = true; //!!username;
 
     const menuButtonStyle = (path: string) => ({
         justifyContent: "flex-start",

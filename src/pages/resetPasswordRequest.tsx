@@ -11,6 +11,17 @@ import * as strings from "../messages/strings";
 
 export default function ResetPasswordRequestPage() {
 
+    const cardSx = {
+        width: "100%",
+        maxWidth: 460,
+        textAlign: "center",
+        borderRadius: 4,
+        border: "1px solid #f1e7ee",
+        boxShadow: "0 18px 40px rgba(83, 24, 60, 0.12)",
+        backgroundColor: "#ffffff",
+        p: { xs: 3, md: 5 },
+    };
+
     const { success, error } = useNotification();
 
     const navigate = useNavigate();
@@ -37,22 +48,22 @@ export default function ResetPasswordRequestPage() {
 
             <Box
                 sx={{
-                    height: "100%",
                     width: "100%",
                     display: "flex",
                     flexDirection: "column",
-
                     flex: 1,
                     alignItems: "center",
                     justifyContent: "center",
+                    px: { xs: 2, md: 3 },
+                    py: { xs: 4, md: 6 },
                 }}
             >
-                <Paper elevation={4} sx={{ p: 6, borderRadius: 3, width: 400, textAlign: "center" }}>
-                    <Typography variant="h4" sx={{ mb: 4, fontWeight: "bold", color: "black" }}>
+                <Paper elevation={0} sx={cardSx}>
+                    <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold", color: "#2b0f1f" }}>
                         Reset Password
                     </Typography>
 
-                    <Typography variant="body1" sx={{ mb: 3 }}>
+                    <Typography variant="body1" sx={{ mb: 3, color: "#6e5a69" }}>
                         Enter your email address below and we'll send you a link to reset your password.
                     </Typography>
 

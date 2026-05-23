@@ -13,6 +13,17 @@ import * as strings from "../messages/strings";
 
 export default function ResetPasswordPage() {
 
+    const cardSx = {
+        width: "100%",
+        maxWidth: 480,
+        textAlign: "center",
+        borderRadius: 4,
+        border: "1px solid #f1e7ee",
+        boxShadow: "0 18px 40px rgba(83, 24, 60, 0.12)",
+        backgroundColor: "#ffffff",
+        p: { xs: 3, md: 5 },
+    };
+
     const { id } = useParams();
 
     const { success, error } = useNotification();
@@ -106,26 +117,26 @@ export default function ResetPasswordPage() {
         <Layout title="Reset Password" content={
             <Box
                 sx={{
-                    height: "100%",
                     width: "100%",
                     display: "flex",
                     flexDirection: "column",
-
                     flex: 1,
                     alignItems: "center",
                     justifyContent: "center",
+                    px: { xs: 2, md: 3 },
+                    py: { xs: 4, md: 6 },
                 }}
             >
-                <Paper elevation={4} sx={{ p: 6, borderRadius: 3, width: 400, textAlign: "center" }}>
-                    <Typography variant="h4" sx={{ mb: 4, fontWeight: "bold", color: "black" }}>
+                <Paper elevation={0} sx={cardSx}>
+                    <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold", color: "#2b0f1f" }}>
                         Reset Password
                     </Typography>
 
-                    <Typography variant="body1" sx={{ mb: 3 }}>
+                    <Typography variant="body1" sx={{ mb: 3, color: "#6e5a69" }}>
                         Enter a new password for account with username <strong>{username}</strong>. This action is irreversible!
                     </Typography>
 
-                    <Alert severity="warning" sx={{ mb: 3 }}>
+                    <Alert severity="warning" sx={{ mb: 3, borderRadius: 2 }}>
                         All sent and received transfers will be deleted!
                     </Alert>
 

@@ -17,6 +17,17 @@ import * as strings from "../messages/strings";
 
 export default function CreateAccountPage() {
 
+    const cardSx = {
+        width: "100%",
+        maxWidth: 460,
+        textAlign: "center",
+        borderRadius: 4,
+        border: "1px solid #f1e7ee",
+        boxShadow: "0 18px 40px rgba(83, 24, 60, 0.12)",
+        backgroundColor: "#ffffff",
+        p: { xs: 3, md: 5 },
+    };
+
     const { success, error } = useNotification();
 
     const navigate = useNavigate();
@@ -100,21 +111,23 @@ export default function CreateAccountPage() {
         <Layout title="Create Account" content={
             <Box
                 sx={{
-                    height: "100%",
                     width: "100%",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
+                    px: { xs: 2, md: 3 },
+                    py: { xs: 4, md: 6 },
+                    gap: 2,
                 }}
             >
-                <Paper elevation={4} sx={{ p: 6, borderRadius: 3, width: 400, textAlign: "center" }}>
+                <Paper elevation={0} sx={cardSx}>
 
                     <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1 }}>
                         Create Account
                     </Typography>
 
-                    <Typography variant="subtitle1" sx={{ color: "text.secondary" }}>
+                    <Typography variant="subtitle1" sx={{ color: "#7a6474" }}>
                         Join now to securely share your files!
                     </Typography>
 
@@ -184,7 +197,7 @@ export default function CreateAccountPage() {
                     </Box>
                 </Paper>
 
-                <Typography variant="body2" sx={{ mt: 2 }}>
+                <Typography variant="body2" sx={{ color: "#6e5a69" }}>
                     Already have an account?
                     <Link
                         component="button"

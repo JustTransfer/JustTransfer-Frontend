@@ -1,21 +1,17 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Box, Typography, TextField, Paper, Button, Alert } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Box, Typography } from "@mui/material";
 
 
 import { useServerConfig } from "../hooks/useServerConfig";
 import Layout from "../components/layout";
 import { sendMessage } from "../handlers/crypto";
 import { sendMessageAnonymous } from "../handlers/crypto_anonymous";
-import { formatSize } from "../handlers/utils";
-
-import * as errors from "../messages/errors";
-import * as strings from "../messages/strings";
-
 import FileTransferFormSelect from "../components/FileTransferFormSelect";
 import { useAuth } from "../hooks/useAuth";
-import { get } from "http";
 
 export default function NewTransfer() {
+
+    const maxWidthPage = 1200;
     const { config } = useServerConfig();
     const { username, role, getLatestKeys } = useAuth();
 
@@ -40,53 +36,114 @@ export default function NewTransfer() {
 
     return (
         <Layout title="New Transfer" content={
-            <Box sx={{
-                flex: 1,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "column",
-                gap: 10,
-            }}>
+            <Box
+                sx={{
+                    flex: 1,
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: { xs: 3, md: 4 },
+                    py: { xs: 3, md: 5 },
+                    ml: 12
+                }}
+            >
+                <Box
+                    sx={{
+                        mx: "auto",
+                        width: "100%",
+                        maxWidth: maxWidthPage,
+                        borderRadius: 4,
+                        overflow: "hidden",
+                        boxShadow: "0 18px 40px rgba(83, 24, 60, 0.12)",
+                        px: { xs: 2, md: 6 },
+                        pt: { xs: 6, md: 6 },
+                        pb: { xs: 6, md: 6 },
+                        background: "radial-gradient(1200px 500px at 15% -10%, #ffa6da 0%, #fff7fb 45%, #ffffff 100%)",
+                    }}
+                >
+                    <Box
+                        sx={{
+                            display: "grid",
+                            gridTemplateColumns: { xs: "1fr", md: "1.05fr 0.95fr" },
+                            gap: { xs: 4, md: 6 },
+                            alignItems: "start",
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "flex-start",
+                                justifyContent: "center",
+                                mt: { xs: 0, md: 25 },
+                            }}
+                        >
+                            <Typography
+                                variant="h3"
+                                sx={{
+                                    fontWeight: 700,
+                                    letterSpacing: "-0.02em",
+                                    mb: 2,
+                                    color: "#2b0f1f",
+                                }}
+                            >
+                                Send files with end-to-end encryption.
+                            </Typography>
+                            <Typography variant="body1" sx={{ color: "#5a4454", mb: 3, maxWidth: 520 }}>
+                                Create secure links or send directly to a user account. Transfers stay encrypted and auto-expire.
+                            </Typography>
+                        </Box>
 
-                <FileTransferFormSelect
-                    type="both"
-                    propsLink={{
-                        maxFileSize: config?.max_file_size_anonymous!,
-                        maxDownloads: config?.max_downloads_anonymous!,
-                        maxLifetime: config?.max_lifetime_anonymous!,
-                        onSubmit: async (data, onProgress) => {
-                            const result = await sendMessageAnonymous(
-                                data.password,
-                                data.file.name,
-                                data.file,
-                                data.lifetime,
-                                data.maxDownloads,
-                                onProgress
-                            );
-                            return result.link;
-                        },
-                    }}
-                    propsDirect={{
-                        maxFileSize: maxFileSize,
-                        maxDownloads: maxDownloads,
-                        maxLifetime: maxLifetime,
-                        onSubmit: async (data, onProgress) => {
-                            await sendMessage(
-                                username!,
-                                keys.enc_private_key,
-                                keys.sign_private_key,
-                                data.receiver!,
-                                data.file.name,
-                                data.file,
-                                data.lifetime,
-                                data.maxDownloads,
-                                onProgress
-                            );
-                        }
-                    }}
-                />
-            </Box>
+                        <Box
+                            sx={{
+                                backgroundColor: "#ffffff",
+                                borderRadius: 3,
+                                p: { xs: 2.5, md: 3.5 },
+                                boxShadow: "0 24px 60px rgba(119, 41, 93, 0.15)",
+                                border: "1px solid #f0dbea",
+                            }}
+                        >
+                            <FileTransferFormSelect
+                                type="both"
+                                propsLink={{
+                                    maxFileSize: config?.max_file_size_anonymous!,
+                                    maxDownloads: config?.max_downloads_anonymous!,
+                                    maxLifetime: config?.max_lifetime_anonymous!,
+                                    onSubmit: async (data, onProgress) => {
+                                        const result = await sendMessageAnonymous(
+                                            data.password,
+                                            data.file.name,
+                                            data.file,
+                                            data.lifetime,
+                                            data.maxDownloads,
+                                            onProgress
+                                        );
+                                        return result.link;
+                                    },
+                                }}
+                                propsDirect={{
+                                    maxFileSize: maxFileSize,
+                                    maxDownloads: maxDownloads,
+                                    maxLifetime: maxLifetime,
+                                    onSubmit: async (data, onProgress) => {
+                                        await sendMessage(
+                                            username!,
+                                            keys.enc_private_key,
+                                            keys.sign_private_key,
+                                            data.receiver!,
+                                            data.file.name,
+                                            data.file,
+                                            data.lifetime,
+                                            data.maxDownloads,
+                                            onProgress
+                                        );
+                                    }
+                                }}
+                            />
+                        </Box>
+                    </Box>
+                </Box>
+            </Box >
         } />
     );
 }
