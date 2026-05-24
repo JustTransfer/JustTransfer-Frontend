@@ -4,6 +4,7 @@ import { Box, Typography, Button, Stack, Divider, Avatar, Card, CardContent, Lin
 
 import { useServerConfig } from "../hooks/useServerConfig";
 import { formatSize } from "../handlers/utils";
+import { emailAddress } from "../handlers/config";
 
 
 export default function Pricing({ isLoggedIn }: { isLoggedIn: boolean }) {
@@ -182,7 +183,7 @@ export default function Pricing({ isLoggedIn }: { isLoggedIn: boolean }) {
                             <Typography variant="body2">Optional dedicated infrastructure</Typography>
                         </Box>
                     </Box>
-                    <Button variant="outlined" fullWidth size="small" href="mailto:info@justtransfer.ch" sx={{ mt: "auto" }}>
+                    <Button variant="outlined" fullWidth size="small" href={`mailto:${emailAddress}`} sx={{ mt: "auto" }}>
                         Contact Sales
                     </Button>
                 </Box>

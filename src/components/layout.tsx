@@ -19,6 +19,7 @@ import Link from '@mui/material/Link';
 
 import { useAuth } from "../hooks/useAuth";
 import { frontendUrl } from '../handlers/config';
+import { emailAddress } from "../handlers/config";
 
 const headerHeight = "65px";
 const logoMarginTop = '-10px';
@@ -120,13 +121,6 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                             >
                                 Whitepaper
                             </Link>
-                            <Link
-                                href="mailto:info@justtransfer.ch"
-                                color="inherit"
-                                underline="hover"
-                            >
-                                Contact
-                            </Link>
                         </Box>
                     </Box>
 
@@ -144,6 +138,22 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                             </Link>
                             <Link component={RouterLink} to="/legal" color="inherit" underline="hover">
                                 Term of Use
+                            </Link>
+                        </Box>
+                    </Box>
+
+                    {/* Contact */}
+                    <Box sx={{ minWidth: footerMinLinkWidth }}>
+                        <Typography variant="subtitle1" gutterBottom>
+                            Contact
+                        </Typography>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                            <Link
+                                href={`mailto:${emailAddress}`}
+                                color="inherit"
+                                underline="hover"
+                            >
+                                {emailAddress}
                             </Link>
                         </Box>
                     </Box>
