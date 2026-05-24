@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 
 import { Box, Typography, Button, Stack, Divider, Avatar, Card, CardContent, LinearProgress, Grid, Chip } from "@mui/material";
 
+import { useNotification } from "../hooks/useNotificationContext";
 import { useServerConfig } from "../hooks/useServerConfig";
 import { formatSize } from "../handlers/utils";
 import { emailAddress } from "../handlers/config";
@@ -11,9 +12,15 @@ export default function Pricing({ isLoggedIn }: { isLoggedIn: boolean }) {
 
     const navigate = useNavigate();
     const { config } = useServerConfig();
+    const { warning } = useNotification();
 
     const buttonText = isLoggedIn ? "Upgrade Account" : "Get Started";
-    const buttonAction = isLoggedIn ? () => navigate("/account") : () => navigate("/register");
+    const buttonAction = isLoggedIn
+        ? () => {
+            navigate("/pricing");
+            warning("Premium plans are launching soon! Stay tuned for updates.");
+        }
+        : () => navigate("/register");
 
     const isLoadingLimits = !config;
 

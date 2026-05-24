@@ -228,15 +228,13 @@ export default function AccountPage() {
                                         label={role === "premium" ? "Premium Plan" : "Free Plan"}
                                         color={role === "premium" ? "primary" : "default"}
                                     />
-                                    {role !== "premium" && (
-                                        <Button
-                                            size="small"
-                                            variant="contained"
-                                            onClick={() => navigate("/pricing")}
-                                        >
-                                            Upgrade
-                                        </Button>
-                                    )}
+                                    <Button
+                                        size="small"
+                                        variant="contained"
+                                        onClick={() => navigate("/pricing")}
+                                    >
+                                        View Plans
+                                    </Button>
                                 </Box>
                             </Box>
 
