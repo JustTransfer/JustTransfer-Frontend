@@ -96,26 +96,6 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                         </Typography>
                     </Box>
 
-                    {/* Links */}
-                    <Box sx={{ minWidth: footerMinLinkWidth }}>
-                        <Typography variant="subtitle1" gutterBottom>
-                            Links
-                        </Typography>
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                            <Link component={RouterLink} to="/" color="inherit" underline="hover">
-                                Home
-                            </Link>
-
-                            <Link component={RouterLink} to="/register" color="inherit" underline="hover">
-                                Create Account
-                            </Link>
-
-                            <Link component={RouterLink} to="/login" color="inherit" underline="hover">
-                                Login
-                            </Link>
-                        </Box>
-                    </Box>
-
                     {/* Resources */}
                     <Box sx={{ minWidth: footerMinResourceWidth }}>
                         <Typography variant="subtitle1" gutterBottom>
