@@ -11,6 +11,7 @@ type FileTransferFormPropsSelect = {
     type: "both" | "anonymous" | "connected";
     propsLink: Omit<Extract<FileTransferFormProps, { type: "anonymous" }>, "type">;
     propsDirect: Omit<Extract<FileTransferFormProps, { type: "connected" }>, "type">;
+    showIntro?: boolean;
 };
 
 type AnonymousSubmit = (
@@ -49,7 +50,11 @@ type FileTransferFormProps =
         onSubmit: ConnectedSubmit;
     };
 
-export default function FileTransferFormSelect({ type, propsLink, propsDirect }: FileTransferFormPropsSelect) {
+export default function FileTransferFormSelect({
+    type,
+    propsLink,
+    propsDirect,
+}: FileTransferFormPropsSelect) {
 
     const { warning } = useNotification();
 
@@ -81,32 +86,6 @@ export default function FileTransferFormSelect({ type, propsLink, propsDirect }:
             width: "100%",
             mb: 1,
         }}>
-
-            <Box sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "column",
-                gap: 2,
-                mb: 2,
-            }}>
-                <Typography variant="h3">
-                    <Box component="span" fontWeight="bold">
-                        Transfer{" "}
-                    </Box>
-                    <Box component="span" fontWeight="bold" color="primary.main">
-                        Securely!
-                    </Box>
-                </Typography>
-                <Typography
-                    variant="h6"
-                    color="text.secondary"
-                    textAlign="center"
-                    sx={{ lineHeight: 1.3 }}
-                >
-                    Open source end-to-end encrypted<br />file transfers.
-                </Typography>
-            </Box>
 
             <Box sx={{
                 display: "flex",

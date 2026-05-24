@@ -14,6 +14,17 @@ import * as strings from "../messages/strings";
 
 export default function LoginPage() {
 
+    const cardSx = {
+        width: "100%",
+        maxWidth: 440,
+        textAlign: "center",
+        borderRadius: 4,
+        border: "1px solid #f1e7ee",
+        boxShadow: "0 18px 40px rgba(83, 24, 60, 0.12)",
+        backgroundColor: "#ffffff",
+        p: { xs: 3, md: 5 },
+    };
+
     const { success, error } = useNotification();
     const navigate = useNavigate();
     const { login } = useAuth();
@@ -74,22 +85,24 @@ export default function LoginPage() {
         <Layout title="Login" content={
             <Box
                 sx={{
-                    height: "100%",
                     width: "100%",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
+                    px: { xs: 2, md: 3 },
+                    py: { xs: 4, md: 6 },
+                    gap: 2,
                 }}
             >
 
-                <Paper elevation={4} sx={{ p: 6, borderRadius: 3, width: 400, textAlign: "center" }}>
+                <Paper elevation={0} sx={cardSx}>
 
                     <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1 }}>
                         Login
                     </Typography>
 
-                    <Typography variant="subtitle1" sx={{ color: "text.secondary" }}>
+                    <Typography variant="subtitle1" sx={{ color: "#7a6474" }}>
                         Login to access your encrypted transfers.
                     </Typography>
 
@@ -120,7 +133,7 @@ export default function LoginPage() {
                     </Box>
                 </Paper>
 
-                <Typography variant="body2" sx={{ mt: 2 }}>
+                <Typography variant="body2" sx={{ color: "#6e5a69" }}>
                     You don't have an account?
 
                     <Link
@@ -134,7 +147,7 @@ export default function LoginPage() {
                     </Link>
 
                 </Typography>
-                <Typography variant="body2" sx={{ mt: 1 }}>
+                <Typography variant="body2" sx={{ color: "#6e5a69" }}>
                     Forgot your password?
                     <Link
                         component="button"

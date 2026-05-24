@@ -11,6 +11,17 @@ import * as strings from "../messages/strings";
 
 export default function VerifyEmailPage() {
 
+    const cardSx = {
+        width: "100%",
+        maxWidth: 520,
+        textAlign: "center",
+        borderRadius: 4,
+        border: "1px solid #f1e7ee",
+        boxShadow: "0 18px 40px rgba(83, 24, 60, 0.12)",
+        backgroundColor: "#ffffff",
+        p: { xs: 3, md: 5 },
+    };
+
     const { id } = useParams();
 
     // If id is present, call verifyEmailAPI with the id and show success or error message based on the response
@@ -45,34 +56,48 @@ export default function VerifyEmailPage() {
             id ? (
                 <Box
                     sx={{
-                        height: "100%",
                         width: "100%",
                         display: "flex",
                         flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        px: { xs: 2, md: 3 },
+                        py: { xs: 4, md: 6 },
                     }}
                 >
-                    <Typography variant="h4" align="center" sx={{ mt: 5 }}>
-                        {state === "verifying" && "Verifying your email..."}
-                        {state === "success" && "Email verified successfully! Redirecting to login..."}
-                        {state === "error" && "Email verification failed! Redirecting to home..."}
-                    </Typography>
+                    <Box sx={cardSx}>
+                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 2, color: "#2b0f1f" }}>
+                            {state === "verifying" && "Verifying your email"}
+                            {state === "success" && "Email verified"}
+                            {state === "error" && "Verification failed"}
+                        </Typography>
+                        <Typography variant="body1" sx={{ color: "#6e5a69" }}>
+                            {state === "verifying" && "Hang tight while we confirm your email address."}
+                            {state === "success" && "You are all set. Redirecting you to login now."}
+                            {state === "error" && "We could not verify your email. Redirecting to home."}
+                        </Typography>
+                    </Box>
                 </ Box>
             ) : (
                 <Box
                     sx={{
-                        height: "100%",
                         width: "100%",
                         display: "flex",
                         flexDirection: "column",
-                        gap: 1,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        px: { xs: 2, md: 3 },
+                        py: { xs: 4, md: 6 },
                     }}
                 >
-                    <Typography variant="h4" align="center" sx={{ mt: 5, mx: 2, lineHeight: 1.6 }}>
-                        A verification link has been sent to your email. <br />
-                    </Typography>
-                    <Typography variant="h6" align="center" sx={{ mt: 0, mx: 2, lineHeight: 1.6 }}>
-                        Please check your inbox and click the link to verify your account.
-                    </Typography>
+                    <Box sx={cardSx}>
+                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 2, color: "#2b0f1f" }}>
+                            Check your email
+                        </Typography>
+                        <Typography variant="body1" sx={{ color: "#6e5a69", lineHeight: 1.6 }}>
+                            A verification link has been sent to your inbox. Please click the link to verify your account.
+                        </Typography>
+                    </Box>
                 </ Box>
             )
         } />

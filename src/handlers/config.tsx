@@ -8,3 +8,4 @@ function getEnv(name: string): string {
 
 export const apiUrl = getEnv("REACT_APP_API_URL");
 export const frontendUrl = getEnv("REACT_APP_FRONTEND_URL");
+export const emailAddress = getEnv("REACT_APP_EMAIL_INFO");

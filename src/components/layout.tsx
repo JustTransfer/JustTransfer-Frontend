@@ -19,6 +19,7 @@ import Link from '@mui/material/Link';
 
 import { useAuth } from "../hooks/useAuth";
 import { frontendUrl } from '../handlers/config';
+import { emailAddress } from "../handlers/config";
 
 const headerHeight = "65px";
 const logoMarginTop = '-10px';
@@ -96,26 +97,6 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                         </Typography>
                     </Box>
 
-                    {/* Links */}
-                    <Box sx={{ minWidth: footerMinLinkWidth }}>
-                        <Typography variant="subtitle1" gutterBottom>
-                            Links
-                        </Typography>
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                            <Link component={RouterLink} to="/" color="inherit" underline="hover">
-                                Home
-                            </Link>
-
-                            <Link component={RouterLink} to="/register" color="inherit" underline="hover">
-                                Create Account
-                            </Link>
-
-                            <Link component={RouterLink} to="/login" color="inherit" underline="hover">
-                                Login
-                            </Link>
-                        </Box>
-                    </Box>
-
                     {/* Resources */}
                     <Box sx={{ minWidth: footerMinResourceWidth }}>
                         <Typography variant="subtitle1" gutterBottom>
@@ -140,13 +121,6 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                             >
                                 Whitepaper
                             </Link>
-                            <Link
-                                href="mailto:info@justtransfer.ch"
-                                color="inherit"
-                                underline="hover"
-                            >
-                                Contact
-                            </Link>
                         </Box>
                     </Box>
 
@@ -164,6 +138,22 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                             </Link>
                             <Link component={RouterLink} to="/legal" color="inherit" underline="hover">
                                 Term of Use
+                            </Link>
+                        </Box>
+                    </Box>
+
+                    {/* Contact */}
+                    <Box sx={{ minWidth: footerMinLinkWidth }}>
+                        <Typography variant="subtitle1" gutterBottom>
+                            Contact
+                        </Typography>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                            <Link
+                                href={`mailto:${emailAddress}`}
+                                color="inherit"
+                                underline="hover"
+                            >
+                                {emailAddress}
                             </Link>
                         </Box>
                     </Box>
@@ -399,10 +389,11 @@ export default function Layout({ title, content }: { title: string; content: Rea
                         borderRadius: 2,
                         p: 8,
                         minHeight: `calc(100vh - ${headerHeight} - 60px)`,
+                        ml: isLoggedIn ? leftBarWidth : 0,
                     }} >
 
                         {/* MAIN CONTENT */}
-                        <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }} >
+                        <Container maxWidth={false} disableGutters sx={{ mt: 4, mb: 4 }}>
                             {content}
                         </Container>
 
@@ -412,6 +403,6 @@ export default function Layout({ title, content }: { title: string; content: Rea
                 {/* Footer*/}
                 <Footer isLoggedIn={isLoggedIn} />
             </Box>
-        </ThemeProvider >
+        </ThemeProvider>
     );
 }

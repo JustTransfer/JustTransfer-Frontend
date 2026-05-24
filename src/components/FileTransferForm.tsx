@@ -338,6 +338,6 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                     <Button onClick={handleCloseDialog}>Close</Button>
                 </DialogActions>
             </Dialog>
-        </Paper >
+        </Paper>
     );
 }

@@ -19,6 +19,7 @@ import NewTransfer from './pages/new-transfer';
 import Inbox from './pages/inbox';
 import Transfers from './pages/transfers';
 import AccountPage from './pages/account';
+import PricingPage from './pages/pricing';
 import Error from './pages/error';
 
 import './App.css';
@@ -49,6 +50,12 @@ function App() {
               </ProtectedRoute>}
             />
 
+            <Route path="/pricing" element={
+              <ProtectedRoute>
+                <PricingPage />
+              </ProtectedRoute>}
+            />
+
             <Route path="/transfers" element={
               <ProtectedRoute>
                 <Transfers />
@@ -64,7 +71,7 @@ function App() {
             <Route path="/new-transfer" element={
               <ProtectedRoute>
                 <NewTransfer />
-              </ProtectedRoute >}
+              </ProtectedRoute>}
             />
 
             <Route path="*" element={<Error />} />

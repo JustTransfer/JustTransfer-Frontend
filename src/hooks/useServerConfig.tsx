@@ -5,10 +5,12 @@ type ServerConfig = {
     max_lifetime_anonymous: number;
     max_file_size_anonymous: number,
     max_downloads_anonymous: number,
+    price_connected: number,
     max_lifetime_connected: number,
     max_file_size_connected: number,
     max_downloads_connected: number,
     max_transfer_month_connected: number,
+    price_premium: number,
     max_lifetime_connected_premium: number,
     max_file_size_connected_premium: number,
     max_downloads_connected_premium: number,
