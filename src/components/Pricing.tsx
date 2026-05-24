@@ -118,7 +118,9 @@ export default function Pricing({ isLoggedIn }: { isLoggedIn: boolean }) {
                     sx={normalTileSx}
                 >
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flexGrow: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>Link Transfer</Typography>
+                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                            Link Transfer
+                        </Typography>
                         <Box sx={priceRowSx}>
                             <Typography variant="h4" sx={{ color: "primary.main", fontWeight: 700 }}>
                                 Free
@@ -139,7 +141,9 @@ export default function Pricing({ isLoggedIn }: { isLoggedIn: boolean }) {
                     sx={normalTileSx}
                 >
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flexGrow: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>Starter</Typography>
+                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                            Free Account
+                        </Typography>
                         <Box sx={priceRowSx}>
                             <Typography variant="h4" sx={{ color: "primary.main", fontWeight: 700 }}>
                                 {renderLimitValue(connectedLimits.price)} CHF / month
@@ -161,7 +165,9 @@ export default function Pricing({ isLoggedIn }: { isLoggedIn: boolean }) {
                 >
                     <Chip label="RECOMMENDED" size="small" sx={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", backgroundColor: "primary.main", color: "white" }} />
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flexGrow: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>Professional</Typography>
+                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                            Premium Account
+                        </Typography>
                         <Box sx={priceRowSx}>
                             <Typography variant="h4" sx={{ color: "primary.main", fontWeight: 700 }}>
                                 {renderLimitValue(premiumLimits.price)} CHF / month
@@ -180,7 +186,9 @@ export default function Pricing({ isLoggedIn }: { isLoggedIn: boolean }) {
                     sx={normalTileSx}
                 >
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flexGrow: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>Enterprise</Typography>
+                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                            Enterprise
+                        </Typography>
                         <Box sx={priceRowSx}>
                             <Chip label="Launching soon" size="small" color="primary" />
                         </Box>

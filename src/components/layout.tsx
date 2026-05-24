@@ -20,6 +20,7 @@ import Link from '@mui/material/Link';
 import { useAuth } from "../hooks/useAuth";
 import { frontendUrl } from '../handlers/config';
 import { emailAddress } from "../handlers/config";
+import BetaBanner from './betaBanner';
 
 const headerHeight = "65px";
 const logoMarginTop = '-10px';
@@ -257,6 +258,15 @@ export default function Layout({ title, content }: { title: string; content: Rea
                     >
                         {title}
                     </Typography>
+
+                    {/* Beta banner */}
+                    <Box sx={{
+                        position: "absolute",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                    }}>
+                        <BetaBanner />
+                    </Box>
 
                     <Box sx={{
                         marginLeft: "auto",
