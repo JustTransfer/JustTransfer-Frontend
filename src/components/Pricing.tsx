@@ -114,9 +114,9 @@ export default function Pricing() {
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: 120 }}>
-                            <Typography variant="body2">{renderLimitValue(anonymousLimits.maxFileSize, formatSize)} max file size</Typography>
-                            <Typography variant="body2">{renderLimitValue(anonymousLimits.maxLifetime)} day storage</Typography>
-                            <Typography variant="body2">{renderLimitValue(anonymousLimits.maxDownloads)} downloads per transfer</Typography>
+                            <Typography variant="body2">Transfer files up to {renderLimitValue(anonymousLimits.maxFileSize, formatSize)}</Typography>
+                            <Typography variant="body2">Files available for {renderLimitValue(anonymousLimits.maxLifetime)} days</Typography>
+                            <Typography variant="body2">Up to {renderLimitValue(anonymousLimits.maxDownloads)} downloads per transfer</Typography>
                         </Box>
                     </Box>
                     <Button variant="outlined" fullWidth size="small" href="#transfer-form" sx={{ mt: "auto" }}>
@@ -135,9 +135,9 @@ export default function Pricing() {
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: 120 }}>
-                            <Typography variant="body2">{renderLimitValue(connectedLimits.maxFileSize, formatSize)} max file size</Typography>
-                            <Typography variant="body2">{renderLimitValue(connectedLimits.maxLifetime)} day storage</Typography>
-                            <Typography variant="body2">{renderLimitValue(connectedLimits.maxDownloads)} downloads per transfer</Typography>
+                            <Typography variant="body2">Transfer files up to {renderLimitValue(connectedLimits.maxFileSize, formatSize)}</Typography>
+                            <Typography variant="body2">Files available for {renderLimitValue(connectedLimits.maxLifetime)} days</Typography>
+                            <Typography variant="body2">Up to {renderLimitValue(connectedLimits.maxDownloads)} downloads per transfer</Typography>
                         </Box>
                     </Box>
                     <Button variant="contained" fullWidth size="small" onClick={() => navigate("/register")} sx={{ mt: "auto" }}>
@@ -157,9 +157,9 @@ export default function Pricing() {
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: 120 }}>
-                            <Typography variant="body2">{renderLimitValue(premiumLimits.maxFileSize, formatSize)} max file size</Typography>
-                            <Typography variant="body2">{renderLimitValue(premiumLimits.maxLifetime)} day storage</Typography>
-                            <Typography variant="body2">{renderLimitValue(premiumLimits.maxDownloads)} downloads per transfer</Typography>
+                            <Typography variant="body2">Transfer files up to {renderLimitValue(premiumLimits.maxFileSize, formatSize)}</Typography>
+                            <Typography variant="body2">Files available for {renderLimitValue(premiumLimits.maxLifetime)} days</Typography>
+                            <Typography variant="body2">Up to {renderLimitValue(premiumLimits.maxDownloads)} downloads per transfer</Typography>
                         </Box>
                     </Box>
                     <Chip label="Launching soon" color="primary" sx={{ mt: "auto" }} />
@@ -174,9 +174,9 @@ export default function Pricing() {
                             <Chip label="Launching soon" size="small" color="primary" />
                         </Box>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: 120 }}>
-                            <Typography variant="body2">Priority support</Typography>
-                            <Typography variant="body2">Custom limits</Typography>
-                            <Typography variant="body2">Dedicated instance option</Typography>
+                            <Typography variant="body2">Dedicated priority support</Typography>
+                            <Typography variant="body2">Flexible custom transfer limits</Typography>
+                            <Typography variant="body2">Optional dedicated infrastructure</Typography>
                         </Box>
                     </Box>
                     <Button variant="outlined" fullWidth size="small" onClick={() => navigate("/contact-sales")} sx={{ mt: "auto" }}>
