@@ -232,7 +232,7 @@ export default function AccountPage() {
                                         <Button
                                             size="small"
                                             variant="contained"
-                                            onClick={() => navigate("/")}
+                                            onClick={() => navigate("/pricing")}
                                         >
                                             Upgrade
                                         </Button>

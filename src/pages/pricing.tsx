@@ -11,7 +11,7 @@ export default function PricingPage() {
         <Layout
             title="Account Settings"
             content={
-                <Pricing />
+                <Pricing isLoggedIn={true} />
             }
         />
     );

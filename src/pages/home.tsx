@@ -10,6 +10,7 @@ import { useServerConfig } from "../hooks/useServerConfig";
 import Layout from "../components/layout";
 import { sendMessageAnonymous } from "../handlers/crypto_anonymous";
 import { formatSize } from "../handlers/utils";
+import Pricing from "../components/Pricing";
 
 import FileTransferFormSelect from "../components/FileTransferFormSelect";
 
@@ -147,6 +148,7 @@ export default function HomePage() {
                     </Box>
                 </Box>
 
+                {/* How it works section */}
                 <Box
                     id="how-it-works"
                     sx={{
@@ -206,6 +208,7 @@ export default function HomePage() {
                     </Box>
                 </Box>
 
+                {/* Privacy section */}
                 <Box
                     sx={{
                         width: "100%",
@@ -290,6 +293,7 @@ export default function HomePage() {
                     </Box>
                 </Box>
 
+                {/* Link vs Direct transfer section */}
                 <Box
                     sx={{
                         width: "100%",
@@ -330,96 +334,10 @@ export default function HomePage() {
                     </Box>
                 </Box>
 
-                <Box
-                    sx={{
-                        width: "100%",
-                        maxWidth: maxWidthPage,
-                        mx: "auto",
-                        py: 8,
-                        px: sectionPaddingX,
-                        backgroundColor: "#fff7fb",
-                        borderRadius: 4,
-                        border: "1px solid #f1e7ee",
-                        boxShadow: "0 18px 40px rgba(83, 24, 60, 0.08)",
-                    }}
-                >
-                    <Box sx={{ textAlign: "center", mb: 4 }}>
-                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-                            Plans and pricing
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: "#7a6474" }}>
-                            Free link transfers today. Premium plans launch soon.
-                        </Typography>
-                    </Box>
-                    <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(4, 1fr)" }, gap: 2, maxWidth: maxWidthPage, mx: "auto" }}>
-                        <Box sx={{ p: 3.5, border: "1px solid #dfbcd1", borderRadius: 4, textAlign: "center", background: "linear-gradient(160deg, #ffffff 0%, #ffedf7 100%)", boxShadow: "0 18px 46px rgba(83, 24, 60, 0.16)" }}>
-                            <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>Link Transfer</Typography>
-                            <Typography variant="h4" sx={{ color: "primary.main", fontWeight: 700, mb: 2 }}>$0</Typography>
-                            <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 2, minHeight: 120 }}>
-                                <Typography variant="body2">✓ {formatSize(anonymousLimits.maxFileSize)} max file size</Typography>
-                                <Typography variant="body2">✓ {anonymousLimits.maxLifetime} day storage</Typography>
-                                <Typography variant="body2">✓ {anonymousLimits.maxDownloads} max downloads per transfer</Typography>
-                            </Box>
-                            <Button variant="outlined" fullWidth size="small" href="#transfer-form">
-                                Get Started
-                            </Button>
-                        </Box>
+                {/* Pricing section */}
+                <Pricing isLoggedIn={false} />
 
-                        <Box sx={{ p: 3.5, border: "1px solid #dfbcd1", borderRadius: 4, textAlign: "center", background: "linear-gradient(160deg, #ffffff 0%, #ffedf7 100%)", boxShadow: "0 18px 46px rgba(83, 24, 60, 0.16)" }}>
-                            <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>Starter</Typography>
-                            <Typography variant="h4" sx={{ color: "primary.main", fontWeight: 700, mb: 2 }}>$0</Typography>
-                            <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 2, minHeight: 120 }}>
-                                <Typography variant="body2">✓ {formatSize(connectedLimits.maxFileSize)} max file size</Typography>
-                                <Typography variant="body2">✓ {connectedLimits.maxLifetime} day storage</Typography>
-                                <Typography variant="body2">✓ {connectedLimits.maxDownloads} max downloads per transfer</Typography>
-                            </Box>
-                            <Button variant="outlined" fullWidth size="small" onClick={() => navigate("/register")}>
-                                Get Started
-                            </Button>
-                        </Box>
-
-                        <Box
-                            sx={{
-                                p: 3.5,
-                                border: "1px solid #c992b6",
-                                borderRadius: 4,
-                                textAlign: "center",
-                                position: "relative",
-                                background: "linear-gradient(160deg, #ffd8ee 0%, #ffffff 100%)",
-                                boxShadow: "0 24px 64px rgba(83, 24, 60, 0.22)",
-                            }}
-                        >
-                            <Chip label="RECOMMENDED" size="small" sx={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", backgroundColor: "primary.main", color: "white" }} />
-                            <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>Professional</Typography>
-                            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, mb: 2 }}>
-                                <Chip label="Launching soon" size="small" color="primary" />
-                            </Box>
-                            <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 2, minHeight: 120 }}>
-                                <Typography variant="body2">✓ {formatSize(premiumLimits.maxFileSize)} max file size</Typography>
-                                <Typography variant="body2">✓ {premiumLimits.maxLifetime} day storage</Typography>
-                                <Typography variant="body2">✓ {premiumLimits.maxDownloads} max downloads per transfer</Typography>
-                            </Box>
-                            <Button variant="contained" fullWidth size="small" onClick={() => navigate("/register")}>
-                                Get Started
-                            </Button>
-                        </Box>
-
-                        <Box sx={{ p: 3.5, border: "1px solid #dfbcd1", borderRadius: 4, textAlign: "center", background: "linear-gradient(160deg, #ffffff 0%, #ffedf7 100%)", boxShadow: "0 18px 46px rgba(83, 24, 60, 0.16)" }}>
-                            <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>Enterprise</Typography>
-                            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, mb: 2 }}>
-                                <Chip label="Launching soon" size="small" color="primary" />
-                            </Box>
-                            <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mb: 2, minHeight: 120 }}>
-                                <Typography variant="body2">✓ Priority support</Typography>
-                                <Typography variant="body2">✓ Team collaboration</Typography>
-                            </Box>
-                            <Button variant="outlined" fullWidth size="small" onClick={() => navigate("/contact-sales")}>
-                                Contact Sales
-                            </Button>
-                        </Box>
-                    </Box>
-                </Box>
-
+                {/* Call to action */}
                 <Box
                     sx={{
                         width: "100%",

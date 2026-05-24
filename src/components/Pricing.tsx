@@ -6,10 +6,13 @@ import { useServerConfig } from "../hooks/useServerConfig";
 import { formatSize } from "../handlers/utils";
 
 
-export default function Pricing() {
+export default function Pricing({ isLoggedIn }: { isLoggedIn: boolean }) {
 
     const navigate = useNavigate();
     const { config } = useServerConfig();
+
+    const buttonText = isLoggedIn ? "Upgrade Account" : "Get Started";
+    const buttonAction = isLoggedIn ? () => navigate("/account") : () => navigate("/register");
 
     const isLoadingLimits = !config;
 
@@ -119,8 +122,8 @@ export default function Pricing() {
                             <Typography variant="body2">Up to {renderLimitValue(anonymousLimits.maxDownloads)} downloads per transfer</Typography>
                         </Box>
                     </Box>
-                    <Button variant="outlined" fullWidth size="small" href="#transfer-form" sx={{ mt: "auto" }}>
-                        Get Started
+                    <Button variant="outlined" fullWidth size="small" onClick={buttonAction} sx={{ mt: "auto" }}>
+                        {buttonText}
                     </Button>
                 </Box>
 
@@ -140,8 +143,8 @@ export default function Pricing() {
                             <Typography variant="body2">Up to {renderLimitValue(connectedLimits.maxDownloads)} downloads per transfer</Typography>
                         </Box>
                     </Box>
-                    <Button variant="contained" fullWidth size="small" onClick={() => navigate("/register")} sx={{ mt: "auto" }}>
-                        Get Started
+                    <Button variant="contained" fullWidth size="small" onClick={buttonAction} sx={{ mt: "auto" }}>
+                        {buttonText}
                     </Button>
                 </Box>
 
@@ -179,7 +182,7 @@ export default function Pricing() {
                             <Typography variant="body2">Optional dedicated infrastructure</Typography>
                         </Box>
                     </Box>
-                    <Button variant="outlined" fullWidth size="small" onClick={() => navigate("/contact-sales")} sx={{ mt: "auto" }}>
+                    <Button variant="outlined" fullWidth size="small" href="mailto:info@justtransfer.ch" sx={{ mt: "auto" }}>
                         Contact Sales
                     </Button>
                 </Box>
