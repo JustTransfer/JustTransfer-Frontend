@@ -206,7 +206,7 @@ export default function CreateAccountPage() {
                         underline="hover"
                         sx={{ ml: 1, verticalAlign: "baseline" }}
                     >
-                        Login
+                        Log in
                     </Link>
                 </Typography>
             </Box>

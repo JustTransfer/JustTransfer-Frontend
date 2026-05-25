@@ -61,8 +61,8 @@ export default function HomePage() {
                         overflow: "hidden",
                         boxShadow: "0 18px 40px rgba(83, 24, 60, 0.12)",
                         px: sectionPaddingX,
-                        pt: { xs: 6, md: 6 },
-                        pb: { xs: 6, md: 6 },
+                        pt: { xs: 6, md: 4 },
+                        pb: { xs: 6, md: 4 },
                         background: "radial-gradient(1200px 500px at 15% -10%, #ffa6da 0%, #fff7fb 45%, #ffffff 100%)",
                     }}
                 >
@@ -72,6 +72,7 @@ export default function HomePage() {
                             gridTemplateColumns: { xs: "1fr", md: "1.1fr 0.9fr" },
                             gap: { xs: 4, md: 6 },
                             alignItems: "center",
+                            ml: 2,
                         }}
                     >
                         <Box>
@@ -84,7 +85,9 @@ export default function HomePage() {
                                     color: "#2b0f1f",
                                 }}
                             >
-                                Send large files securely - no compromises.
+                                Send large files securely
+                                <br />
+                                - no compromises.
                             </Typography>
                             <Typography variant="body1" sx={{ color: "#5a4454", mb: 3, maxWidth: 520 }}>
                                 Anonymous transfers up to {formatSize(anonymousLimits.maxFileSize)} with {anonymousLimits.maxDownloads} downloads and {anonymousLimits.maxLifetime}-day expiry. Share a secure link in seconds.
@@ -109,7 +112,7 @@ export default function HomePage() {
                             sx={{
                                 backgroundColor: "#ffffff",
                                 borderRadius: 3,
-                                p: { xs: 2.5, md: 3 },
+                                p: { xs: 2.5, md: 2 },
                                 boxShadow: "0 24px 60px rgba(119, 41, 93, 0.15)",
                                 border: "1px solid #f0dbea",
                             }}
@@ -141,7 +144,7 @@ export default function HomePage() {
                                     onSubmit: async () => { },
                                 }}
                             />
-                            <Typography variant="body2" sx={{ color: "#7a6474", mt: 2 }}>
+                            <Typography variant="body2" sx={{ color: "#7a6474", mt: 2, textAlign: "center" }}>
                                 Direct transfers require an account. <RouterLink to="/register">Create an account</RouterLink> or <RouterLink to="/login">log in</RouterLink>.
                             </Typography>
                         </Box>
@@ -535,7 +538,7 @@ export default function HomePage() {
                         </Box>
                     </Box>
                 </Box>
-            </Box>
+            </Box >
         } />
     );
 }

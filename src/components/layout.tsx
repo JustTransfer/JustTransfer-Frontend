@@ -280,7 +280,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                     Create account
                                 </Button>
                                 <Button color="primary" variant='contained' onClick={() => navigate("/login")} sx={{}}>
-                                    Login
+                                    Log in
                                 </Button>
                             </>
                         )}
