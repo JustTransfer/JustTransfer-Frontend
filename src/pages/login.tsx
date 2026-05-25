@@ -103,7 +103,7 @@ export default function LoginPage() {
                     </Typography>
 
                     <Typography variant="subtitle1" sx={{ color: "#7a6474" }}>
-                        Login to access your encrypted transfers.
+                        Log in to access your encrypted transfers.
                     </Typography>
 
                     <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 4 }} onSubmit={handleSubmit}>

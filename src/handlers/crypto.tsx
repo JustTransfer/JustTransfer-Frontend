@@ -318,7 +318,7 @@ async function loginProcess(username: string, password: string) {
 
     return {
         success: true,
-        message: "Login successful!",
+        message: "Log in successful!",
         username,
         role,
         exportKey: Base64.fromUint8Array(exportKeyDecoded, true),

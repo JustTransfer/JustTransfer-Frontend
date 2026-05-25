@@ -7,8 +7,13 @@ import { useServerConfig } from "../hooks/useServerConfig";
 import { formatSize } from "../handlers/utils";
 import { emailAddress } from "../handlers/config";
 
+export type PricingProps = {
+    isLoggedIn: boolean;
+    currentPlan?: "user" | "premium";
+};
 
-export default function Pricing({ isLoggedIn }: { isLoggedIn: boolean }) {
+
+export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
 
     const navigate = useNavigate();
     const { config } = useServerConfig();
@@ -43,7 +48,8 @@ export default function Pricing({ isLoggedIn }: { isLoggedIn: boolean }) {
         flexDirection: "column",
         height: "100%",
         background: "linear-gradient(160deg, #ffffff 0%, #ffedf7 100%)",
-        boxShadow: "0 18px 46px rgba(83, 24, 60, 0.16)"
+        boxShadow: "0 18px 46px rgba(83, 24, 60, 0.16)",
+        position: "relative",
     };
 
     const highlightedTileSx = {
@@ -80,6 +86,18 @@ export default function Pricing({ isLoggedIn }: { isLoggedIn: boolean }) {
         }
 
         return formatter ? formatter(value) : value;
+    };
+
+    const isCurrentPlan = (plan: PricingProps["currentPlan"]) => currentPlan === plan;
+
+    const currentPlanChipSx = {
+        alignSelf: "center",
+        px: 1,
+        fontWeight: 600,
+        letterSpacing: "0.02em",
+        backgroundColor: "#fff1f8",
+        border: "1px solid #e7bfd7",
+        color: "#7a4a66",
     };
 
     return (
@@ -132,9 +150,13 @@ export default function Pricing({ isLoggedIn }: { isLoggedIn: boolean }) {
                             <Typography variant="body2">Up to {renderLimitValue(anonymousLimits.maxDownloads)} downloads per transfer</Typography>
                         </Box>
                     </Box>
-                    <Button variant="outlined" fullWidth size="small" onClick={buttonAction} sx={{ mt: "auto" }}>
-                        {buttonText}
-                    </Button>
+                    {
+                        !isLoggedIn && (
+                            <Button variant="outlined" fullWidth size="small" onClick={buttonAction} sx={{ mt: "auto" }}>
+                                {buttonText}
+                            </Button>
+                        )
+                    }
                 </Box>
 
                 <Box
@@ -146,7 +168,7 @@ export default function Pricing({ isLoggedIn }: { isLoggedIn: boolean }) {
                         </Typography>
                         <Box sx={priceRowSx}>
                             <Typography variant="h4" sx={{ color: "primary.main", fontWeight: 700 }}>
-                                {renderLimitValue(connectedLimits.price)} CHF / month
+                                {connectedLimits.price ? `${renderLimitValue(connectedLimits.price)} CHF / month` : "Free"}
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: 120 }}>
@@ -154,10 +176,17 @@ export default function Pricing({ isLoggedIn }: { isLoggedIn: boolean }) {
                             <Typography variant="body2">Files available for {renderLimitValue(connectedLimits.maxLifetime)} days</Typography>
                             <Typography variant="body2">Up to {renderLimitValue(connectedLimits.maxDownloads)} downloads per transfer</Typography>
                         </Box>
+                        {isCurrentPlan("user") && (
+                            <Chip label="Current plan" size="small" sx={currentPlanChipSx} />
+                        )}
                     </Box>
-                    <Button variant="contained" fullWidth size="small" onClick={buttonAction} sx={{ mt: "auto" }}>
-                        {buttonText}
-                    </Button>
+                    {
+                        !isLoggedIn && (
+                            <Button variant="contained" fullWidth size="small" onClick={buttonAction} sx={{ mt: "auto" }}>
+                                {buttonText}
+                            </Button>
+                        )
+                    }
                 </Box>
 
                 <Box
@@ -178,8 +207,17 @@ export default function Pricing({ isLoggedIn }: { isLoggedIn: boolean }) {
                             <Typography variant="body2">Files available for {renderLimitValue(premiumLimits.maxLifetime)} days</Typography>
                             <Typography variant="body2">Up to {renderLimitValue(premiumLimits.maxDownloads)} downloads per transfer</Typography>
                         </Box>
+                        {isCurrentPlan("premium") && (
+                            <Chip label="Current plan" size="small" sx={currentPlanChipSx} />
+                        )}
                     </Box>
-                    <Chip label="Launching soon" color="primary" sx={{ mt: "auto" }} />
+                    {
+                        currentPlan !== "premium" && (
+                            <Button variant="contained" fullWidth size="small" onClick={buttonAction} sx={{ mt: "auto" }}>
+                                {buttonText}
+                            </Button>
+                        )
+                    }
                 </Box>
 
                 <Box
