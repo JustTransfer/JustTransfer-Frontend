@@ -220,74 +220,144 @@ export default function HomePage() {
                         borderRadius: 4,
                         border: "1px solid #f1e7ee",
                         boxShadow: "0 18px 40px rgba(83, 24, 60, 0.08)",
+                        position: "relative",
+                        overflow: "hidden",
+                        "&::before": {
+                            content: '""',
+                            position: "absolute",
+                            width: 320,
+                            height: 320,
+                            borderRadius: "50%",
+                            background: "radial-gradient(circle, rgba(255, 168, 214, 0.32) 0%, rgba(255, 168, 214, 0) 70%)",
+                            top: -120,
+                            right: -140,
+                        },
+                        "&::after": {
+                            content: '""',
+                            position: "absolute",
+                            width: 260,
+                            height: 260,
+                            borderRadius: "50%",
+                            background: "radial-gradient(circle, rgba(255, 214, 240, 0.45) 0%, rgba(255, 214, 240, 0) 70%)",
+                            bottom: -140,
+                            left: -120,
+                        },
                     }}
                 >
-                    <Box sx={{ textAlign: "center", mb: 4 }}>
-                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-                            Built-in privacy protections
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: "#7a6474" }}>
-                            Encryption, anonymous sharing, and automatic expiry are always on.
-                        </Typography>
-                    </Box>
                     <Box
                         sx={{
+                            position: "relative",
+                            zIndex: 1,
                             maxWidth: maxWidthPage,
                             mx: "auto",
-                            p: { xs: 3, md: 4 },
-                            borderRadius: 4,
-                            border: "1px solid #eac9dc",
-                            background: "linear-gradient(135deg, #ffffff 0%, #fff0f8 100%)",
-                            boxShadow: "0 18px 50px rgba(83, 24, 60, 0.14)",
+                            display: "grid",
+                            gridTemplateColumns: { xs: "1fr", md: "1.05fr 0.95fr" },
+                            gap: { xs: 4, md: 6 },
+                            alignItems: "center",
                         }}
                     >
-                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 2, mb: 3 }}>
-                            <Box>
-                                <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>Encrypted by default</Typography>
-                                <Typography variant="body1" sx={{ color: "#5a4454", mb: 2 }}>
-                                    Files are encrypted on your device before they leave it.
-                                </Typography>
+                        <Box>
+                            <Typography variant="h4" sx={{ fontWeight: 700, mb: 1.5, color: "#2b0f1f" }}>
+                                Built-in privacy protections
+                            </Typography>
+                            <Typography variant="body1" sx={{ color: "#6f5164", mb: 3 }}>
+                                Zero-knowledge encryption, anonymous sharing, and automatic expiry keep your data private from upload to download.
+                            </Typography>
+                            <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", mb: 3 }}>
+                                <Chip label="No tracking" size="small" sx={{ backgroundColor: "#fff", border: "1px solid #ebc7dc" }} />
+                                <Chip label="Client-side encryption" size="small" sx={{ backgroundColor: "#fff", border: "1px solid #ebc7dc" }} />
+                                <Chip label="Expiry controls" size="small" sx={{ backgroundColor: "#fff", border: "1px solid #ebc7dc" }} />
                             </Box>
-                            <Button
-                                variant="outlined"
-                                href="https://justtransfer.github.io/"
-                                target="_blank"
-                                rel="noreferrer"
+                            <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
+                                <Button
+                                    variant="contained"
+                                    href="https://justtransfer.github.io/"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    Read the whitepaper
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    href="https://github.com/JustTransfer/"
+                                    target="_blank"
+                                >
+                                    View on GitHub
+                                </Button>
+                            </Box>
+                        </Box>
+
+                        <Box
+                            sx={{
+                                p: { xs: 2.5, md: 3 },
+                                borderRadius: 4,
+                                border: "1px solid #eac9dc",
+                                background: "linear-gradient(135deg, #ffffff 0%, #fff0f8 100%)",
+                                boxShadow: "0 18px 50px rgba(83, 24, 60, 0.14)",
+                            }}
+                        >
+                            <Box
                                 sx={{
-                                    borderColor: "#c992b6",
-                                    color: "#7b1451",
-                                    backgroundColor: "#fff",
-                                    px: 2.5,
-                                    py: 1,
-                                    fontWeight: 700,
-                                    boxShadow: "0 10px 26px rgba(83, 24, 60, 0.12)",
-                                    "&:hover": { borderColor: "#b57aa1", backgroundColor: "#fff7fb" },
+                                    display: "grid",
+                                    gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                                    gap: 2,
                                 }}
                             >
-                                Read the whitepaper
-                            </Button>
-                        </Box>
-                        <Box sx={{ display: "grid", gap: 2 }}>
-                            <Box sx={{ display: "flex", gap: 2 }}>
-                                <Box sx={{ color: "primary.main", fontWeight: 700 }}>✓</Box>
-                                <Box>
-                                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>End-to-end encryption</Typography>
-                                    <Typography variant="body2" color="text.secondary">Files are encrypted on your device.</Typography>
-                                </Box>
-                            </Box>
-                            <Box sx={{ display: "flex", gap: 2 }}>
-                                <Box sx={{ color: "primary.main", fontWeight: 700 }}>✓</Box>
-                                <Box>
-                                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>No account required</Typography>
-                                    <Typography variant="body2" color="text.secondary">Share anonymously with a simple link.</Typography>
-                                </Box>
-                            </Box>
-                            <Box sx={{ display: "flex", gap: 2 }}>
-                                <Box sx={{ color: "primary.main", fontWeight: 700 }}>✓</Box>
-                                <Box>
-                                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Auto-deletion</Typography>
-                                    <Typography variant="body2" color="text.secondary">Links expire after your chosen lifetime.</Typography>
-                                </Box>
+                                {[
+                                    {
+                                        title: "End-to-end encryption",
+                                        body: "Files are encrypted on your device before upload.",
+                                    },
+                                    {
+                                        title: "No account required",
+                                        body: "Share anonymously with a simple link.",
+                                    },
+                                    {
+                                        title: "Auto-deletion",
+                                        body: "Links expire after your chosen lifetime or download limit.",
+                                    },
+                                    {
+                                        title: "Open source",
+                                        body: "Our code is public and auditable.",
+                                    },
+                                ].map((item) => (
+                                    <Box
+                                        key={item.title}
+                                        sx={{
+                                            p: 2,
+                                            borderRadius: 3,
+                                            border: "1px solid #f0d6e6",
+                                            backgroundColor: "#ffffff",
+                                            display: "flex",
+                                            gap: 1.5,
+                                        }}
+                                    >
+                                        <Box
+                                            sx={{
+                                                width: 34,
+                                                height: 34,
+                                                borderRadius: "50%",
+                                                backgroundColor: "#fbe3f0",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                color: "#7b1451",
+                                                fontWeight: 700,
+                                                flexShrink: 0,
+                                            }}
+                                        >
+                                            ✓
+                                        </Box>
+                                        <Box>
+                                            <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#2b0f1f" }}>
+                                                {item.title}
+                                            </Typography>
+                                            <Typography variant="body2" sx={{ color: "#6f5164" }}>
+                                                {item.body}
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+                                ))}
                             </Box>
                         </Box>
                     </Box>
@@ -307,26 +377,114 @@ export default function HomePage() {
                         boxShadow: "0 18px 40px rgba(83, 24, 60, 0.08)",
                     }}
                 >
-                    <Typography variant="h4" sx={{ fontWeight: 700, mb: 4, textAlign: "center" }}>
+                    <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, textAlign: "center" }}>
                         Choose your transfer style
+                    </Typography>
+                    <Typography
+                        variant="body1"
+                        sx={{ color: "#7a6474", mb: 5, textAlign: "center", maxWidth: 520, mx: "auto" }}
+                    >
+                        Compare the experience and who each flow is built for.
                     </Typography>
                     <Box sx={{ maxWidth: maxWidthPage, mx: "auto", display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)" }, gap: 3 }}>
                         <Box sx={{ p: 3.5, borderRadius: 4, border: "1px solid #e3c3d6", background: "linear-gradient(135deg, #ffffff 0%, #ffeef7 100%)", boxShadow: "0 18px 48px rgba(83, 24, 60, 0.16)" }}>
-                            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2, color: "primary.main" }}>
-                                Link transfer
+                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+                                <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "primary.main" }}>
+                                    Link transfer
+                                </Typography>
+                                <Chip label="No account" size="small" sx={{ backgroundColor: "#fff", border: "1px solid #e9cddd" }} />
+                            </Box>
+                            <Typography variant="body2" sx={{ color: "#6e5a69", mb: 2, maxWidth: { xs: "100%", sm: 360 } }}>
+                                Share a secure link with password protection and flexible download settings.
                             </Typography>
-                            <Typography variant="body2" sx={{ color: "#6e5a69", mb: 2 }}>
-                                Share a secure link with password protection and download limits.
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">Best for quick, anonymous sharing.</Typography>
+                            <Box sx={{ display: "grid", gap: 1.25, mb: 2.5, maxWidth: { xs: "100%", sm: 360 } }}>
+                                <Box>
+                                    <Typography variant="caption" sx={{ textTransform: "uppercase", letterSpacing: "0.08em", color: "#9a7f8f" }}>
+                                        Key features
+                                    </Typography>
+                                    <Box component="ul" sx={{ color: "#5f4b58", m: 0, pl: 2, display: "grid", gap: 0.6 }}>
+                                        <Typography component="li" variant="body2">
+                                            Password required
+                                        </Typography>
+                                        <Typography component="li" variant="body2">
+                                            Shareable links
+                                        </Typography>
+                                        <Typography component="li" variant="body2">
+                                            Flexible expiry and download limits
+                                        </Typography>
+                                        <Typography component="li" variant="body2">
+                                            Anonymous sharing
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                                <Box>
+                                    <Typography variant="caption" sx={{ textTransform: "uppercase", letterSpacing: "0.08em", color: "#9a7f8f" }}>
+                                        Best for
+                                    </Typography>
+                                    <Box component="ul" sx={{ color: "#5f4b58", m: 0, pl: 2, display: "grid", gap: 0.6 }}>
+                                        <Typography component="li" variant="body2">
+                                            One-to-many sharing
+                                        </Typography>
+                                        <Typography component="li" variant="body2">
+                                            External recipients
+                                        </Typography>
+                                        <Typography component="li" variant="body2">
+                                            Guest transfers
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                            </Box>
+                            <Button size="small" variant="contained" href="#transfer-form">
+                                Start link transfer
+                            </Button>
                         </Box>
                         <Box sx={{ p: 3.5, borderRadius: 4, border: "1px solid #cf9fbe", background: "linear-gradient(135deg, #ffe2f2 0%, #ffffff 100%)", boxShadow: "0 22px 60px rgba(83, 24, 60, 0.2)" }}>
-                            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2, color: "primary.main" }}>
-                                Direct transfer
+                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+                                <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "primary.main" }}>
+                                    Direct transfer
+                                </Typography>
+                                <Chip label="Account required" size="small" sx={{ backgroundColor: "#fff", border: "1px solid #e9cddd" }} />
+                            </Box>
+                            <Typography variant="body2" sx={{ color: "#6e5a69", mb: 2, maxWidth: { xs: "100%", sm: 360 } }}>
+                                Send directly to users without sharing links or passwords.
                             </Typography>
-                            <Typography variant="body2" sx={{ color: "#6e5a69", mb: 2 }}>
-                                Send directly to users with notifications and transfer history.
-                            </Typography>
+                            <Box sx={{ display: "grid", gap: 1.25, mb: 2.5, maxWidth: { xs: "100%", sm: 360 } }}>
+                                <Box>
+                                    <Typography variant="caption" sx={{ textTransform: "uppercase", letterSpacing: "0.08em", color: "#9a7f8f" }}>
+                                        Features
+                                    </Typography>
+                                    <Box component="ul" sx={{ color: "#5f4b58", m: 0, pl: 2, display: "grid", gap: 0.6 }}>
+                                        <Typography component="li" variant="body2">
+                                            No password required
+                                        </Typography>
+                                        <Typography component="li" variant="body2">
+                                            No links - send directly to user accounts
+                                        </Typography>
+                                        <Typography component="li" variant="body2">
+                                            Flexible expiry and download limits
+                                        </Typography>
+                                        <Typography component="li" variant="body2">
+                                            Authenticated sharing
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                                <Box>
+                                    <Typography variant="caption" sx={{ textTransform: "uppercase", letterSpacing: "0.08em", color: "#9a7f8f" }}>
+                                        Best for
+                                    </Typography>
+                                    <Box component="ul" sx={{ color: "#5f4b58", m: 0, pl: 2, display: "grid", gap: 0.6 }}>
+                                        <Typography component="li" variant="body2">
+                                            One-to-one sharing
+                                        </Typography>
+                                        <Typography component="li" variant="body2">
+                                            Known recipients
+                                        </Typography>
+                                        <Typography component="li" variant="body2">
+                                            Frequent transfers
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                            </Box>
                             <Button size="small" variant="outlined" onClick={() => navigate("/login")}>
                                 Login to use direct transfer
                             </Button>
