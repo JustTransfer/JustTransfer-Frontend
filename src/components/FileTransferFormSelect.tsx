@@ -72,7 +72,7 @@ export default function FileTransferFormSelect({
         if (type === "both") {
             setSelectedType(newType);
         } else {
-            warning("Login to access this feature.");
+            warning("Log in to access this feature.");
         }
     };
 
