@@ -38,6 +38,7 @@ jobs:
         run: |
           echo "REACT_APP_API_URL=${{ vars.REACT_APP_API_URL }}" >> .env
           echo "REACT_APP_FRONTEND_URL=${{ vars.REACT_APP_FRONTEND_URL }}" >> .env
+          echo "REACT_APP_EMAIL_INFO=${{ vars.REACT_APP_EMAIL_INFO }}" >> .env
 
       - name: Build and push Docker image
         id: push
