@@ -6,11 +6,11 @@
 
 ### 1.1
 
-These Terms of Service("Terms") govern the use of **[Service Name]** ("the Service"), operated by **[Company Name]**, a company incorporated under the laws of Switzerland with its registered office at:
+These Terms of Service ("Terms") govern the use of **JustTranfser** ("the Service"), operated by **JustTranfser**, a company incorporated under the laws of Switzerland with its registered office at:
 
-**[Company Address]**
+**None TODO**
 
-Throughout these Terms, "[Company Name]", "we", "our", or "us" refers to the operator of the Service, while "Customer", "User", or "you" refers to any individual or legal entity using the Service.
+Throughout these Terms, "JustTranfser", "we", "our", or "us" refers to the operator of the Service, while "Customer", "User", or "you" refers to any individual or legal entity using the Service.
 
 ### 1.2
 
@@ -22,7 +22,7 @@ If you do not agree with these Terms, you must not use the Service.
 
 ### 1.4
 
-We reserve the right to amend these Terms at any time.Continued use of the Service after changes become effective constitutes acceptance of the revised Terms.
+We reserve the right to amend these Terms at any time. Continued use of the Service after changes become effective constitutes acceptance of the revised Terms.
 
 ---
 
@@ -32,14 +32,14 @@ We reserve the right to amend these Terms at any time.Continued use of the Servi
 
 The Service provides secure encrypted file transfers including:
 
-- End - to - end encrypted file uploads.
+- End-to-end encrypted file uploads.
 - Secure download links.
-- Optional password protection.
-- Optional expiration dates.
+- Password protection.
+- Expiration dates.
 - Automatic deletion after the selected retention period.
 - File storage exclusively within Switzerland.
 - HTTPS / TLS encrypted communications.
-- No registration required(unless otherwise specified).
+- No registration required (unless otherwise specified).
 
 Current technical limitations, including maximum file size, download limits and storage duration, are published on the Service website and may change without prior notice.
 
@@ -49,7 +49,7 @@ Files are encrypted on the sender's device before transmission. The encryption k
 
 ### 2.3
 
-Because the Service uses end - to - end encryption, the Company cannot decrypt, inspect, recover, or modify user files.
+Because the Service uses end-to-end encryption, the Company cannot decrypt, inspect, recover, or modify user files.
 
 ### 2.4
 
@@ -61,11 +61,11 @@ Upon expiration of the selected retention period, encrypted files and associated
 
 ### 3.1
 
-We implement industry - standard technical and organizational security measures to maintain the confidentiality, integrity and availability of the Service.
+We implement industry-standard technical and organizational security measures to maintain the confidentiality, integrity and availability of the Service.
 
 ### 3.2
 
-Although we strive for uninterrupted availability, we do not guarantee continuous or error - free operation.
+Although we strive for uninterrupted availability, we do not guarantee continuous or error-free operation.
 
 ### 3.3
 
@@ -73,7 +73,7 @@ The Service may be temporarily unavailable due to maintenance, upgrades, securit
 
 ### 3.4
 
-As the Service uses end - to - end encryption, we cannot recover lost encryption keys or forgotten passwords.Loss of the decryption key permanently prevents access to encrypted files.
+As the Service uses end-to-end encryption, we cannot recover lost encryption keys or forgotten passwords. Loss of the decryption key permanently prevents access to encrypted files.
 
 ---
 
@@ -81,7 +81,7 @@ As the Service uses end - to - end encryption, we cannot recover lost encryption
 
 ### 4.1
 
-The confidentiality of your files is protected using end-to - end encryption.
+The confidentiality of your files is protected using end-to-end encryption.
 
 ### 4.2
 
@@ -97,16 +97,16 @@ We do not sell, rent, analyze or commercially exploit customer files or their co
 
 ### 4.5
 
-Limited operational metadata may be collected for security, abuse prevention, system operation and legal compliance.Such metadata may include:
+Limited operational metadata may be collected for security, abuse prevention, system operation and legal compliance. Such metadata may include:
 
-- IP addresses
-- Upload timestamps
-- Download timestamps
+- Email addresses
 - File sizes
 - Transfer identifiers
-- Browser information
+- Creation and expiration timestamps
+- Sender and recipient of the transfer
+- Maximum number of downloads
 
-Content of encrypted files is not included in this metadata.
+Content or filename of encrypted files is not included in this metadata.
 
 ---
 
@@ -157,7 +157,6 @@ To protect the Service, we may implement reasonable limits including:
 - Maximum storage duration
 - Rate limiting
 - Download limits
-- IP - based abuse detection
 
 ### 6.2
 
@@ -165,7 +164,7 @@ We reserve the right to suspend or block transfers that threaten the stability, 
 
 ### 6.3
 
-Because files are end - to - end encrypted, automated malware scanning of file contents is generally not possible.
+Because files are end-to-end encrypted, automated malware scanning of file contents is not possible.
 
 ### 6.4
 
@@ -193,7 +192,7 @@ You grant the Company only the limited technical rights necessary to store, tran
 
 ### 8.1
 
-Personal data is processed in accordance with the Swiss Federal Act on Data Protection(FADP) and, where applicable, the EU General Data Protection Regulation(GDPR).
+Personal data is processed in accordance with the Swiss Federal Act on Data Protection (FADP) TODO and, where applicable, the EU General Data Protection Regulation (GDPR).
 
 ### 8.2
 
@@ -209,7 +208,7 @@ The Company may comply with legally binding requests issued by competent Swiss a
 
 ### 9.2
 
-Due to end - to - end encryption, the Company may be technically incapable of producing readable file contents.
+Due to end-to-end encryption, the Company may be technically incapable of producing readable file contents.
 
 ### 9.3
 
@@ -269,7 +268,7 @@ You agree to indemnify and hold harmless the Company from any claims, liabilitie
 
 - your use of the Service;
 - violation of these Terms;
-- infringement of third - party rights;
+- infringement of third-party rights;
 - unlawful content uploaded through the Service.
 
 ---
@@ -308,9 +307,9 @@ Any dispute arising from these Terms shall be submitted to the competent courts 
 
 Questions regarding these Terms may be directed to:
 
-**[Company Name]**
+**JustTransfer**
 
-[Address]
+[TODO Address]
 
 Switzerland
 
