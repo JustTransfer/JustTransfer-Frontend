@@ -134,10 +134,10 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                             <Link component={RouterLink} to="/terms" color="inherit" underline="hover">
                                 Terms of Service
                             </Link>
-                            <Link component={RouterLink} to="/privacy" color="inherit" underline="hover">
+                            <Link component={RouterLink} to="/terms" color="inherit" underline="hover">
                                 Privacy Policy
                             </Link>
-                            <Link component={RouterLink} to="/legal" color="inherit" underline="hover">
+                            <Link component={RouterLink} to="/terms" color="inherit" underline="hover">
                                 Term of Use
                             </Link>
                         </Box>

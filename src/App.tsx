@@ -7,6 +7,7 @@ import { ServerConfigProvider } from './hooks/useServerConfig';
 import { AuthProvider } from "./hooks/useAuth";
 import { ProtectedRoute } from './components/ProtectedRoute';
 import HomePage from './pages/home';
+import TermsService from './pages/termsService';
 import AnonymousTransfer from './pages/anonymoustransfer';
 import CreateAccountPage from './pages/createaccount';
 import VerifyEmailPage from './pages/verifyemail';
@@ -43,6 +44,8 @@ function App() {
             <Route path="/reset-password/:id" element={<ResetPasswordPage />} />
 
             <Route path="/anonymous-transfer/:id" element={<AnonymousTransfer />} />
+
+            <Route path="/terms" element={<TermsService />} />
 
             <Route path="/account" element={
               <ProtectedRoute>

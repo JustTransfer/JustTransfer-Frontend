@@ -24,6 +24,7 @@ export const errorFailureMACVerification = "MAC verification failed";
 export const errorFailureDecryption = "Decryption failed";
 
 // UI Errors
+export const errorTermsServicesNotAccepted = "You must accept the Terms of Service to proceed.";
 export const errorFileNotSelected = "No file selected. Please select a file to upload.";
 export const errorPasswordMismatch = "Passwords do not match.";
 export const errorSamePassword = "New password cannot be the same as the current password.";
