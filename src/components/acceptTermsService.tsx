@@ -14,11 +14,12 @@ export default function AcceptTermsService({
 }: AcceptTermsServiceProps) {
 
     return (
-        <Box sx={{ width: "100%" }}>
+        <Box sx={{ width: "100%", display: "flex", alignItems: "center", gap: 1 }}>
             <Checkbox
                 color="primary"
                 onChange={(e) => onChange(e.target.checked)}
                 checked={accepted}
+                sx={{ p: 0 }}
             />
             I accept the <Link component={RouterLink} to="/terms">Terms of Service</Link>
         </Box>

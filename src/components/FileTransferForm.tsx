@@ -326,7 +326,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 {isSending ?
                     <LinearProgressWithLabel value={progress} />
                     :
-                    <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>Send File</Button>
+                    <Button type="submit" variant="contained" fullWidth>Send File</Button>
                 }
             </Box>
 
