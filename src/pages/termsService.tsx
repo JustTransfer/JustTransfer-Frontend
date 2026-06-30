@@ -13,7 +13,7 @@ export default function TermsService() {
     useEffect(() => {
         let isActive = true;
 
-        fetch(`${process.env.PUBLIC_URL}/termsService.md`)
+        fetch(`/termsService.md`)
             .then((response) => response.text())
             .then((markdown) => {
                 if (isActive) {

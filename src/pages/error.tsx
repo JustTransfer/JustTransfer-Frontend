@@ -5,7 +5,7 @@ import { Box, Container, Typography, Button } from "@mui/material";
 import * as strings from "../messages/strings";
 import * as errors from "../messages/errors";
 
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import Layout from "../components/layout";
 import { Link } from "react-router-dom";
 
@@ -26,7 +26,7 @@ export default function Error() {
                         p: { xs: 3, md: 5 },
                     }}
                 >
-                    <ErrorOutlineIcon style={{ fontSize: 72, color: "#d32f2f" }} />
+                    <ErrorOutlineOutlinedIcon style={{ fontSize: 72, color: "#d32f2f" }} />
                     <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 700, color: "#2b0f1f" }}>
                         Oops! {errors.errorPageNotFound}
                     </Typography>

@@ -13,7 +13,7 @@ export default function PrivacyPolicy() {
     useEffect(() => {
         let isActive = true;
 
-        fetch(`${process.env.PUBLIC_URL}/privacyPolicy.md`)
+        fetch(`/privacyPolicy.md`)
             .then((response) => response.text())
             .then((markdown) => {
                 if (isActive) {
