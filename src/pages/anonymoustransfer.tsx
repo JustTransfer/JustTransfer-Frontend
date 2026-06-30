@@ -114,7 +114,7 @@ export default function AnonymousTransfer() {
                 const writer = fileStream.getWriter();
 
                 try {
-                    await getOneAnonymousMessage(exportKey, messageData, async (chunk, _) => {
+                    await getOneAnonymousMessage(exportKey, messageData, async (chunk, _name) => {
                         // Write chunk directly to the stream
                         await writer.write(chunk);
                     }, (percent: number) => {
@@ -133,7 +133,7 @@ export default function AnonymousTransfer() {
                 console.log("Using fallback blob download");
                 const chunks: Uint8Array[] = [];
 
-                await getOneAnonymousMessage(exportKey, messageData, async (chunk, _) => {
+                await getOneAnonymousMessage(exportKey, messageData, async (chunk, _name) => {
                     // Collect chunks in memory
                     chunks.push(new Uint8Array(chunk));
                 }, (percent: number) => {
