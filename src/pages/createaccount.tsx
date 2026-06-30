@@ -2,11 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Typography, Button, TextField, Paper, IconButton, InputAdornment, Link } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import Alert from '@mui/material/Alert';
-import { LinearProgress } from "@mui/material";
 
 import { useNotification } from "../hooks/useNotificationContext";
-import { useAuth } from "../hooks/useAuth";
 import Layout from "../components/layout";
 import { register } from "../handlers/crypto";
 import PasswordStrength from "../components/passwordStrength";
@@ -32,7 +29,6 @@ export default function CreateAccountPage() {
     const { success, error } = useNotification();
 
     const navigate = useNavigate();
-    const { login } = useAuth();
 
     const [errorInvalidUsername, setErrorInvalidUsername] = useState(false);
     const [errorPasswordMismatch, setErrorPasswordMismatch] = useState(false);
@@ -166,19 +162,21 @@ export default function CreateAccountPage() {
                             onChange={(e) => setPassword(e.target.value)}
                             error={errorWeakPassword}
                             helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
-                            InputProps={{
-                                endAdornment: (
-                                    < InputAdornment position="end" >
-                                        <IconButton
-                                            aria-label={
-                                                showPassword ? 'hide the password' : 'display the password'
-                                            }
-                                            onClick={handleTogglePassword}
-                                        >
-                                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                )
+                            slotProps={{
+                                input: {
+                                    endAdornment: (
+                                        < InputAdornment position="end" >
+                                            <IconButton
+                                                aria-label={
+                                                    showPassword ? 'hide the password' : 'display the password'
+                                                }
+                                                onClick={handleTogglePassword}
+                                            >
+                                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    )
+                                }
                             }}
                         />
 

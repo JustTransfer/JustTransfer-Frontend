@@ -1,10 +1,9 @@
-import React, { useState } from "react";
-import { Box, Typography, Button } from "@mui/material";
+import { useState } from "react";
+import { Box, Button } from "@mui/material";
 import LinkIcon from '@mui/icons-material/Link';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 import { useNotification } from "../hooks/useNotificationContext";
-import * as errors from "../messages/errors";
 import FileTransferForm from "./FileTransferForm";
 
 type FileTransferFormPropsSelect = {

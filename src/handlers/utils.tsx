@@ -1,9 +1,4 @@
-import { Base64 } from "js-base64";
 import zxcvbn from "zxcvbn";
-
-import * as errors from "../messages/errors";
-import * as strings from "../messages/strings";
-
 
 const MIN_LENGTH_USERNAME = 3;
 const MAX_LENGTH_USERNAME = 32;

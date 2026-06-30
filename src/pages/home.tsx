@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { Box, Typography, Button, Chip } from "@mui/material";
 
@@ -27,7 +26,7 @@ export default function HomePage() {
         maxLifetime: config?.max_lifetime_anonymous || 0,
     };
 
-    const connectedLimits = {
+    /*const connectedLimits = {
         maxFileSize: config?.max_file_size_connected || 0,
         maxDownloads: config?.max_downloads_connected || 0,
         maxLifetime: config?.max_lifetime_connected || 0,
@@ -37,7 +36,7 @@ export default function HomePage() {
         maxFileSize: config?.max_file_size_connected_premium || 0,
         maxDownloads: config?.max_downloads_connected_premium || 0,
         maxLifetime: config?.max_lifetime_connected_premium || 0,
-    };
+    };*/
 
     return (
         <Layout title="Home" content={
@@ -530,7 +529,7 @@ export default function HomePage() {
                         </Typography>
                         <Box sx={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>
                             <Button variant="contained" color="secondary" href="#transfer-form">
-                                Get started free
+                                Get started
                             </Button>
                             <Button variant="outlined" sx={{ color: "#fff", borderColor: "rgba(255,255,255,0.5)" }} onClick={() => navigate("/register")}>
                                 Create account

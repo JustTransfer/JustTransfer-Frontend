@@ -112,19 +112,21 @@ export default function LoginPage() {
                             helperText={errorInvalidUsername ? errors.errorInvalidUsername : ""}
                         />
                         <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
-                            InputProps={{
-                                endAdornment: (
-                                    < InputAdornment position="end" >
-                                        <IconButton
-                                            aria-label={
-                                                showPassword ? 'hide the password' : 'display the password'
-                                            }
-                                            onClick={handleTogglePassword}
-                                        >
-                                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                )
+                            slotProps={{
+                                input: {
+                                    endAdornment: (
+                                        < InputAdornment position="end" >
+                                            <IconButton
+                                                aria-label={
+                                                    showPassword ? 'hide the password' : 'display the password'
+                                                }
+                                                onClick={handleTogglePassword}
+                                            >
+                                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    )
+                                }
                             }}
                         />
                         <Button type="submit" variant="contained" sx={{ mt: 2 }}>

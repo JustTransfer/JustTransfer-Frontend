@@ -1,6 +1,4 @@
 import { Link as RouterLink } from "react-router-dom";
-import React, { useState } from "react";
-
 import { Checkbox, Box, Link } from "@mui/material";
 
 interface AcceptTermsServiceProps {

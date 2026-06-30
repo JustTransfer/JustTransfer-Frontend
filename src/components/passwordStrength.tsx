@@ -9,14 +9,12 @@ interface PasswordStrengthProps {
 
 const PasswordStrength: React.FC<PasswordStrengthProps> = ({ password, onStrengthChange }) => {
     const [score, setScore] = useState(0);
-    const [isStrong, setIsStrong] = useState(false);
 
     // Strong password if >= 2 (Fair or better)
     useEffect(() => {
         const result = zxcvbn(password);
         setScore(result.score);
         const strong = result.score >= 2;
-        setIsStrong(strong);
         if (onStrengthChange) onStrengthChange(strong);
     }, [password, onStrengthChange]);
 

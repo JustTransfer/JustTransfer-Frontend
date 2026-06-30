@@ -1,19 +1,17 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, Button, IconButton, Paper, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, ListItem, ListItemIcon, ListItemText, Stack, Chip, CircularProgress } from "@mui/material";
+import { Box, Typography, IconButton, ListItem, ListItemIcon, ListItemText, Stack, Chip, CircularProgress } from "@mui/material";
 
 import RefreshIcon from "@mui/icons-material/Refresh";
 import InboxIcon from "@mui/icons-material/Inbox";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import PersonIcon from "@mui/icons-material/Person";
 import SendIcon from '@mui/icons-material/Send';
 
 import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
 import { getSentMessagesAPI } from "../handlers/api";
-import { formatSize, formatCreated, relativeExpire, expireColor } from "../handlers/utils";
+import { formatSize, formatCreated, relativeExpire } from "../handlers/utils";
 
 import * as errors from "../messages/errors";
-import * as strings from "../messages/strings";
 
 export default function Transfers() {
 
@@ -37,7 +35,7 @@ export default function Transfers() {
         borderBottom: "1px solid #f1e7ee",
     };
 
-    const { success, error } = useNotification();
+    const { error } = useNotification();
 
     const [loading, setLoading] = useState(true);
     const [messages, setMessages] = useState<Array<any>>([]);
@@ -112,9 +110,9 @@ export default function Transfers() {
                                                         {formatCreated(msg.creation_time)}
                                                     </Typography>
 
-                                                    < Stack direction="row" alignItems="center" spacing={1}>
+                                                    < Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
                                                         <PersonIcon sx={{ fontSize: 18 }} color="action" />
-                                                        <Typography fontWeight={500}>
+                                                        <Typography sx={{ fontWeight: 500 }}>
                                                             {msg.receiver}
                                                         </Typography>
 
@@ -135,7 +133,7 @@ export default function Transfers() {
                             loading ?
                                 <CircularProgress />
                                 :
-                                <Box textAlign="center" mt={4} color="text.secondary">
+                                <Box color="text.secondary" sx={{ textAlign: "center", mt: 4 }}>
                                     <InboxIcon sx={{ fontSize: 64, opacity: 0.4 }} />
                                     <Typography variant="h6">No files yet</Typography>
                                     <Typography variant="body2">

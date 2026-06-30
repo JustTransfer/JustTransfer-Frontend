@@ -1,10 +1,5 @@
-import * as opaque from "@serenity-kit/opaque";
-
 import { apiUrl } from "./config";
-import sodium from "libsodium-wrappers-sumo";
-
 import * as errors from "../messages/errors";
-import * as strings from "../messages/strings";
 
 
 async function postAnonymousMessageLoginStartAPI(id: string, client_login_start: string) {

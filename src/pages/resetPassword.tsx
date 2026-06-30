@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Typography, Paper, TextField, Button, InputAdornment, IconButton, Alert } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
@@ -152,19 +152,21 @@ export default function ResetPasswordPage() {
                             onChange={(e) => setPassword(e.target.value)}
                             error={errorWeakPassword}
                             helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
-                            InputProps={{
-                                endAdornment: (
-                                    < InputAdornment position="end" >
-                                        <IconButton
-                                            aria-label={
-                                                showPassword ? 'hide the password' : 'display the password'
-                                            }
-                                            onClick={handleTogglePassword}
-                                        >
-                                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                )
+                            slotProps={{
+                                input: {
+                                    endAdornment: (
+                                        < InputAdornment position="end" >
+                                            <IconButton
+                                                aria-label={
+                                                    showPassword ? 'hide the password' : 'display the password'
+                                                }
+                                                onClick={handleTogglePassword}
+                                            >
+                                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    )
+                                }
                             }}
                         />
 

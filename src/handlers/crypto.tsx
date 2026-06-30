@@ -4,11 +4,8 @@ import { Base64 } from 'js-base64';
 
 import { registerStartAPI, registerEndAPI, registerUpdateAPI, endPasswordResetAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 } from "./api";
 import { getKeyIdByUsername, getCachedPublicKeyEnc, getCachedPublicKeySign } from "./cachePubKey";
-import { useAuth } from "../hooks/useAuth";
 
 import * as errors from "../messages/errors";
-import * as strings from "../messages/strings";
-
 
 async function initLibsodium() {
     await sodium.ready;
@@ -141,7 +138,7 @@ async function register(username: string, email: string, password: string) {
 
     const registrationResponse = response.result;
 
-    const { exportKey, serverStaticPublicKey, registrationRecord } = opaque.client.finishRegistration({
+    const { exportKey, serverStaticPublicKey: _serverStaticPublicKey, registrationRecord } = opaque.client.finishRegistration({
         clientRegistrationState,
         registrationResponse,
         password,
@@ -156,7 +153,7 @@ async function register(username: string, email: string, password: string) {
     // Generate encryption key pair and encrypt private keys with the export key
     const keys = generateAndEncryptKeys(exportKeyDecoded);
 
-    const result = await registerEndAPI(username, email, registrationRecord, keys.enc_cipher_private_key, keys.enc_nonce_private_key, keys.enc_public_key, keys.sign_cipher_private_key, keys.sign_nonce_private_key, keys.sign_public_key);
+    await registerEndAPI(username, email, registrationRecord, keys.enc_cipher_private_key, keys.enc_nonce_private_key, keys.enc_public_key, keys.sign_cipher_private_key, keys.sign_nonce_private_key, keys.sign_public_key);
 
 
     // Return success
@@ -183,7 +180,7 @@ async function changePassword(username: string, password: string, newPassword: s
 
     const registrationResponse = response2.result;
 
-    const { exportKey, serverStaticPublicKey, registrationRecord } = opaque.client.finishRegistration({
+    const { exportKey, serverStaticPublicKey: _serverStaticPublicKey, registrationRecord } = opaque.client.finishRegistration({
         clientRegistrationState,
         registrationResponse,
         password: newPassword,
@@ -220,7 +217,7 @@ async function resetPassword(username: string, password: string, token: string) 
 
     const registrationResponse = response2.result;
 
-    const { exportKey, serverStaticPublicKey, registrationRecord } = opaque.client.finishRegistration({
+    const { exportKey, serverStaticPublicKey: _serverStaticPublicKey, registrationRecord } = opaque.client.finishRegistration({
         clientRegistrationState,
         registrationResponse,
         password: password,
@@ -235,7 +232,7 @@ async function resetPassword(username: string, password: string, token: string) 
     // Generate new keys
     const encryptedKeys = generateAndEncryptKeys(exportKeyDecoded);
 
-    const response3 = await endPasswordResetAPI(
+    await endPasswordResetAPI(
         token,
         registrationRecord,
         encryptedKeys.enc_cipher_private_key,
@@ -305,7 +302,7 @@ async function loginProcess(username: string, password: string) {
         };
     }
 
-    const { exportKey, serverStaticPublicKey, finishLoginRequest, sessionKey } = loginResult;
+    const { exportKey, serverStaticPublicKey: _serverStaticPublicKey, finishLoginRequest, sessionKey: _sessionKey } = loginResult;
 
     const result2 = await loginEndAPI(username, finishLoginRequest);
 
@@ -429,9 +426,6 @@ async function getOneMessage(username: string, keys: any[], message: any, onChun
     // Update the signature with the metadata JSON structure
     sodium.crypto_sign_update(state, new TextEncoder().encode(JSON.stringify(messageMetadata)));
 
-    // Get the public key enc of the sender to decrypt the filename and file
-    const PublicKeyEncSender = await getCachedPublicKeyEnc(message.sender_key_id);
-
     // Decrypt the filename
     const shared_key_filename = sodium.crypto_kem_dec(message.kem_ciphertext_filename, PrivateKeyEncDecoded);
     const filenameBytes = sodium.crypto_aead_aegis256_decrypt(null, message.cfilename, null, message.nonce_filename, shared_key_filename);
@@ -477,11 +471,10 @@ async function getOneMessage(username: string, keys: any[], message: any, onChun
     return message;
 }
 
-async function sendMessage(username: string, privateKeyEnc: string, privateKeySign: string, receiver: string, fileName: string, file: File, lifetimeDays: number, maxDownloads: number, onProgress?: (percent: number) => void) {
+async function sendMessage(username: string, _privateKeyEnc: string, privateKeySign: string, receiver: string, fileName: string, file: File, lifetimeDays: number, maxDownloads: number, onProgress?: (percent: number) => void) {
 
     await initLibsodium();
 
-    const PrivateKeyEncDecoded = Base64.toUint8Array(privateKeyEnc);
     const PrivateKeySignDecoded = Base64.toUint8Array(privateKeySign);
 
     // Get receiver's public encryption key
@@ -581,7 +574,7 @@ async function sendMessage(username: string, privateKeyEnc: string, privateKeySi
     const signature = sodium.crypto_sign_final_create(state, PrivateKeySignDecoded);
 
     // Finalize the upload
-    const response3 = await finishUploadFileToS3(messageFileId, upload_id, ETags, Base64.fromUint8Array(signature_metadata, true), Base64.fromUint8Array(signature, true));
+    await finishUploadFileToS3(messageFileId, upload_id, ETags, Base64.fromUint8Array(signature_metadata, true), Base64.fromUint8Array(signature, true));
 
     return {
         success: true,

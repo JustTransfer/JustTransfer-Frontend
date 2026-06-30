@@ -18,7 +18,6 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import PasswordStrength from "../components/passwordStrength";
 
 import * as errors from "../messages/errors";
-import * as strings from "../messages/strings";
 
 export type Mode = "changePassword" | "deleteAccount" | "rotateKeys";
 
@@ -72,7 +71,6 @@ export default function AccountActionDialog({
 
     const isChangePassword = mode === "changePassword";
     const isDelete = mode === "deleteAccount";
-    const isRotate = mode === "rotateKeys";
 
     const title = isChangePassword
         ? "Change Password"
@@ -135,7 +133,7 @@ export default function AccountActionDialog({
             <DialogTitle>{title}</DialogTitle>
 
             <DialogContent>
-                <Stack spacing={2} mt={1}>
+                <Stack spacing={2} sx={{ mt: 1 }}>
                     <Typography variant="body2" color="text.secondary">
                         {description}
                     </Typography>
@@ -152,19 +150,21 @@ export default function AccountActionDialog({
                         fullWidth
                         value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
-                        InputProps={{
-                            endAdornment: (
-                                < InputAdornment position="end" >
-                                    <IconButton
-                                        aria-label={
-                                            showPassword1 ? 'hide the password' : 'display the password'
-                                        }
-                                        onClick={handleTogglePassword1}
-                                    >
-                                        {showPassword1 ? <VisibilityOff /> : <Visibility />}
-                                    </IconButton>
-                                </InputAdornment>
-                            )
+                        slotProps={{
+                            input: {
+                                endAdornment: (
+                                    < InputAdornment position="end" >
+                                        <IconButton
+                                            aria-label={
+                                                showPassword1 ? 'hide the password' : 'display the password'
+                                            }
+                                            onClick={handleTogglePassword1}
+                                        >
+                                            {showPassword1 ? <VisibilityOff /> : <Visibility />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                )
+                            }
                         }}
                     />
 
@@ -178,19 +178,21 @@ export default function AccountActionDialog({
                                 onChange={(e) => setNewPassword(e.target.value)}
                                 error={errorWeakPassword || errorSamePassword}
                                 helperText={errorWeakPassword ? errors.errorWeakPassword : errorSamePassword ? errors.errorSamePassword : ""}
-                                InputProps={{
-                                    endAdornment: (
-                                        < InputAdornment position="end" >
-                                            <IconButton
-                                                aria-label={
-                                                    showPassword2 ? 'hide the password' : 'display the password'
-                                                }
-                                                onClick={handleTogglePassword2}
-                                            >
-                                                {showPassword2 ? <VisibilityOff /> : <Visibility />}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    )
+                                slotProps={{
+                                    input: {
+                                        endAdornment: (
+                                            < InputAdornment position="end" >
+                                                <IconButton
+                                                    aria-label={
+                                                        showPassword2 ? 'hide the password' : 'display the password'
+                                                    }
+                                                    onClick={handleTogglePassword2}
+                                                >
+                                                    {showPassword2 ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        )
+                                    }
                                 }}
                             />
 

@@ -1,6 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect } from "react";
-import { Box, Typography, Paper, TextField, Button, InputAdornment, IconButton } from "@mui/material";
+import { Box, Typography, Paper, TextField, Button } from "@mui/material";
 
 import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
@@ -23,8 +21,6 @@ export default function ResetPasswordRequestPage() {
     };
 
     const { success, error } = useNotification();
-
-    const navigate = useNavigate();
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
