@@ -1,17 +1,13 @@
 import { useParams } from 'react-router-dom';
-import React, { useState, useRef, useEffect, use } from "react";
-import { Box, Typography, TextField, Paper, Button, Alert, Chip, InputAdornment, IconButton } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Typography, TextField, Paper, Button, Chip, InputAdornment, IconButton } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
 import DownloadIcon from '@mui/icons-material/Download';
 import LockIcon from '@mui/icons-material/Lock';
 import DescriptionIcon from '@mui/icons-material/Description';
-import LinearProgress, { LinearProgressProps } from '@mui/material/LinearProgress';
+import LinearProgress from '@mui/material/LinearProgress';
+import type { LinearProgressProps } from '@mui/material/LinearProgress';
+
 // @ts-ignore
 import streamSaver from 'streamsaver';
 
@@ -105,7 +101,6 @@ export default function AnonymousTransfer() {
     async function downloadFile() {
         setDownloadProgress(0);
 
-        let messageWithContent
         try {
             setIsDownloading(true);
 
@@ -119,7 +114,7 @@ export default function AnonymousTransfer() {
                 const writer = fileStream.getWriter();
 
                 try {
-                    messageWithContent = await getOneAnonymousMessage(exportKey, messageData, async (chunk, name) => {
+                    await getOneAnonymousMessage(exportKey, messageData, async (chunk, _) => {
                         // Write chunk directly to the stream
                         await writer.write(chunk);
                     }, (percent: number) => {
@@ -138,7 +133,7 @@ export default function AnonymousTransfer() {
                 console.log("Using fallback blob download");
                 const chunks: Uint8Array[] = [];
 
-                messageWithContent = await getOneAnonymousMessage(exportKey, messageData, async (chunk, name) => {
+                await getOneAnonymousMessage(exportKey, messageData, async (chunk, _) => {
                     // Collect chunks in memory
                     chunks.push(new Uint8Array(chunk));
                 }, (percent: number) => {
@@ -234,7 +229,9 @@ export default function AnonymousTransfer() {
                                         sx={statTileSx}
                                     >
                                         <Typography variant="caption" color="text.secondary">Size</Typography>
-                                        <Typography variant="subtitle1" fontWeight="bold">{formatSize(messageData.file_size)}</Typography>
+                                        <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                                            {formatSize(messageData.file_size)}
+                                        </Typography>
                                     </Box>
 
                                     {/* Top-right: Downloads */}
@@ -242,7 +239,7 @@ export default function AnonymousTransfer() {
                                         sx={statTileSx}
                                     >
                                         <Typography variant="caption" color="text.secondary">Downloads</Typography>
-                                        <Typography variant="subtitle1" fontWeight="bold">
+                                        <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
                                             {messageData.number_downloads}/{messageData.max_downloads === 0 ? "∞" : messageData.max_downloads}
                                         </Typography>
                                     </Box>
@@ -252,7 +249,7 @@ export default function AnonymousTransfer() {
                                         sx={statTileSx}
                                     >
                                         <Typography variant="caption" color="text.secondary">Created</Typography>
-                                        <Typography variant="subtitle1" fontWeight="bold">
+                                        <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
                                             {formatCreated(messageData.creation_time)}
                                         </Typography>
                                     </Box>
@@ -265,7 +262,7 @@ export default function AnonymousTransfer() {
                                         <Typography variant="caption" color="text.secondary">
                                             Expires
                                         </Typography>
-                                        <Typography variant="subtitle1" fontWeight="bold">
+                                        <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
                                             {relativeExpire(messageData, true)}
                                         </Typography>
                                     </Box>
@@ -318,19 +315,21 @@ export default function AnonymousTransfer() {
                                     fullWidth
                                     required
 
-                                    InputProps={{
-                                        endAdornment: (
-                                            < InputAdornment position="end" >
-                                                <IconButton
-                                                    aria-label={
-                                                        showPassword ? 'hide the password' : 'display the password'
-                                                    }
-                                                    onClick={handleTogglePassword}
-                                                >
-                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                                                </IconButton>
-                                            </InputAdornment>
-                                        )
+                                    slotProps={{
+                                        input: {
+                                            endAdornment: (
+                                                < InputAdornment position="end" >
+                                                    <IconButton
+                                                        aria-label={
+                                                            showPassword ? 'hide the password' : 'display the password'
+                                                        }
+                                                        onClick={handleTogglePassword}
+                                                    >
+                                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            )
+                                        }
                                     }}
                                 />
                                 <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>

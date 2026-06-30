@@ -1,18 +1,13 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, Button, IconButton, Paper, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, ListItem, ListItemIcon, ListItemText, Stack, Chip, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
+import { Box, Typography, Button, IconButton, ListItem, ListItemIcon, ListItemText, Stack, Chip, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DownloadIcon from '@mui/icons-material/Download';
 import InboxIcon from '@mui/icons-material/Inbox';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PersonIcon from '@mui/icons-material/Person';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
-
-import CircularProgress, {
-    CircularProgressProps,
-} from '@mui/material/CircularProgress';
-import Alert from '@mui/material/Alert';
+import CircularProgress from '@mui/material/CircularProgress';
 
 // @ts-ignore
 import streamSaver from 'streamsaver';
@@ -65,7 +60,7 @@ function DownloadSection({ msg, progress, onDownload, onDelete }: Props) {
     // Downloading state
     if (progress !== undefined) {
         return (
-            <Stack direction="row" spacing={1} alignItems="center" minWidth={90}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center", minWidth: 90 }}>
                 <CircularProgress variant="determinate" value={progress} size={22} />
                 <Typography variant="caption">{Math.round(progress)}%</Typography>
             </Stack>
@@ -114,7 +109,7 @@ export default function Inbox() {
         borderBottom: "1px solid #f1e7ee",
     };
 
-    const { username, keys, getLatestKeys } = useAuth();
+    const { username, keys } = useAuth();
 
     const { success, error } = useNotification();
     const [messages, setMessages] = useState<Array<any>>([]);
@@ -162,7 +157,7 @@ export default function Inbox() {
 
 
                 try {
-                    messageWithContent = await getOneMessage(username!, keys!, message, async (chunk, name) => {
+                    messageWithContent = await getOneMessage(username!, keys!, message, async (chunk, _) => {
                         // Write chunk directly to the stream
                         await writer!.write(chunk);
                     }, (percent: number) => {
@@ -181,7 +176,7 @@ export default function Inbox() {
                 console.log("Using fallback blob download");
                 const chunks: Uint8Array[] = [];
 
-                messageWithContent = await getOneMessage(username!, keys!, message, async (chunk, name) => {
+                messageWithContent = await getOneMessage(username!, keys!, message, async (chunk, _) => {
                     // Collect chunks in memory
                     chunks.push(new Uint8Array(chunk));
                 }, (percent: number) => {
@@ -307,19 +302,19 @@ export default function Inbox() {
                                         <ListItemText
                                             primary={
                                                 <Stack spacing={1}>
-                                                    <Stack direction="row" spacing={1} alignItems="center">
+                                                    <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
                                                         <PersonIcon sx={{ fontSize: 16, opacity: 0.7 }} />
                                                         <Typography variant="caption" color="text.secondary">
                                                             From <b>{msg.sender}</b> • Received {formatCreated(msg.creation_time)}
                                                         </Typography>
                                                     </Stack>
 
-                                                    <Stack direction="row" spacing={1} alignItems="center">
-                                                        <Typography fontWeight={600}>{msg.filename}</Typography>
+                                                    <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+                                                        <Typography sx={{ fontWeight: 600 }}>{msg.filename}</Typography>
                                                         <Chip label={formatSize(msg.file_size)} size="small" />
                                                     </Stack>
 
-                                                    <Stack direction="row" spacing={1} mt={0.5}>
+                                                    <Stack direction="row" spacing={1} sx={{ mt: 0.5 }}>
                                                         <Chip
                                                             size="small"
                                                             variant={expireColor(msg) === "error.main" ? "filled" : expireColor(msg) === "warning.main" ? "filled" : "outlined"}
@@ -352,7 +347,7 @@ export default function Inbox() {
                             loading ?
                                 <CircularProgress />
                                 :
-                                <Box textAlign="center" mt={4} color="text.secondary">
+                                <Box color="text.secondary" sx={{ mt: 4, textAlign: "center" }}>
                                     <InboxIcon sx={{ fontSize: 64, opacity: 0.4 }} />
                                     <Typography variant="h6">No files yet</Typography>
                                     <Typography variant="body2">

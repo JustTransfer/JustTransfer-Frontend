@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Button, Stack, Divider, Avatar, Card, CardContent, LinearProgress, Grid, Chip } from "@mui/material";
+import { Box, Typography, Button, Stack, Divider, Avatar, Card, LinearProgress, Grid, Chip } from "@mui/material";
 import StorageIcon from "@mui/icons-material/Storage";
 import DownloadIcon from "@mui/icons-material/Download";
 import ScheduleIcon from "@mui/icons-material/Schedule";
@@ -18,7 +18,7 @@ import { changePassword, generateNewKeys } from "../handlers/crypto";
 import { getAccountInfoAPI, deleteAccountAPI } from "../handlers/api";
 import { formatSize } from "../handlers/utils";
 import AccountActionDialog from "../components/AccountActionDialog";
-import { Mode } from "../components/AccountActionDialog";
+import type { Mode } from "../components/AccountActionDialog";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
@@ -39,13 +39,13 @@ function PlanLimitCard({
     return (
         <Card variant="outlined" sx={{ borderRadius: 3, p: 2 }}>
             <Stack spacing={1}>
-                <Stack direction="row" spacing={2} alignItems="center">
+                <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
                     {icon}
                     <Box>
                         <Typography variant="caption" color="text.secondary">
                             {title}
                         </Typography>
-                        <Typography variant="h6" fontWeight={600}>
+                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
                             {value} {unit && <Typography variant="caption" color="text.secondary">{unit}</Typography>}
                         </Typography>
                     </Box>
@@ -218,7 +218,7 @@ export default function AccountPage() {
 
                         <Stack spacing={3}>
 
-                            <Box display="flex" alignItems="center" justifyContent="space-between">
+                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                                 <Typography variant="h5">
                                     Plan Overview
                                 </Typography>
@@ -244,7 +244,7 @@ export default function AccountPage() {
                                 </Typography>
                             ) : (
 
-                                <Grid container spacing={3} mt={1}>
+                                <Grid container spacing={3} sx={{ mt: 1 }}>
 
                                     <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                                         <PlanLimitCard

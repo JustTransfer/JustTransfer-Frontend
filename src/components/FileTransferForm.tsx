@@ -1,10 +1,11 @@
 import React, { useState, useRef } from "react";
-import { Box, Typography, TextField, Paper, Button, Alert, IconButton, InputAdornment } from "@mui/material";
+import { Box, Typography, TextField, Paper, Button, IconButton, InputAdornment } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DescriptionIcon from '@mui/icons-material/Description';
-import LinearProgress, { LinearProgressProps } from '@mui/material/LinearProgress';
+import LinearProgress from '@mui/material/LinearProgress';
+import type { LinearProgressProps } from '@mui/material/LinearProgress';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -244,7 +245,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                     {selectedFile ? (
                         <>
                             <DescriptionIcon sx={{ fontSize: 80, color: "primary.main" }} />
-                            <Typography variant="body2" color="subtitle1" fontWeight="bold">
+                            <Typography variant="body2" color="subtitle1" sx={{ fontWeight: "bold" }}>
                                 {`${selectedFile.name} (${formatSize(selectedFile.size)})`}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
@@ -255,7 +256,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                     ) : (
                         <>
                             <AddBoxIcon sx={{ fontSize: 80, color: "primary.main" }} />
-                            <Typography variant="subtitle1" fontWeight="bold">
+                            <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
                                 No file selected
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
@@ -277,19 +278,19 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                                 onChange={(e) => setPassword(e.target.value)}
                                 error={errorWeakPassword}
                                 helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
-                                InputProps={{
-                                    endAdornment: (
-                                        < InputAdornment position="end" >
-                                            <IconButton
-                                                aria-label={
-                                                    showPassword ? 'hide the password' : 'display the password'
-                                                }
-                                                onClick={handleTogglePassword}
-                                            >
-                                                {showPassword ? <VisibilityOff /> : <Visibility />}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    )
+                                slotProps={{
+                                    input: {
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                                    onClick={handleTogglePassword}
+                                                >
+                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    },
                                 }}
                             />
 
@@ -309,8 +310,8 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 )}
 
                 <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 2, width: "100%" }}>
-                    <TextField label="Max Downloads" name="maxDownloads" type="number" InputProps={{ inputProps: { min: 1, max: maxDownloads } }} variant="outlined" fullWidth required helperText={maxDownloads ? `Max allowed: ${maxDownloads}` : undefined} />
-                    <TextField label="Lifetime" name="lifetime" type="number" InputProps={{ inputProps: { min: 1, max: maxLifetime } }} variant="outlined" fullWidth required helperText={maxLifetime ? `Max allowed: ${maxLifetime} days` : undefined} />
+                    <TextField label="Max Downloads" name="maxDownloads" type="number" slotProps={{ htmlInput: { min: 1, max: maxDownloads } }} variant="outlined" fullWidth required helperText={maxDownloads ? `Max allowed: ${maxDownloads}` : undefined} />
+                    <TextField label="Lifetime" name="lifetime" type="number" slotProps={{ htmlInput: { min: 1, max: maxLifetime } }} variant="outlined" fullWidth required helperText={maxLifetime ? `Max allowed: ${maxLifetime} days` : undefined} />
                 </Box>
 
                 {type === "anonymous" ? (
@@ -356,6 +357,6 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                     <Button onClick={handleCloseDialog}>Close</Button>
                 </DialogActions>
             </Dialog>
-        </Paper>
+        </Paper >
     );
 }

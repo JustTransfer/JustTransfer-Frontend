@@ -1,6 +1,6 @@
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import { useTheme, createTheme, ThemeProvider } from '@mui/material/styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
@@ -10,14 +10,12 @@ import { Button } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import LinkIcon from "@mui/icons-material/Link";
 
 import SendIcon from '@mui/icons-material/Send';
 import Container from "@mui/material/Container";
 import Link from '@mui/material/Link';
 
 import { useAuth } from "../hooks/useAuth";
-import { frontendUrl } from '../handlers/config';
 import { emailAddress } from "../handlers/config";
 import BetaBanner from './betaBanner';
 
@@ -27,7 +25,6 @@ const logoWidth = "200px";
 
 const leftBarWidth = "220px";
 
-const footerHeight = "270px";
 const footerMinAboutWidth = "300px";
 const footerMinLinkWidth = "220px";
 const footerMinResourceWidth = "200px";
@@ -51,15 +48,17 @@ const defaultTheme = createTheme({
     components: {
         MuiButton: {
             styleOverrides: {
-                root: {
+                root: ({ ownerState }) => ({
                     textTransform: "none",
                     fontSize: "1rem",
-                },
-                containedPrimary: {
-                    "&:hover": {
-                        backgroundColor: "#a813a8",
-                    },
-                },
+
+                    ...(ownerState.variant === "contained" &&
+                        ownerState.color === "primary" && {
+                        "&:hover": {
+                            backgroundColor: "#a813a8",
+                        },
+                    }),
+                }),
             },
         },
     },
@@ -187,8 +186,6 @@ export default function Layout({ title, content }: { title: string; content: Rea
 
     const isActive = (path: string) => location.pathname === path;
 
-    const theme = useTheme();
-
     const { username } = useAuth();
     const isLoggedIn = !!username;
 
@@ -249,8 +246,10 @@ export default function Layout({ title, content }: { title: string; content: Rea
                     {/* Title */}
                     <Typography
                         variant="h6"
-                        fontWeight="bold"
-                        sx={{ ml: 6 }}
+                        sx={{
+                            ml: 6,
+                            fontWeight: "bold"
+                        }}
                     >
                         {title}
                     </Typography>

@@ -8,7 +8,6 @@ import { uploadFileToS3, downloadFileFromS3 } from "./api";
 import { postAnonymousMessageLoginStartAPI, postAnonymousMessageLoginEndAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, finishUploadFileToS3Anonymous } from "./api_anonymous";
 
 import * as errors from "../messages/errors";
-import * as strings from "../messages/strings";
 
 async function initLibsodium() {
     await sodium.ready;
@@ -38,10 +37,10 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
         throw new Error(errors.errorLoginFailed);
     }
 
-    const { exportKey, serverStaticPublicKey, finishLoginRequest, sessionKey } = loginResult;
+    const { exportKey, serverStaticPublicKey: _serverStaticPublicKey, finishLoginRequest, sessionKey: _sessionKey } = loginResult;
 
     // Finish the login process
-    const responseOpaqueFinish = await postAnonymousMessageLoginEndAPI(message_id, finishLoginRequest);
+    await postAnonymousMessageLoginEndAPI(message_id, finishLoginRequest);
 
     // Decode export key
     const exportKeyAegisDecoded = Base64.toUint8Array(exportKey).slice(0, 32);
@@ -178,7 +177,7 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
         throw new Error(errors.errorAPIRequestFailed);
     }
 
-    const { exportKey, serverStaticPublicKey, registrationRecord } = opaque.client.finishRegistration({
+    const { exportKey, serverStaticPublicKey: _serverStaticPublicKey, registrationRecord } = opaque.client.finishRegistration({
         clientRegistrationState,
         registrationResponse,
         password,
@@ -274,7 +273,7 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
     const mac_b64 = Base64.fromUint8Array(mac, true);
 
     // Finalize the upload
-    const response3 = await finishUploadFileToS3Anonymous(message_file_id, upload_id, ETags, mac_b64);
+    await finishUploadFileToS3Anonymous(message_file_id, upload_id, ETags, mac_b64);
 
     return {
         success: true,
