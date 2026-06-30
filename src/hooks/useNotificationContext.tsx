@@ -22,6 +22,8 @@ const NotificationContext = createContext<NotificationContextType | null>(null);
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
 
+    const NOTIFICATION_DURATION = 3000; // Duration in milliseconds
+
     const [notifications, setNotifications] = useState<NotificationItem[]>([]);
     const counter = React.useRef(0);
 
@@ -58,7 +60,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
                     <Snackbar
                         key={n.id}
                         open
-                        autoHideDuration={3000}
+                        autoHideDuration={NOTIFICATION_DURATION}
                         onClose={() => remove(n.id)}
                         anchorOrigin={{
                             vertical: "bottom",
