@@ -21,7 +21,7 @@ export default function AcceptTermsService({
                 checked={accepted}
                 sx={{ p: 0 }}
             />
-            I accept the <Link component={RouterLink} to="/terms">Terms of Service</Link>
+            I agree to the <Link component={RouterLink} to="/terms">Terms of Service</Link> and <Link component={RouterLink} to="/privacy-policy">Privacy Policy</Link>
         </Box>
     );
 }
