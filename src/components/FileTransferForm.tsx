@@ -13,6 +13,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { useNotification } from "../hooks/useNotificationContext";
 import * as errors from "../messages/errors";
 import PasswordStrength from "./passwordStrength";
+import AcceptTermsService from "./acceptTermsService";
 import { formatSize, isValidUsername } from "../handlers/utils";
 
 type FileTransferFormProps =
@@ -74,6 +75,8 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const formRef = useRef<HTMLFormElement | null>(null);
 
+    const [acceptedTerms, setAcceptedTerms] = useState(false);
+
     function LinearProgressWithLabel(props: LinearProgressProps & { value: number }) {
         return (
             <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
@@ -132,6 +135,11 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             const confirm = formData.get("confirmPassword") as string;
 
             let hasError = false;
+
+            if (!acceptedTerms) {
+                error(errors.errorTermsServicesNotAccepted);
+                hasError = true;
+            }
 
             if (!isStrong) {
                 error(errors.errorWeakPassword);
@@ -305,10 +313,20 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                     <TextField label="Lifetime" name="lifetime" type="number" InputProps={{ inputProps: { min: 1, max: maxLifetime } }} variant="outlined" fullWidth required helperText={maxLifetime ? `Max allowed: ${maxLifetime} days` : undefined} />
                 </Box>
 
+                {type === "anonymous" ? (
+                    <AcceptTermsService
+                        accepted={acceptedTerms}
+                        onChange={setAcceptedTerms}
+                    />
+                ) : (
+                    null
+                )}
+
+
                 {isSending ?
                     <LinearProgressWithLabel value={progress} />
                     :
-                    <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>Send File</Button>
+                    <Button type="submit" variant="contained" fullWidth>Send File</Button>
                 }
             </Box>
 

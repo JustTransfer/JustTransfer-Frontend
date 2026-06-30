@@ -11,6 +11,7 @@ import Layout from "../components/layout";
 import { register } from "../handlers/crypto";
 import PasswordStrength from "../components/passwordStrength";
 import { isValidUsername } from "../handlers/utils";
+import AcceptTermsService from "../components/acceptTermsService";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
@@ -36,6 +37,7 @@ export default function CreateAccountPage() {
     const [errorInvalidUsername, setErrorInvalidUsername] = useState(false);
     const [errorPasswordMismatch, setErrorPasswordMismatch] = useState(false);
     const [errorWeakPassword, setErrorWeakPassword] = useState(false);
+    const [acceptedTerms, setAcceptedTerms] = useState(false);
 
     const [password, setPassword] = useState("");
     const [isStrong, setIsStrong] = useState(false);
@@ -57,6 +59,11 @@ export default function CreateAccountPage() {
         };
 
         let hasError = false;
+
+        if (!acceptedTerms) {
+            error(errors.errorTermsServicesNotAccepted);
+            hasError = true;
+        }
 
         if (!isValidUsername(data.username as string)) {
             setErrorInvalidUsername(true);
@@ -116,7 +123,6 @@ export default function CreateAccountPage() {
                     flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
-                    px: { xs: 2, md: 3 },
                     py: { xs: 4, md: 6 },
                     gap: 2,
                 }}
@@ -188,6 +194,12 @@ export default function CreateAccountPage() {
                             error={errorPasswordMismatch}
                             helperText={errorPasswordMismatch ? errors.errorPasswordMismatch : ""}
                         />
+
+                        <AcceptTermsService
+                            accepted={acceptedTerms}
+                            onChange={setAcceptedTerms}
+                        />
+
                         <Button
                             type="submit"
                             variant="contained"
