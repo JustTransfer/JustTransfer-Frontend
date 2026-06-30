@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 
-import { Snackbar, Alert } from "@mui/material";
+import { Snackbar, Alert, Box } from "@mui/material";
 
 type NotificationType = "success" | "error" | "info" | "warning";
 
@@ -43,27 +43,42 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         <NotificationContext.Provider value={{ notify, success, error, info, warning }}>
             {children}
 
-            {notifications.map((n, index) => (
-                <Snackbar
-                    key={n.id}
-                    open
-                    autoHideDuration={3000}
-                    onClose={() => remove(n.id)}
-                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                    sx={{
-                        bottom: `${24 + index * 70}px` // stacking offset
-                    }}
-                >
-                    <Alert
-                        severity={n.type}
-                        variant="filled"
-                        sx={{ width: "100%" }}
+            <Box
+                sx={{
+                    position: "fixed",
+                    bottom: 24,
+                    right: 24,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 1,
+                    zIndex: (theme: any) => theme.zIndex.snackbar,
+                }}
+            >
+                {notifications.map((n) => (
+                    <Snackbar
+                        key={n.id}
+                        open
+                        autoHideDuration={3000}
                         onClose={() => remove(n.id)}
+                        anchorOrigin={{
+                            vertical: "bottom",
+                            horizontal: "right",
+                        }}
+                        sx={{
+                            position: "static",
+                            transform: "none",
+                        }}
                     >
-                        {n.message}
-                    </Alert>
-                </Snackbar>
-            ))}
+                        <Alert
+                            severity={n.type}
+                            variant="filled"
+                            onClose={() => remove(n.id)}
+                        >
+                            {n.message}
+                        </Alert>
+                    </Snackbar>
+                ))}
+            </Box>
         </NotificationContext.Provider>
     );
 }
