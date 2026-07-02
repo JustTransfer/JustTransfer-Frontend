@@ -97,7 +97,15 @@ export default function HomePage() {
                                 <Chip label="Auto-delete" size="small" />
                             </Box>
                             <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-                                <Button variant="contained" href="#how-it-works">
+                                <Button
+                                    variant="contained"
+                                    onClick={() => {
+                                        document.getElementById("how-it-works")?.scrollIntoView({
+                                            behavior: "smooth",
+                                            block: "start",
+                                        });
+                                    }}
+                                >
                                     See how it works
                                 </Button>
                                 <Button variant="outlined" onClick={() => navigate("/login")}>
