@@ -32,7 +32,7 @@ export const errorWeakPassword = "Password is too weak. Please choose a stronger
 export const errorPageNotFound = "Page not found.";
 export const errorInvalidResetLink = "Invalid password reset link.";
 export const errorInvalidUsernameShort = "Invalid username format."
-export const errorInvalidUsername = "Invalid username, use 3-20 characters, letters, numbers and - only.";
+export const errorInvalidUsername = "Invalid username.Use 3 - 20 lowercase letters, numbers, and underscores only.";
 
 // API Errors
 export const errorAPIRequestFailed = "API request failed. Please try again later.";
