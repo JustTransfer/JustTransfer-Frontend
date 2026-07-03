@@ -133,11 +133,11 @@ export default function HomePage() {
                                     maxLifetime: anonymousLimits.maxLifetime,
                                     onSubmit: async (data, onProgress) => {
                                         const result = await sendMessageAnonymous(
-                                            data.password,
                                             data.file.name,
                                             data.file,
                                             data.lifetime,
                                             data.maxDownloads,
+                                            data.password,
                                             onProgress
                                         );
                                         return result.link;

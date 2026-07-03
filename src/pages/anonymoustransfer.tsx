@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
-import React, { useState } from "react";
-import { Box, Typography, TextField, Paper, Button, Chip, InputAdornment, IconButton } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Box, Typography, TextField, Paper, Button, Chip, InputAdornment, IconButton, CircularProgress } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import DownloadIcon from '@mui/icons-material/Download';
 import LockIcon from '@mui/icons-material/Lock';
@@ -53,6 +53,7 @@ export default function AnonymousTransfer() {
 
     const limitReached = messageData && messageData.max_downloads !== 0 && messageData.number_downloads >= messageData.max_downloads;
 
+    const [isLoading, setIsLoading] = useState(true);
     const [isDownloading, setIsDownloading] = useState(false);
     const [downloadProgress, setDownloadProgress] = useState(0);
 
@@ -72,30 +73,30 @@ export default function AnonymousTransfer() {
         );
     }
 
-    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-        const form = event.currentTarget;
-        const formData = new FormData(form);
-
-        const data = {
-            password: formData.get("password"),
-        };
-
+    async function getMessageMetadata(password: string) {
         try {
             setIsDownloading(false);
             setDownloadProgress(0);
-            const result = await getOneAnonymousMessageMetadata(data.password as string, id!);
+            const result = await getOneAnonymousMessageMetadata(password as string, id!);
 
             setExportKey(result.exportKey);
             setMessageData(result.messageData);
 
             success(strings.msgFileInfoDecrypted);
 
-        } catch (e) {
-
-            error("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
+        } catch (e: any) {
+            error(e.message || "Unknown error");
             return;
         }
+    }
+
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const formData = new FormData(form);
+        const password = formData.get("password");
+
+        await getMessageMetadata(password as string);
     }
 
     async function downloadFile() {
@@ -171,6 +172,46 @@ export default function AnonymousTransfer() {
             setIsDownloading(false);
             setDownloadProgress(0);
         }
+    }
+
+    useEffect(() => {
+        // Check if the url contains a fragment (after #) for the password
+        const hash = window.location.hash;
+
+        if (!hash) {
+            setIsLoading(false);
+            return;
+        }
+
+        const passwordFromFragment = hash.substring(1); // Remove the '#' character
+
+        const loadMetadata = async () => {
+            await getMessageMetadata(passwordFromFragment);
+            setIsLoading(false);
+        };
+
+        loadMetadata();
+    }, []);
+
+    if (isLoading) {
+        return (
+            <Layout
+                title="Link Transfer"
+                content={
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            minHeight: "100vh",
+                            transform: "translateY(-20vh)",
+                        }}
+                    >
+                        <CircularProgress />
+                    </Box>
+                }
+            />
+        );
     }
 
     return (

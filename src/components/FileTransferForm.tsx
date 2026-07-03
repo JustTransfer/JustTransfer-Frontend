@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Box, Typography, TextField, Paper, Button, IconButton, InputAdornment } from "@mui/material";
+import { Box, Typography, TextField, Paper, Button, IconButton, InputAdornment, Checkbox, FormGroup, FormControlLabel } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -54,6 +54,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
     const { success, error } = useNotification();
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [isUsingPassword, setIsUsingPassword] = useState(false);
     const [password, setPassword] = useState("");
     const [isStrong, setIsStrong] = useState(false);
 
@@ -114,6 +115,8 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
         formRef.current?.reset();
         setPassword("");
         setIsStrong(false);
+        setIsUsingPassword(false);
+        setAcceptedTerms(false);
     };
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -132,7 +135,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
         };
 
         if (type === "anonymous") {
-            const pass = formData.get("password") as string;
+            const password = formData.get("password") as string;
             const confirm = formData.get("confirmPassword") as string;
 
             let hasError = false;
@@ -142,20 +145,23 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 hasError = true;
             }
 
-            if (!isStrong) {
-                error(errors.errorWeakPassword);
-                setErrorWeakPassword(true);
-                hasError = true;
-            } else {
-                setErrorWeakPassword(false);
-            }
+            // Validate password fields if using password
+            if (isUsingPassword) {
+                if (!isStrong) {
+                    error(errors.errorWeakPassword);
+                    setErrorWeakPassword(true);
+                    hasError = true;
+                } else {
+                    setErrorWeakPassword(false);
+                }
 
-            if (pass !== confirm) {
-                error(errors.errorPasswordMismatch);
-                setErrorPassword(true);
-                hasError = true;
-            } else {
-                setErrorPassword(false);
+                if (password !== confirm) {
+                    error(errors.errorPasswordMismatch);
+                    setErrorPassword(true);
+                    hasError = true;
+                } else {
+                    setErrorPassword(false);
+                }
             }
 
             if (hasError) {
@@ -163,7 +169,11 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             }
 
             setErrorPassword(false);
-            data.password = pass;
+            if (isUsingPassword) {
+                data.password = password;
+            } else {
+                data.password = undefined; // Let the backend generate a random password
+            }
         } else {
 
             data.receiver = formData.get("receiver") as string;
@@ -267,41 +277,60 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 </Box>
 
                 {type === "anonymous" ? (
-                    <>
-                        <Box sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 2,
-                            width: "100%",
-                        }}>
-                            <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
-                                onChange={(e) => setPassword(e.target.value)}
-                                error={errorWeakPassword}
-                                helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
-                                slotProps={{
-                                    input: {
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <IconButton
-                                                    aria-label={showPassword ? "Hide password" : "Show password"}
-                                                    onClick={handleTogglePassword}
-                                                >
-                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                                                </IconButton>
-                                            </InputAdornment>
-                                        ),
-                                    },
-                                }}
+
+                    <Box sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2,
+                        width: "100%",
+                    }}>
+                        <FormGroup>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={isUsingPassword}
+                                        onChange={(_event, checked) => {
+                                            setIsUsingPassword(checked);
+                                        }}
+                                    />
+                                }
+                                label="Manually set password"
                             />
+                        </FormGroup>
 
-                            <PasswordStrength password={password} onStrengthChange={setIsStrong} />
-                        </Box>
+                        {isUsingPassword && (
+                            <>
+                                <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    error={errorWeakPassword}
+                                    helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
+                                    slotProps={{
+                                        input: {
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <IconButton
+                                                        aria-label={showPassword ? "Hide password" : "Show password"}
+                                                        onClick={handleTogglePassword}
+                                                    >
+                                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            ),
+                                        },
+                                    }}
+                                />
 
-                        <TextField label="Confirm Password" name="confirmPassword" type="password" variant="outlined" fullWidth required
-                            error={errorPassword}
-                            helperText={errorPassword ? errors.errorPasswordMismatch : ""}
-                        />
-                    </>
+                                <PasswordStrength password={password} onStrengthChange={setIsStrong} />
+
+
+                                <TextField label="Confirm Password" name="confirmPassword" type="password" variant="outlined" fullWidth required
+                                    error={errorPassword}
+                                    helperText={errorPassword ? errors.errorPasswordMismatch : ""}
+                                />
+                            </>
+                        )}
+                    </Box>
+
                 ) : (
                     <TextField label="Receiver" name="receiver" type="text" variant="outlined" fullWidth required
                         error={errorReceiver}

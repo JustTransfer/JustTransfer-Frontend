@@ -8,6 +8,7 @@ import { uploadFileToS3, downloadFileFromS3 } from "./api";
 import { postAnonymousMessageLoginStartAPI, postAnonymousMessageLoginEndAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, finishUploadFileToS3Anonymous } from "./api_anonymous";
 
 import * as errors from "../messages/errors";
+import { linkTransferGeneratedPasswordLen } from "./config";
 
 async function initLibsodium() {
     await sodium.ready;
@@ -160,9 +161,18 @@ async function getOneAnonymousMessage(exportKey: string, message: any, onChunk: 
 /// Send Anonymous Message
 ///
 
-async function sendMessageAnonymous(password: string, fileName: string, file: File, lifetimeDays: number, maxDownloads: number, onProgress?: (percent: number) => void) {
+async function sendMessageAnonymous(fileName: string, file: File, lifetimeDays: number, maxDownloads: number, password?: string, onProgress?: (percent: number) => void) {
 
     await initLibsodium();
+
+    let isEmptyPassword = false;
+
+    // If password is not provided, generate a random password
+    if (password === undefined || password === null || password === "") {
+        const randomBytes = sodium.randombytes_buf(linkTransferGeneratedPasswordLen);
+        password = Base64.fromUint8Array(randomBytes, true);
+        isEmptyPassword = true;
+    }
 
     // Create key from OPAQUE
     const { clientRegistrationState, registrationRequest } = opaque.client.startRegistration({ password });
@@ -275,10 +285,18 @@ async function sendMessageAnonymous(password: string, fileName: string, file: Fi
     // Finalize the upload
     await finishUploadFileToS3Anonymous(message_file_id, upload_id, ETags, mac_b64);
 
+    let link: string;
+    if (isEmptyPassword) {
+        link = `${frontendUrl}/anonymous-transfer/${transferId}#${password}`;
+
+    } else {
+        link = `${frontendUrl}/anonymous-transfer/${transferId}`;
+    }
+
     return {
         success: true,
         message: "Message sent successfully!",
-        link: `${frontendUrl}/anonymous-transfer/${transferId}`,
+        link: link,
     };
 }
 
