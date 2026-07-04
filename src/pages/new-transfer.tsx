@@ -109,11 +109,11 @@ export default function NewTransfer() {
                                     maxLifetime: config?.max_lifetime_anonymous!,
                                     onSubmit: async (data, onProgress) => {
                                         const result = await sendMessageAnonymous(
-                                            data.password,
                                             data.file.name,
                                             data.file,
                                             data.lifetime,
                                             data.maxDownloads,
+                                            data.password,
                                             onProgress
                                         );
                                         return result.link;

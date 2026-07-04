@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Box, Typography, TextField, Paper, Button, IconButton, InputAdornment } from "@mui/material";
+import { Box, Typography, TextField, Paper, Button, IconButton, InputAdornment, Collapse, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -54,6 +54,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
     const { success, error } = useNotification();
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [isUsingPassword, setIsUsingPassword] = useState(false);
     const [password, setPassword] = useState("");
     const [isStrong, setIsStrong] = useState(false);
 
@@ -71,6 +72,19 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
     const [showPassword, setShowPassword] = useState(false);
     const handleTogglePassword = () => {
         setShowPassword(prev => !prev);
+    };
+
+    const handlePasswordModeChange = (_event: React.MouseEvent<HTMLElement>, nextValue: string | null) => {
+        const useManualPassword = nextValue === "manual";
+        setIsUsingPassword(useManualPassword);
+
+        if (!useManualPassword) {
+            setPassword("");
+            setIsStrong(false);
+            setShowPassword(false);
+            setErrorPassword(false);
+            setErrorWeakPassword(false);
+        }
     };
 
     const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -114,6 +128,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
         formRef.current?.reset();
         setPassword("");
         setIsStrong(false);
+        setAcceptedTerms(false);
     };
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -132,7 +147,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
         };
 
         if (type === "anonymous") {
-            const pass = formData.get("password") as string;
+            const password = formData.get("password") as string;
             const confirm = formData.get("confirmPassword") as string;
 
             let hasError = false;
@@ -142,20 +157,23 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 hasError = true;
             }
 
-            if (!isStrong) {
-                error(errors.errorWeakPassword);
-                setErrorWeakPassword(true);
-                hasError = true;
-            } else {
-                setErrorWeakPassword(false);
-            }
+            // Validate password fields if using password
+            if (isUsingPassword) {
+                if (!isStrong) {
+                    error(errors.errorWeakPassword);
+                    setErrorWeakPassword(true);
+                    hasError = true;
+                } else {
+                    setErrorWeakPassword(false);
+                }
 
-            if (pass !== confirm) {
-                error(errors.errorPasswordMismatch);
-                setErrorPassword(true);
-                hasError = true;
-            } else {
-                setErrorPassword(false);
+                if (password !== confirm) {
+                    error(errors.errorPasswordMismatch);
+                    setErrorPassword(true);
+                    hasError = true;
+                } else {
+                    setErrorPassword(false);
+                }
             }
 
             if (hasError) {
@@ -163,7 +181,11 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             }
 
             setErrorPassword(false);
-            data.password = pass;
+            if (isUsingPassword) {
+                data.password = password;
+            } else {
+                data.password = undefined; // Let the backend generate a random password
+            }
         } else {
 
             data.receiver = formData.get("receiver") as string;
@@ -257,62 +279,121 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                         <>
                             <AddBoxIcon sx={{ fontSize: 80, color: "primary.main" }} />
                             <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                                No file selected
+                                Click to add a file
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                Click to add a file
+                                Up to {formatSize(maxFileSize)} allowed
                             </Typography>
                         </>
                     )}
                 </Box>
 
+                <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 2, width: "100%" }}>
+                    <TextField label="Max Downloads" name="maxDownloads" type="number" slotProps={{ htmlInput: { min: 1, max: maxDownloads } }} variant="outlined" fullWidth required helperText={maxDownloads ? `Max allowed: ${maxDownloads}` : undefined} />
+                    <TextField label="Lifetime" name="lifetime" type="number" slotProps={{ htmlInput: { min: 1, max: maxLifetime } }} variant="outlined" fullWidth required helperText={maxLifetime ? `Max allowed: ${maxLifetime} days` : undefined} />
+                </Box>
+
                 {type === "anonymous" ? (
-                    <>
+
+                    <Box sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2,
+                        width: "100%",
+                    }}>
                         <Box sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 2,
-                            width: "100%",
+                            p: 2,
+                            borderRadius: 3,
+                            border: "1px solid",
+                            borderColor: "divider",
+                            backgroundColor: "background.paper",
+                            textAlign: "left",
                         }}>
-                            <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
-                                onChange={(e) => setPassword(e.target.value)}
-                                error={errorWeakPassword}
-                                helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
-                                slotProps={{
-                                    input: {
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <IconButton
-                                                    aria-label={showPassword ? "Hide password" : "Show password"}
-                                                    onClick={handleTogglePassword}
-                                                >
-                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                                                </IconButton>
-                                            </InputAdornment>
-                                        ),
+                            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+                                Password choice
+                            </Typography>
+                            <ToggleButtonGroup
+                                exclusive
+                                fullWidth
+                                value={isUsingPassword ? "manual" : "auto"}
+                                onChange={handlePasswordModeChange}
+                                sx={{
+                                    display: "grid",
+                                    gridTemplateColumns: "1fr 1fr",
+                                    gap: 1,
+                                    "& .MuiToggleButtonGroup-grouped": {
+                                        border: 0,
+                                        borderRadius: 2,
+                                        textTransform: "none",
+                                        px: 2,
+                                        py: 1.25,
                                     },
                                 }}
-                            />
-
-                            <PasswordStrength password={password} onStrengthChange={setIsStrong} />
+                            >
+                                <ToggleButton value="auto" aria-label="Use generated password" sx={{ textAlign: "left", alignItems: "flex-start" }}>
+                                    <Box>
+                                        <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                                            Auto-generate
+                                        </Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Best for quick links
+                                        </Typography>
+                                    </Box>
+                                </ToggleButton>
+                                <ToggleButton value="manual" aria-label="Set password manually" sx={{ textAlign: "left", alignItems: "flex-start" }}>
+                                    <Box>
+                                        <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                                            Set manually
+                                        </Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Choose your own password
+                                        </Typography>
+                                    </Box>
+                                </ToggleButton>
+                            </ToggleButtonGroup>
+                            <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1 }}>
+                                {isUsingPassword ? "You will define the password below." : "A secure password will be generated and added to the link."}
+                            </Typography>
                         </Box>
 
-                        <TextField label="Confirm Password" name="confirmPassword" type="password" variant="outlined" fullWidth required
-                            error={errorPassword}
-                            helperText={errorPassword ? errors.errorPasswordMismatch : ""}
-                        />
-                    </>
+                        <Collapse in={isUsingPassword} unmountOnExit>
+                            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                                <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    error={errorWeakPassword}
+                                    helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
+                                    slotProps={{
+                                        input: {
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <IconButton
+                                                        aria-label={showPassword ? "Hide password" : "Show password"}
+                                                        onClick={handleTogglePassword}
+                                                    >
+                                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            ),
+                                        },
+                                    }}
+                                />
+
+                                <PasswordStrength password={password} onStrengthChange={setIsStrong} />
+
+                                <TextField label="Confirm Password" name="confirmPassword" type="password" variant="outlined" fullWidth required
+                                    error={errorPassword}
+                                    helperText={errorPassword ? errors.errorPasswordMismatch : ""}
+                                />
+                            </Box>
+                        </Collapse>
+                    </Box>
+
                 ) : (
                     <TextField label="Receiver" name="receiver" type="text" variant="outlined" fullWidth required
                         error={errorReceiver}
                         helperText={helperTextReceiver}
                     />
                 )}
-
-                <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 2, width: "100%" }}>
-                    <TextField label="Max Downloads" name="maxDownloads" type="number" slotProps={{ htmlInput: { min: 1, max: maxDownloads } }} variant="outlined" fullWidth required helperText={maxDownloads ? `Max allowed: ${maxDownloads}` : undefined} />
-                    <TextField label="Lifetime" name="lifetime" type="number" slotProps={{ htmlInput: { min: 1, max: maxLifetime } }} variant="outlined" fullWidth required helperText={maxLifetime ? `Max allowed: ${maxLifetime} days` : undefined} />
-                </Box>
 
                 {type === "anonymous" ? (
                     <AcceptTermsService
@@ -324,10 +405,17 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 )}
 
 
-                {isSending ?
+                {isSending ? (
                     <LinearProgressWithLabel value={progress} />
-                    :
-                    <Button type="submit" variant="contained" fullWidth>Send File</Button>
+                ) : (
+                    <>
+                        {type === "anonymous" ? (
+                            <Button type="submit" variant="contained" fullWidth>Get a Link</Button>
+                        ) : (
+                            <Button type="submit" variant="contained" fullWidth>Send File</Button>
+                        )}
+                    </>
+                )
                 }
             </Box>
 

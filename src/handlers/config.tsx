@@ -9,3 +9,5 @@ function getEnv(name: string): string {
 export const apiUrl = getEnv("VITE_API_URL");
 export const frontendUrl = getEnv("VITE_FRONTEND_URL");
 export const emailAddress = getEnv("VITE_EMAIL_INFO");
+
+export const linkTransferGeneratedPasswordLen = 20; // Bytes
