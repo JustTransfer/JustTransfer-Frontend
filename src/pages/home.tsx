@@ -70,11 +70,15 @@ export default function HomePage() {
                             display: "grid",
                             gridTemplateColumns: { xs: "1fr", md: "1.1fr 0.9fr" },
                             gap: { xs: 4, md: 6 },
-                            alignItems: "center",
+                            alignItems: "start",
                             ml: 2,
                         }}
                     >
-                        <Box>
+                        <Box
+                            sx={{
+                                mt: 32,
+                            }}
+                        >
                             <Typography
                                 variant="h3"
                                 sx={{
