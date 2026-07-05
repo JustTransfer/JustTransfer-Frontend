@@ -67,7 +67,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
     const [isSending, setIsSending] = useState(false);
     const [progress, setProgress] = useState(0);
     const [link, setLink] = useState("");
-    const [openDialog, setOpenDialog] = useState(false);
+    const [openDialog, setOpenDialog] = useState(true);
 
     const [showPassword, setShowPassword] = useState(false);
     const handleTogglePassword = () => {
@@ -430,7 +430,13 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 }}
             >
                 <DialogTitle>Link ready!</DialogTitle>
-                <DialogContent sx={{ display: 'flex', gap: 2 }}>
+                <DialogContent
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                    }}
+                >
                     <TextField value={link} fullWidth />
                     <ContentCopyIcon sx={{ color: "primary.main", "&:hover": { cursor: "pointer" } }}
                         onClick={() => {
