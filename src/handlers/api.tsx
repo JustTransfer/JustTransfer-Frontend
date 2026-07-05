@@ -415,8 +415,7 @@ async function uploadFileToS3(url: string, cfile: Uint8Array, onProgress?: (perc
                 throw error;
             }
 
-            console.error(`Upload attempt ${attempt} failed. Retrying...`, error);
-
+            console.warn(`Upload attempt ${attempt}/${MAX_NETWORK_RETRIES} failed. Retrying in ${NETWORK_RETRY_DELAY / 1000} seconds...`);
             await new Promise(resolve => setTimeout(resolve, NETWORK_RETRY_DELAY));
         }
     }
@@ -450,58 +449,87 @@ async function finishUploadFileToS3(file_id: string, upload_id: string, etags: s
 }
 
 async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (chunk: Uint8Array) => Promise<number>, url: string, onProgress?: (percent: number) => void) {
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`Download failed: ${response.status} ${response.statusText}`);
-    }
-
-    // If no progress tracking requested, just return the blob as before
-    if (!onProgress || !response.body) {
-        return response.blob();
-    }
-
-    // --- Stream the response ---
-    const contentLength = Number(response.headers.get("Content-Length") || 0);
-    const reader = response.body.getReader();
-    let received = 0;
-
-    let chunk = new Uint8Array(0);
 
     const chunkSizeWithTag = chunkSize + tagSize;
+    let received = 0;
+    let contentLength = 0;
+    let chunk = new Uint8Array(0);
 
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        if (value) {
-            // Append new data to the existing chunk without using spread (avoids downlevelIteration requirement)
-            if (chunk.length === 0) {
-                chunk = value;
-            } else {
-                const concatenated = new Uint8Array(chunk.length + value.length);
-                concatenated.set(chunk, 0);
-                concatenated.set(value, chunk.length);
-                chunk = concatenated;
+    for (let attempt = 0; attempt < MAX_NETWORK_RETRIES;) {
+
+        let response: Response;
+        try {
+            response = await fetch(url, {
+                headers: received > 0 || chunk.length > 0
+                    ? { Range: `bytes=${received + chunk.length}-` }
+                    : undefined
+            });
+
+            if (!response.ok && response.status !== 206) throw new Error(`Download failed: ${response.status} ${response.statusText}`);
+            if (!response.body) throw new Error("Response body is empty.");
+
+            if (contentLength === 0) {
+                if (received === 0) {
+                    contentLength = Number(response.headers.get("Content-Length") || 0);
+                } else {
+                    contentLength = received + Number(response.headers.get("Content-Length") || 0);
+                }
             }
 
-            if (chunk.length < chunkSizeWithTag) {
-                continue; // Wait for more data
+            const reader = response.body.getReader();
+
+            while (true) {
+                const { done, value } = await reader.read();
+
+                if (done) break;
+                if (!value) continue;
+
+                if (chunk.length === 0) {
+                    chunk = value;
+                } else {
+                    const tmp = new Uint8Array(chunk.length + value.length);
+                    tmp.set(chunk);
+                    tmp.set(value, chunk.length);
+                    chunk = tmp;
+                }
+
+                // Process full chunks
+                let offset = 0;
+                while (offset + chunkSizeWithTag <= chunk.length) {
+
+                    const fullChunk = chunk.slice(
+                        offset,
+                        offset + chunkSizeWithTag
+                    );
+
+                    const ret = await decrypt(fullChunk);
+                    if (ret < 0) throw new Error(errors.errorFailureDecryption);
+
+                    offset += chunkSizeWithTag;
+                    received += chunkSizeWithTag;
+
+                    if (contentLength) onProgress?.(received / contentLength * 100);
+                }
+
+                // Keep any remaining bytes for the next iteration
+                chunk = chunk.slice(offset);
             }
 
-            // Process full chunks
-            let offset = 0;
-            while (offset + chunkSizeWithTag <= chunk.length) {
-                const fullChunk = chunk.slice(offset, offset + chunkSizeWithTag);
-                const ret = await decrypt(fullChunk);
-                if (ret < 0) throw new Error(errors.errorFailureDecryption);
+            // Download finished
+            break;
 
-                received += fullChunk.length;
-                offset += chunkSizeWithTag;
+        } catch (err) {
 
-                if (contentLength) onProgress?.((received / contentLength) * 100);
+            // If the error is a decryption failure, we should not retry, as it indicates a problem with the data or keys.
+            if (err instanceof Error && err.message === errors.errorFailureDecryption) {
+                throw err;
             }
 
-            // Keep any remaining bytes for the next iteration
-            chunk = chunk.slice(offset);
+            attempt++;
+            if (attempt >= MAX_NETWORK_RETRIES) throw err;
+
+            console.warn(`Download interrupted, retry ${attempt}/${MAX_NETWORK_RETRIES}. Retrying in ${NETWORK_RETRY_DELAY / 1000} seconds...`);
+            await new Promise(r => setTimeout(r, NETWORK_RETRY_DELAY));
         }
     }
 
@@ -511,7 +539,8 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
         if (ret < 0) throw new Error(errors.errorFailureDecryption);
     }
 
-    return 0; // Success
+    onProgress?.(100);
+    return 0;
 }
 
 export { registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, verifyEmailAPI, requestResetPasswordAPI, endPasswordResetAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyUsernameAPI, getMessagesAPI, getSentMessagesAPI, getOneMessageAPI, sendMessageAPI, deleteMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };
