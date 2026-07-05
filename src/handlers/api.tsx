@@ -1,4 +1,4 @@
-import { apiUrl } from "./config";
+import { apiUrl, MAX_NETWORK_RETRIES, NETWORK_RETRY_DELAY } from "./config";
 import * as errors from "../messages/errors";
 
 async function registerStartAPI(username: string, client_registration_start: string) {
@@ -397,19 +397,34 @@ async function uploadFileToS3(url: string, cfile: Uint8Array, onProgress?: (perc
     // Convert Uint8Array to Blob
     const blob = new Blob([new Uint8Array(cfile)]);
 
-    const response = await fetch(url, {
-        method: "PUT",
-        body: blob, // send the encrypted file
-    });
+    let response: Response | undefined;
+    for (let attempt = 1; attempt <= MAX_NETWORK_RETRIES; attempt++) {
+        try {
+            response = await fetch(url, {
+                method: "PUT",
+                body: blob, // send the encrypted file
+            });
 
-    if (!response.ok) {
-        throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+            if (!response.ok) {
+                throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+            }
+
+            break; // Sucess
+        } catch (error) {
+            if (attempt === MAX_NETWORK_RETRIES) {
+                throw error;
+            }
+
+            console.error(`Upload attempt ${attempt} failed. Retrying...`, error);
+
+            await new Promise(resolve => setTimeout(resolve, NETWORK_RETRY_DELAY));
+        }
     }
 
     // Set the progress to 100% after successful upload
     onProgress?.(100);
 
-    return { ETag: response.headers.get("ETag") || "" };
+    return { ETag: response!.headers.get("ETag") || "" };
 }
 
 async function finishUploadFileToS3(file_id: string, upload_id: string, etags: string[], signature_metadata: string, signature: string) {
