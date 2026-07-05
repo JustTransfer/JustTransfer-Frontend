@@ -5,11 +5,11 @@ const MAX_LENGTH_USERNAME = 32;
 
 export function isValidUsername(username: string): Boolean {
 
-  if (username.length < MIN_LENGTH_USERNAME || username.length > MAX_LENGTH_USERNAME) {
-    return false;
-  }
-
-  return /^[a-zA-Z0-9-]+$/.test(username);
+  return (
+    username.length >= MIN_LENGTH_USERNAME &&
+    username.length <= MAX_LENGTH_USERNAME &&
+    /^[a-z0-9_]+$/.test(username)
+  );
 }
 
 
