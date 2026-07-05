@@ -67,7 +67,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
     const [isSending, setIsSending] = useState(false);
     const [progress, setProgress] = useState(0);
     const [link, setLink] = useState("");
-    const [openDialog, setOpenDialog] = useState(true);
+    const [openDialog, setOpenDialog] = useState(false);
 
     const [showPassword, setShowPassword] = useState(false);
     const handleTogglePassword = () => {
