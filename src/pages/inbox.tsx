@@ -39,9 +39,10 @@ function DownloadSection({ msg, progress, onDownload, onDelete }: Props) {
         return (
             <Box sx={{
                 display: "flex",
-                flexDirection: "row",
+                flexDirection: { xs: "column", sm: "row" },
                 alignItems: "center",
                 gap: 2,
+                width: "100%",
             }}>
                 <Chip color="error" label="Tampered" />
 
@@ -60,7 +61,7 @@ function DownloadSection({ msg, progress, onDownload, onDelete }: Props) {
     // Downloading state
     if (progress !== undefined) {
         return (
-            <Stack direction="row" spacing={1} sx={{ alignItems: "center", minWidth: 90 }}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center", minWidth: 90, justifyContent: { xs: "flex-start", md: "flex-end" } }}>
                 <CircularProgress variant="determinate" value={progress} size={22} />
                 <Typography variant="caption">{Math.round(progress)}%</Typography>
             </Stack>
@@ -71,9 +72,11 @@ function DownloadSection({ msg, progress, onDownload, onDelete }: Props) {
     return (
         <Box sx={{
             display: "flex",
-            flexDirection: "row",
+            flexDirection: { xs: "column", sm: "row" },
             alignItems: "center",
             gap: 2,
+            width: "100%",
+            justifyContent: { xs: "flex-start", sm: "flex-end" },
         }}>
             <IconButton color="primary" onClick={onDownload}>
                 <DownloadIcon />
@@ -280,16 +283,18 @@ export default function Inbox() {
                                             width: "100%",
                                             borderRadius: 3,
                                             px: { xs: 2, md: 3 },
-                                            py: 1.6,
+                                            py: { xs: 2, md: 1.6 },
                                             display: "flex",
-                                            alignItems: "center",
+                                            alignItems: { xs: "stretch", md: "center" },
+                                            flexDirection: { xs: "column", md: "row" },
                                             border: "1px solid #f1e7ee",
                                             backgroundColor: "#ffffff",
                                             boxShadow: "0 12px 28px rgba(83, 24, 60, 0.06)",
+                                            gap: { xs: 1.5, md: 2 },
                                             "&:hover": { backgroundColor: "#fff7fb" }
                                         }}
                                     >
-                                        <ListItemIcon>
+                                        <ListItemIcon sx={{ minWidth: { xs: 0, md: 40 }, alignSelf: { xs: "flex-start", md: "center" }, mt: { xs: 0.25, md: 0 } }}>
                                             {msg.signatureValid === false && (
                                                 <ErrorOutlineOutlinedIcon color="error" />
                                             ) || (
@@ -300,21 +305,26 @@ export default function Inbox() {
                                         </ListItemIcon>
 
                                         <ListItemText
+                                            sx={{
+                                                minWidth: 0,
+                                                width: "100%",
+                                                mr: { xs: 0, md: 2 },
+                                            }}
                                             primary={
-                                                <Stack spacing={1}>
-                                                    <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+                                                <Stack spacing={1} sx={{ width: "100%" }}>
+                                                    <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ alignItems: { xs: "flex-start", sm: "center" }, minWidth: 0 }}>
                                                         <PersonIcon sx={{ fontSize: 16, opacity: 0.7 }} />
-                                                        <Typography variant="caption" color="text.secondary">
+                                                        <Typography variant="caption" color="text.secondary" sx={{ minWidth: 0, overflowWrap: "anywhere" }}>
                                                             From <b>{msg.sender}</b> • Received {formatCreated(msg.creation_time)}
                                                         </Typography>
                                                     </Stack>
 
-                                                    <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-                                                        <Typography sx={{ fontWeight: 600 }}>{msg.filename}</Typography>
+                                                    <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ alignItems: { xs: "flex-start", sm: "center" }, minWidth: 0 }}>
+                                                        <Typography sx={{ fontWeight: 600, overflowWrap: "anywhere" }}>{msg.filename}</Typography>
                                                         <Chip label={formatSize(msg.file_size)} size="small" />
                                                     </Stack>
 
-                                                    <Stack direction="row" spacing={1} sx={{ mt: 0.5 }}>
+                                                    <Stack direction="row" spacing={1} sx={{ mt: 0.5, flexWrap: "wrap", rowGap: 1 }}>
                                                         <Chip
                                                             size="small"
                                                             variant={expireColor(msg) === "error.main" ? "filled" : expireColor(msg) === "warning.main" ? "filled" : "outlined"}
@@ -333,12 +343,14 @@ export default function Inbox() {
                                         />
 
 
-                                        <DownloadSection
-                                            msg={msg}
-                                            progress={downloadProgress[msg.id]}
-                                            onDownload={() => downloadFile(msg)}
-                                            onDelete={() => handleClickOpenDialog(msg)}
-                                        />
+                                        <Box sx={{ width: { xs: "100%", md: "auto" }, display: "flex", justifyContent: { xs: "flex-start", md: "flex-end" } }}>
+                                            <DownloadSection
+                                                msg={msg}
+                                                progress={downloadProgress[msg.id]}
+                                                onDownload={() => downloadFile(msg)}
+                                                onDelete={() => handleClickOpenDialog(msg)}
+                                            />
+                                        </Box>
                                     </ListItem>
                                 ))}
                             </Stack>
