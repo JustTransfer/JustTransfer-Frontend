@@ -50,6 +50,8 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
         background: "linear-gradient(160deg, #ffffff 0%, #ffedf7 100%)",
         boxShadow: "0 18px 46px rgba(83, 24, 60, 0.16)",
         position: "relative",
+        flex: { xs: "1 1 100%", sm: "1 1 280px", lg: "1 1 0" },
+        minWidth: 0,
     };
 
     const highlightedTileSx = {
@@ -124,8 +126,10 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
             </Box>
             <Box
                 sx={{
-                    display: "grid",
-                    gridTemplateColumns: { xs: "1fr", md: "repeat(4, 1fr)" },
+                    display: "flex",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                    alignItems: "stretch",
                     gap: 2,
                     maxWidth: maxWidthPage,
                     mx: "auto",

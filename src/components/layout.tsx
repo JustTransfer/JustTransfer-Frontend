@@ -83,11 +83,11 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                         flexWrap: "wrap",
                         justifyContent: "space-between",
                         gap: 4,
-                        marginLeft: isLoggedIn ? leftBarWidth : "0px",
+                        marginLeft: isLoggedIn ? { xs: "0px", md: leftBarWidth } : "0px",
                     }}
                 >
                     {/* About */}
-                    <Box sx={{ minWidth: footerMinAboutWidth, flex: 1 }}>
+                    <Box sx={{ minWidth: { xs: "100%", sm: footerMinAboutWidth }, flex: 1 }}>
                         <Typography variant="h6" gutterBottom>
                             JustTransfer
                         </Typography>
@@ -97,7 +97,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     </Box>
 
                     {/* Resources */}
-                    <Box sx={{ minWidth: footerMinResourceWidth }}>
+                    <Box sx={{ minWidth: { xs: "100%", sm: footerMinResourceWidth } }}>
                         <Typography variant="subtitle1" gutterBottom>
                             Ressources
                         </Typography>
@@ -124,7 +124,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     </Box>
 
                     {/* Legal */}
-                    <Box sx={{ minWidth: footerMinLegalWidth }}>
+                    <Box sx={{ minWidth: { xs: "100%", sm: footerMinLegalWidth } }}>
                         <Typography variant="subtitle1" gutterBottom>
                             Legal
                         </Typography>
@@ -139,7 +139,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     </Box>
 
                     {/* Contact */}
-                    <Box sx={{ minWidth: footerMinLinkWidth }}>
+                    <Box sx={{ minWidth: { xs: "100%", sm: footerMinLinkWidth } }}>
                         <Typography variant="subtitle1" gutterBottom>
                             Contact
                         </Typography>
@@ -160,7 +160,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     sx={{
                         backgroundColor: "#333",
                         my: 4,
-                        marginLeft: isLoggedIn ? "150px" : "-70px",
+                        marginLeft: isLoggedIn ? { xs: "0px", md: "150px" } : { xs: "0px", md: "-70px" },
                         transition: "margin-left 0.3s"
                     }}
                 />
@@ -215,15 +215,16 @@ export default function Layout({ title, content }: { title: string; content: Rea
                     sx={{
                         width: "100%",
                         boxSizing: "border-box",
-                        height: headerHeight,
+                        height: { xs: "56px", md: headerHeight },
                         display: "flex",
                         alignItems: "center",
-                        px: 4,
-                        py: 2,
+                        px: { xs: 2, md: 4 },
+                        py: { xs: 1.5, md: 2 },
                         borderBottom: "1px solid #e0e0e0",
                         backgroundColor: "#fff",
                         position: "fixed",
                         zIndex: 1100,  // Make sure the header is above everything else
+                        gap: { xs: 1.5, md: 0 },
                     }}
                 >
 
@@ -234,7 +235,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                         alt="Logo"
                         sx={{
                             height: "auto",
-                            width: logoWidth,
+                            width: { xs: "140px", md: logoWidth },
                             cursor: "pointer",
                             marginTop: logoMarginTop,
                         }}
@@ -247,8 +248,9 @@ export default function Layout({ title, content }: { title: string; content: Rea
                     <Typography
                         variant="h6"
                         sx={{
-                            ml: 6,
-                            fontWeight: "bold"
+                            ml: { xs: 0, md: 6 },
+                            fontWeight: "bold",
+                            display: { xs: "none", sm: "block" },
                         }}
                     >
                         {title}
@@ -259,14 +261,15 @@ export default function Layout({ title, content }: { title: string; content: Rea
                         position: "absolute",
                         left: "50%",
                         transform: "translateX(-50%)",
+                        display: { xs: "none", sm: "block" },
                     }}>
                         <BetaBanner />
                     </Box>
 
                     <Box sx={{
                         marginLeft: "auto",
-                        marginRight: 4,
-                        display: "flex",
+                        marginRight: { xs: 0, md: 4 },
+                        display: { xs: "none", sm: "flex" },
                         gap: 4,
                     }}>
                         {!isLoggedIn && (
@@ -288,18 +291,18 @@ export default function Layout({ title, content }: { title: string; content: Rea
                         flexGrow: 1,
                         display: "flex",
                         justifyContent: "center",
-                        alignItems: "top",
+                        alignItems: "flex-start",
                     }}
                 >
 
                     {/* LEFT SIDEBAR */}
                     {isLoggedIn && (
-                        < Box
+                        <Box
                             sx={{
                                 width: leftBarWidth,
                                 backgroundColor: isLoggedIn ? "#ffffff" : "#ffffff",
                                 color: "white",
-                                display: "flex",
+                                display: { xs: "none", md: "flex" },
                                 flexDirection: "column",
                                 p: 2,
                                 position: "fixed",
@@ -391,14 +394,15 @@ export default function Layout({ title, content }: { title: string; content: Rea
                             theme.palette.mode === "light"
                                 ? theme.palette.grey[100]
                                 : theme.palette.grey[900],
-                        borderRadius: 2,
-                        p: 8,
-                        minHeight: `calc(100vh - ${headerHeight} - 60px)`,
-                        ml: isLoggedIn ? leftBarWidth : 0,
+                        borderRadius: { xs: 0, md: 2 },
+                        p: { xs: 2, sm: 3, md: 8 },
+                        minHeight: { xs: `calc(100vh - 56px)`, md: `calc(100vh - ${headerHeight} - 60px)` },
+                        ml: { xs: 0, md: isLoggedIn ? leftBarWidth : 0 },
+                        width: { xs: "100%", md: "auto" },
                     }} >
 
                         {/* MAIN CONTENT */}
-                        <Container maxWidth={false} disableGutters sx={{ mt: 4, mb: 4 }}>
+                        <Container maxWidth={false} disableGutters sx={{ mt: { xs: 2, md: 4 }, mb: { xs: 2, md: 4 } }}>
                             {content}
                         </Container>
 
