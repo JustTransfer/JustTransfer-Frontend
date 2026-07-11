@@ -180,7 +180,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
     );
 }
 
-export default function Layout({ title, content, showFooter = true }: { title: string; content: React.ReactNode; showFooter?: boolean }) {
+export default function Layout({ title, content }: { title: string; content: React.ReactNode }) {
 
     const navigate = useNavigate();
 
@@ -411,7 +411,8 @@ export default function Layout({ title, content, showFooter = true }: { title: s
                     </Box>
                 </Box>
 
-                {showFooter && <Footer isLoggedIn={isLoggedIn} />}
+                {/* Footer*/}
+                <Footer isLoggedIn={isLoggedIn} />
             </Box>
         </ThemeProvider>
     );
