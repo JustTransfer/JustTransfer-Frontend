@@ -23,7 +23,7 @@ const headerHeight = "65px";
 const logoMarginTop = '-10px';
 const logoWidth = "200px";
 
-const leftBarWidth = "220px";
+const leftBarWidth = "250px";
 
 const footerMinAboutWidth = "300px";
 const footerMinLinkWidth = "220px";
@@ -308,7 +308,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                 flexDirection: "column",
                                 p: 2,
                                 position: "fixed",
-                                height: `calc(100% - ${headerHeight} - 30px)`,
+                                height: `calc(100% - ${headerHeight})`,
                                 left: 0,
                                 top: headerHeight,
                             }}
@@ -322,7 +322,12 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                     flexGrow: 1,
                                 }}
                             >
-                                <Box sx={{ display: "flex", flexDirection: "column", gap: 2, justifyContent: "space-between" }}>
+                                <Box sx={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: 2,
+                                    justifyContent: "space-between",
+                                }}>
                                     <Button
                                         startIcon={<SendIcon />}
                                         fullWidth
@@ -360,6 +365,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                     gap: 2,
                                     borderTop: "1px solid #444",
                                     pt: 2,
+                                    mt: "auto",
                                 }}>
                                     <Button
                                         startIcon={<AccountCircleIcon />}
