@@ -322,7 +322,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                             position: "absolute",
                             left: "50%",
                             transform: "translateX(-50%)",
-                            display: { xs: "none", sm: "block" },
+                            display: { xs: "none", md: "block" },
                         }}
                     >
                         <BetaBanner isSmallScreen={false} />
@@ -335,7 +335,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                             left: "50%",
                             transform: "translateX(-30%) scale(0.75)",
                             transformOrigin: "center",
-                            display: { xs: "block", sm: "none" },
+                            display: { xs: "block", md: "none" },
                             mt: -0.5, // Fine-tune vertical alignment
                         }}
                     >
@@ -345,7 +345,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                     <Box sx={{
                         marginLeft: "auto",
                         marginRight: { xs: 0, md: 4 },
-                        display: { xs: "none", sm: "flex" },
+                        display: { xs: "none", md: "flex" },
                         gap: 4,
                     }}>
                         {!isLoggedIn && (
