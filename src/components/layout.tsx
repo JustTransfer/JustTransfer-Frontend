@@ -1,10 +1,19 @@
+import { useState } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
+import Avatar from '@mui/material/Avatar';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import IconButton from '@mui/material/IconButton';
 import LogoutIcon from '@mui/icons-material/Logout';
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
+import HomeIcon from '@mui/icons-material/Home';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 import { Button } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -183,6 +192,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
 export default function Layout({ title, content }: { title: string; content: React.ReactNode }) {
 
     const navigate = useNavigate();
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const location = useLocation();
 
@@ -190,6 +200,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
 
     const { username } = useAuth();
     const isLoggedIn = !!username;
+    const userInitial = username?.trim().charAt(0).toUpperCase() || "";
 
     const menuButtonStyle = (path: string) => ({
         justifyContent: "flex-start",
@@ -203,6 +214,25 @@ export default function Layout({ title, content }: { title: string; content: Rea
         borderRadius: 2,
         px: 2,
     });
+
+    const closeMobileMenu = () => setMobileMenuOpen(false);
+
+    const goTo = (path: string) => {
+        closeMobileMenu();
+        navigate(path);
+    };
+
+    const mobileMenuItems = isLoggedIn ? [
+        { label: "New Transfer", icon: <SendIcon />, path: "/new-transfer" },
+        { label: "Inbox", icon: <CloudDownloadIcon />, path: "/inbox" },
+        { label: "Active Transfers", icon: <CloudUploadIcon />, path: "/transfers" },
+        { label: "Account", icon: <AccountCircleIcon />, path: "/account" },
+        { label: "Logout", icon: <LogoutIcon />, path: "/logout" },
+    ] : [
+        { label: "Home", icon: <HomeIcon />, path: "/" },
+        { label: "Create account", icon: <PersonAddIcon />, path: "/register" },
+        { label: "Log in", icon: <AccountCircleIcon />, path: "/login" },
+    ];
 
     return (
         <ThemeProvider theme={defaultTheme}>
@@ -258,14 +288,58 @@ export default function Layout({ title, content }: { title: string; content: Rea
                         {title}
                     </Typography>
 
-                    {/* Beta banner */}
-                    <Box sx={{
-                        position: "absolute",
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        display: { xs: "none", sm: "block" },
-                    }}>
-                        <BetaBanner />
+                    <IconButton
+                        aria-label="Open navigation menu"
+                        onClick={() => setMobileMenuOpen(true)}
+                        sx={{
+                            ml: "auto",
+                            display: { xs: "flex", md: "none" },
+                            color: "#000",
+                        }}
+                    >
+                        {isLoggedIn ? (
+                            <Avatar
+                                sx={{
+                                    width: 28,
+                                    height: 28,
+                                    fontSize: "0.85rem",
+                                    bgcolor: "#E906E5",
+                                    color: "#fff",
+                                    background: "linear-gradient(135deg, #E906E5 10%, #4158d0 100%)",
+                                    boxShadow: "0 10px 22px rgba(65, 88, 208, 0.25)",
+                                }}
+                            >
+                                {userInitial}
+                            </Avatar>
+                        ) : (
+                            <MenuIcon />
+                        )}
+                    </IconButton>
+
+                    {/* Beta banner Desktop */}
+                    <Box
+                        sx={{
+                            position: "absolute",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            display: { xs: "none", sm: "block" },
+                        }}
+                    >
+                        <BetaBanner isSmallScreen={false} />
+                    </Box>
+
+                    {/* Beta banner Mobile */}
+                    <Box
+                        sx={{
+                            position: "absolute",
+                            left: "50%",
+                            transform: "translateX(-30%) scale(0.75)",
+                            transformOrigin: "center",
+                            display: { xs: "block", sm: "none" },
+                            mt: -0.5, // Fine-tune vertical alignment
+                        }}
+                    >
+                        <BetaBanner isSmallScreen={true} />
                     </Box>
 
                     <Box sx={{
@@ -286,6 +360,50 @@ export default function Layout({ title, content }: { title: string; content: Rea
                         )}
                     </Box>
                 </Box>
+
+                <Dialog
+                    fullScreen
+                    open={mobileMenuOpen}
+                    onClose={closeMobileMenu}
+                    slotProps={{
+                        paper: {
+                            sx: {
+                                background: "linear-gradient(180deg, #fff 0%, #fff8fc 100%)",
+                            },
+                        },
+                    }}
+                >
+                    <DialogContent sx={{ p: 0 }}>
+                        <Box sx={{ minHeight: "100%", display: "flex", flexDirection: "column", px: 3, py: 2.5 }}>
+                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 4 }}>
+                                <Box
+                                    component="img"
+                                    src="/JustTransfer.png"
+                                    alt="Logo"
+                                    sx={{ width: "150px", height: "auto" }}
+                                />
+                                <IconButton aria-label="Close navigation menu" onClick={closeMobileMenu}>
+                                    <CloseIcon />
+                                </IconButton>
+                            </Box>
+
+                            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, flex: 1 }}>
+                                {mobileMenuItems.map((item) => (
+                                    <Button
+                                        key={item.path}
+                                        startIcon={item.icon}
+                                        fullWidth
+                                        size="large"
+                                        onClick={() => goTo(item.path)}
+                                        sx={menuButtonStyle(item.path)}
+                                    >
+                                        {item.label}
+                                    </Button>
+                                ))}
+                            </Box>
+                        </Box>
+                    </DialogContent>
+                </Dialog>
 
                 {/* CONTENT AREA */}
                 <Box
