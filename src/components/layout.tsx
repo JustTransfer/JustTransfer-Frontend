@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
@@ -193,6 +195,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
 
     const navigate = useNavigate();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const theme = useTheme();
 
     const location = useLocation();
 
@@ -201,6 +204,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
     const { username } = useAuth();
     const isLoggedIn = !!username;
     const userInitial = username?.trim().charAt(0).toUpperCase() || "";
+    const isCompactBetaBanner = useMediaQuery(theme.breakpoints.down('lg'));
 
     const menuButtonStyle = (path: string) => ({
         justifyContent: "flex-start",
@@ -325,7 +329,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                             display: { xs: "none", md: "block" },
                         }}
                     >
-                        <BetaBanner isSmallScreen={false} />
+                        <BetaBanner isSmallScreen={isCompactBetaBanner} />
                     </Box>
 
                     {/* Beta banner Mobile */}
