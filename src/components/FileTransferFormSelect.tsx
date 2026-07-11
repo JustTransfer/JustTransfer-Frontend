@@ -88,12 +88,11 @@ export default function FileTransferFormSelect({
 
             <Box sx={{
                 display: "flex",
-                flexDirection: "row",
+                flexDirection: { xs: "column", sm: "row" },
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 2,
                 width: "100%",
-                maxWidth: 510,
                 mb: 0.5,
             }}>
                 <Button
@@ -101,7 +100,7 @@ export default function FileTransferFormSelect({
                     onClick={() => handleTypeChange("anonymous")}
                     sx={{
                         mt: 2,
-                        width: "50%",
+                        width: { xs: "100%", sm: "50%" },
                         backgroundColor: selectedType === "anonymous" ? "primary.main" : "grey.400",
                         gap: 2,
                         ":hover": {
@@ -117,7 +116,7 @@ export default function FileTransferFormSelect({
                     onClick={() => handleTypeChange("connected")}
                     sx={{
                         mt: 2,
-                        width: "50%",
+                        width: { xs: "100%", sm: "50%" },
                         backgroundColor: selectedType === "connected" ? "primary.main" : "grey.400",
                         gap: 2,
                         ":hover": {

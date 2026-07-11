@@ -32,7 +32,7 @@ export default function PrivacyPolicy() {
                 sx={{
                     maxWidth: 900,
                     mx: "auto",
-                    py: 4,
+                    py: { xs: 2, sm: 4 },
                     "& h1": { mt: 4, mb: 2 },
                     "& h2": { mt: 3, mb: 2 },
                     "& h3": { mt: 2, mb: 1 },

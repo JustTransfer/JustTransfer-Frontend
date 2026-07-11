@@ -234,9 +234,23 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
     };
 
     return (
-        <Paper elevation={4} sx={{ p: 4, borderRadius: 3, width: 450, textAlign: "center" }}>
+        <Paper
+            elevation={4}
+            sx={{
+                width: "100%",
+                textAlign: "center",
+                borderRadius: { xs: 2, sm: 3 },
+                p: { xs: 2, sm: 3, md: 4 },
+                mx: "auto",
+            }}
+        >
 
-            <Box component="form" ref={formRef} onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+            <Box
+                component="form"
+                ref={formRef}
+                onSubmit={handleSubmit}
+                sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: { xs: 2, sm: 3 } }}
+            >
 
                 <input
                     type="file"
@@ -248,47 +262,48 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 <Box
                     onClick={handleIconClick}
                     sx={{
-                        width: "84%",
+                        width: "100%",
                         border: "2px dashed",
                         borderColor: "grey.400",
                         backgroundColor: "action.hover",
                         borderRadius: 3,
-                        p: 4,
+                        p: { xs: 2, sm: 4 },
                         cursor: "pointer",
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
                         justifyContent: "center",
                         gap: 1,
+                        minHeight: { xs: 150, sm: 190 },
                         transition: "0.2s",
                     }}
                 >
 
                     {selectedFile ? (
                         <>
-                            <DescriptionIcon sx={{ fontSize: 80, color: "primary.main" }} />
-                            <Typography variant="body2" color="subtitle1" sx={{ fontWeight: "bold" }}>
+                            <DescriptionIcon sx={{ fontSize: { xs: 56, sm: 80 }, color: "primary.main" }} />
+                            <Typography variant="body2" color="subtitle1" sx={{ fontWeight: "bold", wordBreak: "break-word" }}>
                                 {`${selectedFile.name} (${formatSize(selectedFile.size)})`}
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.78rem", sm: "0.875rem" } }}>
                                 Click to change file
                             </Typography>
                         </>
 
                     ) : (
                         <>
-                            <AddBoxIcon sx={{ fontSize: 80, color: "primary.main" }} />
-                            <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                            <AddBoxIcon sx={{ fontSize: { xs: 56, sm: 80 }, color: "primary.main" }} />
+                            <Typography variant="subtitle1" sx={{ fontWeight: "bold", fontSize: { xs: "1rem", sm: "1.1rem" } }}>
                                 Click to add a file
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.78rem", sm: "0.875rem" } }}>
                                 Up to {formatSize(maxFileSize)} allowed
                             </Typography>
                         </>
                     )}
                 </Box>
 
-                <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 2, width: "100%" }}>
+                <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: "stretch", gap: 2, width: "100%" }}>
                     <TextField label="Max Downloads" name="maxDownloads" type="number" slotProps={{ htmlInput: { min: 1, max: maxDownloads } }} variant="outlined" fullWidth required helperText={maxDownloads ? `Max allowed: ${maxDownloads}` : undefined} />
                     <TextField label="Lifetime" name="lifetime" type="number" slotProps={{ htmlInput: { min: 1, max: maxLifetime } }} variant="outlined" fullWidth required helperText={maxLifetime ? `Max allowed: ${maxLifetime} days` : undefined} />
                 </Box>
@@ -302,7 +317,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                         width: "100%",
                     }}>
                         <Box sx={{
-                            p: 2,
+                            p: { xs: 1.5, sm: 2 },
                             borderRadius: 3,
                             border: "1px solid",
                             borderColor: "divider",
@@ -319,29 +334,30 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                                 onChange={handlePasswordModeChange}
                                 sx={{
                                     display: "grid",
-                                    gridTemplateColumns: "1fr 1fr",
+                                    gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
                                     gap: 1,
                                     "& .MuiToggleButtonGroup-grouped": {
                                         border: 0,
                                         borderRadius: 2,
                                         textTransform: "none",
-                                        px: 2,
-                                        py: 1.25,
+                                        px: { xs: 1, sm: 2 },
+                                        py: { xs: 1, sm: 1.25 },
+                                        width: "100%",
                                     },
                                 }}
                             >
                                 <ToggleButton value="auto" aria-label="Use generated password" sx={{ textAlign: "left", alignItems: "flex-start" }}>
-                                    <Box>
+                                    <Box sx={{ width: "100%" }}>
                                         <Typography variant="body2" sx={{ fontWeight: 700 }}>
                                             Auto-generate
                                         </Typography>
                                         <Typography variant="caption" color="text.secondary">
-                                            Best for quick links
+                                            Automatically added to the link
                                         </Typography>
                                     </Box>
                                 </ToggleButton>
                                 <ToggleButton value="manual" aria-label="Set password manually" sx={{ textAlign: "left", alignItems: "flex-start" }}>
-                                    <Box>
+                                    <Box sx={{ width: "100%" }}>
                                         <Typography variant="body2" sx={{ fontWeight: 700 }}>
                                             Set manually
                                         </Typography>
@@ -351,9 +367,6 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                                     </Box>
                                 </ToggleButton>
                             </ToggleButtonGroup>
-                            <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1 }}>
-                                {isUsingPassword ? "You will define the password below." : "A secure password will be generated and added to the link."}
-                            </Typography>
                         </Box>
 
                         <Collapse in={isUsingPassword} unmountOnExit>

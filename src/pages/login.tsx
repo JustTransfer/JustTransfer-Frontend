@@ -16,7 +16,7 @@ export default function LoginPage() {
 
     const cardSx = {
         width: "100%",
-        maxWidth: 440,
+        maxWidth: 520,
         textAlign: "center",
         borderRadius: 4,
         border: "1px solid #f1e7ee",

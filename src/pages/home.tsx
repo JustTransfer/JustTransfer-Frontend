@@ -76,7 +76,7 @@ export default function HomePage() {
                     >
                         <Box
                             sx={{
-                                mt: 32,
+                                mt: { xs: 0, md: 32 },
                             }}
                         >
                             <Typography

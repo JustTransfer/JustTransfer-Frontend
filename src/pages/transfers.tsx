@@ -119,8 +119,9 @@ export default function Transfers() {
                                                         <Chip label={formatSize(msg.file_size)} size="small" />
                                                     </Stack>
 
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        {relativeExpire(msg)} • Max downloads: {msg.max_downloads}
+                                                    <Typography variant="body2" color="text.secondary" sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "flex-start", sm: "center" }, gap: { xs: 0, sm: 0.5 } }}>
+                                                        <Box component="span">{relativeExpire(msg)}</Box>
+                                                        <Box component="span" sx={{ whiteSpace: "nowrap" }}>• Max downloads: {msg.max_downloads}</Box>
                                                     </Typography>
                                                 </Stack>
                                             }

@@ -12,14 +12,16 @@ export default function AcceptTermsService({
 }: AcceptTermsServiceProps) {
 
     return (
-        <Box sx={{ width: "100%", display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ width: "100%", display: "flex", alignItems: "flex-start", gap: 1, flexWrap: "wrap" }}>
             <Checkbox
                 color="primary"
                 onChange={(e) => onChange(e.target.checked)}
                 checked={accepted}
-                sx={{ p: 0 }}
+                sx={{ p: 0, mt: 0.25 }}
             />
-            I agree to the <Link component={RouterLink} to="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</Link> and <Link component={RouterLink} to="/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</Link>
+            <Box sx={{ flex: 1, minWidth: 0, textAlign: "left", lineHeight: 1.5 }}>
+                I agree to the <Link component={RouterLink} to="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</Link> and <Link component={RouterLink} to="/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</Link>
+            </Box>
         </Box>
     );
 }

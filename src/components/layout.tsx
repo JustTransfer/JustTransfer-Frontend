@@ -1,10 +1,21 @@
+import { useState } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
+import Avatar from '@mui/material/Avatar';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import IconButton from '@mui/material/IconButton';
 import LogoutIcon from '@mui/icons-material/Logout';
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
+import HomeIcon from '@mui/icons-material/Home';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 import { Button } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -23,7 +34,7 @@ const headerHeight = "65px";
 const logoMarginTop = '-10px';
 const logoWidth = "200px";
 
-const leftBarWidth = "220px";
+const leftBarWidth = "250px";
 
 const footerMinAboutWidth = "300px";
 const footerMinLinkWidth = "220px";
@@ -69,6 +80,8 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
     return (
         <Box
             sx={{
+                mt: "auto",
+                flexShrink: 0,
                 backgroundColor: "#534f4fff",
                 color: "#fff",
                 pt: 6,
@@ -83,11 +96,11 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                         flexWrap: "wrap",
                         justifyContent: "space-between",
                         gap: 4,
-                        marginLeft: isLoggedIn ? leftBarWidth : "0px",
+                        marginLeft: isLoggedIn ? { xs: "0px", md: leftBarWidth } : "0px",
                     }}
                 >
                     {/* About */}
-                    <Box sx={{ minWidth: footerMinAboutWidth, flex: 1 }}>
+                    <Box sx={{ minWidth: { xs: "100%", sm: footerMinAboutWidth }, flex: 1 }}>
                         <Typography variant="h6" gutterBottom>
                             JustTransfer
                         </Typography>
@@ -97,7 +110,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     </Box>
 
                     {/* Resources */}
-                    <Box sx={{ minWidth: footerMinResourceWidth }}>
+                    <Box sx={{ minWidth: { xs: "100%", sm: footerMinResourceWidth } }}>
                         <Typography variant="subtitle1" gutterBottom>
                             Ressources
                         </Typography>
@@ -124,7 +137,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     </Box>
 
                     {/* Legal */}
-                    <Box sx={{ minWidth: footerMinLegalWidth }}>
+                    <Box sx={{ minWidth: { xs: "100%", sm: footerMinLegalWidth } }}>
                         <Typography variant="subtitle1" gutterBottom>
                             Legal
                         </Typography>
@@ -139,7 +152,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     </Box>
 
                     {/* Contact */}
-                    <Box sx={{ minWidth: footerMinLinkWidth }}>
+                    <Box sx={{ minWidth: { xs: "100%", sm: footerMinLinkWidth } }}>
                         <Typography variant="subtitle1" gutterBottom>
                             Contact
                         </Typography>
@@ -160,7 +173,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     sx={{
                         backgroundColor: "#333",
                         my: 4,
-                        marginLeft: isLoggedIn ? "150px" : "-70px",
+                        marginLeft: isLoggedIn ? { xs: "0px", md: "150px" } : { xs: "0px", md: "-70px" },
                         transition: "margin-left 0.3s"
                     }}
                 />
@@ -181,6 +194,8 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
 export default function Layout({ title, content }: { title: string; content: React.ReactNode }) {
 
     const navigate = useNavigate();
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const theme = useTheme();
 
     const location = useLocation();
 
@@ -188,6 +203,8 @@ export default function Layout({ title, content }: { title: string; content: Rea
 
     const { username } = useAuth();
     const isLoggedIn = !!username;
+    const userInitial = username?.trim().charAt(0).toUpperCase() || "";
+    const isCompactBetaBanner = useMediaQuery(theme.breakpoints.down('lg'));
 
     const menuButtonStyle = (path: string) => ({
         justifyContent: "flex-start",
@@ -202,6 +219,25 @@ export default function Layout({ title, content }: { title: string; content: Rea
         px: 2,
     });
 
+    const closeMobileMenu = () => setMobileMenuOpen(false);
+
+    const goTo = (path: string) => {
+        closeMobileMenu();
+        navigate(path);
+    };
+
+    const mobileMenuItems = isLoggedIn ? [
+        { label: "New Transfer", icon: <SendIcon />, path: "/new-transfer" },
+        { label: "Inbox", icon: <CloudDownloadIcon />, path: "/inbox" },
+        { label: "Active Transfers", icon: <CloudUploadIcon />, path: "/transfers" },
+        { label: "Account", icon: <AccountCircleIcon />, path: "/account" },
+        { label: "Logout", icon: <LogoutIcon />, path: "/logout" },
+    ] : [
+        { label: "Home", icon: <HomeIcon />, path: "/" },
+        { label: "Create account", icon: <PersonAddIcon />, path: "/register" },
+        { label: "Log in", icon: <AccountCircleIcon />, path: "/login" },
+    ];
+
     return (
         <ThemeProvider theme={defaultTheme}>
             <Box sx={{
@@ -215,15 +251,16 @@ export default function Layout({ title, content }: { title: string; content: Rea
                     sx={{
                         width: "100%",
                         boxSizing: "border-box",
-                        height: headerHeight,
+                        height: { xs: "56px", md: headerHeight },
                         display: "flex",
                         alignItems: "center",
-                        px: 4,
-                        py: 2,
+                        px: { xs: 2, md: 4 },
+                        py: { xs: 1.5, md: 2 },
                         borderBottom: "1px solid #e0e0e0",
                         backgroundColor: "#fff",
                         position: "fixed",
                         zIndex: 1100,  // Make sure the header is above everything else
+                        gap: { xs: 1.5, md: 0 },
                     }}
                 >
 
@@ -234,7 +271,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                         alt="Logo"
                         sx={{
                             height: "auto",
-                            width: logoWidth,
+                            width: { xs: "140px", md: logoWidth },
                             cursor: "pointer",
                             marginTop: logoMarginTop,
                         }}
@@ -247,26 +284,72 @@ export default function Layout({ title, content }: { title: string; content: Rea
                     <Typography
                         variant="h6"
                         sx={{
-                            ml: 6,
-                            fontWeight: "bold"
+                            ml: { xs: 0, md: 6 },
+                            fontWeight: "bold",
+                            display: { xs: "none", sm: "block" },
                         }}
                     >
                         {title}
                     </Typography>
 
-                    {/* Beta banner */}
-                    <Box sx={{
-                        position: "absolute",
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                    }}>
-                        <BetaBanner />
+                    <IconButton
+                        aria-label="Open navigation menu"
+                        onClick={() => setMobileMenuOpen(true)}
+                        sx={{
+                            ml: "auto",
+                            display: { xs: "flex", md: "none" },
+                            color: "#000",
+                        }}
+                    >
+                        {isLoggedIn ? (
+                            <Avatar
+                                sx={{
+                                    width: 28,
+                                    height: 28,
+                                    fontSize: "0.85rem",
+                                    bgcolor: "#E906E5",
+                                    color: "#fff",
+                                    background: "linear-gradient(135deg, #E906E5 10%, #4158d0 100%)",
+                                    boxShadow: "0 10px 22px rgba(65, 88, 208, 0.25)",
+                                }}
+                            >
+                                {userInitial}
+                            </Avatar>
+                        ) : (
+                            <MenuIcon />
+                        )}
+                    </IconButton>
+
+                    {/* Beta banner Desktop */}
+                    <Box
+                        sx={{
+                            position: "absolute",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            display: { xs: "none", md: "block" },
+                        }}
+                    >
+                        <BetaBanner isSmallScreen={isCompactBetaBanner} />
+                    </Box>
+
+                    {/* Beta banner Mobile */}
+                    <Box
+                        sx={{
+                            position: "absolute",
+                            left: "50%",
+                            transform: "translateX(-30%) scale(0.75)",
+                            transformOrigin: "center",
+                            display: { xs: "block", md: "none" },
+                            mt: -0.5, // Fine-tune vertical alignment
+                        }}
+                    >
+                        <BetaBanner isSmallScreen={true} />
                     </Box>
 
                     <Box sx={{
                         marginLeft: "auto",
-                        marginRight: 4,
-                        display: "flex",
+                        marginRight: { xs: 0, md: 4 },
+                        display: { xs: "none", md: "flex" },
                         gap: 4,
                     }}>
                         {!isLoggedIn && (
@@ -282,28 +365,72 @@ export default function Layout({ title, content }: { title: string; content: Rea
                     </Box>
                 </Box>
 
+                <Dialog
+                    fullScreen
+                    open={mobileMenuOpen}
+                    onClose={closeMobileMenu}
+                    slotProps={{
+                        paper: {
+                            sx: {
+                                background: "linear-gradient(180deg, #fff 0%, #fff8fc 100%)",
+                            },
+                        },
+                    }}
+                >
+                    <DialogContent sx={{ p: 0 }}>
+                        <Box sx={{ minHeight: "100%", display: "flex", flexDirection: "column", px: 3, py: 2.5 }}>
+                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 4 }}>
+                                <Box
+                                    component="img"
+                                    src="/JustTransfer.png"
+                                    alt="Logo"
+                                    sx={{ width: "150px", height: "auto" }}
+                                />
+                                <IconButton aria-label="Close navigation menu" onClick={closeMobileMenu}>
+                                    <CloseIcon />
+                                </IconButton>
+                            </Box>
+
+                            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, flex: 1 }}>
+                                {mobileMenuItems.map((item) => (
+                                    <Button
+                                        key={item.path}
+                                        startIcon={item.icon}
+                                        fullWidth
+                                        size="large"
+                                        onClick={() => goTo(item.path)}
+                                        sx={menuButtonStyle(item.path)}
+                                    >
+                                        {item.label}
+                                    </Button>
+                                ))}
+                            </Box>
+                        </Box>
+                    </DialogContent>
+                </Dialog>
+
                 {/* CONTENT AREA */}
                 <Box
                     sx={{
                         flexGrow: 1,
                         display: "flex",
                         justifyContent: "center",
-                        alignItems: "top",
+                        alignItems: "flex-start",
                     }}
                 >
 
                     {/* LEFT SIDEBAR */}
                     {isLoggedIn && (
-                        < Box
+                        <Box
                             sx={{
                                 width: leftBarWidth,
                                 backgroundColor: isLoggedIn ? "#ffffff" : "#ffffff",
                                 color: "white",
-                                display: "flex",
+                                display: { xs: "none", md: "flex" },
                                 flexDirection: "column",
                                 p: 2,
                                 position: "fixed",
-                                height: `calc(100% - ${headerHeight} - 30px)`,
+                                height: `calc(100% - ${headerHeight})`,
                                 left: 0,
                                 top: headerHeight,
                             }}
@@ -317,7 +444,12 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                     flexGrow: 1,
                                 }}
                             >
-                                <Box sx={{ display: "flex", flexDirection: "column", gap: 2, justifyContent: "space-between" }}>
+                                <Box sx={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: 2,
+                                    justifyContent: "space-between",
+                                }}>
                                     <Button
                                         startIcon={<SendIcon />}
                                         fullWidth
@@ -355,6 +487,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                     gap: 2,
                                     borderTop: "1px solid #444",
                                     pt: 2,
+                                    mt: "auto",
                                 }}>
                                     <Button
                                         startIcon={<AccountCircleIcon />}
@@ -383,22 +516,25 @@ export default function Layout({ title, content }: { title: string; content: Rea
                     )}
 
                     <Box sx={{
-                        flexGrow: 1,
+                        flex: "1 1 auto",
                         flexDirection: "column",
                         alignContent: "center",
+                        alignItems: "stretch",
                         display: "flex",
                         backgroundColor: (theme) =>
                             theme.palette.mode === "light"
                                 ? theme.palette.grey[100]
                                 : theme.palette.grey[900],
-                        borderRadius: 2,
-                        p: 8,
-                        minHeight: `calc(100vh - ${headerHeight} - 60px)`,
-                        ml: isLoggedIn ? leftBarWidth : 0,
+                        borderRadius: { xs: 0, md: 2 },
+                        p: { xs: 2, sm: 3, md: 8 },
+                        minHeight: `calc(100vh)`,
+                        width: "100%",
+                        minWidth: 0,
+                        ml: { xs: 0, md: isLoggedIn ? leftBarWidth : 0 },
                     }} >
 
                         {/* MAIN CONTENT */}
-                        <Container maxWidth={false} disableGutters sx={{ mt: 4, mb: 4 }}>
+                        <Container maxWidth={false} disableGutters sx={{ width: "100%", mt: { xs: 4, md: 4 }, mb: { xs: 2, md: 4 } }}>
                             {content}
                         </Container>
 
