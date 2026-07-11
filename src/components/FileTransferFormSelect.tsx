@@ -93,7 +93,6 @@ export default function FileTransferFormSelect({
                 justifyContent: "center",
                 gap: 2,
                 width: "100%",
-                maxWidth: 510,
                 mb: 0.5,
             }}>
                 <Button

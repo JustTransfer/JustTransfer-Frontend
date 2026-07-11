@@ -238,7 +238,6 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             elevation={4}
             sx={{
                 width: "100%",
-                maxWidth: 510,
                 textAlign: "center",
                 borderRadius: { xs: 2, sm: 3 },
                 p: { xs: 2, sm: 3, md: 4 },

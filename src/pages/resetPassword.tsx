@@ -15,7 +15,7 @@ export default function ResetPasswordPage() {
 
     const cardSx = {
         width: "100%",
-        maxWidth: 480,
+        maxWidth: 520,
         textAlign: "center",
         borderRadius: 4,
         border: "1px solid #f1e7ee",

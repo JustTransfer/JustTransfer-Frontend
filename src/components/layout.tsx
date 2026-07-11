@@ -394,9 +394,10 @@ export default function Layout({ title, content }: { title: string; content: Rea
                     )}
 
                     <Box sx={{
-                        flex: "1 0 auto",
+                        flex: "1 1 auto",
                         flexDirection: "column",
                         alignContent: "center",
+                        alignItems: "stretch",
                         display: "flex",
                         backgroundColor: (theme) =>
                             theme.palette.mode === "light"
@@ -405,12 +406,13 @@ export default function Layout({ title, content }: { title: string; content: Rea
                         borderRadius: { xs: 0, md: 2 },
                         p: { xs: 2, sm: 3, md: 8 },
                         minHeight: `calc(100vh)`,
+                        width: "100%",
+                        minWidth: 0,
                         ml: { xs: 0, md: isLoggedIn ? leftBarWidth : 0 },
-                        width: { xs: "100%", md: "auto" },
                     }} >
 
                         {/* MAIN CONTENT */}
-                        <Container maxWidth={false} disableGutters sx={{ mt: { xs: 4, md: 4 }, mb: { xs: 2, md: 4 } }}>
+                        <Container maxWidth={false} disableGutters sx={{ width: "100%", mt: { xs: 4, md: 4 }, mb: { xs: 2, md: 4 } }}>
                             {content}
                         </Container>
 
