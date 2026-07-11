@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { Box, Typography, Button, IconButton, ListItem, ListItemIcon, ListItemText, Stack, Chip, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DownloadIcon from '@mui/icons-material/Download';
 import InboxIcon from '@mui/icons-material/Inbox';
@@ -28,9 +30,10 @@ type Props = {
     progress?: number;
     onDownload: () => void;
     onDelete: () => void;
+    compact?: boolean;
 };
 
-function DownloadSection({ msg, progress, onDownload, onDelete }: Props) {
+function DownloadSection({ msg, progress, onDownload, onDelete, compact = false }: Props) {
 
     const downloadsLeft = msg.max_downloads - msg.number_downloads;
 
@@ -55,20 +58,41 @@ function DownloadSection({ msg, progress, onDownload, onDelete }: Props) {
 
     // Already fully used
     if (downloadsLeft <= 0) {
-        return <Chip label="Limit reached" />;
+        return <Chip size={compact ? "small" : "medium"} label="Limit reached" />;
     }
 
     // Downloading state
     if (progress !== undefined) {
         return (
             <Stack direction="row" spacing={1} sx={{ alignItems: "center", minWidth: 90, justifyContent: { xs: "flex-start", md: "flex-end" } }}>
-                <CircularProgress variant="determinate" value={progress} size={22} />
+                <CircularProgress variant="determinate" value={progress} size={compact ? 20 : 22} />
                 <Typography variant="caption">{Math.round(progress)}%</Typography>
             </Stack>
         );
     }
 
     // Ready state
+    if (compact) {
+        return (
+            <Stack direction="row" spacing={1} sx={{ width: "100%", alignItems: "center" }}>
+                <Button
+                    fullWidth
+                    variant="contained"
+                    size="small"
+                    startIcon={<DownloadIcon />}
+                    onClick={onDownload}
+                    sx={{ flex: 1 }}
+                >
+                    Download
+                </Button>
+
+                <IconButton color="primary" onClick={onDelete} size="small" aria-label="delete message">
+                    <DeleteIcon fontSize="small" />
+                </IconButton>
+            </Stack>
+        );
+    }
+
     return (
         <Box sx={{
             display: "flex",
@@ -91,6 +115,9 @@ function DownloadSection({ msg, progress, onDownload, onDelete }: Props) {
 
 
 export default function Inbox() {
+
+    const theme = useTheme();
+    const compactInbox = useMediaQuery(theme.breakpoints.down("sm"));
 
     const contentCardSx = {
         width: "100%",
@@ -259,16 +286,16 @@ export default function Inbox() {
                     alignItems: "center",
                     flexDirection: "column",
                     gap: 3,
-                    px: { xs: 2, md: 0 },
-                    py: { xs: 3, md: 5 },
+                    px: { xs: 1.5, md: 0 },
+                    py: { xs: 2.25, md: 5 },
                 }}
             >
                 <Box sx={contentCardSx}>
                     <Box sx={headerCardSx}>
-                        <Typography variant="h5" sx={{ fontWeight: 700, color: "#2b0f1f" }}>
+                        <Typography variant={compactInbox ? "h6" : "h5"} sx={{ fontWeight: 700, color: "#2b0f1f" }}>
                             Received direct transfers
                         </Typography>
-                        <IconButton aria-label="refresh" color="primary" size="large" onClick={getMessagesLocal}>
+                        <IconButton aria-label="refresh" color="primary" size={compactInbox ? "medium" : "large"} onClick={getMessagesLocal}>
                             <RefreshIcon />
                         </IconButton>
                     </Box>
@@ -282,19 +309,19 @@ export default function Inbox() {
                                         sx={{
                                             width: "100%",
                                             borderRadius: 3,
-                                            px: { xs: 2, md: 3 },
-                                            py: { xs: 2, md: 1.6 },
+                                            px: { xs: 1.5, md: 3 },
+                                            py: { xs: 1.5, md: 1.6 },
                                             display: "flex",
                                             alignItems: { xs: "stretch", md: "center" },
                                             flexDirection: { xs: "column", md: "row" },
                                             border: "1px solid #f1e7ee",
                                             backgroundColor: "#ffffff",
                                             boxShadow: "0 12px 28px rgba(83, 24, 60, 0.06)",
-                                            gap: { xs: 1.5, md: 2 },
+                                            gap: { xs: 1.25, md: 2 },
                                             "&:hover": { backgroundColor: "#fff7fb" }
                                         }}
                                     >
-                                        <ListItemIcon sx={{ minWidth: { xs: 0, md: 40 }, alignSelf: { xs: "flex-start", md: "center" }, mt: { xs: 0.25, md: 0 } }}>
+                                        <ListItemIcon sx={{ display: { xs: "none", sm: "flex" }, minWidth: { xs: 0, md: 40 }, alignSelf: { xs: "flex-start", md: "center" }, mt: { xs: 0.25, md: 0 } }}>
                                             {msg.signatureValid === false && (
                                                 <ErrorOutlineOutlinedIcon color="error" />
                                             ) || (
@@ -311,20 +338,22 @@ export default function Inbox() {
                                                 mr: { xs: 0, md: 2 },
                                             }}
                                             primary={
-                                                <Stack spacing={1} sx={{ width: "100%" }}>
+                                                <Stack spacing={compactInbox ? 0.75 : 1} sx={{ width: "100%" }}>
                                                     <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ alignItems: { xs: "flex-start", sm: "center" }, minWidth: 0 }}>
                                                         <PersonIcon sx={{ fontSize: 16, opacity: 0.7 }} />
-                                                        <Typography variant="caption" color="text.secondary" sx={{ minWidth: 0, overflowWrap: "anywhere" }}>
+                                                        <Typography variant="caption" color="text.secondary" sx={{ minWidth: 0, overflowWrap: "anywhere", lineHeight: 1.4 }}>
                                                             From <b>{msg.sender}</b> • Received {formatCreated(msg.creation_time)}
                                                         </Typography>
                                                     </Stack>
 
                                                     <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ alignItems: { xs: "flex-start", sm: "center" }, minWidth: 0 }}>
-                                                        <Typography sx={{ fontWeight: 600, overflowWrap: "anywhere" }}>{msg.filename}</Typography>
+                                                        <Typography sx={{ fontWeight: 600, overflowWrap: "anywhere", fontSize: compactInbox ? "0.98rem" : undefined, lineHeight: 1.35 }}>
+                                                            {msg.filename}
+                                                        </Typography>
                                                         <Chip label={formatSize(msg.file_size)} size="small" />
                                                     </Stack>
 
-                                                    <Stack direction="row" spacing={1} sx={{ mt: 0.5, flexWrap: "wrap", rowGap: 1 }}>
+                                                    <Stack direction={compactInbox ? "column" : "row"} spacing={1} sx={{ mt: 0, alignItems: "flex-start", flexWrap: "wrap", rowGap: 1 }}>
                                                         <Chip
                                                             size="small"
                                                             variant={expireColor(msg) === "error.main" ? "filled" : expireColor(msg) === "warning.main" ? "filled" : "outlined"}
@@ -349,6 +378,7 @@ export default function Inbox() {
                                                 progress={downloadProgress[msg.id]}
                                                 onDownload={() => downloadFile(msg)}
                                                 onDelete={() => handleClickOpenDialog(msg)}
+                                                compact={compactInbox}
                                             />
                                         </Box>
                                     </ListItem>
