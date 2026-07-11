@@ -69,6 +69,8 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
     return (
         <Box
             sx={{
+                mt: "auto",
+                flexShrink: 0,
                 backgroundColor: "#534f4fff",
                 color: "#fff",
                 pt: 6,
@@ -178,7 +180,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
     );
 }
 
-export default function Layout({ title, content }: { title: string; content: React.ReactNode }) {
+export default function Layout({ title, content, showFooter = true }: { title: string; content: React.ReactNode; showFooter?: boolean }) {
 
     const navigate = useNavigate();
 
@@ -386,7 +388,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                     )}
 
                     <Box sx={{
-                        flexGrow: 1,
+                        flex: "1 0 auto",
                         flexDirection: "column",
                         alignContent: "center",
                         display: "flex",
@@ -396,21 +398,20 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                 : theme.palette.grey[900],
                         borderRadius: { xs: 0, md: 2 },
                         p: { xs: 2, sm: 3, md: 8 },
-                        minHeight: { xs: `calc(100vh - 56px)`, md: `calc(100vh - ${headerHeight} - 60px)` },
+                        minHeight: `calc(100vh)`,
                         ml: { xs: 0, md: isLoggedIn ? leftBarWidth : 0 },
                         width: { xs: "100%", md: "auto" },
                     }} >
 
                         {/* MAIN CONTENT */}
-                        <Container maxWidth={false} disableGutters sx={{ mt: { xs: 2, md: 4 }, mb: { xs: 2, md: 4 } }}>
+                        <Container maxWidth={false} disableGutters sx={{ mt: { xs: 4, md: 4 }, mb: { xs: 2, md: 4 } }}>
                             {content}
                         </Container>
 
                     </Box>
                 </Box>
 
-                {/* Footer*/}
-                <Footer isLoggedIn={isLoggedIn} />
+                {showFooter && <Footer isLoggedIn={isLoggedIn} />}
             </Box>
         </ThemeProvider>
     );

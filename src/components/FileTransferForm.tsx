@@ -237,8 +237,8 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
         <Paper
             elevation={4}
             sx={{
-                width: "85%",
-                maxWidth: 450,
+                width: "100%",
+                maxWidth: 510,
                 textAlign: "center",
                 borderRadius: { xs: 2, sm: 3 },
                 p: { xs: 2, sm: 3, md: 4 },
@@ -263,7 +263,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 <Box
                     onClick={handleIconClick}
                     sx={{
-                        width: "85%",
+                        width: "100%",
                         border: "2px dashed",
                         borderColor: "grey.400",
                         backgroundColor: "action.hover",
