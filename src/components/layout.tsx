@@ -320,30 +320,18 @@ export default function Layout({ title, content }: { title: string; content: Rea
                         )}
                     </IconButton>
 
-                    {/* Beta banner Desktop */}
+                    {/* Beta banner */}
                     <Box
                         sx={{
                             position: "absolute",
                             left: "50%",
-                            transform: "translateX(-50%)",
-                            display: { xs: "none", md: "block" },
+                            transform: isCompactBetaBanner
+                                ? "translateX(+10%)"
+                                : "translateX(-50%)",
+                            display: "flex",
                         }}
                     >
-                        <BetaBanner isSmallScreen={isCompactBetaBanner} />
-                    </Box>
-
-                    {/* Beta banner Mobile */}
-                    <Box
-                        sx={{
-                            position: "absolute",
-                            left: "50%",
-                            transform: "translateX(-30%) scale(0.75)",
-                            transformOrigin: "center",
-                            display: { xs: "block", md: "none" },
-                            mt: -0.5, // Fine-tune vertical alignment
-                        }}
-                    >
-                        <BetaBanner isSmallScreen={true} />
+                        <BetaBanner />
                     </Box>
 
                     <Box sx={{
