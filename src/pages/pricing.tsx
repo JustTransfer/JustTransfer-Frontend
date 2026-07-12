@@ -25,7 +25,7 @@ export default function PricingPage() {
 
     return (
         <Layout
-            title="Account Settings"
+            title="Pricing"
             content={
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 2, alignItems: "center" }}>
                     <Box sx={{ width: "86%" }}>
@@ -33,6 +33,9 @@ export default function PricingPage() {
                             size="small"
                             variant="contained"
                             onClick={() => navigate("/account")}
+                            sx={{
+                                mt: { xs: 4, md: 0 },
+                            }}
                         >
                             <ArrowBackIcon sx={{ mr: 1 }} />
                             Account
