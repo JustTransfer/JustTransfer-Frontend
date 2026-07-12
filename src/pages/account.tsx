@@ -37,15 +37,15 @@ function PlanLimitCard({
     progress?: number;
 }) {
     return (
-        <Card variant="outlined" sx={{ borderRadius: 3, p: 2 }}>
-            <Stack spacing={1}>
+        <Card variant="outlined" sx={{ borderRadius: 3, p: 2, width: "100%", height: "100%" }}>
+            <Stack spacing={1} sx={{ height: "100%" }}>
                 <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
                     {icon}
                     <Box>
                         <Typography variant="caption" color="text.secondary">
                             {title}
                         </Typography>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        <Typography variant="h6" sx={{ fontWeight: 600, wordBreak: "break-word" }}>
                             {value} {unit && <Typography variant="caption" color="text.secondary">{unit}</Typography>}
                         </Typography>
                     </Box>
@@ -183,12 +183,12 @@ export default function AccountPage() {
                 <Box sx={pageSx}>
                     <Stack spacing={4} sx={contentCardSx}>
 
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+                        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "flex-start", sm: "center" }, gap: 3, minWidth: 0 }}>
                             <Avatar
                                 sx={{
-                                    width: 92,
-                                    height: 92,
-                                    fontSize: 40,
+                                    width: { xs: 72, sm: 92 },
+                                    height: { xs: 72, sm: 92 },
+                                    fontSize: { xs: 32, sm: 40 },
                                     fontWeight: 700,
                                     letterSpacing: 1,
                                     color: "#ffffff",
@@ -199,11 +199,15 @@ export default function AccountPage() {
                                 {username?.[0]?.toUpperCase()}
                             </Avatar>
 
-                            <Box>
+                            <Box
+                                sx={{
+                                    minWidth: 0,
+                                    px: { xs: 1, sm: 0 },
+                                }}>
                                 {(username && email) ?
                                     <>
                                         <Typography variant="h6">{username}</Typography>
-                                        <Typography variant="body2" color="text.secondary">
+                                        <Typography variant="body2" color="text.secondary" sx={{ overflowWrap: "anywhere", wordBreak: "break-word" }}>
                                             {email}
                                         </Typography>
                                     </>
@@ -223,7 +227,7 @@ export default function AccountPage() {
                                     Plan Overview
                                 </Typography>
 
-                                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
                                     <Chip
                                         label={role === "premium" ? "Premium Plan" : "Free Plan"}
                                         color={role === "premium" ? "primary" : "default"}
@@ -244,9 +248,9 @@ export default function AccountPage() {
                                 </Typography>
                             ) : (
 
-                                <Grid container spacing={3} sx={{ mt: 1 }}>
+                                <Grid container spacing={3} sx={{ mt: 1, alignItems: "stretch" }}>
 
-                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                    <Grid size={{ xs: 12, md: 7, lg: 4 }} sx={{ display: "flex" }}>
                                         <PlanLimitCard
                                             icon={<SyncAltIcon color="primary" fontSize="large" />}
                                             title="Monthly Transfers"
@@ -255,7 +259,7 @@ export default function AccountPage() {
                                         />
                                     </Grid>
 
-                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                    <Grid size={{ xs: 12, md: 7, lg: 4 }} sx={{ display: "flex" }}>
                                         <PlanLimitCard
                                             icon={<ScheduleIcon color="primary" fontSize="large" />}
                                             title="Maximum Lifetime"
@@ -268,7 +272,7 @@ export default function AccountPage() {
                                         />
                                     </Grid>
 
-                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                    <Grid size={{ xs: 12, md: 7, lg: 4 }} sx={{ display: "flex" }}>
                                         <PlanLimitCard
                                             icon={<StorageIcon color="primary" fontSize="large" />}
                                             title="Max File Size"
@@ -281,7 +285,7 @@ export default function AccountPage() {
                                         />
                                     </Grid>
 
-                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                                    <Grid size={{ xs: 12, md: 7, lg: 4 }} sx={{ display: "flex" }}>
                                         <PlanLimitCard
                                             icon={<DownloadIcon color="primary" fontSize="large" />}
                                             title="Downloads"
