@@ -20,13 +20,9 @@ export default function BetaBanner() {
             }}
         >
 
-            <Box component="span" sx={{ display: { xs: "inline", lg: "none" } }}>
+            <Box component="span">
                 Beta website
             </Box>
-
-            <Box component="span" sx={{ display: { xs: "none", lg: "inline" } }}>
-                This platform is currently in beta. Some features may change or be unstable.
-            </Box>
-        </Alert>
+        </Alert >
     );
 }

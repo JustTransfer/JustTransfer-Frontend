@@ -2,8 +2,6 @@ import { useState } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
@@ -195,7 +193,6 @@ export default function Layout({ title, content }: { title: string; content: Rea
 
     const navigate = useNavigate();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const theme = useTheme();
 
     const location = useLocation();
 
@@ -204,8 +201,6 @@ export default function Layout({ title, content }: { title: string; content: Rea
     const { username } = useAuth();
     const isLoggedIn = !!username;
     const userInitial = username?.trim().charAt(0).toUpperCase() || "";
-    const isCompactBetaBanner = useMediaQuery(theme.breakpoints.down('lg'));
-
     const menuButtonStyle = (path: string) => ({
         justifyContent: "flex-start",
         textTransform: "none",
@@ -292,6 +287,37 @@ export default function Layout({ title, content }: { title: string; content: Rea
                         {title}
                     </Typography>
 
+                    {/* Beta banner */}
+                    <Box
+                        sx={{
+                            display: "flex",
+                            flex: 1,
+                            justifyContent: "center",
+                            minWidth: 0,
+                        }}
+                    >
+                        <BetaBanner />
+                    </Box>
+
+                    <Box sx={{
+                        marginLeft: "auto",
+                        marginRight: { xs: 0, md: 4 },
+                        display: { xs: "none", md: "flex" },
+                        gap: 4,
+                    }}>
+                        {!isLoggedIn && (
+                            <>
+                                <Button color="secondary" onClick={() => navigate("/register")} sx={{ ":hover": { color: "#E906E5", backgroundColor: "transparent" } }}>
+                                    Create account
+                                </Button>
+                                <Button color="primary" variant='contained' onClick={() => navigate("/login")} sx={{}}>
+                                    Log in
+                                </Button>
+                            </>
+                        )}
+                    </Box>
+
+                    {/* Mobile menu button */}
                     <IconButton
                         aria-label="Open navigation menu"
                         onClick={() => setMobileMenuOpen(true)}
@@ -319,38 +345,6 @@ export default function Layout({ title, content }: { title: string; content: Rea
                             <MenuIcon />
                         )}
                     </IconButton>
-
-                    {/* Beta banner */}
-                    <Box
-                        sx={{
-                            position: "absolute", // todo change to relative
-                            left: "50%",
-                            transform: isCompactBetaBanner
-                                ? "translateX(+10%)"
-                                : "translateX(-50%)",
-                            display: "flex",
-                        }}
-                    >
-                        <BetaBanner />
-                    </Box>
-
-                    <Box sx={{
-                        marginLeft: "auto",
-                        marginRight: { xs: 0, md: 4 },
-                        display: { xs: "none", md: "flex" },
-                        gap: 4,
-                    }}>
-                        {!isLoggedIn && (
-                            <>
-                                <Button color="secondary" onClick={() => navigate("/register")} sx={{ ":hover": { color: "#E906E5", backgroundColor: "transparent" } }}>
-                                    Create account
-                                </Button>
-                                <Button color="primary" variant='contained' onClick={() => navigate("/login")} sx={{}}>
-                                    Log in
-                                </Button>
-                            </>
-                        )}
-                    </Box>
                 </Box>
 
                 <Dialog
