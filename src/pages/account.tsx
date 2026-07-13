@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Button, Stack, Divider, Avatar, Card, LinearProgress, Grid, Chip } from "@mui/material";
+import { Box, Typography, Button, Stack, Divider, Avatar, Card, LinearProgress, Chip } from "@mui/material";
 import StorageIcon from "@mui/icons-material/Storage";
 import DownloadIcon from "@mui/icons-material/Download";
 import ScheduleIcon from "@mui/icons-material/Schedule";
@@ -248,56 +248,54 @@ export default function AccountPage() {
                                 </Typography>
                             ) : (
 
-                                <Grid container spacing={3} sx={{ mt: 1, alignItems: "stretch" }}>
+                                <Box
+                                    sx={{
+                                        display: "grid",
+                                        gap: 3,
+                                        gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                                    }}
+                                >
 
-                                    <Grid size={{ xs: 12, md: 7, lg: 4 }} sx={{ display: "flex" }}>
-                                        <PlanLimitCard
-                                            icon={<SyncAltIcon color="primary" fontSize="large" />}
-                                            title="Monthly Transfers"
-                                            value={`${numberTransfers} / ${role === "premium" ? config.max_transfer_month_connected_premium : config.max_transfer_month_connected}`}
-                                            progress={(numberTransfers / (role === "premium" ? config.max_transfer_month_connected_premium : config.max_transfer_month_connected)) * 100}
-                                        />
-                                    </Grid>
+                                    <PlanLimitCard
+                                        icon={<SyncAltIcon color="primary" fontSize="large" />}
+                                        title="Monthly Transfers"
+                                        value={`${numberTransfers} / ${role === "premium" ? config.max_transfer_month_connected_premium : config.max_transfer_month_connected}`}
+                                        progress={(numberTransfers / (role === "premium" ? config.max_transfer_month_connected_premium : config.max_transfer_month_connected)) * 100}
+                                    />
 
-                                    <Grid size={{ xs: 12, md: 7, lg: 4 }} sx={{ display: "flex" }}>
-                                        <PlanLimitCard
-                                            icon={<ScheduleIcon color="primary" fontSize="large" />}
-                                            title="Maximum Lifetime"
-                                            value={
-                                                role === "premium"
-                                                    ? config.max_lifetime_connected_premium
-                                                    : config.max_lifetime_connected
-                                            }
-                                            unit="Days"
-                                        />
-                                    </Grid>
+                                    <PlanLimitCard
+                                        icon={<ScheduleIcon color="primary" fontSize="large" />}
+                                        title="Maximum Lifetime"
+                                        value={
+                                            role === "premium"
+                                                ? config.max_lifetime_connected_premium
+                                                : config.max_lifetime_connected
+                                        }
+                                        unit="Days"
+                                    />
 
-                                    <Grid size={{ xs: 12, md: 7, lg: 4 }} sx={{ display: "flex" }}>
-                                        <PlanLimitCard
-                                            icon={<StorageIcon color="primary" fontSize="large" />}
-                                            title="Max File Size"
-                                            value={
-                                                role === "premium"
-                                                    ? formatSize(config.max_file_size_connected_premium)
-                                                    : formatSize(config.max_file_size_connected)
-                                            }
-                                            unit="per transfer"
-                                        />
-                                    </Grid>
+                                    <PlanLimitCard
+                                        icon={<StorageIcon color="primary" fontSize="large" />}
+                                        title="Max File Size"
+                                        value={
+                                            role === "premium"
+                                                ? formatSize(config.max_file_size_connected_premium)
+                                                : formatSize(config.max_file_size_connected)
+                                        }
+                                        unit="per transfer"
+                                    />
 
-                                    <Grid size={{ xs: 12, md: 7, lg: 4 }} sx={{ display: "flex" }}>
-                                        <PlanLimitCard
-                                            icon={<DownloadIcon color="primary" fontSize="large" />}
-                                            title="Downloads"
-                                            value={
-                                                role === "premium"
-                                                    ? config.max_downloads_connected_premium
-                                                    : config.max_downloads_connected
-                                            }
-                                            unit="per transfer"
-                                        />
-                                    </Grid>
-                                </Grid>
+                                    <PlanLimitCard
+                                        icon={<DownloadIcon color="primary" fontSize="large" />}
+                                        title="Downloads"
+                                        value={
+                                            role === "premium"
+                                                ? config.max_downloads_connected_premium
+                                                : config.max_downloads_connected
+                                        }
+                                        unit="per transfer"
+                                    />
+                                </Box>
 
                             )}
                         </Stack>
