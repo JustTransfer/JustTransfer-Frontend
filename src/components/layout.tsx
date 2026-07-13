@@ -323,7 +323,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                     {/* Beta banner */}
                     <Box
                         sx={{
-                            position: "absolute",
+                            position: "absolute", // todo change to relative
                             left: "50%",
                             transform: isCompactBetaBanner
                                 ? "translateX(+10%)"

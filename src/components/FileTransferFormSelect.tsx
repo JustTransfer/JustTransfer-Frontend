@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, Button } from "@mui/material";
+import { Box, ToggleButtonGroup, ToggleButton } from "@mui/material";
 import LinkIcon from '@mui/icons-material/Link';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
@@ -86,71 +86,76 @@ export default function FileTransferFormSelect({
             mb: 1,
         }}>
 
-            <Box sx={{
-                display: "flex",
-                flexDirection: { xs: "column", sm: "row" },
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 2,
-                width: "100%",
-                mb: 0.5,
-            }}>
-                <Button
-                    variant="contained"
-                    onClick={() => handleTypeChange("anonymous")}
-                    sx={{
-                        mt: 2,
-                        width: { xs: "100%", sm: "50%" },
-                        backgroundColor: selectedType === "anonymous" ? "primary.main" : "grey.400",
-                        gap: 2,
-                        ":hover": {
-                            backgroundColor: selectedType === "anonymous" ? "primary.dark" : "grey.500",
+            <ToggleButtonGroup
+                value={selectedType}
+                exclusive
+                fullWidth
+                onChange={(_, value) => {
+                    if (!value) return;
+                    handleTypeChange(value);
+                }}
+                sx={{
+                    mt: 2,
+                    width: "100%",
+                }}
+            >
+                <ToggleButton value="anonymous" sx={{
+                    "&.Mui-selected": {
+                        bgcolor: "primary.main",
+                        color: "primary.contrastText",
+
+                        "&:hover": {
+                            bgcolor: "primary.dark",
                         },
-                    }}
-                >
-                    <LinkIcon />
+                    },
+                }}>
+                    <LinkIcon sx={{ mr: 1 }} />
                     Link Transfer
-                </Button>
-                <Button
-                    variant="contained"
-                    onClick={() => handleTypeChange("connected")}
+                </ToggleButton>
+
+                <ToggleButton value="connected"
                     sx={{
-                        mt: 2,
-                        width: { xs: "100%", sm: "50%" },
-                        backgroundColor: selectedType === "connected" ? "primary.main" : "grey.400",
-                        gap: 2,
-                        ":hover": {
-                            backgroundColor: selectedType === "connected" ? "primary.dark" : "grey.500",
+                        "&.Mui-selected": {
+                            bgcolor: "primary.main",
+                            color: "primary.contrastText",
+
+                            "&:hover": {
+                                bgcolor: "primary.dark",
+                            },
                         },
                     }}
                 >
-                    <PersonAddIcon sx={{ transform: "scaleX(-1)" }} />
+                    <PersonAddIcon sx={{ mr: 1, transform: "scaleX(-1)" }} />
                     Direct Transfer
-                </Button>
-            </Box>
+                </ToggleButton>
+            </ToggleButtonGroup>
 
             {/* Render the appropriate form based on selectedType */}
 
-            {selectedType === "anonymous" && (
-                <FileTransferForm
-                    type="anonymous"
-                    maxFileSize={propsLink.maxFileSize}
-                    maxDownloads={propsLink.maxDownloads}
-                    maxLifetime={propsLink.maxLifetime}
-                    onSubmit={propsLink.onSubmit}
-                />
-            )}
+            {
+                selectedType === "anonymous" && (
+                    <FileTransferForm
+                        type="anonymous"
+                        maxFileSize={propsLink.maxFileSize}
+                        maxDownloads={propsLink.maxDownloads}
+                        maxLifetime={propsLink.maxLifetime}
+                        onSubmit={propsLink.onSubmit}
+                    />
+                )
+            }
 
-            {selectedType === "connected" && (
-                <FileTransferForm
-                    type="connected"
-                    maxFileSize={propsDirect.maxFileSize}
-                    maxDownloads={propsDirect.maxDownloads}
-                    maxLifetime={propsDirect.maxLifetime}
-                    onSubmit={propsDirect.onSubmit}
-                />
-            )}
+            {
+                selectedType === "connected" && (
+                    <FileTransferForm
+                        type="connected"
+                        maxFileSize={propsDirect.maxFileSize}
+                        maxDownloads={propsDirect.maxDownloads}
+                        maxLifetime={propsDirect.maxLifetime}
+                        onSubmit={propsDirect.onSubmit}
+                    />
+                )
+            }
 
-        </Box>
+        </Box >
     );
 }
