@@ -108,7 +108,7 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
                 width: "100%",
                 maxWidth: maxWidthPage,
                 mx: "auto",
-                py: 8,
+                py: { xs: 4, md: 6 },
                 px: sectionPaddingX,
                 backgroundColor: "#fff7fb",
                 borderRadius: 4,
