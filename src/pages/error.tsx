@@ -1,4 +1,4 @@
-import { Box, Container, Typography, Button } from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
 
 import * as strings from "../messages/strings";
 import * as errors from "../messages/errors";
@@ -9,7 +9,12 @@ import Layout from "../components/layout";
 export default function Error() {
     return (
         <Layout title="Error" content={
-            <Container maxWidth="sm" sx={{ py: { xs: 4, md: 8 } }}>
+            <Box
+                sx={{
+                    maxWidth: 550,
+                    mx: "auto",
+                    py: { xs: 4, md: 8 }
+                }}>
                 <Box
                     sx={{
                         display: "flex",
@@ -25,7 +30,7 @@ export default function Error() {
                 >
                     <ErrorOutlineOutlinedIcon style={{ fontSize: 72, color: "#d32f2f" }} />
                     <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 700, color: "#2b0f1f" }}>
-                        Oops! {errors.errorPageNotFound}
+                        Oops!<br />{errors.errorPageNotFound}
                     </Typography>
                     <Typography variant="body1" sx={{ color: "#6e5a69", mb: 3 }}>
                         The page you are looking for is not available.
@@ -34,7 +39,7 @@ export default function Error() {
                         {strings.btnBackToHome}
                     </Button>
                 </Box>
-            </ Container>
+            </ Box>
         } />
     );
 }

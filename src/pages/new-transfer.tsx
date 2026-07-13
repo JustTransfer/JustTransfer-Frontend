@@ -43,7 +43,6 @@ export default function NewTransfer() {
                     flexDirection: "column",
                     alignItems: "center",
                     gap: { xs: 3, md: 4 },
-                    px: { xs: 2, md: 0 },
                     py: { xs: 3, md: 5 },
                 }}
             >

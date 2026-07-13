@@ -68,7 +68,6 @@ export default function AccountPage() {
 
     const pageSx = {
         width: "100%",
-        px: { xs: 2, md: 0 },
         py: { xs: 3, md: 5 },
     };
 

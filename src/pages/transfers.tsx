@@ -66,7 +66,6 @@ export default function Transfers() {
                     alignItems: "center",
                     flexDirection: "column",
                     gap: 3,
-                    px: { xs: 2, md: 0 },
                     py: { xs: 3, md: 5 },
                 }}
             >

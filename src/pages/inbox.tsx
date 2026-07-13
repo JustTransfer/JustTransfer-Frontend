@@ -286,7 +286,6 @@ export default function Inbox() {
                     alignItems: "center",
                     flexDirection: "column",
                     gap: 3,
-                    px: { xs: 1.5, md: 0 },
                     py: { xs: 2.25, md: 5 },
                 }}
             >
