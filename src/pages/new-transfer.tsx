@@ -95,7 +95,7 @@ export default function NewTransfer() {
                             sx={{
                                 backgroundColor: "#ffffff",
                                 borderRadius: 3,
-                                p: { xs: 2.5, md: 3.5 },
+                                p: 2,
                                 boxShadow: "0 24px 60px rgba(119, 41, 93, 0.15)",
                                 border: "1px solid #f0dbea",
                             }}

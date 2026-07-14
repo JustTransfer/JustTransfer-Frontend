@@ -71,7 +71,6 @@ export default function HomePage() {
                             gridTemplateColumns: { xs: "1fr", md: "1.1fr 0.9fr" },
                             gap: { xs: 4, md: 6 },
                             alignItems: "start",
-                            ml: 2,
                         }}
                     >
                         <Box
