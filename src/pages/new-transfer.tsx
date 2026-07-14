@@ -90,7 +90,7 @@ export default function NewTransfer() {
                             >
                                 Send files with end-to-end encryption.
                             </Typography>
-                            <Typography variant="body1" sx={{ color: "#5a4454", mb: 3, maxWidth: 520 }}>
+                            <Typography variant="body1" sx={{ color: "#5a4454", maxWidth: 520 }}>
                                 Create secure links or send directly to a user account. Transfers stay encrypted and auto-expire.
                             </Typography>
                         </Box>
