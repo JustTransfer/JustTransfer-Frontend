@@ -43,7 +43,7 @@ export default function NewTransfer() {
                     flexDirection: "column",
                     alignItems: "center",
                     gap: { xs: 3, md: 4 },
-                    py: { xs: 3, md: 5 },
+                    py: { xs: 3, md: 4 },
                 }}
             >
                 <Box
@@ -72,15 +72,19 @@ export default function NewTransfer() {
                                 flexDirection: "column",
                                 alignItems: "flex-start",
                                 justifyContent: "center",
-                                mt: { xs: 0, md: 25 },
+                                mt: { xs: 0, md: 15, lg: 25 },
                             }}
                         >
                             <Typography
                                 variant="h3"
                                 sx={{
+                                    fontSize: {
+                                        xs: "2.5rem",   // ~h5
+                                        sm: "3rem",     // ~h4
+                                    },
                                     fontWeight: 700,
                                     letterSpacing: "-0.02em",
-                                    mb: 2,
+                                    mb: { xs: 1, sm: 2 },
                                     color: "#2b0f1f",
                                 }}
                             >

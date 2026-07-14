@@ -84,7 +84,7 @@ export default function HomePage() {
                             <Typography
                                 sx={{
                                     letterSpacing: "-0.02em",
-                                    lineHeight: { xs: 1, sm: 1, md: 1.2 },
+                                    lineHeight: { xs: 1, md: 1.2 },
                                     color: "#2b0f1f",
                                     fontSize: {
                                         xs: "2.5rem",   // ~h5
