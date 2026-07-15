@@ -43,8 +43,7 @@ export default function NewTransfer() {
                     flexDirection: "column",
                     alignItems: "center",
                     gap: { xs: 3, md: 4 },
-                    px: { xs: 2, md: 0 },
-                    py: { xs: 3, md: 5 },
+                    py: { xs: 3, md: 4 },
                 }}
             >
                 <Box
@@ -73,21 +72,25 @@ export default function NewTransfer() {
                                 flexDirection: "column",
                                 alignItems: "flex-start",
                                 justifyContent: "center",
-                                mt: { xs: 0, md: 25 },
+                                mt: { xs: 0, md: 15, lg: 25 },
                             }}
                         >
                             <Typography
                                 variant="h3"
                                 sx={{
+                                    fontSize: {
+                                        xs: "2.5rem",   // ~h5
+                                        sm: "3rem",     // ~h4
+                                    },
                                     fontWeight: 700,
                                     letterSpacing: "-0.02em",
-                                    mb: 2,
+                                    mb: { xs: 1, sm: 2 },
                                     color: "#2b0f1f",
                                 }}
                             >
                                 Send files with end-to-end encryption.
                             </Typography>
-                            <Typography variant="body1" sx={{ color: "#5a4454", mb: 3, maxWidth: 520 }}>
+                            <Typography variant="body1" sx={{ color: "#5a4454", maxWidth: 520 }}>
                                 Create secure links or send directly to a user account. Transfers stay encrypted and auto-expire.
                             </Typography>
                         </Box>
@@ -96,7 +99,7 @@ export default function NewTransfer() {
                             sx={{
                                 backgroundColor: "#ffffff",
                                 borderRadius: 3,
-                                p: { xs: 2.5, md: 3.5 },
+                                p: 2,
                                 boxShadow: "0 24px 60px rgba(119, 41, 93, 0.15)",
                                 border: "1px solid #f0dbea",
                             }}

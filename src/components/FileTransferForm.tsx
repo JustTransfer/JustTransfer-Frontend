@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Box, Typography, TextField, Paper, Button, IconButton, InputAdornment, Collapse, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { Box, Typography, TextField, Button, IconButton, InputAdornment, Collapse, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -234,22 +234,22 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
     };
 
     return (
-        <Paper
-            elevation={4}
-            sx={{
-                width: "100%",
-                textAlign: "center",
-                borderRadius: { xs: 2, sm: 3 },
-                p: { xs: 2, sm: 3, md: 4 },
-                mx: "auto",
-            }}
-        >
+        <>
 
-            <Box
+            < Box
                 component="form"
                 ref={formRef}
                 onSubmit={handleSubmit}
-                sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: { xs: 2, sm: 3 } }}
+                sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: { xs: 2, sm: 3 },
+                    mt: 1,
+                    p: 1,
+                    width: "100%",
+                }
+                }
             >
 
                 <input
@@ -308,132 +308,137 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                     <TextField label="Lifetime" name="lifetime" type="number" slotProps={{ htmlInput: { min: 1, max: maxLifetime } }} variant="outlined" fullWidth required helperText={maxLifetime ? `Max allowed: ${maxLifetime} days` : undefined} />
                 </Box>
 
-                {type === "anonymous" ? (
+                {
+                    type === "anonymous" ? (
 
-                    <Box sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 2,
-                        width: "100%",
-                    }}>
                         <Box sx={{
-                            p: { xs: 1.5, sm: 2 },
-                            borderRadius: 3,
-                            border: "1px solid",
-                            borderColor: "divider",
-                            backgroundColor: "background.paper",
-                            textAlign: "left",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 2,
+                            width: "100%",
                         }}>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-                                Password choice
-                            </Typography>
-                            <ToggleButtonGroup
-                                exclusive
-                                fullWidth
-                                value={isUsingPassword ? "manual" : "auto"}
-                                onChange={handlePasswordModeChange}
-                                sx={{
-                                    display: "grid",
-                                    gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-                                    gap: 1,
-                                    "& .MuiToggleButtonGroup-grouped": {
-                                        border: 0,
-                                        borderRadius: 2,
-                                        textTransform: "none",
-                                        px: { xs: 1, sm: 2 },
-                                        py: { xs: 1, sm: 1.25 },
-                                        width: "100%",
-                                    },
-                                }}
-                            >
-                                <ToggleButton value="auto" aria-label="Use generated password" sx={{ textAlign: "left", alignItems: "flex-start" }}>
-                                    <Box sx={{ width: "100%" }}>
-                                        <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                                            Auto-generate
-                                        </Typography>
-                                        <Typography variant="caption" color="text.secondary">
-                                            Automatically added to the link
-                                        </Typography>
-                                    </Box>
-                                </ToggleButton>
-                                <ToggleButton value="manual" aria-label="Set password manually" sx={{ textAlign: "left", alignItems: "flex-start" }}>
-                                    <Box sx={{ width: "100%" }}>
-                                        <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                                            Set manually
-                                        </Typography>
-                                        <Typography variant="caption" color="text.secondary">
-                                            Choose your own password
-                                        </Typography>
-                                    </Box>
-                                </ToggleButton>
-                            </ToggleButtonGroup>
-                        </Box>
-
-                        <Collapse in={isUsingPassword} unmountOnExit>
-                            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                                <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    error={errorWeakPassword}
-                                    helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
-                                    slotProps={{
-                                        input: {
-                                            endAdornment: (
-                                                <InputAdornment position="end">
-                                                    <IconButton
-                                                        aria-label={showPassword ? "Hide password" : "Show password"}
-                                                        onClick={handleTogglePassword}
-                                                    >
-                                                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                                                    </IconButton>
-                                                </InputAdornment>
-                                            ),
+                            <Box sx={{
+                                p: { xs: 1.5, sm: 2 },
+                                borderRadius: 3,
+                                border: "1px solid",
+                                borderColor: "divider",
+                                backgroundColor: "background.paper",
+                                textAlign: "left",
+                            }}>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+                                    Password choice
+                                </Typography>
+                                <ToggleButtonGroup
+                                    exclusive
+                                    fullWidth
+                                    value={isUsingPassword ? "manual" : "auto"}
+                                    onChange={handlePasswordModeChange}
+                                    sx={{
+                                        display: "grid",
+                                        gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                                        gap: 1,
+                                        "& .MuiToggleButtonGroup-grouped": {
+                                            border: 0,
+                                            borderRadius: 2,
+                                            textTransform: "none",
+                                            px: { xs: 1, sm: 2 },
+                                            py: { xs: 1, sm: 1.25 },
+                                            width: "100%",
                                         },
                                     }}
-                                />
-
-                                <PasswordStrength password={password} onStrengthChange={setIsStrong} />
-
-                                <TextField label="Confirm Password" name="confirmPassword" type="password" variant="outlined" fullWidth required
-                                    error={errorPassword}
-                                    helperText={errorPassword ? errors.errorPasswordMismatch : ""}
-                                />
+                                >
+                                    <ToggleButton value="auto" aria-label="Use generated password" sx={{ textAlign: "left", alignItems: "flex-start" }}>
+                                        <Box sx={{ width: "100%" }}>
+                                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                                                Auto-generate
+                                            </Typography>
+                                            <Typography variant="caption" color="text.secondary">
+                                                Automatically added to the link
+                                            </Typography>
+                                        </Box>
+                                    </ToggleButton>
+                                    <ToggleButton value="manual" aria-label="Set password manually" sx={{ textAlign: "left", alignItems: "flex-start" }}>
+                                        <Box sx={{ width: "100%" }}>
+                                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                                                Set manually
+                                            </Typography>
+                                            <Typography variant="caption" color="text.secondary">
+                                                Choose your own password
+                                            </Typography>
+                                        </Box>
+                                    </ToggleButton>
+                                </ToggleButtonGroup>
                             </Box>
-                        </Collapse>
-                    </Box>
 
-                ) : (
-                    <TextField label="Receiver" name="receiver" type="text" variant="outlined" fullWidth required
-                        error={errorReceiver}
-                        helperText={helperTextReceiver}
-                    />
-                )}
+                            <Collapse in={isUsingPassword} unmountOnExit>
+                                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                                    <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        error={errorWeakPassword}
+                                        helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
+                                        slotProps={{
+                                            input: {
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <IconButton
+                                                            aria-label={showPassword ? "Hide password" : "Show password"}
+                                                            onClick={handleTogglePassword}
+                                                        >
+                                                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                ),
+                                            },
+                                        }}
+                                    />
 
-                {type === "anonymous" ? (
-                    <AcceptTermsService
-                        accepted={acceptedTerms}
-                        onChange={setAcceptedTerms}
-                    />
-                ) : (
-                    null
-                )}
+                                    <PasswordStrength password={password} onStrengthChange={setIsStrong} />
 
+                                    <TextField label="Confirm Password" name="confirmPassword" type="password" variant="outlined" fullWidth required
+                                        error={errorPassword}
+                                        helperText={errorPassword ? errors.errorPasswordMismatch : ""}
+                                    />
+                                </Box>
+                            </Collapse>
+                        </Box>
 
-                {isSending ? (
-                    <LinearProgressWithLabel value={progress} />
-                ) : (
-                    <>
-                        {type === "anonymous" ? (
-                            <Button type="submit" variant="contained" fullWidth>Get a Link</Button>
-                        ) : (
-                            <Button type="submit" variant="contained" fullWidth>Send File</Button>
-                        )}
-                    </>
-                )
+                    ) : (
+                        <TextField label="Receiver" name="receiver" type="text" variant="outlined" fullWidth required
+                            error={errorReceiver}
+                            helperText={helperTextReceiver}
+                        />
+                    )
                 }
-            </Box>
+
+                {
+                    type === "anonymous" ? (
+                        <AcceptTermsService
+                            accepted={acceptedTerms}
+                            onChange={setAcceptedTerms}
+                        />
+                    ) : (
+                        null
+                    )
+                }
+
+
+                {
+                    isSending ? (
+                        <LinearProgressWithLabel value={progress} />
+                    ) : (
+                        <>
+                            {type === "anonymous" ? (
+                                <Button type="submit" variant="contained" fullWidth>Get a Link</Button>
+                            ) : (
+                                <Button type="submit" variant="contained" fullWidth>Send File</Button>
+                            )}
+                        </>
+                    )
+                }
+            </Box >
 
             {/* Dialog with link pop up */}
-            <Dialog open={openDialog} onClose={handleCloseDialog}
+            < Dialog open={openDialog} onClose={handleCloseDialog}
                 maxWidth={"sm"}
                 fullWidth
                 sx={{
@@ -463,7 +468,8 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                     </Button>
                     <Button onClick={handleCloseDialog}>Close</Button>
                 </DialogActions>
-            </Dialog>
-        </Paper >
+            </Dialog >
+            {/*</Paper >*/}
+        </>
     );
 }

@@ -224,7 +224,6 @@ export default function AnonymousTransfer() {
                     justifyContent: "center",
                     flexDirection: "column",
                     gap: 6,
-                    px: { xs: 2, md: 3 },
                     py: { xs: 4, md: 6 },
                 }}
             >

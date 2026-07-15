@@ -90,7 +90,6 @@ export default function LoginPage() {
                     flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
-                    px: { xs: 2, md: 3 },
                     py: { xs: 4, md: 6 },
                     gap: 2,
                 }}

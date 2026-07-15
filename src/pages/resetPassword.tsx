@@ -123,7 +123,6 @@ export default function ResetPasswordPage() {
                     flex: 1,
                     alignItems: "center",
                     justifyContent: "center",
-                    px: { xs: 2, md: 3 },
                     py: { xs: 4, md: 6 },
                 }}
             >

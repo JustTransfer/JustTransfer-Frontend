@@ -61,7 +61,6 @@ export default function VerifyEmailPage() {
                         flexDirection: "column",
                         alignItems: "center",
                         justifyContent: "center",
-                        px: { xs: 2, md: 3 },
                         py: { xs: 4, md: 6 },
                     }}
                 >
@@ -86,7 +85,6 @@ export default function VerifyEmailPage() {
                         flexDirection: "column",
                         alignItems: "center",
                         justifyContent: "center",
-                        px: { xs: 2, md: 3 },
                         py: { xs: 4, md: 6 },
                     }}
                 >

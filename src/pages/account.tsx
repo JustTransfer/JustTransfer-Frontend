@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Button, Stack, Divider, Avatar, Card, LinearProgress, Grid, Chip } from "@mui/material";
+import { Box, Typography, Button, Stack, Divider, Avatar, Card, LinearProgress, Chip } from "@mui/material";
 import StorageIcon from "@mui/icons-material/Storage";
 import DownloadIcon from "@mui/icons-material/Download";
 import ScheduleIcon from "@mui/icons-material/Schedule";
@@ -37,15 +37,15 @@ function PlanLimitCard({
     progress?: number;
 }) {
     return (
-        <Card variant="outlined" sx={{ borderRadius: 3, p: 2 }}>
-            <Stack spacing={1}>
+        <Card variant="outlined" sx={{ borderRadius: 3, p: 2, width: "100%", height: "100%" }}>
+            <Stack spacing={1} sx={{ height: "100%" }}>
                 <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
                     {icon}
                     <Box>
                         <Typography variant="caption" color="text.secondary">
                             {title}
                         </Typography>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        <Typography variant="h6" sx={{ fontWeight: 600, wordBreak: "break-word" }}>
                             {value} {unit && <Typography variant="caption" color="text.secondary">{unit}</Typography>}
                         </Typography>
                     </Box>
@@ -68,7 +68,6 @@ export default function AccountPage() {
 
     const pageSx = {
         width: "100%",
-        px: { xs: 2, md: 0 },
         py: { xs: 3, md: 5 },
     };
 
@@ -183,12 +182,12 @@ export default function AccountPage() {
                 <Box sx={pageSx}>
                     <Stack spacing={4} sx={contentCardSx}>
 
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+                        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "flex-start", sm: "center" }, gap: 3, minWidth: 0 }}>
                             <Avatar
                                 sx={{
-                                    width: 92,
-                                    height: 92,
-                                    fontSize: 40,
+                                    width: { xs: 72, sm: 92 },
+                                    height: { xs: 72, sm: 92 },
+                                    fontSize: { xs: 32, sm: 40 },
                                     fontWeight: 700,
                                     letterSpacing: 1,
                                     color: "#ffffff",
@@ -199,11 +198,15 @@ export default function AccountPage() {
                                 {username?.[0]?.toUpperCase()}
                             </Avatar>
 
-                            <Box>
+                            <Box
+                                sx={{
+                                    minWidth: 0,
+                                    px: { xs: 1, sm: 0 },
+                                }}>
                                 {(username && email) ?
                                     <>
                                         <Typography variant="h6">{username}</Typography>
-                                        <Typography variant="body2" color="text.secondary">
+                                        <Typography variant="body2" color="text.secondary" sx={{ overflowWrap: "anywhere", wordBreak: "break-word" }}>
                                             {email}
                                         </Typography>
                                     </>
@@ -223,7 +226,7 @@ export default function AccountPage() {
                                     Plan Overview
                                 </Typography>
 
-                                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
                                     <Chip
                                         label={role === "premium" ? "Premium Plan" : "Free Plan"}
                                         color={role === "premium" ? "primary" : "default"}
@@ -244,56 +247,54 @@ export default function AccountPage() {
                                 </Typography>
                             ) : (
 
-                                <Grid container spacing={3} sx={{ mt: 1 }}>
+                                <Box
+                                    sx={{
+                                        display: "grid",
+                                        gap: 3,
+                                        gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                                    }}
+                                >
 
-                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                        <PlanLimitCard
-                                            icon={<SyncAltIcon color="primary" fontSize="large" />}
-                                            title="Monthly Transfers"
-                                            value={`${numberTransfers} / ${role === "premium" ? config.max_transfer_month_connected_premium : config.max_transfer_month_connected}`}
-                                            progress={(numberTransfers / (role === "premium" ? config.max_transfer_month_connected_premium : config.max_transfer_month_connected)) * 100}
-                                        />
-                                    </Grid>
+                                    <PlanLimitCard
+                                        icon={<SyncAltIcon color="primary" fontSize="large" />}
+                                        title="Monthly Transfers"
+                                        value={`${numberTransfers} / ${role === "premium" ? config.max_transfer_month_connected_premium : config.max_transfer_month_connected}`}
+                                        progress={(numberTransfers / (role === "premium" ? config.max_transfer_month_connected_premium : config.max_transfer_month_connected)) * 100}
+                                    />
 
-                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                        <PlanLimitCard
-                                            icon={<ScheduleIcon color="primary" fontSize="large" />}
-                                            title="Maximum Lifetime"
-                                            value={
-                                                role === "premium"
-                                                    ? config.max_lifetime_connected_premium
-                                                    : config.max_lifetime_connected
-                                            }
-                                            unit="Days"
-                                        />
-                                    </Grid>
+                                    <PlanLimitCard
+                                        icon={<ScheduleIcon color="primary" fontSize="large" />}
+                                        title="Maximum Lifetime"
+                                        value={
+                                            role === "premium"
+                                                ? config.max_lifetime_connected_premium
+                                                : config.max_lifetime_connected
+                                        }
+                                        unit="Days"
+                                    />
 
-                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                        <PlanLimitCard
-                                            icon={<StorageIcon color="primary" fontSize="large" />}
-                                            title="Max File Size"
-                                            value={
-                                                role === "premium"
-                                                    ? formatSize(config.max_file_size_connected_premium)
-                                                    : formatSize(config.max_file_size_connected)
-                                            }
-                                            unit="per transfer"
-                                        />
-                                    </Grid>
+                                    <PlanLimitCard
+                                        icon={<StorageIcon color="primary" fontSize="large" />}
+                                        title="Max File Size"
+                                        value={
+                                            role === "premium"
+                                                ? formatSize(config.max_file_size_connected_premium)
+                                                : formatSize(config.max_file_size_connected)
+                                        }
+                                        unit="per transfer"
+                                    />
 
-                                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                                        <PlanLimitCard
-                                            icon={<DownloadIcon color="primary" fontSize="large" />}
-                                            title="Downloads"
-                                            value={
-                                                role === "premium"
-                                                    ? config.max_downloads_connected_premium
-                                                    : config.max_downloads_connected
-                                            }
-                                            unit="per transfer"
-                                        />
-                                    </Grid>
-                                </Grid>
+                                    <PlanLimitCard
+                                        icon={<DownloadIcon color="primary" fontSize="large" />}
+                                        title="Downloads"
+                                        value={
+                                            role === "premium"
+                                                ? config.max_downloads_connected_premium
+                                                : config.max_downloads_connected
+                                        }
+                                        unit="per transfer"
+                                    />
+                                </Box>
 
                             )}
                         </Stack>
