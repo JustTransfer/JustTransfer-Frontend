@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState } from "react";
 
-import { Snackbar, Alert, Box } from "@mui/material";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
 
 type NotificationType = "success" | "error" | "info" | "warning";
 

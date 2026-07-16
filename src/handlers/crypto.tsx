@@ -1,4 +1,8 @@
-import * as opaque from "@serenity-kit/opaque";
+import { client } from "@serenity-kit/opaque";
+const opaque = {
+    client,
+};
+
 import sodium from "libsodium-wrappers-sumo";
 import { Base64 } from 'js-base64';
 

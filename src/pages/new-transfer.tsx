@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Box, Typography } from "@mui/material";
 
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 
 import { useServerConfig } from "../hooks/useServerConfig";
 import Layout from "../components/layout";
