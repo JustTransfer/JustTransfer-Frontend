@@ -265,6 +265,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 <input
                     type="file"
                     ref={fileInputRef}
+                    aria-label="Select a file to upload"
                     style={{ display: "none" }}
                     onChange={handleFileChange}
                 />
@@ -465,7 +466,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                         gap: 2,
                     }}
                 >
-                    <TextField value={link} fullWidth />
+                    <TextField label="Transfer link" value={link} fullWidth />
                     <ContentCopyIcon sx={{ color: "primary.main", "&:hover": { cursor: "pointer" } }}
                         onClick={() => {
                             navigator.clipboard.writeText(link);

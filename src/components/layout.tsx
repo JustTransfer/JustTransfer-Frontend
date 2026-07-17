@@ -497,7 +497,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                         </Box>
                     )}
 
-                    <Box sx={{
+                    <Box component="main" sx={{
                         flex: "1 1 auto",
                         flexDirection: "column",
                         alignContent: "center",
