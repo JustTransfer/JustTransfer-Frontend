@@ -1,11 +1,21 @@
 import React, { useState, useRef } from "react";
-import { Box, Typography, TextField, Button, IconButton, InputAdornment, Collapse, ToggleButton, ToggleButtonGroup } from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import Collapse from "@mui/material/Collapse";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DescriptionIcon from '@mui/icons-material/Description';
 import LinearProgress from '@mui/material/LinearProgress';
-import type { LinearProgressProps } from '@mui/material/LinearProgress';
+import type { LinearProgressProps } from "@mui/material/LinearProgress";
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -255,6 +265,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 <input
                     type="file"
                     ref={fileInputRef}
+                    aria-label="Select a file to upload"
                     style={{ display: "none" }}
                     onChange={handleFileChange}
                 />
@@ -455,7 +466,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                         gap: 2,
                     }}
                 >
-                    <TextField value={link} fullWidth />
+                    <TextField label="Transfer link" value={link} fullWidth />
                     <ContentCopyIcon sx={{ color: "primary.main", "&:hover": { cursor: "pointer" } }}
                         onClick={() => {
                             navigator.clipboard.writeText(link);

@@ -1,4 +1,8 @@
-import { Box, Typography, Paper, TextField, Button } from "@mui/material";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Paper from "@mui/material/Paper";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
 
 import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";

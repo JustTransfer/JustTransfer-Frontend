@@ -1,6 +1,8 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from "react";
-import { Box, Typography } from "@mui/material";
+
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 
 import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";

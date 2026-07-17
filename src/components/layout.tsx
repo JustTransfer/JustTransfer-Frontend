@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -14,8 +15,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import HomeIcon from '@mui/icons-material/Home';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-
-import { Button } from '@mui/material';
+import Button from '@mui/material/Button';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -262,7 +262,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                     {/* Logo */}
                     <Box
                         component="img"
-                        src="/JustTransfer.png"
+                        src="/JustTransfer.webp"
                         alt="Logo"
                         sx={{
                             height: "auto",
@@ -364,7 +364,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 4 }}>
                                 <Box
                                     component="img"
-                                    src="/JustTransfer.png"
+                                    src="/JustTransfer.webp"
                                     alt="Logo"
                                     sx={{ width: "150px", height: "auto" }}
                                 />
@@ -497,7 +497,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                         </Box>
                     )}
 
-                    <Box sx={{
+                    <Box component="main" sx={{
                         flex: "1 1 auto",
                         flexDirection: "column",
                         alignContent: "center",

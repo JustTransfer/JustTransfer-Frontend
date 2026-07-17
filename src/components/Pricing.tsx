@@ -1,6 +1,9 @@
 import { useNavigate } from "react-router-dom";
 
-import { Box, Typography, Button, Chip } from "@mui/material";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
 
 import { useNotification } from "../hooks/useNotificationContext";
 import { useServerConfig } from "../hooks/useServerConfig";

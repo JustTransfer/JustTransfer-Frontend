@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Box, ToggleButtonGroup, ToggleButton } from "@mui/material";
+import Box from "@mui/material/Box";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import ToggleButton from "@mui/material/ToggleButton";
 import LinkIcon from '@mui/icons-material/Link';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
