@@ -1,22 +1,14 @@
-import { client } from "@serenity-kit/opaque";
-const opaque = {
-    client,
-};
-
-import sodium from "libsodium-wrappers-sumo";
 import { Base64 } from 'js-base64';
 
-import { frontendUrl } from "./config";
+import { getSodium, getOpaque } from "./utils";
 
 import { uploadFileToS3, downloadFileFromS3 } from "./api";
 import { postAnonymousMessageLoginStartAPI, postAnonymousMessageLoginEndAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, finishUploadFileToS3Anonymous } from "./api_anonymous";
 
 import * as errors from "../messages/errors";
+import { frontendUrl } from "./config";
 import { linkTransferGeneratedPasswordLen } from "./config";
 
-async function initLibsodium() {
-    await sodium.ready;
-}
 
 ///
 /// Get Anonymous Message Metadata and Content
@@ -24,6 +16,7 @@ async function initLibsodium() {
 
 async function getOneAnonymousMessageMetadata(password: string, message_id: string) {
 
+    const opaque = await getOpaque();
     const { clientLoginState, startLoginRequest } = opaque.client.startLogin({
         password,
     });
@@ -54,7 +47,7 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
     const result2 = await getAnonymousMessageMetadataAPI(message_id);
     let { id, cfilename, nonce_filename, file_id, creation_time, mac, lifetime, max_downloads, number_downloads, file_size, chunk_size } = result2.message;
 
-    await initLibsodium();
+    const sodium = await getSodium();
 
     // Get the Encoded fileds of the message
     cfilename = Base64.toUint8Array(cfilename);
@@ -95,7 +88,7 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
 
 async function getOneAnonymousMessage(exportKey: string, message: any, onChunk: (chunk: Uint8Array, filename: string) => Promise<void>, onProgress?: (percent: number) => void) {
 
-    await initLibsodium();
+    const sodium = await getSodium();
 
     const message_id = message.id;
     const repsonse = await getAnonymousMessageAPI(message_id);
@@ -167,7 +160,8 @@ async function getOneAnonymousMessage(exportKey: string, message: any, onChunk: 
 
 async function sendMessageAnonymous(fileName: string, file: File, lifetimeDays: number, maxDownloads: number, password?: string, onProgress?: (percent: number) => void) {
 
-    await initLibsodium();
+    const opaque = await getOpaque();
+    const sodium = await getSodium();
 
     let isEmptyPassword = false;
 

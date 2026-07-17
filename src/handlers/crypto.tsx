@@ -1,21 +1,15 @@
-import { client } from "@serenity-kit/opaque";
-const opaque = {
-    client,
-};
-
-import sodium from "libsodium-wrappers-sumo";
 import { Base64 } from 'js-base64';
+
+import { getSodium, getOpaque } from "./utils";
 
 import { registerStartAPI, registerEndAPI, registerUpdateAPI, endPasswordResetAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 } from "./api";
 import { getKeyIdByUsername, getCachedPublicKeyEnc, getCachedPublicKeySign } from "./cachePubKey";
 
 import * as errors from "../messages/errors";
 
-async function initLibsodium() {
-    await sodium.ready;
-}
+async function generateAndEncryptKeys(exportKeyDecoded: Uint8Array) {
 
-function generateAndEncryptKeys(exportKeyDecoded: Uint8Array) {
+    const sodium = await getSodium();
 
     // Generate encryption key pair
     const KeyPairEnc = sodium.crypto_kem_keypair();
@@ -54,7 +48,9 @@ function generateAndEncryptKeys(exportKeyDecoded: Uint8Array) {
     };
 }
 
-function decryptKeys(keys: any[], exportKeyDecoded: Uint8Array) {
+async function decryptKeys(keys: any[], exportKeyDecoded: Uint8Array) {
+
+    const sodium = await getSodium();
 
     let decryptedKeys = [];
 
@@ -94,7 +90,9 @@ function decryptKeys(keys: any[], exportKeyDecoded: Uint8Array) {
     return decryptedKeys;
 }
 
-function encryptkeys(keys: any[], exportKeyDecoded: Uint8Array) {
+async function encryptkeys(keys: any[], exportKeyDecoded: Uint8Array) {
+
+    const sodium = await getSodium();
 
     let encryptedKeys = [];
 
@@ -136,6 +134,7 @@ function encryptkeys(keys: any[], exportKeyDecoded: Uint8Array) {
 
 async function register(username: string, email: string, password: string) {
 
+    const opaque = await getOpaque();
     const { clientRegistrationState, registrationRequest } = opaque.client.startRegistration({ password });
 
     const response = await registerStartAPI(username, registrationRequest);
@@ -151,11 +150,8 @@ async function register(username: string, email: string, password: string) {
     // Decode it from base64Url
     const exportKeyDecoded = Base64.toUint8Array(exportKey).slice(0, 32); // Take only first 32 bytes
 
-    // Init libsodium
-    await initLibsodium();
-
     // Generate encryption key pair and encrypt private keys with the export key
-    const keys = generateAndEncryptKeys(exportKeyDecoded);
+    const keys = await generateAndEncryptKeys(exportKeyDecoded);
 
     await registerEndAPI(username, email, registrationRecord, keys.enc_cipher_private_key, keys.enc_nonce_private_key, keys.enc_public_key, keys.sign_cipher_private_key, keys.sign_nonce_private_key, keys.sign_public_key);
 
@@ -178,6 +174,7 @@ async function changePassword(username: string, password: string, newPassword: s
         throw Error(errors.errorWrongPassword);
     }
 
+    const opaque = await getOpaque();
     const { clientRegistrationState, registrationRequest } = opaque.client.startRegistration({ password: newPassword });
 
     const response2 = await registerStartAPI(username, registrationRequest);
@@ -193,16 +190,13 @@ async function changePassword(username: string, password: string, newPassword: s
     // Decode it from base64Url
     const exportKeyDecoded = Base64.toUint8Array(exportKey).slice(0, 32); // Take only first 32 bytes
 
-    // Init libsodium
-    await initLibsodium();
-
     // Encrypt the keys with the new export key
-    const encryptedKeys = encryptkeys(keys, exportKeyDecoded);
+    const encryptedKeys = await encryptkeys(keys, exportKeyDecoded);
 
     const response3 = await registerUpdateAPI(registrationRecord, encryptedKeys);
 
     // Decrypt the keys with the new export key
-    const decryptedKeys = decryptKeys(response3.keys, exportKeyDecoded);
+    const decryptedKeys = await decryptKeys(response3.keys, exportKeyDecoded);
 
     // Return success
     return {
@@ -215,6 +209,7 @@ async function changePassword(username: string, password: string, newPassword: s
 
 async function resetPassword(username: string, password: string, token: string) {
 
+    const opaque = await getOpaque();
     const { clientRegistrationState, registrationRequest } = opaque.client.startRegistration({ password: password });
 
     const response2 = await registerStartAPI(username, registrationRequest);
@@ -230,11 +225,8 @@ async function resetPassword(username: string, password: string, token: string) 
     // Decode it from base64Url
     const exportKeyDecoded = Base64.toUint8Array(exportKey).slice(0, 32); // Take only first 32 bytes
 
-    // Init libsodium
-    await initLibsodium();
-
     // Generate new keys
-    const encryptedKeys = generateAndEncryptKeys(exportKeyDecoded);
+    const encryptedKeys = await generateAndEncryptKeys(exportKeyDecoded);
 
     await endPasswordResetAPI(
         token,
@@ -265,16 +257,13 @@ async function generateNewKeys(username: string, password: string, exportKey: st
     // Decode export key from base64
     const exportKeyDecoded = Base64.toUint8Array(exportKey).slice(0, 32); // Take only first 32 bytes
 
-    // Init libsodium
-    await initLibsodium();
-
     // Generate encryption key pair and encrypt private keys with the export key
-    const newKey = generateAndEncryptKeys(exportKeyDecoded);
+    const newKey = await generateAndEncryptKeys(exportKeyDecoded);
 
     const result = await putNewKeyAPI(newKey.enc_public_key, newKey.enc_nonce_private_key, newKey.enc_cipher_private_key, newKey.sign_public_key, newKey.sign_nonce_private_key, newKey.sign_cipher_private_key);
 
     // Decrypt the keys with the export key
-    const decryptedKeys = decryptKeys(result.keys, exportKeyDecoded);
+    const decryptedKeys = await decryptKeys(result.keys, exportKeyDecoded);
 
     return {
         success: true,
@@ -285,6 +274,7 @@ async function generateNewKeys(username: string, password: string, exportKey: st
 
 async function loginProcess(username: string, password: string) {
 
+    const opaque = await getOpaque();
     const { clientLoginState, startLoginRequest } = opaque.client.startLogin({
         password,
     });
@@ -315,7 +305,7 @@ async function loginProcess(username: string, password: string) {
 
     let { keys, role } = result2;
 
-    const decryptedKeys = decryptKeys(keys, exportKeyDecoded);
+    const decryptedKeys = await decryptKeys(keys, exportKeyDecoded);
 
     return {
         success: true,
@@ -335,7 +325,7 @@ async function logoutProcess() {
 
 async function getMessages(keys: any[]) {
 
-    await initLibsodium();
+    const sodium = await getSodium();
 
     const response = await getMessagesAPI();
 
@@ -394,7 +384,7 @@ async function getMessages(keys: any[]) {
 
 async function getOneMessage(username: string, keys: any[], message: any, onChunk: (chunk: Uint8Array, filename: string) => Promise<void>, onProgress?: (percent: number) => void) {
 
-    await initLibsodium();
+    const sodium = await getSodium();
 
     // Get the private key with message.receiver_key_id
     const PrivateKeyEnc = keys.find((k: any) => k.id === message.receiver_key_id)?.enc_private_key;
@@ -477,7 +467,7 @@ async function getOneMessage(username: string, keys: any[], message: any, onChun
 
 async function sendMessage(username: string, _privateKeyEnc: string, privateKeySign: string, receiver: string, fileName: string, file: File, lifetimeDays: number, maxDownloads: number, onProgress?: (percent: number) => void) {
 
-    await initLibsodium();
+    const sodium = await getSodium();
 
     const PrivateKeySignDecoded = Base64.toUint8Array(privateKeySign);
 

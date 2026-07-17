@@ -1,10 +1,34 @@
-import zxcvbn from "zxcvbn";
-
 const MIN_LENGTH_USERNAME = 3;
 const MAX_LENGTH_USERNAME = 32;
+const DAY = 86400000; // milliseconds in a day
+
+// Dynamically import libsodium-wrappers
+let sodiumPromise: Promise<typeof import("libsodium-wrappers-sumo")> | null = null;
+export async function getSodium() {
+  if (!sodiumPromise) {
+    sodiumPromise = import("libsodium-wrappers-sumo");
+  }
+
+  const { default: sodium } = await sodiumPromise;
+  await sodium.ready;
+  return sodium;
+}
+
+// Dynamically import @serenity-kit/opaque
+let opaquePromise: Promise<typeof import("@serenity-kit/opaque")> | null = null;
+export async function getOpaque() {
+  if (!opaquePromise) {
+    opaquePromise = import("@serenity-kit/opaque");
+  }
+
+  const opaque = await opaquePromise;
+  await opaque.ready;
+
+  return opaque;
+}
+
 
 export function isValidUsername(username: string): Boolean {
-
   return (
     username.length >= MIN_LENGTH_USERNAME &&
     username.length <= MAX_LENGTH_USERNAME &&
@@ -21,14 +45,6 @@ export const formatSize = (bytes: any) => {
 
   return `${(bytes / (1024 * 1024 * 1024 * 1024)).toFixed(1)} TiB`;
 };
-
-
-export function isPasswordStrong(password: string): [number, boolean] {
-  const tested = zxcvbn(password);
-  return [tested.score, tested.score >= 3];
-}
-
-const DAY = 86400000;
 
 export function getExpiration(msg: any) {
   const created = new Date(msg.creation_time);
