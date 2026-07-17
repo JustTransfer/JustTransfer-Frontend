@@ -262,7 +262,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                     {/* Logo */}
                     <Box
                         component="img"
-                        src="/JustTransfer.png"
+                        src="/JustTransfer.webp"
                         alt="Logo"
                         sx={{
                             height: "auto",
@@ -364,7 +364,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 4 }}>
                                 <Box
                                     component="img"
-                                    src="/JustTransfer.png"
+                                    src="/JustTransfer.webp"
                                     alt="Logo"
                                     sx={{ width: "150px", height: "auto" }}
                                 />
