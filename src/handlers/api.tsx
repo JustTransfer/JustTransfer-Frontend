@@ -1,9 +1,27 @@
 import { apiUrl, MAX_NETWORK_RETRIES, NETWORK_RETRY_DELAY } from "./config";
 import * as errors from "../messages/errors";
 
+async function apiFetch(input: RequestInfo, init?: RequestInit, specificErrors: Record<number, Error> = {}) {
+    const response = await fetch(input, init);
+
+    if (specificErrors[response.status]) {
+        throw specificErrors[response.status];
+    }
+
+    if (response.status === 429) {
+        throw new Error(errors.errorTooManyRequests);
+    }
+
+    if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+    }
+
+    return response;
+}
+
 async function registerStartAPI(username: string, client_registration_start: string) {
 
-    const response = await fetch(`${apiUrl}/register/start`, {
+    const response = await apiFetch(`${apiUrl}/register/start`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -14,16 +32,12 @@ async function registerStartAPI(username: string, client_registration_start: str
         }),
     });
 
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
-
     return (await response.json());
 }
 
 async function registerEndAPI(username: string, email: string, client_registration_finish: string, cpriv_enc: string, nonce_priv_enc: string, pub_enc: string, cpriv_sign: string, nonce_priv_sign: string, pub_sign: string) {
 
-    const response = await fetch(`${apiUrl}/register/end`, {
+    const response = await apiFetch(`${apiUrl}/register/end`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -39,15 +53,12 @@ async function registerEndAPI(username: string, email: string, client_registrati
             nonce_priv_sign,
             pub_sign,
         }),
-    });
-
-    if (response.status === 409) {
-        throw new Error(errors.errorUsernameEmailTaken);
-    } else if (response.status === 507) {
-        throw new Error(errors.errorMaxUserAccountsReached);
-    } else if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
+    },
+        {
+            409: new Error(errors.errorUsernameEmailTaken),
+            507: new Error(errors.errorMaxUserAccountsReached),
+        },
+    );
 
     return response.status;
 }
@@ -65,7 +76,7 @@ type KeyPairsEncodedUpdate = {
 }
 
 async function registerUpdateAPI(client_registration_finish: string, keys: KeyPairsEncodedUpdate[]) {
-    const response = await fetch(`${apiUrl}/register/update`, {
+    const response = await apiFetch(`${apiUrl}/register/update`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -74,13 +85,11 @@ async function registerUpdateAPI(client_registration_finish: string, keys: KeyPa
             client_registration_finish,
             keys,
         }),
-    });
-
-    if (response.status === 401) {
-        throw new Error(errors.errorChangePassword);
-    } else if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
+    },
+        {
+            401: new Error(errors.errorChangePassword),
+        },
+    );
 
     return (await response.json());
 
@@ -88,7 +97,7 @@ async function registerUpdateAPI(client_registration_finish: string, keys: KeyPa
 
 async function putNewKeyAPI(enc_public_key: string, enc_nonce_private_key: string, enc_cipher_private_key: string, sign_public_key: string, sign_nonce_private_key: string, sign_cipher_private_key: string) {
 
-    const response = await fetch(`${apiUrl}/user/addkey`, {
+    const response = await apiFetch(`${apiUrl}/user/addkey`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -103,15 +112,11 @@ async function putNewKeyAPI(enc_public_key: string, enc_nonce_private_key: strin
         }),
     });
 
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
-
     return (await response.json());
 }
 
 async function loginStartAPI(username: string, client_registration_start: string) {
-    const response = await fetch(`${apiUrl}/login/start`, {
+    const response = await apiFetch(`${apiUrl}/login/start`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -122,16 +127,12 @@ async function loginStartAPI(username: string, client_registration_start: string
         }),
     });
 
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
-
     return (await response.json());
 }
 
 async function loginEndAPI(username: string, client_login_finish_result: string) {
 
-    const response = await fetch(`${apiUrl}/login/end`, {
+    const response = await apiFetch(`${apiUrl}/login/end`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -140,52 +141,42 @@ async function loginEndAPI(username: string, client_login_finish_result: string)
             username,
             client_login_finish_result,
         }),
-    });
-
-    if (response.status === 403) {
-        throw new Error(errors.errorMailNotVerified);
-    } else if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
+    },
+        {
+            403: new Error(errors.errorMailNotVerified),
+        }
+    );
 
     return (await response.json());
 }
 
 async function logoutAPI() {
 
-    const response = await fetch(`${apiUrl}/logout`, {
+    const response = await apiFetch(`${apiUrl}/logout`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
     });
-
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
 
     return response.status;
 }
 
 async function verifyEmailAPI(token: string) {
 
-    const response = await fetch(`${apiUrl}/verify-email/${token}`, {
+    const response = await apiFetch(`${apiUrl}/verify-email/${token}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
     });
 
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
-
     return response.status;
 }
 
 async function requestResetPasswordAPI(email: string) {
 
-    const response = await fetch(`${apiUrl}/reset-password/request`, {
+    const response = await apiFetch(`${apiUrl}/reset-password/request`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -195,16 +186,12 @@ async function requestResetPasswordAPI(email: string) {
         }),
     });
 
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
-
     return response.status;
 }
 
 async function endPasswordResetAPI(token: string, client_registration_finish: string, cpriv_enc: string, nonce_priv_enc: string, pub_enc: string, cpriv_sign: string, nonce_priv_sign: string, pub_sign: string) {
 
-    const response = await fetch(`${apiUrl}/reset-password/end/${token}`, {
+    const response = await apiFetch(`${apiUrl}/reset-password/end/${token}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -220,132 +207,104 @@ async function endPasswordResetAPI(token: string, client_registration_finish: st
         }),
     });
 
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
-
     return response.status;
 }
 
 async function getAccountInfoAPI() {
 
-    const response = await fetch(`${apiUrl}/user`, {
+    const response = await apiFetch(`${apiUrl}/user`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
         },
     });
-
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
 
     return (await response.json());
 }
 
 async function deleteAccountAPI(username: string) {
 
-    const response = await fetch(`${apiUrl}/user/${username}`, {
+    const response = await apiFetch(`${apiUrl}/user/${username}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
         },
     });
 
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
-
     return response.status;
 }
 
 async function getPublicKeyAPI(pub_key_id: string) {
 
-    const response = await fetch(`${apiUrl}/pubkey/${pub_key_id}`, {
+    const response = await apiFetch(`${apiUrl}/pubkey/${pub_key_id}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
         },
-    });
-
-    if (response.status === 404) {
-        throw new Error(errors.errorPublicKeyNotFound);
-    } else if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
+    },
+        {
+            404: new Error(errors.errorPublicKeyNotFound),
+        }
+    );
 
     return (await response.json());
 }
 
 async function getPublicKeyUsernameAPI(username: string) {
 
-    const response = await fetch(`${apiUrl}/user/${username}/pubkey`, {
+    const response = await apiFetch(`${apiUrl}/user/${username}/pubkey`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
         },
-    });
-
-    if (response.status === 404) {
-        throw new Error(errors.errorUserNotFound);
-    } else if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
+    },
+        {
+            404: new Error(errors.errorUserNotFound),
+        }
+    );
 
     return (await response.json());
 }
 
 async function getMessagesAPI() {
 
-    const response = await fetch(`${apiUrl}/messages`, {
+    const response = await apiFetch(`${apiUrl}/messages`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
         },
     });
-
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
 
     return (await response.json());
 }
 
 async function getSentMessagesAPI() {
 
-    const response = await fetch(`${apiUrl}/messages/sent`, {
+    const response = await apiFetch(`${apiUrl}/messages/sent`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
         },
     });
-
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
 
     return (await response.json());
 }
 
 async function getOneMessageAPI(file_id: string) {
 
-    const response = await fetch(`${apiUrl}/message/${file_id}`, {
+    const response = await apiFetch(`${apiUrl}/message/${file_id}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
         },
     });
 
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
-
     return (await response.json());
 }
 
 async function sendMessageAPI(sender_key_id: string, receiver_key_id: string, kem_ciphertext_filename: string, cfilename: string, nonce_filename: string, kem_ciphertext_file: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
 
-    const response = await fetch(`${apiUrl}/message`, {
+    const response = await apiFetch(`${apiUrl}/message`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -362,29 +321,23 @@ async function sendMessageAPI(sender_key_id: string, receiver_key_id: string, ke
             creation_time,
             file_size,
         }),
-    });
-
-    if (response.status === 403) {
-        throw new Error(errors.errorInsufficientRessources);
-    } else if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
+    },
+        {
+            403: new Error(errors.errorInsufficientRessources),
+        }
+    );
 
     return (await response.json());
 }
 
 async function deleteMessageAPI(message_id: string) {
 
-    const response = await fetch(`${apiUrl}/message/${message_id}`, {
+    const response = await apiFetch(`${apiUrl}/message/${message_id}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
         },
     });
-
-    if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-    }
 
     return response.status;
 }
@@ -428,7 +381,7 @@ async function uploadFileToS3(url: string, cfile: Uint8Array, onProgress?: (perc
 
 async function finishUploadFileToS3(file_id: string, upload_id: string, etags: string[], signature_metadata: string, signature: string) {
 
-    const response = await fetch(`${apiUrl}/message/uploadfinish/${file_id}`, {
+    const response = await apiFetch(`${apiUrl}/message/uploadfinish/${file_id}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -440,10 +393,6 @@ async function finishUploadFileToS3(file_id: string, upload_id: string, etags: s
             signature,
         }),
     });
-
-    if (!response.ok) {
-        throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
-    }
 
     return response.status;
 }
@@ -543,4 +492,4 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
     return 0;
 }
 
-export { registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, verifyEmailAPI, requestResetPasswordAPI, endPasswordResetAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyUsernameAPI, getMessagesAPI, getSentMessagesAPI, getOneMessageAPI, sendMessageAPI, deleteMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };
+export { apiFetch, registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, verifyEmailAPI, requestResetPasswordAPI, endPasswordResetAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyUsernameAPI, getMessagesAPI, getSentMessagesAPI, getOneMessageAPI, sendMessageAPI, deleteMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };

@@ -35,6 +35,7 @@ export const errorInvalidUsernameShort = "Invalid username format."
 export const errorInvalidUsername = "Invalid username.Use 3 - 32 lowercase letters, numbers, and underscores only.";
 
 // API Errors
+export const errorTooManyRequests = "Too many requests. Please try again later.";
 export const errorAPIRequestFailed = "API request failed. Please try again later.";
 
 // Anonymous Message Errors
