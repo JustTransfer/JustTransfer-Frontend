@@ -344,7 +344,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                         <>
                             <AddBoxIcon sx={{ fontSize: { xs: 56, sm: 80 }, color: "primary.main" }} />
                             <Typography variant="subtitle1" sx={{ fontWeight: "bold", fontSize: { xs: "1rem", sm: "1.1rem" } }}>
-                                Drop a file or click to browse
+                                Click to add a file
                             </Typography>
                             <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.78rem", sm: "0.875rem" } }}>
                                 Up to {formatSize(maxFileSize)} allowed
