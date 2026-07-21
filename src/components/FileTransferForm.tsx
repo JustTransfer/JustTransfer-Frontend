@@ -64,6 +64,8 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
     const { success, error } = useNotification();
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [isDragging, setIsDragging] = useState(false);
+
     const [isUsingPassword, setIsUsingPassword] = useState(false);
     const [password, setPassword] = useState("");
     const [isStrong, setIsStrong] = useState(false);
@@ -119,14 +121,47 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
 
     const handleIconClick = () => fileInputRef.current?.click();
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (!event.target.files || !event.target.files[0]) return;
-        const file = event.target.files[0];
+    const processFile = (file: File) => {
         if (maxFileSize && file.size > maxFileSize) {
             error(`File too large. Max: ${formatSize(maxFileSize)}`);
             return;
         }
         setSelectedFile(file);
+    };
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        processFile(file);
+    };
+
+    const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (!isDragging) {
+            setIsDragging(true);
+        }
+    };
+
+    const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        setIsDragging(false);
+    };
+
+    const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        setIsDragging(false);
+
+        const file = event.dataTransfer.files?.[0];
+        if (!file) return;
+
+        processFile(file);
     };
 
     const handleCloseDialog = () => {
@@ -272,11 +307,14 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
 
                 <Box
                     onClick={handleIconClick}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
                     sx={{
                         width: "100%",
                         border: "2px dashed",
-                        borderColor: "grey.400",
-                        backgroundColor: "action.hover",
+                        borderColor: isDragging ? "primary.main" : "grey.400",
+                        backgroundColor: isDragging ? "primary.50" : "action.hover",
                         borderRadius: 3,
                         p: { xs: 2, sm: 4 },
                         cursor: "pointer",
@@ -284,6 +322,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                         flexDirection: "column",
                         alignItems: "center",
                         justifyContent: "center",
+                        textAlign: "center",
                         gap: 1,
                         minHeight: { xs: 150, sm: 190 },
                         transition: "0.2s",
