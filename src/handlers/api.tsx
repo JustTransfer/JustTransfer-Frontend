@@ -19,7 +19,7 @@ async function apiFetch(input: RequestInfo, init?: RequestInit, specificErrors: 
     return response;
 }
 
-async function registerStartAPI(username: string, client_registration_start: string) {
+async function registerStartAPI(email: string, client_registration_start: string) {
 
     const response = await apiFetch(`${apiUrl}/register/start`, {
         method: "POST",
@@ -27,7 +27,7 @@ async function registerStartAPI(username: string, client_registration_start: str
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            username,
+            email,
             client_registration_start,
         }),
     });
@@ -35,7 +35,7 @@ async function registerStartAPI(username: string, client_registration_start: str
     return (await response.json());
 }
 
-async function registerEndAPI(username: string, email: string, client_registration_finish: string, cpriv_enc: string, nonce_priv_enc: string, pub_enc: string, cpriv_sign: string, nonce_priv_sign: string, pub_sign: string) {
+async function registerEndAPI(email: string, client_registration_finish: string, cpriv_enc: string, nonce_priv_enc: string, pub_enc: string, cpriv_sign: string, nonce_priv_sign: string, pub_sign: string) {
 
     const response = await apiFetch(`${apiUrl}/register/end`, {
         method: "POST",
@@ -43,7 +43,6 @@ async function registerEndAPI(username: string, email: string, client_registrati
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            username,
             email,
             client_registration_finish,
             cpriv_enc,
@@ -55,7 +54,7 @@ async function registerEndAPI(username: string, email: string, client_registrati
         }),
     },
         {
-            409: new Error(errors.errorUsernameEmailTaken),
+            409: new Error(errors.errorEmailTaken),
             507: new Error(errors.errorMaxUserAccountsReached),
         },
     );
@@ -115,14 +114,14 @@ async function putNewKeyAPI(enc_public_key: string, enc_nonce_private_key: strin
     return (await response.json());
 }
 
-async function loginStartAPI(username: string, client_registration_start: string) {
+async function loginStartAPI(email: string, client_registration_start: string) {
     const response = await apiFetch(`${apiUrl}/login/start`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            username,
+            email,
             client_registration_start,
         }),
     });
@@ -130,7 +129,7 @@ async function loginStartAPI(username: string, client_registration_start: string
     return (await response.json());
 }
 
-async function loginEndAPI(username: string, client_login_finish_result: string) {
+async function loginEndAPI(email: string, client_login_finish_result: string) {
 
     const response = await apiFetch(`${apiUrl}/login/end`, {
         method: "POST",
@@ -138,7 +137,7 @@ async function loginEndAPI(username: string, client_login_finish_result: string)
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            username,
+            email,
             client_login_finish_result,
         }),
     },
@@ -222,9 +221,9 @@ async function getAccountInfoAPI() {
     return (await response.json());
 }
 
-async function deleteAccountAPI(username: string) {
+async function deleteAccountAPI(email: string) {
 
-    const response = await apiFetch(`${apiUrl}/user/${username}`, {
+    const response = await apiFetch(`${apiUrl}/user/${email}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
@@ -250,9 +249,9 @@ async function getPublicKeyAPI(pub_key_id: string) {
     return (await response.json());
 }
 
-async function getPublicKeyUsernameAPI(username: string) {
+async function getPublicKeyEmailAPI(email: string) {
 
-    const response = await apiFetch(`${apiUrl}/user/${username}/pubkey`, {
+    const response = await apiFetch(`${apiUrl}/user/${email}/pubkey`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -492,4 +491,4 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
     return 0;
 }
 
-export { apiFetch, registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, verifyEmailAPI, requestResetPasswordAPI, endPasswordResetAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyUsernameAPI, getMessagesAPI, getSentMessagesAPI, getOneMessageAPI, sendMessageAPI, deleteMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };
+export { apiFetch, registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, verifyEmailAPI, requestResetPasswordAPI, endPasswordResetAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyEmailAPI, getMessagesAPI, getSentMessagesAPI, getOneMessageAPI, sendMessageAPI, deleteMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };

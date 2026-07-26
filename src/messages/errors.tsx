@@ -2,7 +2,7 @@
 // Login and Registration Errors
 export const errorLoginFailed = "Login failed. Please check your credentials.";
 export const errorRegistrationFailed = "Registration failed. Please try again.";
-export const errorUsernameEmailTaken = "Username or email already used. Please choose another one.";
+export const errorEmailTaken = "Email already used. Please choose another one.";
 export const errorPublicKeyNotFound = "Public key not found for the user.";
 export const errorUserNotFound = "User not found. Please check the username and try again.";
 export const errorWrongPassword = "Incorrect password. Please try again.";
@@ -31,8 +31,6 @@ export const errorSamePassword = "New password cannot be the same as the current
 export const errorWeakPassword = "Password is too weak. Please choose a stronger password.";
 export const errorPageNotFound = "Page not found.";
 export const errorInvalidResetLink = "Invalid password reset link.";
-export const errorInvalidUsernameShort = "Invalid username format."
-export const errorInvalidUsername = "Invalid username.Use 3 - 32 lowercase letters, numbers, and underscores only.";
 
 // API Errors
 export const errorTooManyRequests = "Too many requests. Please try again later.";

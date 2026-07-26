@@ -1,5 +1,3 @@
-const MIN_LENGTH_USERNAME = 3;
-const MAX_LENGTH_USERNAME = 32;
 const DAY = 86400000; // milliseconds in a day
 
 // Dynamically import libsodium-wrappers
@@ -26,16 +24,6 @@ export async function getOpaque() {
 
   return opaque;
 }
-
-
-export function isValidUsername(username: string): Boolean {
-  return (
-    username.length >= MIN_LENGTH_USERNAME &&
-    username.length <= MAX_LENGTH_USERNAME &&
-    /^[a-z0-9_]+$/.test(username)
-  );
-}
-
 
 export const formatSize = (bytes: any) => {
   if (bytes < 1024) return `${bytes} B`;

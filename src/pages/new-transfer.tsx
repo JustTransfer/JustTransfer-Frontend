@@ -13,7 +13,7 @@ import { useAuth } from "../hooks/useAuth";
 export default function NewTransfer() {
     const maxWidthPage = 1400;
     const { config } = useServerConfig();
-    const { username, role, getLatestKeys } = useAuth();
+    const { email, role, getLatestKeys } = useAuth();
 
     const [keys, setKeys] = useState<any>(null);
 
@@ -129,7 +129,7 @@ export default function NewTransfer() {
                                     maxLifetime: maxLifetime,
                                     onSubmit: async (data, onProgress) => {
                                         await sendMessage(
-                                            username!,
+                                            email!,
                                             keys.enc_private_key,
                                             keys.sign_private_key,
                                             data.receiver!,

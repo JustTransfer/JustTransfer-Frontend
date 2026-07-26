@@ -25,7 +25,7 @@ import { useNotification } from "../hooks/useNotificationContext";
 import * as errors from "../messages/errors";
 import PasswordStrength from "./passwordStrength";
 import AcceptTermsService from "./acceptTermsService";
-import { formatSize, isValidUsername } from "../handlers/utils";
+import { formatSize } from "../handlers/utils";
 
 type FileTransferFormProps =
     | {
@@ -236,7 +236,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             data.receiver = formData.get("receiver") as string;
 
             // Validate receiver field
-            if (!isValidUsername(data.receiver)) {
+            /*if (!isValidUsername(data.receiver)) {
                 error(errors.errorInvalidUsernameShort);
                 setErrorReceiver(true);
                 setHelperTextReceiver(errors.errorInvalidUsernameShort);
@@ -244,7 +244,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             } else {
                 setErrorReceiver(false);
                 setHelperTextReceiver("");
-            }
+            }*/
         }
 
         try {

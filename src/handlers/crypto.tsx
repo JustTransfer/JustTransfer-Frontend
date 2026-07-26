@@ -3,7 +3,7 @@ import { Base64 } from 'js-base64';
 import { getSodium, getOpaque } from "./utils";
 
 import { registerStartAPI, registerEndAPI, registerUpdateAPI, endPasswordResetAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 } from "./api";
-import { getKeyIdByUsername, getCachedPublicKeyEnc, getCachedPublicKeySign } from "./cachePubKey";
+import { getKeyIdByEmail, getCachedPublicKeyEnc, getCachedPublicKeySign } from "./cachePubKey";
 
 import * as errors from "../messages/errors";
 
@@ -132,12 +132,12 @@ async function encryptkeys(keys: any[], exportKeyDecoded: Uint8Array) {
     return encryptedKeys;
 }
 
-async function register(username: string, email: string, password: string) {
+async function register(email: string, password: string) {
 
     const opaque = await getOpaque();
     const { clientRegistrationState, registrationRequest } = opaque.client.startRegistration({ password });
 
-    const response = await registerStartAPI(username, registrationRequest);
+    const response = await registerStartAPI(email, registrationRequest);
 
     const registrationResponse = response.result;
 
@@ -153,22 +153,21 @@ async function register(username: string, email: string, password: string) {
     // Generate encryption key pair and encrypt private keys with the export key
     const keys = await generateAndEncryptKeys(exportKeyDecoded);
 
-    await registerEndAPI(username, email, registrationRecord, keys.enc_cipher_private_key, keys.enc_nonce_private_key, keys.enc_public_key, keys.sign_cipher_private_key, keys.sign_nonce_private_key, keys.sign_public_key);
+    await registerEndAPI(email, registrationRecord, keys.enc_cipher_private_key, keys.enc_nonce_private_key, keys.enc_public_key, keys.sign_cipher_private_key, keys.sign_nonce_private_key, keys.sign_public_key);
 
 
     // Return success
     return {
         success: true,
         message: "Register successful!",
-        username,
         exportKey: Base64.fromUint8Array(exportKeyDecoded, true),
     };
 }
 
-async function changePassword(username: string, password: string, newPassword: string, keys: any[]) {
+async function changePassword(email: string, password: string, newPassword: string, keys: any[]) {
 
     // Login to verify password and refresh session
-    const response = await loginProcess(username, password);
+    const response = await loginProcess(email, password);
 
     if (!response.success) {
         throw Error(errors.errorWrongPassword);
@@ -177,7 +176,7 @@ async function changePassword(username: string, password: string, newPassword: s
     const opaque = await getOpaque();
     const { clientRegistrationState, registrationRequest } = opaque.client.startRegistration({ password: newPassword });
 
-    const response2 = await registerStartAPI(username, registrationRequest);
+    const response2 = await registerStartAPI(email, registrationRequest);
 
     const registrationResponse = response2.result;
 
@@ -207,12 +206,12 @@ async function changePassword(username: string, password: string, newPassword: s
     };
 }
 
-async function resetPassword(username: string, password: string, token: string) {
+async function resetPassword(email: string, password: string, token: string) {
 
     const opaque = await getOpaque();
     const { clientRegistrationState, registrationRequest } = opaque.client.startRegistration({ password: password });
 
-    const response2 = await registerStartAPI(username, registrationRequest);
+    const response2 = await registerStartAPI(email, registrationRequest);
 
     const registrationResponse = response2.result;
 
@@ -246,10 +245,10 @@ async function resetPassword(username: string, password: string, token: string) 
     };
 }
 
-async function generateNewKeys(username: string, password: string, exportKey: string) {
+async function generateNewKeys(email: string, password: string, exportKey: string) {
 
     // Login to verify password and refresh session
-    const response = await loginProcess(username, password);
+    const response = await loginProcess(email, password);
     if (!response.success) {
         throw Error(errors.errorWrongPassword);
     }
@@ -272,14 +271,14 @@ async function generateNewKeys(username: string, password: string, exportKey: st
     };
 }
 
-async function loginProcess(username: string, password: string) {
+async function loginProcess(email: string, password: string) {
 
     const opaque = await getOpaque();
     const { clientLoginState, startLoginRequest } = opaque.client.startLogin({
         password,
     });
 
-    const response = await loginStartAPI(username, startLoginRequest);
+    const response = await loginStartAPI(email, startLoginRequest);
 
     const loginResponse = response.result;
 
@@ -298,7 +297,7 @@ async function loginProcess(username: string, password: string) {
 
     const { exportKey, serverStaticPublicKey: _serverStaticPublicKey, finishLoginRequest, sessionKey: _sessionKey } = loginResult;
 
-    const result2 = await loginEndAPI(username, finishLoginRequest);
+    const result2 = await loginEndAPI(email, finishLoginRequest);
 
     // Decode it from base64Url
     const exportKeyDecoded = Base64.toUint8Array(exportKey).slice(0, 32); // Take only first 32 bytes
@@ -310,7 +309,7 @@ async function loginProcess(username: string, password: string) {
     return {
         success: true,
         message: "Log in successful!",
-        username,
+        email,
         role,
         exportKey: Base64.fromUint8Array(exportKeyDecoded, true),
         keys: decryptedKeys,
@@ -382,7 +381,7 @@ async function getMessages(keys: any[]) {
     return response.messages;
 }
 
-async function getOneMessage(username: string, keys: any[], message: any, onChunk: (chunk: Uint8Array, filename: string) => Promise<void>, onProgress?: (percent: number) => void) {
+async function getOneMessage(email: string, keys: any[], message: any, onChunk: (chunk: Uint8Array, filename: string) => Promise<void>, onProgress?: (percent: number) => void) {
 
     const sodium = await getSodium();
 
@@ -409,7 +408,7 @@ async function getOneMessage(username: string, keys: any[], message: any, onChun
         nonce_filename: message.nonce_filename,
         file_id: message.file_id,
         sender: message.sender,
-        receiver: username!,
+        receiver: email!,
         max_downloads: message.max_downloads,
         lifetime: message.lifetime,
         creation_time: message.creation_time,
@@ -465,15 +464,15 @@ async function getOneMessage(username: string, keys: any[], message: any, onChun
     return message;
 }
 
-async function sendMessage(username: string, _privateKeyEnc: string, privateKeySign: string, receiver: string, fileName: string, file: File, lifetimeDays: number, maxDownloads: number, onProgress?: (percent: number) => void) {
+async function sendMessage(email: string, _privateKeyEnc: string, privateKeySign: string, receiver: string, fileName: string, file: File, lifetimeDays: number, maxDownloads: number, onProgress?: (percent: number) => void) {
 
     const sodium = await getSodium();
 
     const PrivateKeySignDecoded = Base64.toUint8Array(privateKeySign);
 
     // Get receiver's public encryption key
-    const senderKeyId = await getKeyIdByUsername(username);
-    const receiverKeyId = await getKeyIdByUsername(receiver);
+    const senderKeyId = await getKeyIdByEmail(email);
+    const receiverKeyId = await getKeyIdByEmail(receiver);
     const PublicKeyEncReceiver = await getCachedPublicKeyEnc(receiverKeyId);
 
     // Generate shared secret
@@ -514,7 +513,7 @@ async function sendMessage(username: string, _privateKeyEnc: string, privateKeyS
         cfilename: cfilename,
         nonce_filename: nonce_filename,
         file_id: messageFileId,
-        sender: username!,
+        sender: email!,
         receiver: receiver,
         max_downloads: maxDownloads,
         lifetime: lifetimeDays,

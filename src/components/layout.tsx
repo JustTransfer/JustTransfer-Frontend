@@ -198,9 +198,9 @@ export default function Layout({ title, content }: { title: string; content: Rea
 
     const isActive = (path: string) => location.pathname === path;
 
-    const { username } = useAuth();
-    const isLoggedIn = !!username;
-    const userInitial = username?.trim().charAt(0).toUpperCase() || "";
+    const { email } = useAuth();
+    const isLoggedIn = !!email;
+    const userInitial = email?.trim().charAt(0).toUpperCase() || "";
     const menuButtonStyle = (path: string) => ({
         justifyContent: "flex-start",
         textTransform: "none",

@@ -4,9 +4,9 @@ import { useAuth } from "../hooks/useAuth";
 
 export const ProtectedRoute = ({ children }: { children: any }) => {
 
-    const { username } = useAuth();
+    const { email } = useAuth();
 
-    if (!username) {
+    if (!email) {
         return <Navigate to="/login" />;
     }
     return children;

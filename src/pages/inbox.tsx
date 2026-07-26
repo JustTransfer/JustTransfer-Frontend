@@ -153,7 +153,7 @@ export default function Inbox() {
         borderBottom: "1px solid #f1e7ee",
     };
 
-    const { username, keys } = useAuth();
+    const { email, keys } = useAuth();
 
     const { success, error } = useNotification();
     const [messages, setMessages] = useState<Array<any>>([]);
@@ -201,7 +201,7 @@ export default function Inbox() {
 
 
                 try {
-                    messageWithContent = await getOneMessage(username!, keys!, message, async (chunk, _name) => {
+                    messageWithContent = await getOneMessage(email!, keys!, message, async (chunk, _name) => {
                         // Write chunk directly to the stream
                         await writer!.write(chunk);
                     }, (percent: number) => {
@@ -220,7 +220,7 @@ export default function Inbox() {
                 console.log("Using fallback blob download");
                 const chunks: Uint8Array[] = [];
 
-                messageWithContent = await getOneMessage(username!, keys!, message, async (chunk, _name) => {
+                messageWithContent = await getOneMessage(email!, keys!, message, async (chunk, _name) => {
                     // Collect chunks in memory
                     chunks.push(new Uint8Array(chunk));
                 }, (percent: number) => {

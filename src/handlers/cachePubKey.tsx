@@ -1,5 +1,5 @@
 import { Base64 } from "js-base64";
-import { getPublicKeyAPI, getPublicKeyUsernameAPI } from "./api";
+import { getPublicKeyAPI, getPublicKeyEmailAPI } from "./api";
 
 type PublicKeyPair = {
     enc_public_key: Uint8Array;
@@ -9,9 +9,9 @@ type PublicKeyPair = {
 // Memory cache for public keys (Uuid, )
 const memoryCache: Record<string, PublicKeyPair> = {};
 
-export async function getKeyIdByUsername(username: string): Promise<string> {
+export async function getKeyIdByEmail(email: string): Promise<string> {
 
-    const response = await getPublicKeyUsernameAPI(username);
+    const response = await getPublicKeyEmailAPI(email);
 
     // Cache the public key in memory for future use
     const publicKeyEncBytes = Base64.toUint8Array(response.pub_enc);
