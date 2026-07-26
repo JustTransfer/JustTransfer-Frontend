@@ -2,7 +2,7 @@ import { Base64 } from 'js-base64';
 
 import { getSodium, getOpaque } from "./utils";
 
-import { uploadFileToS3, downloadFileFromS3 } from "./api";
+import { uploadFileToS3, downloadFileFromS3 } from "./api_link";
 import { postLinkMessageLoginStartAPI, postLinkMessageLoginEndAPI, getLinkMessageMetadataAPI, getLinkMessageAPI, sendLinkMessageStartAPI, sendLinkMessageAPI, finishUploadFileToS3Link } from "./api_link";
 
 import * as errors from "../messages/errors";
