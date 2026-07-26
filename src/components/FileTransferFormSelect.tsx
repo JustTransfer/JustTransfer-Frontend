@@ -9,13 +9,13 @@ import { useNotification } from "../hooks/useNotificationContext";
 import FileTransferForm from "./FileTransferForm";
 
 type FileTransferFormPropsSelect = {
-    type: "both" | "anonymous" | "connected";
-    propsLink: Omit<Extract<FileTransferFormProps, { type: "anonymous" }>, "type">;
+    type: "both" | "link" | "connected";
+    propsLink: Omit<Extract<FileTransferFormProps, { type: "link" }>, "type">;
     propsDirect: Omit<Extract<FileTransferFormProps, { type: "connected" }>, "type">;
     showIntro?: boolean;
 };
 
-type AnonymousSubmit = (
+type LinkSubmit = (
     data: {
         password: string;
         file: File;
@@ -37,11 +37,11 @@ type ConnectedSubmit = (
 
 type FileTransferFormProps =
     | {
-        type: "anonymous";
+        type: "link";
         maxFileSize: number;
         maxDownloads: number;
         maxLifetime: number;
-        onSubmit: AnonymousSubmit;
+        onSubmit: LinkSubmit;
     }
     | {
         type: "connected";
@@ -59,12 +59,12 @@ export default function FileTransferFormSelect({
 
     const { warning } = useNotification();
 
-    const [selectedType, setSelectedType] = useState<"anonymous" | "connected">(
+    const [selectedType, setSelectedType] = useState<"link" | "connected">(
         type === "both" ? "connected" : type
     );
 
-    // If type is "both", allow to switch between "anonymous" and "connected". Otherwise, set selectedType to the provided type and disable switching.
-    const handleTypeChange = (newType: "anonymous" | "connected") => {
+    // If type is "both", allow to switch between "link" and "connected". Otherwise, set selectedType to the provided type and disable switching.
+    const handleTypeChange = (newType: "link" | "connected") => {
 
         if (newType === selectedType) {
             return;
@@ -101,7 +101,7 @@ export default function FileTransferFormSelect({
                     width: "100%",
                 }}
             >
-                <ToggleButton value="anonymous" sx={{
+                <ToggleButton value="link" sx={{
                     "&.Mui-selected": {
                         bgcolor: "primary.main",
                         color: "primary.contrastText",
@@ -135,9 +135,9 @@ export default function FileTransferFormSelect({
             {/* Render the appropriate form based on selectedType */}
 
             {
-                selectedType === "anonymous" && (
+                selectedType === "link" && (
                     <FileTransferForm
-                        type="anonymous"
+                        type="link"
                         maxFileSize={propsLink.maxFileSize}
                         maxDownloads={propsLink.maxDownloads}
                         maxLifetime={propsLink.maxLifetime}

@@ -38,8 +38,8 @@ export const errorInvalidUsername = "Invalid username.Use 3 - 32 lowercase lette
 export const errorTooManyRequests = "Too many requests. Please try again later.";
 export const errorAPIRequestFailed = "API request failed. Please try again later.";
 
-// Anonymous Message Errors
-export const errorMaxAnonymousTransfersReached = "The server has reached the maximum number of anonymous messages. Please try again later or register for an account.";
+// Link Transfer Errors
+export const errorMaxLinkTransfersReached = "The server has reached the maximum number of link transfer. Please try again later or register for an account.";
 
 // Premium Account Errors
 export const errorInsufficientRessources = "You have reached your resource limits. Upgrade to a premium account for higher limits and additional features.";

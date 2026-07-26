@@ -3,7 +3,7 @@ import { Base64 } from 'js-base64';
 import { getSodium, getOpaque } from "./utils";
 
 import { uploadFileToS3, downloadFileFromS3 } from "./api";
-import { postAnonymousMessageLoginStartAPI, postAnonymousMessageLoginEndAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, finishUploadFileToS3Anonymous } from "./api_anonymous";
+import { postLinkMessageLoginStartAPI, postLinkMessageLoginEndAPI, getLinkMessageMetadataAPI, getLinkMessageAPI, sendLinkMessageStartAPI, sendLinkMessageAPI, finishUploadFileToS3Link } from "./api_link";
 
 import * as errors from "../messages/errors";
 import { frontendUrl } from "./config";
@@ -11,17 +11,17 @@ import { linkTransferGeneratedPasswordLen } from "./config";
 
 
 ///
-/// Get Anonymous Message Metadata and Content
+/// Get Link Message Metadata and Content
 ///
 
-async function getOneAnonymousMessageMetadata(password: string, message_id: string) {
+async function getOneLinkMessageMetadata(password: string, message_id: string) {
 
     const opaque = await getOpaque();
     const { clientLoginState, startLoginRequest } = opaque.client.startLogin({
         password,
     });
 
-    const responseOpaque = await postAnonymousMessageLoginStartAPI(message_id, startLoginRequest);
+    const responseOpaque = await postLinkMessageLoginStartAPI(message_id, startLoginRequest);
 
     const loginResponse = responseOpaque.result;
 
@@ -38,13 +38,13 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
     const { exportKey, serverStaticPublicKey: _serverStaticPublicKey, finishLoginRequest, sessionKey: _sessionKey } = loginResult;
 
     // Finish the login process
-    await postAnonymousMessageLoginEndAPI(message_id, finishLoginRequest);
+    await postLinkMessageLoginEndAPI(message_id, finishLoginRequest);
 
     // Decode export key
     const exportKeyAegisDecoded = Base64.toUint8Array(exportKey).slice(0, 32);
 
     // Get the message metadata
-    const result2 = await getAnonymousMessageMetadataAPI(message_id);
+    const result2 = await getLinkMessageMetadataAPI(message_id);
     let { id, cfilename, nonce_filename, file_id, creation_time, mac, lifetime, max_downloads, number_downloads, file_size, chunk_size } = result2.message;
 
     const sodium = await getSodium();
@@ -83,15 +83,15 @@ async function getOneAnonymousMessageMetadata(password: string, message_id: stri
 }
 
 ///
-/// Get Anonymous Message Content
+/// Get Link Message Content
 ///
 
-async function getOneAnonymousMessage(exportKey: string, message: any, onChunk: (chunk: Uint8Array, filename: string) => Promise<void>, onProgress?: (percent: number) => void) {
+async function getOneLinkMessage(exportKey: string, message: any, onChunk: (chunk: Uint8Array, filename: string) => Promise<void>, onProgress?: (percent: number) => void) {
 
     const sodium = await getSodium();
 
     const message_id = message.id;
-    const repsonse = await getAnonymousMessageAPI(message_id);
+    const repsonse = await getLinkMessageAPI(message_id);
     const downloadUrl = repsonse.download_url;
 
     // Get the key for the file decryption
@@ -155,10 +155,10 @@ async function getOneAnonymousMessage(exportKey: string, message: any, onChunk: 
 }
 
 ///
-/// Send Anonymous Message
+/// Send Link Message
 ///
 
-async function sendMessageAnonymous(fileName: string, file: File, lifetimeDays: number, maxDownloads: number, password?: string, onProgress?: (percent: number) => void) {
+async function sendMessageLink(fileName: string, file: File, lifetimeDays: number, maxDownloads: number, password?: string, onProgress?: (percent: number) => void) {
 
     const opaque = await getOpaque();
     const sodium = await getSodium();
@@ -175,7 +175,7 @@ async function sendMessageAnonymous(fileName: string, file: File, lifetimeDays: 
     // Create key from OPAQUE
     const { clientRegistrationState, registrationRequest } = opaque.client.startRegistration({ password });
 
-    const response = await sendAnonymousMessageStartAPI(registrationRequest);
+    const response = await sendLinkMessageStartAPI(registrationRequest);
 
     const registrationResponse = response.result;
     const id = response.id;
@@ -221,7 +221,7 @@ async function sendMessageAnonymous(fileName: string, file: File, lifetimeDays: 
     const nonce_filename_b64 = Base64.fromUint8Array(nonce_filename, true);
 
     // Send the initial request to get an upload ID
-    const response2 = await sendAnonymousMessageAPI(id, registrationRecord, cfilename_b64, nonce_filename_b64, maxDownloads, lifetimeDays, timestamp, totalLength);
+    const response2 = await sendLinkMessageAPI(id, registrationRecord, cfilename_b64, nonce_filename_b64, maxDownloads, lifetimeDays, timestamp, totalLength);
     const uploadUrls = response2.upload_urls;
     const transferId = response2.transfer_id;
     const upload_id = response2.upload_id;
@@ -281,14 +281,14 @@ async function sendMessageAnonymous(fileName: string, file: File, lifetimeDays: 
     const mac_b64 = Base64.fromUint8Array(mac, true);
 
     // Finalize the upload
-    await finishUploadFileToS3Anonymous(message_file_id, upload_id, ETags, mac_b64);
+    await finishUploadFileToS3Link(message_file_id, upload_id, ETags, mac_b64);
 
     let link: string;
     if (isEmptyPassword) {
-        link = `${frontendUrl}/anonymous-transfer/${transferId}#${password}`;
+        link = `${frontendUrl}/link-transfer/${transferId}#${password}`;
 
     } else {
-        link = `${frontendUrl}/anonymous-transfer/${transferId}`;
+        link = `${frontendUrl}/link-transfer/${transferId}`;
     }
 
     return {
@@ -298,4 +298,4 @@ async function sendMessageAnonymous(fileName: string, file: File, lifetimeDays: 
     };
 }
 
-export { getOneAnonymousMessageMetadata, getOneAnonymousMessage, sendMessageAnonymous };
+export { getOneLinkMessageMetadata, getOneLinkMessage, sendMessageLink };

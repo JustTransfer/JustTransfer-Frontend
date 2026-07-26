@@ -3,8 +3,8 @@ import { apiFetch } from "./api";
 import * as errors from "../messages/errors";
 
 
-async function postAnonymousMessageLoginStartAPI(id: string, client_login_start: string) {
-    const response = await apiFetch(`${apiUrl}/anonymous/message/${id}/login/start`, {
+async function postLinkMessageLoginStartAPI(id: string, client_login_start: string) {
+    const response = await apiFetch(`${apiUrl}/link/message/${id}/login/start`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -17,8 +17,8 @@ async function postAnonymousMessageLoginStartAPI(id: string, client_login_start:
     return (await response.json());
 }
 
-async function postAnonymousMessageLoginEndAPI(id: string, client_login_finish_result: string) {
-    const response = await apiFetch(`${apiUrl}/anonymous/message/${id}/login/end`, {
+async function postLinkMessageLoginEndAPI(id: string, client_login_finish_result: string) {
+    const response = await apiFetch(`${apiUrl}/link/message/${id}/login/end`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -31,9 +31,9 @@ async function postAnonymousMessageLoginEndAPI(id: string, client_login_finish_r
     return (await response.json());
 }
 
-async function getAnonymousMessageMetadataAPI(file_id: string) {
+async function getLinkMessageMetadataAPI(file_id: string) {
 
-    const response = await apiFetch(`${apiUrl}/anonymous/message/${file_id}/metadata`, {
+    const response = await apiFetch(`${apiUrl}/link/message/${file_id}/metadata`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -43,9 +43,9 @@ async function getAnonymousMessageMetadataAPI(file_id: string) {
     return (await response.json());
 }
 
-async function getAnonymousMessageAPI(id: string) {
+async function getLinkMessageAPI(id: string) {
 
-    const response = await apiFetch(`${apiUrl}/anonymous/message/${id}`, {
+    const response = await apiFetch(`${apiUrl}/link/message/${id}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -55,9 +55,9 @@ async function getAnonymousMessageAPI(id: string) {
     return (await response.json());
 }
 
-async function sendAnonymousMessageStartAPI(client_registration_start: string) {
+async function sendLinkMessageStartAPI(client_registration_start: string) {
 
-    const response = await apiFetch(`${apiUrl}/anonymous/message/start`, {
+    const response = await apiFetch(`${apiUrl}/link/message/start`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -70,9 +70,9 @@ async function sendAnonymousMessageStartAPI(client_registration_start: string) {
     return (await response.json());
 }
 
-async function sendAnonymousMessageAPI(id: string, client_registration_finish: string, cfilename: string, nonce_filename: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
+async function sendLinkMessageAPI(id: string, client_registration_finish: string, cfilename: string, nonce_filename: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
 
-    const response = await apiFetch(`${apiUrl}/anonymous/message`, {
+    const response = await apiFetch(`${apiUrl}/link/message`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -89,7 +89,7 @@ async function sendAnonymousMessageAPI(id: string, client_registration_finish: s
         }),
     },
         {
-            507: new Error(errors.errorMaxAnonymousTransfersReached),
+            507: new Error(errors.errorMaxLinkTransfersReached),
         },
     );
 
@@ -100,9 +100,9 @@ async function sendAnonymousMessageAPI(id: string, client_registration_finish: s
 // Upload and Download to/from S3
 //
 
-async function finishUploadFileToS3Anonymous(file_id: string, upload_id: string, etags: string[], mac: string) {
+async function finishUploadFileToS3Link(file_id: string, upload_id: string, etags: string[], mac: string) {
 
-    const response = await apiFetch(`${apiUrl}/anonymous/message/uploadfinish/${file_id}`, {
+    const response = await apiFetch(`${apiUrl}/link/message/uploadfinish/${file_id}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -117,4 +117,4 @@ async function finishUploadFileToS3Anonymous(file_id: string, upload_id: string,
     return response.status;
 }
 
-export { postAnonymousMessageLoginStartAPI, postAnonymousMessageLoginEndAPI, getAnonymousMessageMetadataAPI, getAnonymousMessageAPI, sendAnonymousMessageStartAPI, sendAnonymousMessageAPI, finishUploadFileToS3Anonymous };
+export { postLinkMessageLoginStartAPI, postLinkMessageLoginEndAPI, getLinkMessageMetadataAPI, getLinkMessageAPI, sendLinkMessageStartAPI, sendLinkMessageAPI, finishUploadFileToS3Link };

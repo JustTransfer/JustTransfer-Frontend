@@ -8,7 +8,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import HomePage from './pages/home';
 import TermsService from './pages/termsService';
 import PrivacyPolicy from './pages/privacyPolicy';
-import AnonymousTransfer from './pages/anonymoustransfer';
+import LinkTransfer from './pages/linktransfer';
 import CreateAccountPage from './pages/createaccount';
 import VerifyEmailPage from './pages/verifyemail';
 import ResetPasswordRequestPage from './pages/resetPasswordRequest';
@@ -43,7 +43,7 @@ function App() {
             <Route path="/reset-password" element={<ResetPasswordRequestPage />} />
             <Route path="/reset-password/:id" element={<ResetPasswordPage />} />
 
-            <Route path="/anonymous-transfer/:id" element={<AnonymousTransfer />} />
+            <Route path="/link-transfer/:id" element={<LinkTransfer />} />
 
             <Route path="/terms" element={<TermsService />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />

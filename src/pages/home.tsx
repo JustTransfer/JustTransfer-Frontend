@@ -10,7 +10,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 
 import { useServerConfig } from "../hooks/useServerConfig";
 import Layout from "../components/layout";
-import { sendMessageAnonymous } from "../handlers/crypto_anonymous";
+import { sendMessageLink } from "../handlers/crypto_link";
 import { formatSize } from "../handlers/utils";
 import Pricing from "../components/Pricing";
 
@@ -23,10 +23,10 @@ export default function HomePage() {
     const maxWidthPage = 1400;
     const sectionPaddingX = { xs: 2, md: 4 };
 
-    const anonymousLimits = {
-        maxFileSize: config?.max_file_size_anonymous || 0,
-        maxDownloads: config?.max_downloads_anonymous || 0,
-        maxLifetime: config?.max_lifetime_anonymous || 0,
+    const linkLimits = {
+        maxFileSize: config?.max_file_size_link || 0,
+        maxDownloads: config?.max_downloads_link || 0,
+        maxLifetime: config?.max_lifetime_link || 0,
     };
 
     /*const connectedLimits = {
@@ -101,7 +101,7 @@ export default function HomePage() {
                                 - no compromises.
                             </Typography>
                             <Typography variant="body1" sx={{ color: "#5a4454", maxWidth: 520 }}>
-                                Anonymous transfers up to {formatSize(anonymousLimits.maxFileSize)} with {anonymousLimits.maxDownloads} downloads and {anonymousLimits.maxLifetime}-day expiry. Share a secure link in seconds.
+                                Anonymous transfers up to {formatSize(linkLimits.maxFileSize)} with {linkLimits.maxDownloads} downloads and {linkLimits.maxLifetime}-day expiry. Share a secure link in seconds.
                             </Typography>
                             <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                                 <Chip label="No account needed" size="small" />
@@ -137,14 +137,14 @@ export default function HomePage() {
                             }}
                         >
                             <FileTransferFormSelect
-                                type="anonymous"
+                                type="link"
                                 showIntro={false}
                                 propsLink={{
-                                    maxFileSize: anonymousLimits.maxFileSize,
-                                    maxDownloads: anonymousLimits.maxDownloads,
-                                    maxLifetime: anonymousLimits.maxLifetime,
+                                    maxFileSize: linkLimits.maxFileSize,
+                                    maxDownloads: linkLimits.maxDownloads,
+                                    maxLifetime: linkLimits.maxLifetime,
                                     onSubmit: async (data, onProgress) => {
-                                        const result = await sendMessageAnonymous(
+                                        const result = await sendMessageLink(
                                             data.file.name,
                                             data.file,
                                             data.lifetime,

@@ -29,7 +29,7 @@ import { formatSize, isValidUsername } from "../handlers/utils";
 
 type FileTransferFormProps =
     | {
-        type: "anonymous";
+        type: "link";
         maxFileSize: number;
         maxDownloads: number;
         maxLifetime: number;
@@ -191,7 +191,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             maxDownloads: Number(formData.get("maxDownloads")),
         };
 
-        if (type === "anonymous") {
+        if (type === "link") {
             const password = formData.get("password") as string;
             const confirm = formData.get("confirmPassword") as string;
 
@@ -251,7 +251,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             setIsSending(true);
             setProgress(0);
             const result = await onSubmit(data, (percent) => setProgress(percent));
-            if (type === "anonymous" && typeof result === "string") {
+            if (type === "link" && typeof result === "string") {
                 setLink(result);
                 setOpenDialog(true);
             }
@@ -359,7 +359,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 </Box>
 
                 {
-                    type === "anonymous" ? (
+                    type === "link" ? (
 
                         <Box sx={{
                             display: "flex",
@@ -461,7 +461,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 }
 
                 {
-                    type === "anonymous" ? (
+                    type === "link" ? (
                         <AcceptTermsService
                             accepted={acceptedTerms}
                             onChange={setAcceptedTerms}
@@ -477,7 +477,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                         <LinearProgressWithLabel value={progress} />
                     ) : (
                         <>
-                            {type === "anonymous" ? (
+                            {type === "link" ? (
                                 <Button type="submit" variant="contained" fullWidth>Get a Link</Button>
                             ) : (
                                 <Button type="submit" variant="contained" fullWidth>Send File</Button>

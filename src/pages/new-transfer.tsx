@@ -6,7 +6,7 @@ import Typography from "@mui/material/Typography";
 import { useServerConfig } from "../hooks/useServerConfig";
 import Layout from "../components/layout";
 import { sendMessage } from "../handlers/crypto";
-import { sendMessageAnonymous } from "../handlers/crypto_anonymous";
+import { sendMessageLink } from "../handlers/crypto_link";
 import FileTransferFormSelect from "../components/FileTransferFormSelect";
 import { useAuth } from "../hooks/useAuth";
 
@@ -108,11 +108,11 @@ export default function NewTransfer() {
                             <FileTransferFormSelect
                                 type="both"
                                 propsLink={{
-                                    maxFileSize: config?.max_file_size_anonymous!,
-                                    maxDownloads: config?.max_downloads_anonymous!,
-                                    maxLifetime: config?.max_lifetime_anonymous!,
+                                    maxFileSize: config?.max_file_size_link!,
+                                    maxDownloads: config?.max_downloads_link!,
+                                    maxLifetime: config?.max_lifetime_link!,
                                     onSubmit: async (data, onProgress) => {
-                                        const result = await sendMessageAnonymous(
+                                        const result = await sendMessageLink(
                                             data.file.name,
                                             data.file,
                                             data.lifetime,

@@ -2,9 +2,9 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 type ServerConfig = {
     result: string;
-    max_lifetime_anonymous: number;
-    max_file_size_anonymous: number,
-    max_downloads_anonymous: number,
+    max_lifetime_link: number;
+    max_file_size_link: number,
+    max_downloads_link: number,
     price_connected: number,
     max_lifetime_connected: number,
     max_file_size_connected: number,
