@@ -1,4 +1,4 @@
-import { useState } from "react";
+/*import { useState } from "react";
 import Box from "@mui/material/Box";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ToggleButton from "@mui/material/ToggleButton";
@@ -132,32 +132,32 @@ export default function FileTransferFormSelect({
                 </ToggleButton>
             </ToggleButtonGroup>
 
-            {/* Render the appropriate form based on selectedType */}
+            {/* Render the appropriate form based on selectedType *//*}
 
-            {
-                selectedType === "link" && (
-                    <FileTransferForm
-                        type="link"
-                        maxFileSize={propsLink.maxFileSize}
-                        maxDownloads={propsLink.maxDownloads}
-                        maxLifetime={propsLink.maxLifetime}
-                        onSubmit={propsLink.onSubmit}
-                    />
-                )
-            }
-
-            {
-                selectedType === "connected" && (
-                    <FileTransferForm
-                        type="connected"
-                        maxFileSize={propsDirect.maxFileSize}
-                        maxDownloads={propsDirect.maxDownloads}
-                        maxLifetime={propsDirect.maxLifetime}
-                        onSubmit={propsDirect.onSubmit}
-                    />
-                )
-            }
-
-        </Box >
-    );
+{
+selectedType === "link" && (
+<FileTransferForm
+type="link"
+maxFileSize={propsLink.maxFileSize}
+maxDownloads={propsLink.maxDownloads}
+maxLifetime={propsLink.maxLifetime}
+onSubmit={propsLink.onSubmit}
+/>
+)
 }
+
+{
+selectedType === "connected" && (
+<FileTransferForm
+type="connected"
+maxFileSize={propsDirect.maxFileSize}
+maxDownloads={propsDirect.maxDownloads}
+maxLifetime={propsDirect.maxLifetime}
+onSubmit={propsDirect.onSubmit}
+/>
+)
+}
+
+</Box >
+);
+}*/

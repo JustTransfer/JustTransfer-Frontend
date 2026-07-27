@@ -14,7 +14,7 @@ import { sendMessageLink } from "../handlers/crypto_link";
 import { formatSize } from "../handlers/utils";
 import Pricing from "../components/Pricing";
 
-import FileTransferFormSelect from "../components/FileTransferFormSelect";
+import FileTransferForm from "../components/FileTransferForm";
 
 export default function HomePage() {
     const navigate = useNavigate();
@@ -136,31 +136,21 @@ export default function HomePage() {
                                 border: "1px solid #f0dbea",
                             }}
                         >
-                            <FileTransferFormSelect
+                            <FileTransferForm
                                 type="link"
-                                showIntro={false}
-                                propsLink={{
-                                    maxFileSize: linkLimits.maxFileSize,
-                                    maxDownloads: linkLimits.maxDownloads,
-                                    maxLifetime: linkLimits.maxLifetime,
-                                    onSubmit: async (data, onProgress) => {
-                                        const result = await sendMessageLink(
-                                            data.file.name,
-                                            data.file,
-                                            data.lifetime,
-                                            data.maxDownloads,
-                                            data.password,
-                                            onProgress
-                                        );
-                                        return result.link;
-                                    },
-                                }}
-                                propsDirect={{
-                                    // still required by the type, even if unused
-                                    maxFileSize: 0,
-                                    maxDownloads: 0,
-                                    maxLifetime: 0,
-                                    onSubmit: async () => { },
+                                maxFileSize={linkLimits.maxFileSize}
+                                maxDownloads={linkLimits.maxDownloads}
+                                maxLifetime={linkLimits.maxLifetime}
+                                onSubmit={async (data, onProgress) => {
+                                    const result = await sendMessageLink(
+                                        data.file.name,
+                                        data.file,
+                                        data.lifetime,
+                                        data.maxDownloads,
+                                        data.password,
+                                        onProgress
+                                    );
+                                    return result.link;
                                 }}
                             />
                             <Typography variant="body2" sx={{ color: "#7a6474", mt: 2, textAlign: "center" }}>

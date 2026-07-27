@@ -100,7 +100,7 @@ async function sendLinkMessageAPI(id: string, client_registration_finish: string
 // Upload and Download to/from S3
 //
 
-async function finishUploadFileToS3Link(file_id: string, upload_id: string, etags: string[], mac: string) {
+async function finishUploadFileToS3Link(file_id: string, upload_id: string, etags: string[], mac: string, receiver_email?: string) {
 
     const response = await apiFetch(`${apiUrl}/link/message/uploadfinish/${file_id}`, {
         method: "POST",
@@ -111,6 +111,7 @@ async function finishUploadFileToS3Link(file_id: string, upload_id: string, etag
             upload_id,
             etags,
             mac,
+            receiver_email,
         }),
     });
 

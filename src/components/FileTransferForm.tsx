@@ -20,6 +20,10 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import { useNotification } from "../hooks/useNotificationContext";
 import * as errors from "../messages/errors";
@@ -50,10 +54,11 @@ type FileTransferFormProps =
         maxLifetime: number;
         onSubmit: (
             data: {
-                receiver: string;
+                password: string;
                 file: File;
                 lifetime: number;
                 maxDownloads: number;
+                receiver_email?: string;
             },
             onProgress: (percent: number) => void
         ) => Promise<string | void>;
@@ -71,7 +76,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
     const [isStrong, setIsStrong] = useState(false);
 
     const [errorReceiver, setErrorReceiver] = useState(false);
-    const [helperTextReceiver, setHelperTextReceiver] = useState("");
+    // const [helperTextReceiver, setHelperTextReceiver] = useState("");
 
     const [errorPassword, setErrorPassword] = useState(false);
     const [errorWeakPassword, setErrorWeakPassword] = useState(false);
@@ -231,43 +236,26 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             } else {
                 data.password = undefined; // Let the backend generate a random password
             }
-        } else {
 
+            // Get the email of the receiver if provided
             data.receiver = formData.get("receiver") as string;
-
-            // Validate receiver field
-            /*if (!isValidUsername(data.receiver)) {
-                error(errors.errorInvalidUsernameShort);
-                setErrorReceiver(true);
-                setHelperTextReceiver(errors.errorInvalidUsernameShort);
-                return;
-            } else {
-                setErrorReceiver(false);
-                setHelperTextReceiver("");
-            }*/
         }
 
         try {
             setIsSending(true);
             setProgress(0);
             const result = await onSubmit(data, (percent) => setProgress(percent));
-            if (type === "link" && typeof result === "string") {
-                setLink(result);
-                setOpenDialog(true);
-            }
+            setLink(result!);
+            setOpenDialog(true);
             success("File uploaded successfully!");
 
-            // Reset form and state if connected
-            if (type === "connected") {
-                handleCloseDialog();
-            }
         } catch (e: any) {
             if (e.message === errors.errorUserNotFound) {
                 setErrorReceiver(true);
-                setHelperTextReceiver(errors.errorUserNotFound);
+                //setHelperTextReceiver(errors.errorUserNotFound);
             } else {
                 setErrorReceiver(false);
-                setHelperTextReceiver("");
+                //setHelperTextReceiver("");
             }
 
             error(e.message || "Unknown error");
@@ -353,112 +341,180 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                     )}
                 </Box>
 
-                <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: "stretch", gap: 2, width: "100%" }}>
-                    <TextField label="Max Downloads" name="maxDownloads" type="number" slotProps={{ htmlInput: { min: 1, max: maxDownloads } }} variant="outlined" fullWidth required helperText={maxDownloads ? `Max allowed: ${maxDownloads}` : undefined} />
-                    <TextField label="Lifetime" name="lifetime" type="number" slotProps={{ htmlInput: { min: 1, max: maxLifetime } }} variant="outlined" fullWidth required helperText={maxLifetime ? `Max allowed: ${maxLifetime} days` : undefined} />
-                </Box>
+                <Accordion
+                    disableGutters
+                    elevation={0}
+                    sx={{
+                        width: "100%",
+                        border: "1px solid",
+                        borderColor: "divider",
+                        borderRadius: 2,
+                        "&:before": {
+                            display: "none",
+                        },
+                    }}
+                >
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                            Advanced parameters
+                        </Typography>
+                    </AccordionSummary>
 
-                {
-                    type === "link" ? (
-
-                        <Box sx={{
+                    <AccordionDetails
+                        sx={{
                             display: "flex",
                             flexDirection: "column",
                             gap: 2,
-                            width: "100%",
-                        }}>
-                            <Box sx={{
-                                p: { xs: 1.5, sm: 2 },
-                                borderRadius: 3,
-                                border: "1px solid",
-                                borderColor: "divider",
-                                backgroundColor: "background.paper",
-                                textAlign: "left",
-                            }}>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-                                    Password choice
-                                </Typography>
-                                <ToggleButtonGroup
-                                    exclusive
-                                    fullWidth
-                                    value={isUsingPassword ? "manual" : "auto"}
-                                    onChange={handlePasswordModeChange}
-                                    sx={{
-                                        display: "grid",
-                                        gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-                                        gap: 1,
-                                        "& .MuiToggleButtonGroup-grouped": {
-                                            border: 0,
-                                            borderRadius: 2,
-                                            textTransform: "none",
-                                            px: { xs: 1, sm: 2 },
-                                            py: { xs: 1, sm: 1.25 },
-                                            width: "100%",
-                                        },
-                                    }}
-                                >
-                                    <ToggleButton value="auto" aria-label="Use generated password" sx={{ textAlign: "left", alignItems: "flex-start" }}>
-                                        <Box sx={{ width: "100%" }}>
-                                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                                                Auto-generate
-                                            </Typography>
-                                            <Typography variant="caption" color="text.secondary">
-                                                Automatically added to the link
-                                            </Typography>
-                                        </Box>
-                                    </ToggleButton>
-                                    <ToggleButton value="manual" aria-label="Set password manually" sx={{ textAlign: "left", alignItems: "flex-start" }}>
-                                        <Box sx={{ width: "100%" }}>
-                                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                                                Set manually
-                                            </Typography>
-                                            <Typography variant="caption" color="text.secondary">
-                                                Choose your own password
-                                            </Typography>
-                                        </Box>
-                                    </ToggleButton>
-                                </ToggleButtonGroup>
-                            </Box>
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                display: "flex",
+                                flexDirection: { xs: "column", sm: "row" },
+                                gap: 2,
+                            }}
+                        >
+                            <TextField
+                                label="Max Downloads"
+                                name="maxDownloads"
+                                type="number"
+                                slotProps={{
+                                    htmlInput: { min: 1, max: maxDownloads },
+                                }}
+                                variant="outlined"
+                                fullWidth
+                                required
+                                helperText={
+                                    maxDownloads
+                                        ? `Max allowed: ${maxDownloads}`
+                                        : undefined
+                                }
+                            />
 
-                            <Collapse in={isUsingPassword} unmountOnExit>
-                                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                                    <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        error={errorWeakPassword}
-                                        helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
-                                        slotProps={{
-                                            input: {
-                                                endAdornment: (
-                                                    <InputAdornment position="end">
-                                                        <IconButton
-                                                            aria-label={showPassword ? "Hide password" : "Show password"}
-                                                            onClick={handleTogglePassword}
-                                                        >
-                                                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                                                        </IconButton>
-                                                    </InputAdornment>
-                                                ),
-                                            },
-                                        }}
-                                    />
-
-                                    <PasswordStrength password={password} onStrengthChange={setIsStrong} />
-
-                                    <TextField label="Confirm Password" name="confirmPassword" type="password" variant="outlined" fullWidth required
-                                        error={errorPassword}
-                                        helperText={errorPassword ? errors.errorPasswordMismatch : ""}
-                                    />
-                                </Box>
-                            </Collapse>
+                            <TextField
+                                label="Lifetime"
+                                name="lifetime"
+                                type="number"
+                                slotProps={{
+                                    htmlInput: { min: 1, max: maxLifetime },
+                                }}
+                                variant="outlined"
+                                fullWidth
+                                required
+                                helperText={
+                                    maxLifetime
+                                        ? `Max allowed: ${maxLifetime} days`
+                                        : undefined
+                                }
+                            />
                         </Box>
 
-                    ) : (
-                        <TextField label="Receiver" name="receiver" type="text" variant="outlined" fullWidth required
+                        <TextField
+                            label="Recipient email"
+                            name="receiver"
+                            type="email"
+                            fullWidth
+                            disabled={type === "link"}
                             error={errorReceiver}
-                            helperText={helperTextReceiver}
+                            helperText={
+                                type === "connected"
+                                    ? "Optional. If provided, the recipient will receive an email notification."
+                                    : "Only available for registered users."
+                            }
                         />
-                    )
-                }
+                    </AccordionDetails>
+                </Accordion>
+
+                <Box sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                    width: "100%",
+                }}>
+                    <Box sx={{
+                        p: { xs: 1.5, sm: 2 },
+                        borderRadius: 3,
+                        border: "1px solid",
+                        borderColor: "divider",
+                        backgroundColor: "background.paper",
+                        textAlign: "left",
+                    }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+                            Password choice
+                        </Typography>
+                        <ToggleButtonGroup
+                            exclusive
+                            fullWidth
+                            value={isUsingPassword ? "manual" : "auto"}
+                            onChange={handlePasswordModeChange}
+                            sx={{
+                                display: "grid",
+                                gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                                gap: 1,
+                                "& .MuiToggleButtonGroup-grouped": {
+                                    border: 0,
+                                    borderRadius: 2,
+                                    textTransform: "none",
+                                    px: { xs: 1, sm: 2 },
+                                    py: { xs: 1, sm: 1.25 },
+                                    width: "100%",
+                                },
+                            }}
+                        >
+                            <ToggleButton value="auto" aria-label="Use generated password" sx={{ textAlign: "left", alignItems: "flex-start" }}>
+                                <Box sx={{ width: "100%" }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                                        Auto-generate
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        Automatically added to the link
+                                    </Typography>
+                                </Box>
+                            </ToggleButton>
+                            <ToggleButton value="manual" aria-label="Set password manually" sx={{ textAlign: "left", alignItems: "flex-start" }}>
+                                <Box sx={{ width: "100%" }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                                        Set manually
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        Choose your own password
+                                    </Typography>
+                                </Box>
+                            </ToggleButton>
+                        </ToggleButtonGroup>
+                    </Box>
+
+                    <Collapse in={isUsingPassword} unmountOnExit>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                            <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
+                                onChange={(e) => setPassword(e.target.value)}
+                                error={errorWeakPassword}
+                                helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
+                                slotProps={{
+                                    input: {
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                                    onClick={handleTogglePassword}
+                                                >
+                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    },
+                                }}
+                            />
+
+                            <PasswordStrength password={password} onStrengthChange={setIsStrong} />
+
+                            <TextField label="Confirm Password" name="confirmPassword" type="password" variant="outlined" fullWidth required
+                                error={errorPassword}
+                                helperText={errorPassword ? errors.errorPasswordMismatch : ""}
+                            />
+                        </Box>
+                    </Collapse>
+                </Box>
 
                 {
                     type === "link" ? (
@@ -476,13 +532,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                     isSending ? (
                         <LinearProgressWithLabel value={progress} />
                     ) : (
-                        <>
-                            {type === "link" ? (
-                                <Button type="submit" variant="contained" fullWidth>Get a Link</Button>
-                            ) : (
-                                <Button type="submit" variant="contained" fullWidth>Send File</Button>
-                            )}
-                        </>
+                        <Button type="submit" variant="contained" fullWidth>Get a Link</Button>
                     )
                 }
             </Box >

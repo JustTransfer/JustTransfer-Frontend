@@ -5,17 +5,17 @@ import Typography from "@mui/material/Typography";
 
 import { useServerConfig } from "../hooks/useServerConfig";
 import Layout from "../components/layout";
-import { sendMessage } from "../handlers/crypto";
+// import { sendMessage } from "../handlers/crypto";
 import { sendMessageLink } from "../handlers/crypto_link";
-import FileTransferFormSelect from "../components/FileTransferFormSelect";
+import FileTransferForm from "../components/FileTransferForm";
 import { useAuth } from "../hooks/useAuth";
 
 export default function NewTransfer() {
     const maxWidthPage = 1400;
     const { config } = useServerConfig();
-    const { email, role, getLatestKeys } = useAuth();
+    const { role, getLatestKeys } = useAuth();
 
-    const [keys, setKeys] = useState<any>(null);
+    const [_keys, setKeys] = useState<any>(null);
 
     const maxFileSize = role === "premium" ? config?.max_file_size_connected_premium! : config?.max_file_size_connected!;
     const maxDownloads = role === "premium" ? config?.max_downloads_connected_premium! : config?.max_downloads_connected!;
@@ -105,41 +105,21 @@ export default function NewTransfer() {
                                 border: "1px solid #f0dbea",
                             }}
                         >
-                            <FileTransferFormSelect
-                                type="both"
-                                propsLink={{
-                                    maxFileSize: config?.max_file_size_link!,
-                                    maxDownloads: config?.max_downloads_link!,
-                                    maxLifetime: config?.max_lifetime_link!,
-                                    onSubmit: async (data, onProgress) => {
-                                        const result = await sendMessageLink(
-                                            data.file.name,
-                                            data.file,
-                                            data.lifetime,
-                                            data.maxDownloads,
-                                            data.password,
-                                            onProgress
-                                        );
-                                        return result.link;
-                                    },
-                                }}
-                                propsDirect={{
-                                    maxFileSize: maxFileSize,
-                                    maxDownloads: maxDownloads,
-                                    maxLifetime: maxLifetime,
-                                    onSubmit: async (data, onProgress) => {
-                                        await sendMessage(
-                                            email!,
-                                            keys.enc_private_key,
-                                            keys.sign_private_key,
-                                            data.receiver!,
-                                            data.file.name,
-                                            data.file,
-                                            data.lifetime,
-                                            data.maxDownloads,
-                                            onProgress
-                                        );
-                                    }
+                            <FileTransferForm
+                                type="connected"
+                                maxFileSize={maxFileSize}
+                                maxDownloads={maxDownloads}
+                                maxLifetime={maxLifetime}
+                                onSubmit={async (data, onProgress) => {
+                                    const result = await sendMessageLink(
+                                        data.file.name,
+                                        data.file,
+                                        data.lifetime,
+                                        data.maxDownloads,
+                                        data.password,
+                                        onProgress
+                                    );
+                                    return result.link;
                                 }}
                             />
                         </Box>

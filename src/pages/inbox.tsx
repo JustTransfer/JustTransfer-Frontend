@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+/*import { useEffect, useState } from "react";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -441,4 +441,10 @@ export default function Inbox() {
             </Box>
         } />
     );
-};
+};*/
+
+export default function Inbox() {
+    return (
+        <p>Emptyyyyyyyyyyyyyyyyyyyyyyyyyyyy</p>
+    )
+}
