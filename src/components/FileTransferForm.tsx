@@ -384,6 +384,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                                 variant="outlined"
                                 fullWidth
                                 required
+                                defaultValue={maxDownloads}
                                 helperText={
                                     maxDownloads
                                         ? `Max allowed: ${maxDownloads}`
@@ -401,6 +402,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                                 variant="outlined"
                                 fullWidth
                                 required
+                                defaultValue={maxLifetime}
                                 helperText={
                                     maxLifetime
                                         ? `Max allowed: ${maxLifetime} days`
