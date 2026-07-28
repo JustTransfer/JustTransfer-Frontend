@@ -158,7 +158,7 @@ async function getOneLinkMessage(exportKey: string, message: any, onChunk: (chun
 /// Send Link Message
 ///
 
-async function sendMessageLink(fileName: string, file: File, lifetimeDays: number, maxDownloads: number, password?: string, onProgress?: (percent: number) => void) {
+async function sendMessageLink(fileName: string, file: File, lifetimeDays: number, maxDownloads: number, password?: string, onProgress?: (percent: number) => void, receiver_email?: string) {
 
     const opaque = await getOpaque();
     const sodium = await getSodium();
@@ -281,7 +281,7 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
     const mac_b64 = Base64.fromUint8Array(mac, true);
 
     // Finalize the upload
-    await finishUploadFileToS3Link(message_file_id, upload_id, ETags, mac_b64);
+    await finishUploadFileToS3Link(message_file_id, upload_id, ETags, mac_b64, receiver_email);
 
     let link: string;
     if (isEmptyPassword) {

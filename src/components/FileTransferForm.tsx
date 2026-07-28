@@ -196,50 +196,50 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             maxDownloads: Number(formData.get("maxDownloads")),
         };
 
-        if (type === "link") {
-            const password = formData.get("password") as string;
-            const confirm = formData.get("confirmPassword") as string;
 
-            let hasError = false;
+        const password = formData.get("password") as string;
+        const confirm = formData.get("confirmPassword") as string;
 
-            if (!acceptedTerms) {
-                error(errors.errorTermsServicesNotAccepted);
-                hasError = true;
-            }
+        let hasError = false;
 
-            // Validate password fields if using password
-            if (isUsingPassword) {
-                if (!isStrong) {
-                    error(errors.errorWeakPassword);
-                    setErrorWeakPassword(true);
-                    hasError = true;
-                } else {
-                    setErrorWeakPassword(false);
-                }
-
-                if (password !== confirm) {
-                    error(errors.errorPasswordMismatch);
-                    setErrorPassword(true);
-                    hasError = true;
-                } else {
-                    setErrorPassword(false);
-                }
-            }
-
-            if (hasError) {
-                return;
-            }
-
-            setErrorPassword(false);
-            if (isUsingPassword) {
-                data.password = password;
-            } else {
-                data.password = undefined; // Let the backend generate a random password
-            }
-
-            // Get the email of the receiver if provided
-            data.receiver = formData.get("receiver") as string;
+        if (type === "link" && !acceptedTerms) {
+            error(errors.errorTermsServicesNotAccepted);
+            hasError = true;
         }
+
+        // Validate password fields if using password
+        if (isUsingPassword) {
+            if (!isStrong) {
+                error(errors.errorWeakPassword);
+                setErrorWeakPassword(true);
+                hasError = true;
+            } else {
+                setErrorWeakPassword(false);
+            }
+
+            if (password !== confirm) {
+                error(errors.errorPasswordMismatch);
+                setErrorPassword(true);
+                hasError = true;
+            } else {
+                setErrorPassword(false);
+            }
+        }
+
+        if (hasError) {
+            return;
+        }
+
+        setErrorPassword(false);
+        if (isUsingPassword) {
+            data.password = password;
+        } else {
+            data.password = undefined; // Let the backend generate a random password
+        }
+
+        // Get the email of the receiver if provided
+        data.receiver_email = formData.get("receiver") as string;
+        console.log("Receiver email:", data.receiver_email);
 
         try {
             setIsSending(true);

@@ -117,7 +117,8 @@ export default function NewTransfer() {
                                         data.lifetime,
                                         data.maxDownloads,
                                         data.password,
-                                        onProgress
+                                        onProgress,
+                                        data.receiver_email
                                     );
                                     return result.link;
                                 }}
