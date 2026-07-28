@@ -341,91 +341,19 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                     )}
                 </Box>
 
-                <Accordion
-                    disableGutters
-                    elevation={0}
-                    sx={{
-                        width: "100%",
-                        border: "1px solid",
-                        borderColor: "divider",
-                        borderRadius: 2,
-                        "&:before": {
-                            display: "none",
-                        },
-                    }}
-                >
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                            Advanced parameters
-                        </Typography>
-                    </AccordionSummary>
-
-                    <AccordionDetails
-                        sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 2,
-                        }}
-                    >
-                        <Box
-                            sx={{
-                                display: "flex",
-                                flexDirection: { xs: "column", sm: "row" },
-                                gap: 2,
-                            }}
-                        >
-                            <TextField
-                                label="Max Downloads"
-                                name="maxDownloads"
-                                type="number"
-                                slotProps={{
-                                    htmlInput: { min: 1, max: maxDownloads },
-                                }}
-                                variant="outlined"
-                                fullWidth
-                                required
-                                defaultValue={maxDownloads}
-                                helperText={
-                                    maxDownloads
-                                        ? `Max allowed: ${maxDownloads}`
-                                        : undefined
-                                }
-                            />
-
-                            <TextField
-                                label="Lifetime"
-                                name="lifetime"
-                                type="number"
-                                slotProps={{
-                                    htmlInput: { min: 1, max: maxLifetime },
-                                }}
-                                variant="outlined"
-                                fullWidth
-                                required
-                                defaultValue={maxLifetime}
-                                helperText={
-                                    maxLifetime
-                                        ? `Max allowed: ${maxLifetime} days`
-                                        : undefined
-                                }
-                            />
-                        </Box>
-
-                        <TextField
-                            label="Recipient email"
-                            name="receiver"
-                            type="email"
-                            fullWidth
-                            disabled={type === "link"}
-                            error={errorReceiver}
-                            helperText={
-                                type === "connected"
-                                    ? "Optional. If provided, the recipient will receive an email notification."
-                                    : "Only available for registered users."
-                            }
-                        />
-                    </AccordionDetails>
-                </Accordion>
+                <TextField
+                    label="Recipient email"
+                    name="receiver"
+                    type="email"
+                    fullWidth
+                    disabled={type === "link"}
+                    error={errorReceiver}
+                    helperText={
+                        type === "connected"
+                            ? "Optional. If provided, the recipient will receive an email notification."
+                            : "Only available for registered users."
+                    }
+                />
 
                 <Box sx={{
                     display: "flex",
@@ -517,6 +445,70 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                         </Box>
                     </Collapse>
                 </Box>
+
+                <Accordion
+                    disableGutters
+                    elevation={0}
+                    sx={{
+                        width: "100%",
+                        border: "1px solid",
+                        borderColor: "divider",
+                        borderRadius: 2,
+                        "&:before": {
+                            display: "none",
+                        },
+                    }}
+                >
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                            Transfer settings
+                        </Typography>
+                    </AccordionSummary>
+
+                    <AccordionDetails
+                        sx={{
+                            display: "flex",
+                            flexDirection: { xs: "column", sm: "row" },
+                            gap: 2,
+                        }}
+                    >
+                        <TextField
+                            label="Max Downloads"
+                            name="maxDownloads"
+                            type="number"
+                            slotProps={{
+                                htmlInput: { min: 1, max: maxDownloads },
+                            }}
+                            variant="outlined"
+                            fullWidth
+                            required
+                            defaultValue={maxDownloads}
+                            helperText={
+                                maxDownloads
+                                    ? `Max allowed: ${maxDownloads}`
+                                    : undefined
+                            }
+                        />
+
+                        <TextField
+                            label="Lifetime"
+                            name="lifetime"
+                            type="number"
+                            slotProps={{
+                                htmlInput: { min: 1, max: maxLifetime },
+                            }}
+                            variant="outlined"
+                            fullWidth
+                            required
+                            defaultValue={maxLifetime}
+                            helperText={
+                                maxLifetime
+                                    ? `Max allowed: ${maxLifetime} days`
+                                    : undefined
+                            }
+                        />
+                    </AccordionDetails>
+                </Accordion>
 
                 {
                     type === "link" ? (
