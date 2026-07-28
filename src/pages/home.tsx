@@ -4,6 +4,8 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
+import Alert from "@mui/material/Alert";
+import CircularProgress from "@mui/material/CircularProgress";
 import UploadIcon from '@mui/icons-material/Upload';
 import LinkIcon from '@mui/icons-material/Link';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -18,28 +20,35 @@ import FileTransferForm from "../components/FileTransferForm";
 
 export default function HomePage() {
     const navigate = useNavigate();
-    const { config } = useServerConfig();
+    const { config, isLoading, error } = useServerConfig();
 
     const maxWidthPage = 1400;
     const sectionPaddingX = { xs: 2, md: 4 };
 
+    // TODO fix the following
+    if (isLoading) {
+        return (
+            <Layout title="Home" content={
+                <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
+                    <CircularProgress />
+                </Box>
+            } />
+        );
+    }
+
+    if (error || !config) {
+        return (
+            <Layout title="Home" content={
+                <Alert severity="error">Couldn't load server configuration. Please try again later.</Alert>
+            } />
+        );
+    }
+
     const linkLimits = {
-        maxFileSize: config?.max_file_size_link || 0,
-        maxDownloads: config?.max_downloads_link || 0,
-        maxLifetime: config?.max_lifetime_link || 0,
+        maxFileSize: config.max_file_size_link,
+        maxDownloads: config.max_downloads_link,
+        maxLifetime: config.max_lifetime_link,
     };
-
-    /*const connectedLimits = {
-        maxFileSize: config?.max_file_size_connected || 0,
-        maxDownloads: config?.max_downloads_connected || 0,
-        maxLifetime: config?.max_lifetime_connected || 0,
-    };
-
-    const premiumLimits = {
-        maxFileSize: config?.max_file_size_connected_premium || 0,
-        maxDownloads: config?.max_downloads_connected_premium || 0,
-        maxLifetime: config?.max_lifetime_connected_premium || 0,
-    };*/
 
     return (
         <Layout title="Home" content={
