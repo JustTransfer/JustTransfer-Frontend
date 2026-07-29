@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import { useServerConfig } from "../hooks/useServerConfig";
 import Layout from "../components/layout";
@@ -105,24 +106,38 @@ export default function NewTransfer() {
                                 border: "1px solid #f0dbea",
                             }}
                         >
-                            <FileTransferForm
-                                type="connected"
-                                maxFileSize={maxFileSize}
-                                maxDownloads={maxDownloads}
-                                maxLifetime={maxLifetime}
-                                onSubmit={async (data, onProgress) => {
-                                    const result = await sendMessageLink(
-                                        data.file.name,
-                                        data.file,
-                                        data.lifetime,
-                                        data.maxDownloads,
-                                        data.password,
-                                        onProgress,
-                                        data.receiver_email
-                                    );
-                                    return result.link;
-                                }}
-                            />
+                            {config ? (
+                                <FileTransferForm
+                                    type="connected"
+                                    maxFileSize={maxFileSize}
+                                    maxDownloads={maxDownloads}
+                                    maxLifetime={maxLifetime}
+                                    onSubmit={async (data, onProgress) => {
+                                        const result = await sendMessageLink(
+                                            data.file.name,
+                                            data.file,
+                                            data.lifetime,
+                                            data.maxDownloads,
+                                            data.password,
+                                            onProgress,
+                                            data.receiver_email
+                                        );
+                                        return result.link;
+                                    }}
+                                />
+                            ) : (
+                                <Box
+                                    sx={{
+                                        height: "100%",
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        minHeight: 700,
+                                    }}
+                                >
+                                    <CircularProgress />
+                                </Box>
+                            )}
                         </Box>
                     </Box>
                 </Box>

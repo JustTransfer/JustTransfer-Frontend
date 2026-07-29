@@ -31,12 +31,15 @@ import PasswordStrength from "./passwordStrength";
 import AcceptTermsService from "./acceptTermsService";
 import { formatSize } from "../handlers/utils";
 
+type CommonProps = {
+    maxFileSize: number;
+    maxDownloads: number;
+    maxLifetime: number;
+};
+
 type FileTransferFormProps =
-    | {
+    | (CommonProps & {
         type: "link";
-        maxFileSize: number;
-        maxDownloads: number;
-        maxLifetime: number;
         onSubmit: (
             data: {
                 password: string;
@@ -46,12 +49,9 @@ type FileTransferFormProps =
             },
             onProgress: (percent: number) => void
         ) => Promise<string | void>;
-    }
-    | {
+    })
+    | (CommonProps & {
         type: "connected";
-        maxFileSize: number;
-        maxDownloads: number;
-        maxLifetime: number;
         onSubmit: (
             data: {
                 password: string;
@@ -62,7 +62,7 @@ type FileTransferFormProps =
             },
             onProgress: (percent: number) => void
         ) => Promise<string | void>;
-    };
+    });
 
 export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxLifetime, onSubmit }: FileTransferFormProps) {
 

@@ -4,7 +4,6 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
-import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
 import UploadIcon from '@mui/icons-material/Upload';
 import LinkIcon from '@mui/icons-material/Link';
@@ -20,34 +19,15 @@ import FileTransferForm from "../components/FileTransferForm";
 
 export default function HomePage() {
     const navigate = useNavigate();
-    const { config, isLoading, error } = useServerConfig();
+    const { config } = useServerConfig();
 
     const maxWidthPage = 1400;
     const sectionPaddingX = { xs: 2, md: 4 };
 
-    // TODO fix the following
-    if (isLoading) {
-        return (
-            <Layout title="Home" content={
-                <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-                    <CircularProgress />
-                </Box>
-            } />
-        );
-    }
-
-    if (error || !config) {
-        return (
-            <Layout title="Home" content={
-                <Alert severity="error">Couldn't load server configuration. Please try again later.</Alert>
-            } />
-        );
-    }
-
     const linkLimits = {
-        maxFileSize: config.max_file_size_link,
-        maxDownloads: config.max_downloads_link,
-        maxLifetime: config.max_lifetime_link,
+        maxFileSize: config?.max_file_size_link || 0,
+        maxDownloads: config?.max_downloads_link || 0,
+        maxLifetime: config?.max_lifetime_link || 0,
     };
 
     return (
@@ -145,23 +125,37 @@ export default function HomePage() {
                                 border: "1px solid #f0dbea",
                             }}
                         >
-                            <FileTransferForm
-                                type="link"
-                                maxFileSize={linkLimits.maxFileSize}
-                                maxDownloads={linkLimits.maxDownloads}
-                                maxLifetime={linkLimits.maxLifetime}
-                                onSubmit={async (data, onProgress) => {
-                                    const result = await sendMessageLink(
-                                        data.file.name,
-                                        data.file,
-                                        data.lifetime,
-                                        data.maxDownloads,
-                                        data.password,
-                                        onProgress
-                                    );
-                                    return result.link;
-                                }}
-                            />
+                            {config ? (
+                                <FileTransferForm
+                                    type="link"
+                                    maxFileSize={config.max_file_size_link}
+                                    maxDownloads={config.max_downloads_link}
+                                    maxLifetime={config.max_lifetime_link}
+                                    onSubmit={async (data, onProgress) => {
+                                        const result = await sendMessageLink(
+                                            data.file.name,
+                                            data.file,
+                                            data.lifetime,
+                                            data.maxDownloads,
+                                            data.password,
+                                            onProgress
+                                        );
+                                        return result.link;
+                                    }}
+                                />
+                            ) : (
+                                <Box
+                                    sx={{
+                                        height: "100%",
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        minHeight: 700,
+                                    }}
+                                >
+                                    <CircularProgress />
+                                </Box>
+                            )}
                             <Typography variant="body2" sx={{ color: "#7a6474", mt: 2, textAlign: "center" }}>
                                 Direct transfers require an account. <RouterLink to="/register">Create an account</RouterLink> or <RouterLink to="/login">log in</RouterLink>.
                             </Typography>

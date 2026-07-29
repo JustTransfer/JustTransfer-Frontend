@@ -19,8 +19,6 @@ type ServerConfig = {
 
 type ServerConfigContextType = {
     config: ServerConfig | null;
-    isLoading: boolean;
-    error: string | null;
 };
 
 
@@ -28,8 +26,6 @@ const ServerConfigContext = createContext<ServerConfigContextType | undefined>(u
 
 export const ServerConfigProvider = ({ children }: any) => {
     const [config, setConfig] = useState<ServerConfig | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchConfig = async () => {
@@ -39,16 +35,14 @@ export const ServerConfigProvider = ({ children }: any) => {
                 const data = await res.json();
                 setConfig(data);
             } catch (e: any) {
-                setError(e.message || "Failed to load config");
-            } finally {
-                setIsLoading(false);
+                console.error("Error fetching server config:", e);
             }
         };
         fetchConfig();
     }, []);
 
     return (
-        <ServerConfigContext.Provider value={{ config, isLoading, error }}>
+        <ServerConfigContext.Provider value={{ config }}>
             {children}
         </ServerConfigContext.Provider>
     );
