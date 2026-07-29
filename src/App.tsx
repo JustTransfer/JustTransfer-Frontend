@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router";
 
 import ScrollToTop from './components/scrollToTop';
 import { NotificationProvider } from './hooks/useNotificationContext';

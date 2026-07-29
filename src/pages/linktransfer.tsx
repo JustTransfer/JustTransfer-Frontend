@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import React, { useState, useEffect } from "react";
 
 import Box from "@mui/material/Box";

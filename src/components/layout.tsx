@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useNavigate, Link as RouterLink } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router";
+import { useLocation } from "react-router";
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Box from '@mui/material/Box';

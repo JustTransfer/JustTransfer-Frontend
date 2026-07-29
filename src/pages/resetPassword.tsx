@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router';
 import { useEffect, useState } from "react";
 
 import Box from "@mui/material/Box";
