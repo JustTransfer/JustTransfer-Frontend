@@ -2,7 +2,7 @@ import { Base64 } from 'js-base64';
 
 import { getSodium, getOpaque } from "./utils";
 
-import { registerStartAPI, registerEndAPI, registerUpdateAPI, endPasswordResetAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI } from "./api";
+import { registerStartAPI, registerEndAPI, registerUpdateAPI, endPasswordResetAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, getSavedTransfersAPI, addSavedTransferAPI } from "./api";
 
 import * as errors from "../messages/errors";
 
@@ -316,8 +316,61 @@ async function loginProcess(email: string, password: string) {
 }
 
 async function logoutProcess() {
-
     await logoutAPI();
 }
 
-export { register, changePassword, generateNewKeys, resetPassword, loginProcess, logoutProcess };
+async function getSavedTransfers(exportKey: string) {
+
+    const sodium = await getSodium();
+
+    const exportKeyDecoded = Base64.toUint8Array(exportKey);
+
+    const response = await getSavedTransfersAPI();
+
+    console.log("Saved transfers response:", response);
+    console.log("test: ", response.saved_transfers);
+
+    for (let transfer of response.saved_transfers) {
+        // Convert the keys from base64 to Uint8Array
+        const nonce_transfer_id = Base64.toUint8Array(transfer.nonce_transfer_id);
+        const enc_transfer_id = Base64.toUint8Array(transfer.enc_transfer_id);
+        const nonce_password = Base64.toUint8Array(transfer.nonce_password);
+        const enc_password = Base64.toUint8Array(transfer.enc_password);
+
+        // Decrypt transfer_id and password
+        const transfer_id = sodium.crypto_aead_aegis256_decrypt(null, enc_transfer_id, null, nonce_transfer_id, exportKeyDecoded);
+        const transfer_password = sodium.crypto_aead_aegis256_decrypt(null, enc_password, null, nonce_password, exportKeyDecoded);
+
+        // Store decrypted values back in the transfer object
+        transfer.transfer_id = transfer_id;
+        transfer.transfer_password = transfer_password;
+    }
+
+    return response.saved_transfers;
+}
+
+async function addSavedTransfer(transfer_id: string, transfer_password: string, exportKey: string) {
+
+    const sodium = await getSodium();
+
+    const exportKeyDecoded = Base64.toUint8Array(exportKey);
+
+    // Encrypt the transfer_id
+    const nonce_transfer_id = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
+    const enc_transfer_id = sodium.crypto_aead_aegis256_encrypt(transfer_id, null, null, nonce_transfer_id, exportKeyDecoded);
+
+    // Encrypt the transfer_password
+    const nonce_password = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
+    const enc_password = sodium.crypto_aead_aegis256_encrypt(transfer_password, null, null, nonce_password, exportKeyDecoded);
+
+    const response = await addSavedTransferAPI(
+        Base64.fromUint8Array(nonce_transfer_id, true),
+        Base64.fromUint8Array(enc_transfer_id, true),
+        Base64.fromUint8Array(nonce_password, true),
+        Base64.fromUint8Array(enc_password, true)
+    );
+
+    return response;
+}
+
+export { register, changePassword, generateNewKeys, resetPassword, loginProcess, logoutProcess, getSavedTransfers, addSavedTransfer };

@@ -239,7 +239,6 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
 
         // Get the email of the receiver if provided
         data.receiver_email = formData.get("receiver") as string;
-        console.log("Receiver email:", data.receiver_email);
 
         try {
             setIsSending(true);

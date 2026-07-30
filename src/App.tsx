@@ -17,8 +17,7 @@ import LoginPage from './pages/login';
 import Logout from './pages/logout';
 
 import NewTransfer from './pages/new-transfer';
-import Inbox from './pages/inbox';
-import Transfers from './pages/transfers';
+import SavedTransfers from './pages/savedTransfer';
 import AccountPage from './pages/account';
 import PricingPage from './pages/pricing';
 import Error from './pages/error';
@@ -62,13 +61,7 @@ function App() {
 
             <Route path="/transfers" element={
               <ProtectedRoute>
-                <Transfers />
-              </ProtectedRoute>}
-            />
-
-            <Route path="/inbox" element={
-              <ProtectedRoute>
-                <Inbox />
+                <SavedTransfers />
               </ProtectedRoute>}
             />
 

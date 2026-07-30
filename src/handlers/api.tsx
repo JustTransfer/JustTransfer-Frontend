@@ -265,4 +265,34 @@ async function getPublicKeyEmailAPI(email: string) {
     return (await response.json());
 }
 
-export { apiFetch, registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, verifyEmailAPI, requestResetPasswordAPI, endPasswordResetAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyEmailAPI };
+async function getSavedTransfersAPI() {
+
+    const response = await apiFetch(`${apiUrl}/user/saved-transfer`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    return (await response.json());
+}
+
+async function addSavedTransferAPI(nonce_transfer_id: string, enc_transfer_id: string, nonce_password: string, enc_password: string) {
+
+    const response = await apiFetch(`${apiUrl}/user/saved-transfer`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            nonce_transfer_id,
+            enc_transfer_id,
+            nonce_password,
+            enc_password,
+        }),
+    });
+
+    return response.status;
+}
+
+export { apiFetch, registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, verifyEmailAPI, requestResetPasswordAPI, endPasswordResetAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyEmailAPI, getSavedTransfersAPI, addSavedTransferAPI };

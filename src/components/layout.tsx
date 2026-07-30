@@ -442,15 +442,6 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                         New Transfer
                                     </Button>
                                     <Button
-                                        startIcon={<CloudDownloadIcon />}
-                                        fullWidth
-                                        size="large"
-                                        onClick={() => navigate("/inbox")}
-                                        sx={menuButtonStyle("/inbox")}
-                                    >
-                                        Inbox
-                                    </Button>
-                                    <Button
                                         startIcon={<CloudUploadIcon />}
                                         fullWidth
                                         size="large"
