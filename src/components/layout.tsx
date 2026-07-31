@@ -223,7 +223,6 @@ export default function Layout({ title, content }: { title: string; content: Rea
 
     const mobileMenuItems = isLoggedIn ? [
         { label: "New Transfer", icon: <SendIcon />, path: "/new-transfer" },
-        { label: "Inbox", icon: <CloudDownloadIcon />, path: "/inbox" },
         { label: "Active Transfers", icon: <CloudUploadIcon />, path: "/transfers" },
         { label: "Account", icon: <AccountCircleIcon />, path: "/account" },
         { label: "Logout", icon: <LogoutIcon />, path: "/logout" },

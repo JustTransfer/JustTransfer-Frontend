@@ -24,6 +24,12 @@ import PersonIcon from '@mui/icons-material/Person';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import CircularProgress from '@mui/material/CircularProgress';
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import LinkIcon from "@mui/icons-material/Link";
+import KeyIcon from "@mui/icons-material/Key";
+import CloseIcon from "@mui/icons-material/Close";
+import AddIcon from '@mui/icons-material/Add';
 
 import { useNotification } from "../hooks/useNotificationContext";
 import { useAuth } from "../hooks/useAuth";
@@ -123,6 +129,28 @@ function DownloadSection({ msg, progress, onDownload, onDelete, compact = false 
     );
 }
 
+function parseTransferInput(input: string, password: string) {
+    try {
+        const url = new URL(input);
+
+        const transferId = url.pathname.split("/").filter(Boolean).pop();
+
+        if (!transferId) {
+            throw new Error("Invalid transfer link");
+        }
+
+        // Password from fragment (#password)
+        const fragmentPassword = url.hash.substring(1);
+
+        return {
+            transferId,
+            password: fragmentPassword || password,
+        };
+
+    } catch {
+        throw new Error("Invalid transfer URL");
+    }
+}
 
 export default function SavedTransfer() {
 
@@ -158,6 +186,48 @@ export default function SavedTransfer() {
 
     const [openDialog, setOpenDialog] = useState(false);
     const [messageToDelete, setMessageToDelete] = useState<any>(null);
+
+    const [openAddDialog, setOpenAddDialog] = useState(false);
+    const [transferInput, setTransferInput] = useState("");
+    const [passwordInput, setPasswordInput] = useState("");
+    const [addingTransfer, setAddingTransfer] = useState(false);
+
+    async function handleAddTransfer() {
+        try {
+            setAddingTransfer(true);
+
+            const { transferId, password } = parseTransferInput(
+                transferInput,
+                passwordInput
+            );
+
+            if (!password) {
+                throw new Error("Password is missing");
+            }
+
+            await addSavedTransfer(
+                transferId,
+                password,
+                exportKey!
+            );
+
+            success("Transfer added successfully!");
+
+            setTransferInput("");
+            setPasswordInput("");
+            setOpenAddDialog(false);
+
+            getMessagesLocal();
+
+        } catch (e) {
+            error(
+                "Failed to add transfer: " +
+                (e instanceof Error ? e.message : errors.errorUnknown)
+            );
+        } finally {
+            setAddingTransfer(false);
+        }
+    }
 
     const handleClickOpenDialog = (message: any) => {
         setMessageToDelete(message);
@@ -232,8 +302,6 @@ export default function SavedTransfer() {
 
                 try {
                     const result = await getOneLinkMessageMetadata(msg.password, msg.transfer_id);
-                    // setExportKey(result.exportKey);
-                    // setMessageData(result.messageData);
 
                     console.log("res msg:", result);
                     tmpMessagesData.push(result);
@@ -275,30 +343,26 @@ export default function SavedTransfer() {
                         <Typography variant={compactInbox ? "h6" : "h5"} sx={{ fontWeight: 700, color: "#2b0f1f" }}>
                             Active Transfers
                         </Typography>
-                        <IconButton aria-label="refresh" color="primary" size={compactInbox ? "medium" : "large"} onClick={getMessagesLocal}>
-                            <RefreshIcon />
-                        </IconButton>
-                    </Box>
 
-                    {/* Box to add a transfer by its link and password */}
-                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", pt: 3 }}>
-                        <Button variant="contained" color="primary" onClick={() => {
-                            const transferId = prompt("Enter the transfer ID:");
-                            const transferPassword = prompt("Enter the transfer password:");
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={() => setOpenAddDialog(true)}
+                                sx={{
+                                    minWidth: compactInbox ? 40 : undefined,
+                                    width: compactInbox ? 40 : undefined,
+                                    height: compactInbox ? 40 : undefined,
+                                }}
+                            >
+                                <AddIcon />
+                                {!compactInbox && "Add Transfer"}
+                            </Button>
 
-                            if (transferId && transferPassword) {
-                                addSavedTransfer(transferId, transferPassword, exportKey!)
-                                    .then(() => {
-                                        success("Transfer added successfully!");
-                                        getMessagesLocal(); // Refresh the list after adding
-                                    })
-                                    .catch((e) => {
-                                        error("Failed to add transfer: " + (e instanceof Error ? e.message : errors.errorUnknown));
-                                    });
-                            }
-                        }}>
-                            Add Transfer by Link
-                        </Button>
+                            <IconButton aria-label="refresh" color="primary" size={compactInbox ? "medium" : "large"} onClick={getMessagesLocal}>
+                                <RefreshIcon />
+                            </IconButton>
+                        </Box>
                     </Box>
 
                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", pt: 3 }}>
@@ -392,9 +456,9 @@ export default function SavedTransfer() {
                                 :
                                 <Box color="text.secondary" sx={{ mt: 4, textAlign: "center" }}>
                                     <InboxIcon sx={{ fontSize: 64, opacity: 0.4 }} />
-                                    <Typography variant="h6">No files yet</Typography>
+                                    <Typography variant="h6">No transfers yet</Typography>
                                     <Typography variant="body2">
-                                        When someone sends you a file, it will appear here.
+                                        Create or add a transfer to manage your transfers here.
                                     </Typography>
                                 </Box>
 
@@ -402,6 +466,95 @@ export default function SavedTransfer() {
                     </Box>
                 </Box>
 
+                {/* Add Transfer Dialog */}
+                <Dialog
+                    open={openAddDialog}
+                    onClose={() => setOpenAddDialog(false)}
+                    fullWidth
+                    maxWidth="sm"
+                >
+                    <DialogTitle>
+                        Add Transfer
+                        <IconButton
+                            onClick={() => setOpenAddDialog(false)}
+                            sx={{ float: "right" }}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    </DialogTitle>
+
+                    <DialogContent>
+
+                        <DialogContentText sx={{ mb: 3 }}>
+                            Paste a transfer link. Password can either be included after <b>#</b> in the URL or entered separately.
+                        </DialogContentText>
+
+
+                        <TextField
+                            fullWidth
+                            label="Transfer link"
+                            placeholder="https://localhost/link-transfer/id#password"
+                            value={transferInput}
+                            onChange={(e) => setTransferInput(e.target.value)}
+                            margin="normal"
+                            autoFocus
+                            slotProps={{
+                                input: {
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <LinkIcon />
+                                        </InputAdornment>
+                                    )
+                                }
+                            }}
+                        />
+
+
+                        <TextField
+                            fullWidth
+                            label="Password (optional)"
+                            placeholder="Only needed if not in URL fragment"
+                            value={passwordInput}
+                            onChange={(e) => setPasswordInput(e.target.value)}
+                            margin="normal"
+                            type="password"
+                            slotProps={{
+                                input: {
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <KeyIcon />
+                                        </InputAdornment>
+                                    )
+                                }
+                            }}
+                        />
+
+                    </DialogContent>
+
+                    <DialogActions sx={{ px: 3, pb: 3 }}>
+                        <Button
+                            onClick={() => setOpenAddDialog(false)}
+                            disabled={addingTransfer}
+                        >
+                            Cancel
+                        </Button>
+
+                        <Button
+                            variant="contained"
+                            onClick={handleAddTransfer}
+                            disabled={addingTransfer || !transferInput}
+                        >
+                            {addingTransfer ? (
+                                <CircularProgress size={22} />
+                            ) : (
+                                "Add Transfer"
+                            )}
+                        </Button>
+                    </DialogActions>
+
+                </Dialog>
+
+                {/* Delete Confirmation Dialog */}
                 <Dialog
                     open={openDialog}
                     onClose={handleCloseDialog}
