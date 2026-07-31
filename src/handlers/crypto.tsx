@@ -339,11 +339,11 @@ async function getSavedTransfers(exportKey: string) {
 
         // Decrypt transfer_id and password
         const transfer_id = sodium.crypto_aead_aegis256_decrypt(null, enc_transfer_id, null, nonce_transfer_id, exportKeyDecoded);
-        const transfer_password = sodium.crypto_aead_aegis256_decrypt(null, enc_password, null, nonce_password, exportKeyDecoded);
+        const password = sodium.crypto_aead_aegis256_decrypt(null, enc_password, null, nonce_password, exportKeyDecoded);
 
-        // Store decrypted values back in the transfer object
-        transfer.transfer_id = transfer_id;
-        transfer.transfer_password = transfer_password;
+        // Store decrypted values back in the transfer object as strings
+        transfer.transfer_id = new TextDecoder().decode(transfer_id);
+        transfer.password = new TextDecoder().decode(password);
     }
 
     return response.saved_transfers;

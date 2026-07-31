@@ -25,14 +25,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import CircularProgress from '@mui/material/CircularProgress';
 
-// @ts-ignore
-import streamSaver from 'streamsaver';
-
 import { useNotification } from "../hooks/useNotificationContext";
 import { useAuth } from "../hooks/useAuth";
 import Layout from "../components/layout";
+import { getOneLinkMessageMetadata, getOneLinkMessage } from "../handlers/crypto_link";
 import { getSavedTransfers, addSavedTransfer } from "../handlers/crypto";
-import { formatSize, formatCreated, relativeExpire, expireColor } from "../handlers/utils";
+import { formatSize, formatCreated, relativeExpire, expireColor, genericDownloadFile } from "../handlers/utils";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
@@ -184,100 +182,69 @@ export default function SavedTransfer() {
     async function downloadFile(message: any) {
         setDownloadProgress(prev => ({ ...prev, [message.id]: 0 }));
 
-        /*let messageWithContent;
-
         try {
-            // Check if StreamSaver is supported (has service worker support)
-            const supportsStreaming = typeof streamSaver !== 'undefined' && 'serviceWorker' in navigator && window.WritableStream;
+            await genericDownloadFile({
+                fileName: message.messageData.filename,
+                download: (onChunk: any, onProgress: any) =>
+                    getOneLinkMessage(message.exportKey, message.messageData, onChunk, onProgress),
+                onProgress: (percent: number) =>
+                    setDownloadProgress(prev => ({
+                        ...prev,
+                        [message.messageData.id]: percent,
+                    })),
+                onSuccess: () => {
+                    success(strings.msgFileDownloaded);
 
-            if (supportsStreaming) {
-
-                // Use StreamSaver for streaming download (memory efficient)
-                console.log("Using StreamSaver for streaming download");
-                const fileStream = streamSaver.createWriteStream(message.filename);
-                const writer = fileStream.getWriter();
-
-
-                try {
-                    messageWithContent = await getOneMessage(email!, keys!, message, async (chunk, _name) => {
-                        // Write chunk directly to the stream
-                        await writer!.write(chunk);
-                    }, (percent: number) => {
-                        setDownloadProgress(prev => ({ ...prev, [message.id]: percent }));
-                    });
-                } catch (e) {
-                    // If an error occurs during streaming, abort the stream to prevent hanging (e.g., signature verification failure)
-                    await writer.abort(e);
-                    throw e; // Re-throw to be caught by outer catch
-                }
-
-                // Close the stream
-                await writer!.close();
-            } else {
-                // Fallback to traditional blob download (stores in memory)
-                console.log("Using fallback blob download");
-                const chunks: Uint8Array[] = [];
-
-                messageWithContent = await getOneMessage(email!, keys!, message, async (chunk, _name) => {
-                    // Collect chunks in memory
-                    chunks.push(new Uint8Array(chunk));
-                }, (percent: number) => {
-                    setDownloadProgress(prev => ({ ...prev, [message.id]: percent }));
-                });
-
-                // Create blob from all chunks
-                const blob = new Blob(chunks as BlobPart[], { type: "application/octet-stream" });
-                const url = URL.createObjectURL(blob);
-
-                // Trigger download
-                try {
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = messageWithContent.filename;
-                    a.style.display = "none";
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                } finally {
-                    // Cleanup
-                    URL.revokeObjectURL(url);
-                }
-            }
-
-
-            // At this point, the file has been downloaded successfully
-            success(strings.msgFileDownloaded);
-
+                    setMessages(prev =>
+                        prev.map(m =>
+                            m.messageData.id === message.messageData.id
+                                ? {
+                                    ...m,
+                                    messageData: {
+                                        ...m.messageData,
+                                        number_downloads: m.messageData.number_downloads + 1,
+                                    },
+                                }
+                                : m
+                        )
+                    );
+                },
+            });
         } catch (e) {
-
             error("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
+        } finally {
             setDownloadProgress(prev => {
-                const { [message.id]: _, ...rest } = prev;
+                const { [message.messageData.id]: _, ...rest } = prev;
                 return rest;
             });
-            return;
-        }*/
-
-        // Remove progress indicator
-        setDownloadProgress(prev => {
-            const { [message.id]: _, ...rest } = prev;
-            return rest;
-        });
-
-        // Update the download count in the UI
-        setMessages(prevMessages => prevMessages.map(msg => {
-            if (msg.id === message.id) {
-                return { ...msg, number_downloads: msg.number_downloads + 1 };
-            }
-            return msg;
-        }));
+        }
     }
 
     async function getMessagesLocal() {
         try {
             const msgs = await getSavedTransfers(exportKey!);
-            setMessages(msgs!);
-            console.log("Loaded messages:", msgs);
+            console.log("msg 1:", msgs);
+
+            let tmpMessagesData: any[] = [];
+
+            for (let msg of msgs) {
+                console.log("processing msg:", msg);
+
+                try {
+                    const result = await getOneLinkMessageMetadata(msg.password, msg.transfer_id);
+                    // setExportKey(result.exportKey);
+                    // setMessageData(result.messageData);
+
+                    console.log("res msg:", result);
+                    tmpMessagesData.push(result);
+                } catch (e) {
+                    console.error("Failed for", msg.transfer_id, e);
+                }
+            }
+
+            setMessages(tmpMessagesData);
+            console.log("Processed messages data:", tmpMessagesData);
+
         } catch (e) {
             error("Failed to load messages: " + (e instanceof Error ? e.message : errors.errorUnknown));
         }
@@ -339,7 +306,7 @@ export default function SavedTransfer() {
                             <Stack spacing={1} sx={{ width: "100%" }}>
                                 {messages.map((msg) => (
                                     <ListItem
-                                        key={msg.id}
+                                        key={msg.messageData.id}
                                         sx={{
                                             width: "100%",
                                             borderRadius: 3,
@@ -376,29 +343,29 @@ export default function SavedTransfer() {
                                                     <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ alignItems: { xs: "flex-start", sm: "center" }, minWidth: 0 }}>
                                                         <PersonIcon sx={{ fontSize: 16, opacity: 0.7 }} />
                                                         <Typography variant="caption" color="text.secondary" sx={{ minWidth: 0, overflowWrap: "anywhere", lineHeight: 1.4 }}>
-                                                            From <b>{msg.sender}</b> • Received {formatCreated(msg.creation_time)}
+                                                            From <b>{msg.sender}</b> • Sended {formatCreated(msg.messageData.creation_time)}
                                                         </Typography>
                                                     </Stack>
 
                                                     <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ alignItems: { xs: "flex-start", sm: "center" }, minWidth: 0 }}>
                                                         <Typography sx={{ fontWeight: 600, overflowWrap: "anywhere", fontSize: compactInbox ? "0.98rem" : undefined, lineHeight: 1.35 }}>
-                                                            {msg.filename}
+                                                            {msg.messageData.filename}
                                                         </Typography>
-                                                        <Chip label={formatSize(msg.file_size)} size="small" />
+                                                        <Chip label={formatSize(msg.messageData.file_size)} size="small" />
                                                     </Stack>
 
                                                     <Stack direction={compactInbox ? "column" : "row"} spacing={1} sx={{ mt: 0, alignItems: "flex-start", flexWrap: "wrap", rowGap: 1 }}>
                                                         <Chip
                                                             size="small"
-                                                            variant={expireColor(msg) === "error.main" ? "filled" : expireColor(msg) === "warning.main" ? "filled" : "outlined"}
-                                                            label={relativeExpire(msg)}
-                                                            color={expireColor(msg) === "error.main" ? "error" : expireColor(msg) === "warning.main" ? "warning" : "default"}
+                                                            variant={expireColor(msg.messageData) === "error.main" ? "filled" : expireColor(msg.messageData) === "warning.main" ? "filled" : "outlined"}
+                                                            label={relativeExpire(msg.messageData)}
+                                                            color={expireColor(msg.messageData) === "error.main" ? "error" : expireColor(msg.messageData) === "warning.main" ? "warning" : "default"}
                                                         />
                                                         <Chip
                                                             size="small"
-                                                            variant={(msg.max_downloads - msg.number_downloads) <= 1 ? "filled" : "outlined"}
-                                                            label={`${msg.max_downloads - msg.number_downloads} downloads remaining`}
-                                                            color={(msg.max_downloads - msg.number_downloads) <= 1 ? "warning" : "default"}
+                                                            variant={(msg.messageData.max_downloads - msg.messageData.number_downloads) <= 1 ? "filled" : "outlined"}
+                                                            label={`${msg.messageData.max_downloads - msg.messageData.number_downloads} downloads remaining`}
+                                                            color={(msg.messageData.max_downloads - msg.messageData.number_downloads) <= 1 ? "warning" : "default"}
                                                         />
                                                     </Stack>
                                                 </Stack>
@@ -408,10 +375,10 @@ export default function SavedTransfer() {
 
                                         <Box sx={{ width: { xs: "100%", md: "auto" }, display: "flex", justifyContent: { xs: "flex-start", md: "flex-end" } }}>
                                             <DownloadSection
-                                                msg={msg}
-                                                progress={downloadProgress[msg.id]}
+                                                msg={msg.messageData}
+                                                progress={downloadProgress[msg.messageData.id]}
                                                 onDownload={() => downloadFile(msg)}
-                                                onDelete={() => handleClickOpenDialog(msg)}
+                                                onDelete={() => handleClickOpenDialog(msg.messageData)}
                                                 compact={compactInbox}
                                             />
                                         </Box>
