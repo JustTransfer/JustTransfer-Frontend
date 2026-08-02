@@ -299,6 +299,7 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
         id: transferId,
         link: link,
         auth_key: auth_key,
+        password: password,
     };
 }
 

@@ -46,10 +46,7 @@ export default function NewTransfer() {
         console.log("sendTransfer result:", result);
 
         // Save the transfer to account's saved transfers
-        // todo add auth_key to endpoit
-        await addSavedTransfer(result.id, password, exportKey!);
-
-        console.log("after")
+        await addSavedTransfer(result.id, result.password, exportKey!);
 
         return result.link;
     }
@@ -145,7 +142,7 @@ export default function NewTransfer() {
                                     maxDownloads={maxDownloads}
                                     maxLifetime={maxLifetime}
                                     onSubmit={async (data, onProgress) => {
-                                        await sendTransfer(
+                                        return await sendTransfer(
                                             data.file.name,
                                             data.file,
                                             data.lifetime,
