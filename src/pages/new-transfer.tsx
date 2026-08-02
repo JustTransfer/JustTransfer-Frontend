@@ -32,7 +32,6 @@ export default function NewTransfer() {
         receiver_email?: string
     ): Promise<string> {
 
-        console.log("sdfsdfs");
         const result = await sendMessageLink(
             fileName,
             file,
@@ -42,8 +41,6 @@ export default function NewTransfer() {
             onProgress,
             receiver_email
         );
-
-        console.log("sendTransfer result:", result);
 
         // Save the transfer to account's saved transfers
         await addSavedTransfer(result.id, result.password, exportKey!);
