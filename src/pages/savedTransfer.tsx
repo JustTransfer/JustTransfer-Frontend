@@ -36,6 +36,7 @@ import { useAuth } from "../hooks/useAuth";
 import Layout from "../components/layout";
 import { getOneLinkMessageMetadata, getOneLinkMessage } from "../handlers/crypto_link";
 import { getSavedTransfers, addSavedTransfer } from "../handlers/crypto";
+import { deleteLinkMessageAPI } from "../handlers/api_link";
 import { formatSize, formatCreated, relativeExpire, expireColor, genericDownloadFile } from "../handlers/utils";
 
 import * as errors from "../messages/errors";
@@ -241,7 +242,13 @@ export default function SavedTransfer() {
 
     async function deleteMessage(id: string) {
         try {
-            throw new Error("Delete message API not implemented yet");
+
+            // todo change to auth_key
+            const result = await deleteLinkMessageAPI(id, exportKey!);
+
+            console.log("Delete result:", result);
+
+
             setMessages(prev => prev.filter(msg => msg.id !== id));
             success(strings.msgMessageDeleted);
         } catch (e) {

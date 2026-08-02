@@ -6,7 +6,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 import { useServerConfig } from "../hooks/useServerConfig";
 import Layout from "../components/layout";
-// import { sendMessage } from "../handlers/crypto";
+import { addSavedTransfer } from "../handlers/crypto";
 import { sendMessageLink } from "../handlers/crypto_link";
 import FileTransferForm from "../components/FileTransferForm";
 import { useAuth } from "../hooks/useAuth";
@@ -14,13 +14,45 @@ import { useAuth } from "../hooks/useAuth";
 export default function NewTransfer() {
     const maxWidthPage = 1400;
     const { config } = useServerConfig();
-    const { role, getLatestKeys } = useAuth();
+    const { role, exportKey, getLatestKeys } = useAuth();
 
     const [_keys, setKeys] = useState<any>(null);
 
     const maxFileSize = role === "premium" ? config?.max_file_size_connected_premium! : config?.max_file_size_connected!;
     const maxDownloads = role === "premium" ? config?.max_downloads_connected_premium! : config?.max_downloads_connected!;
     const maxLifetime = role === "premium" ? config?.max_lifetime_connected_premium! : config?.max_lifetime_connected!;
+
+    async function sendTransfer(
+        fileName: string,
+        file: File,
+        lifetime: number,
+        maxDownloads: number,
+        password: string,
+        onProgress: (percent: number) => void,
+        receiver_email?: string
+    ): Promise<string> {
+
+        console.log("sdfsdfs");
+        const result = await sendMessageLink(
+            fileName,
+            file,
+            lifetime,
+            maxDownloads,
+            password,
+            onProgress,
+            receiver_email
+        );
+
+        console.log("sendTransfer result:", result);
+
+        // Save the transfer to account's saved transfers
+        // todo add auth_key to endpoit
+        await addSavedTransfer(result.id, password, exportKey!);
+
+        console.log("after")
+
+        return result.link;
+    }
 
     useEffect(() => {
         const fetchKeys = async () => {
@@ -113,7 +145,7 @@ export default function NewTransfer() {
                                     maxDownloads={maxDownloads}
                                     maxLifetime={maxLifetime}
                                     onSubmit={async (data, onProgress) => {
-                                        const result = await sendMessageLink(
+                                        await sendTransfer(
                                             data.file.name,
                                             data.file,
                                             data.lifetime,
@@ -121,8 +153,7 @@ export default function NewTransfer() {
                                             data.password,
                                             onProgress,
                                             data.receiver_email
-                                        );
-                                        return result.link;
+                                        )
                                     }}
                                 />
                             ) : (

@@ -96,6 +96,22 @@ async function sendLinkMessageAPI(id: string, client_registration_finish: string
     return (await response.json());
 }
 
+async function deleteLinkMessageAPI(id: string, auth_key: string) {
+
+    const response = await apiFetch(`${apiUrl}/link/message/${id}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            auth_key,
+        }),
+    },
+    );
+
+    return response.status;
+}
+
 //
 // Upload and Download to/from S3
 //
@@ -115,7 +131,7 @@ async function finishUploadFileToS3Link(file_id: string, upload_id: string, etag
         }),
     });
 
-    return response.status;
+    return (await response.json());
 }
 
 //
@@ -268,4 +284,4 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
     return 0;
 }
 
-export { postLinkMessageLoginStartAPI, postLinkMessageLoginEndAPI, getLinkMessageMetadataAPI, getLinkMessageAPI, sendLinkMessageStartAPI, sendLinkMessageAPI, finishUploadFileToS3Link, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };
+export { postLinkMessageLoginStartAPI, postLinkMessageLoginEndAPI, getLinkMessageMetadataAPI, getLinkMessageAPI, sendLinkMessageStartAPI, sendLinkMessageAPI, deleteLinkMessageAPI, finishUploadFileToS3Link, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };
