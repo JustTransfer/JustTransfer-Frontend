@@ -52,10 +52,10 @@ type Props = {
 
 function DownloadSection({ msg, progress, onDownload, onDelete, compact = false }: Props) {
 
-    const downloadsLeft = msg.max_downloads - msg.number_downloads;
+    const downloadsLeft = msg.messageData.max_downloads - msg.messageData.number_downloads;
 
     // Invalid signature -> block download
-    if (msg.signatureValid === false) {
+    if (msg.messageData.signatureValid === false) {
         return (
             <Box sx={{
                 display: "flex",
@@ -123,9 +123,12 @@ function DownloadSection({ msg, progress, onDownload, onDelete, compact = false 
                 <DownloadIcon />
             </IconButton>
 
-            <IconButton color="primary" onClick={onDelete}>
-                <DeleteIcon />
-            </IconButton>
+            {/* todo fix it to be less visible and do the same for the mobile version */}
+            {msg.auth_key && (
+                <IconButton color="primary" onClick={onDelete}>
+                    <DeleteIcon />
+                </IconButton>
+            )}
         </Box>
     );
 }
@@ -240,16 +243,11 @@ export default function SavedTransfer() {
         setOpenDialog(false);
     };
 
-    async function deleteMessage(id: string) {
+    async function deleteMessage(id: string, authKey: string) {
         try {
+            await deleteLinkMessageAPI(id, authKey);
 
-            // todo change to auth_key
-            const result = await deleteLinkMessageAPI(id, exportKey!);
-
-            console.log("Delete result:", result);
-
-
-            setMessages(prev => prev.filter(msg => msg.id !== id));
+            setMessages(prev => prev.filter(msg => msg.messageData.id !== id));
             success(strings.msgMessageDeleted);
         } catch (e) {
             error("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
@@ -300,26 +298,24 @@ export default function SavedTransfer() {
     async function getMessagesLocal() {
         try {
             const msgs = await getSavedTransfers(exportKey!);
-            console.log("msg 1:", msgs);
 
             let tmpMessagesData: any[] = [];
 
             for (let msg of msgs) {
-                console.log("processing msg:", msg);
 
                 try {
                     const result = await getOneLinkMessageMetadata(msg.password, msg.transfer_id);
 
-                    console.log("res msg:", result);
-                    tmpMessagesData.push(result);
+                    tmpMessagesData.push({
+                        ...result,
+                        auth_key: msg.auth_key,
+                    });
                 } catch (e) {
                     console.error("Failed for", msg.transfer_id, e);
                 }
             }
 
             setMessages(tmpMessagesData);
-            console.log("Processed messages data:", tmpMessagesData);
-
         } catch (e) {
             error("Failed to load messages: " + (e instanceof Error ? e.message : errors.errorUnknown));
         }
@@ -446,10 +442,10 @@ export default function SavedTransfer() {
 
                                         <Box sx={{ width: { xs: "100%", md: "auto" }, display: "flex", justifyContent: { xs: "flex-start", md: "flex-end" } }}>
                                             <DownloadSection
-                                                msg={msg.messageData}
+                                                msg={msg}
                                                 progress={downloadProgress[msg.messageData.id]}
                                                 onDownload={() => downloadFile(msg)}
-                                                onDelete={() => handleClickOpenDialog(msg.messageData)}
+                                                onDelete={() => handleClickOpenDialog(msg)}
                                                 compact={compactInbox}
                                             />
                                         </Box>
@@ -573,13 +569,13 @@ export default function SavedTransfer() {
                     </DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description">
-                            Are you sure you want to delete <strong>{messageToDelete?.filename}</strong>? This action cannot be undone.
+                            Are you sure you want to delete <strong>{messageToDelete?.messageData.filename}</strong>? This action cannot be undone.
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions sx={{ gap: 2 }}>
                         <Button onClick={handleCloseDialog}>Cancel</Button>
                         <Button onClick={() => {
-                            deleteMessage(messageToDelete.id);
+                            deleteMessage(messageToDelete.messageData.id, messageToDelete.auth_key);
                             handleCloseDialog();
                         }} color="error" autoFocus>
                             Delete

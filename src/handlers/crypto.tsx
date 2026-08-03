@@ -341,6 +341,14 @@ async function getSavedTransfers(exportKey: string) {
         const transfer_id = sodium.crypto_aead_aegis256_decrypt(null, enc_transfer_id, null, nonce_transfer_id, exportKeyDecoded);
         const password = sodium.crypto_aead_aegis256_decrypt(null, enc_password, null, nonce_password, exportKeyDecoded);
 
+        // Decrypt auth_key if it exists
+        if (transfer.nonce_auth_key && transfer.enc_auth_key) {
+            const nonce_auth_key = Base64.toUint8Array(transfer.nonce_auth_key);
+            const enc_auth_key = Base64.toUint8Array(transfer.enc_auth_key);
+            const auth_key = sodium.crypto_aead_aegis256_decrypt(null, enc_auth_key, null, nonce_auth_key, exportKeyDecoded);
+            transfer.auth_key = new TextDecoder().decode(auth_key);
+        }
+
         // Store decrypted values back in the transfer object as strings
         transfer.transfer_id = new TextDecoder().decode(transfer_id);
         transfer.password = new TextDecoder().decode(password);
@@ -349,7 +357,7 @@ async function getSavedTransfers(exportKey: string) {
     return response.saved_transfers;
 }
 
-async function addSavedTransfer(transfer_id: string, transfer_password: string, exportKey: string) {
+async function addSavedTransfer(transfer_id: string, transfer_password: string, exportKey: string, auth_key?: string) {
 
     const sodium = await getSodium();
 
@@ -363,11 +371,30 @@ async function addSavedTransfer(transfer_id: string, transfer_password: string, 
     const nonce_password = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
     const enc_password = sodium.crypto_aead_aegis256_encrypt(transfer_password, null, null, nonce_password, exportKeyDecoded);
 
+    const body: any = {
+        nonce_transfer_id: Base64.fromUint8Array(nonce_transfer_id, true),
+        enc_transfer_id: Base64.fromUint8Array(enc_transfer_id, true),
+        nonce_password: Base64.fromUint8Array(nonce_password, true),
+        enc_password: Base64.fromUint8Array(enc_password, true),
+    };
+
+    // Encrypt the auth_key
+    if (auth_key) {
+        const nonce_auth_key = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
+        const enc_auth_key = sodium.crypto_aead_aegis256_encrypt(auth_key, null, null, nonce_auth_key, exportKeyDecoded);
+
+        // Store the encrypted auth_key and nonce in the transfer object
+        body.nonce_auth_key = Base64.fromUint8Array(nonce_auth_key, true);
+        body.enc_auth_key = Base64.fromUint8Array(enc_auth_key, true);
+    }
+
     const response = await addSavedTransferAPI(
-        Base64.fromUint8Array(nonce_transfer_id, true),
-        Base64.fromUint8Array(enc_transfer_id, true),
-        Base64.fromUint8Array(nonce_password, true),
-        Base64.fromUint8Array(enc_password, true)
+        body.nonce_transfer_id,
+        body.enc_transfer_id,
+        body.nonce_password,
+        body.enc_password,
+        body.nonce_auth_key,
+        body.enc_auth_key
     );
 
     return response;

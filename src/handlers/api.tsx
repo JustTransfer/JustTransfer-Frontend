@@ -277,7 +277,7 @@ async function getSavedTransfersAPI() {
     return (await response.json());
 }
 
-async function addSavedTransferAPI(nonce_transfer_id: string, enc_transfer_id: string, nonce_password: string, enc_password: string) {
+async function addSavedTransferAPI(nonce_transfer_id: string, enc_transfer_id: string, nonce_password: string, enc_password: string, nonce_auth_key?: string, enc_auth_key?: string) {
 
     const response = await apiFetch(`${apiUrl}/user/saved-transfer`, {
         method: "POST",
@@ -289,6 +289,8 @@ async function addSavedTransferAPI(nonce_transfer_id: string, enc_transfer_id: s
             enc_transfer_id,
             nonce_password,
             enc_password,
+            nonce_auth_key,
+            enc_auth_key,
         }),
     });
 

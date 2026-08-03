@@ -43,7 +43,7 @@ export default function NewTransfer() {
         );
 
         // Save the transfer to account's saved transfers
-        await addSavedTransfer(result.id, result.password, exportKey!);
+        await addSavedTransfer(result.id, result.password, exportKey!, result.auth_key);
 
         return result.link;
     }
