@@ -327,9 +327,6 @@ async function getSavedTransfers(exportKey: string) {
 
     const response = await getSavedTransfersAPI();
 
-    console.log("Saved transfers response:", response);
-    console.log("test: ", response.saved_transfers);
-
     for (let transfer of response.saved_transfers) {
         // Convert the keys from base64 to Uint8Array
         const nonce_transfer_id = Base64.toUint8Array(transfer.nonce_transfer_id);
