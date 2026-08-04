@@ -116,9 +116,9 @@ async function deleteLinkMessageAPI(id: string, auth_key: string) {
 // Upload and Download to/from S3
 //
 
-async function finishUploadFileToS3Link(file_id: string, upload_id: string, etags: string[], mac: string, receiver_email?: string) {
+async function finishUploadFileToS3Link(id: string, file_id: string, upload_id: string, etags: string[], mac: string, receiver_email?: string) {
 
-    const response = await apiFetch(`${apiUrl}/link/message/uploadfinish/${file_id}`, {
+    const response = await apiFetch(`${apiUrl}/link/message/${id}/uploadfinish/${file_id}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -171,7 +171,7 @@ async function uploadFileToS3(url: string, cfile: Uint8Array, onProgress?: (perc
     return { ETag: response!.headers.get("ETag") || "" };
 }
 
-async function finishUploadFileToS3(file_id: string, upload_id: string, etags: string[], signature_metadata: string, signature: string) {
+/*async function finishUploadFileToS3(file_id: string, upload_id: string, etags: string[], signature_metadata: string, signature: string) {
 
     const response = await apiFetch(`${apiUrl}/message/uploadfinish/${file_id}`, {
         method: "POST",
@@ -187,7 +187,7 @@ async function finishUploadFileToS3(file_id: string, upload_id: string, etags: s
     });
 
     return response.status;
-}
+}*/
 
 async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (chunk: Uint8Array) => Promise<number>, url: string, onProgress?: (percent: number) => void) {
 
@@ -284,4 +284,4 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
     return 0;
 }
 
-export { postLinkMessageLoginStartAPI, postLinkMessageLoginEndAPI, getLinkMessageMetadataAPI, getLinkMessageAPI, sendLinkMessageStartAPI, sendLinkMessageAPI, deleteLinkMessageAPI, finishUploadFileToS3Link, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 };
+export { postLinkMessageLoginStartAPI, postLinkMessageLoginEndAPI, getLinkMessageMetadataAPI, getLinkMessageAPI, sendLinkMessageStartAPI, sendLinkMessageAPI, deleteLinkMessageAPI, finishUploadFileToS3Link, uploadFileToS3, downloadFileFromS3 };

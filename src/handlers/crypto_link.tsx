@@ -281,7 +281,7 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
     const mac_b64 = Base64.fromUint8Array(mac, true);
 
     // Finalize the upload
-    const response3 = await finishUploadFileToS3Link(message_file_id, upload_id, ETags, mac_b64, receiver_email);
+    const response3 = await finishUploadFileToS3Link(id, message_file_id, upload_id, ETags, mac_b64, receiver_email);
     const auth_key = response3.auth_key;
 
     // Construct the link to be shared
