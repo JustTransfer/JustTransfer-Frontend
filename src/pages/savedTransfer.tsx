@@ -35,6 +35,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import LockResetIcon from '@mui/icons-material/LockReset';
+import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 
 import { QRCodeSVG } from "qrcode.react";
 
@@ -762,21 +763,90 @@ export default function SavedTransfer() {
                     onClose={handleCloseDialog}
                     aria-labelledby="alert-dialog-title"
                     aria-describedby="alert-dialog-description"
+                    maxWidth="xs"
+                    fullWidth
+                    slotProps={{
+                        paper: {
+                            sx: {
+                                borderRadius: 4,
+                                border: "1px solid #f1e7ee",
+                                boxShadow: "0 18px 40px rgba(83, 24, 60, 0.12)",
+                            }
+                        }
+                    }}
                 >
-                    <DialogTitle id="alert-dialog-title">
-                        {"Delete Message"}
-                    </DialogTitle>
-                    <DialogContent>
-                        <DialogContentText id="alert-dialog-description">
-                            Are you sure you want to delete <strong>{messageToDelete?.messageData.filename}</strong>? This action cannot be undone.
-                        </DialogContentText>
+                    <DialogContent sx={{ pt: 4, px: 3.5, pb: 2 }}>
+                        <Stack spacing={2.5} sx={{ textAlign: "center", alignItems: "center" }}>
+                            <Box
+                                sx={{
+                                    width: 56,
+                                    height: 56,
+                                    borderRadius: "50%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    backgroundColor: "#fdeceb",
+                                }}
+                            >
+                                <WarningAmberRoundedIcon sx={{ fontSize: 28, color: "#d32f2f" }} />
+                            </Box>
+
+                            <Stack spacing={0.75}>
+                                <Typography id="alert-dialog-title" variant="h6" sx={{ fontWeight: 700, color: "#2b0f1f" }}>
+                                    Delete this transfer?
+                                </Typography>
+                                <Typography id="alert-dialog-description" variant="body2" color="text.secondary">
+                                    This action can't be undone. The transfer will be permanently removed.
+                                </Typography>
+                            </Stack>
+
+                            {messageToDelete && (
+                                <Box
+                                    sx={{
+                                        width: "100%",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 1.5,
+                                        px: 2,
+                                        py: 1.25,
+                                        borderRadius: 3,
+                                        border: "1px solid #f1e7ee",
+                                        backgroundColor: "#fff7fb",
+                                    }}
+                                >
+                                    <InsertDriveFileIcon color="primary" fontSize="small" />
+                                    <Typography
+                                        variant="body2"
+                                        sx={{ fontWeight: 600, overflowWrap: "anywhere", textAlign: "left", lineHeight: 1.3 }}
+                                    >
+                                        {messageToDelete.messageData.filename}
+                                    </Typography>
+                                </Box>
+                            )}
+                        </Stack>
                     </DialogContent>
-                    <DialogActions sx={{ gap: 2 }}>
-                        <Button onClick={handleCloseDialog}>Cancel</Button>
-                        <Button onClick={() => {
-                            deleteMessage(messageToDelete.messageData.id, messageToDelete.auth_key);
-                            handleCloseDialog();
-                        }} color="error" autoFocus>
+
+                    <DialogActions sx={{ px: 3.5, pb: 3.5, pt: 1, gap: 1.5 }}>
+                        <Button
+                            fullWidth
+                            variant="outlined"
+                            onClick={handleCloseDialog}
+                            sx={{ borderRadius: 2, borderColor: "#f1e7ee", color: "#2b0f1f" }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            fullWidth
+                            variant="contained"
+                            color="error"
+                            startIcon={<DeleteIcon />}
+                            onClick={() => {
+                                deleteMessage(messageToDelete.messageData.id, messageToDelete.auth_key);
+                                handleCloseDialog();
+                            }}
+                            sx={{ borderRadius: 2 }}
+                            autoFocus
+                        >
                             Delete
                         </Button>
                     </DialogActions>
