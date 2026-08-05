@@ -172,3 +172,14 @@ export function relativeExpire(msg: any, short = false) {
   // return `Expires ${expire.toLocaleDateString()} at ${time}`;
   return short ? `${expire.toLocaleDateString()} at ${time}` : `Expires on ${expire.toLocaleDateString()} at ${time}`;
 }
+
+export function parseTransferLink(fullLink: string): { transferId: string; password: string } {
+  try {
+    const url = new URL(fullLink);
+    const transferId = url.pathname.split("/").filter(Boolean).pop() ?? "";
+    const password = url.hash.substring(1);
+    return { transferId, password };
+  } catch {
+    return { transferId: "", password: "" };
+  }
+}

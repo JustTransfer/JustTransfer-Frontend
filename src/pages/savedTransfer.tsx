@@ -31,15 +31,8 @@ import KeyIcon from "@mui/icons-material/Key";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from '@mui/icons-material/Add';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import LockResetIcon from '@mui/icons-material/LockReset';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
-import Switch from "@mui/material/Switch";
-import FormControlLabel from "@mui/material/FormControlLabel";
-
-import { QRCodeSVG } from "qrcode.react";
 
 import { useNotification } from "../hooks/useNotificationContext";
 import { useAuth } from "../hooks/useAuth";
@@ -49,6 +42,7 @@ import { getSavedTransfers, addSavedTransfer } from "../handlers/crypto";
 import { deleteLinkMessageAPI } from "../handlers/api_link";
 import { deleteSavedTransferAPI } from "../handlers/api";
 import { formatSize, formatCreated, relativeExpire, expireColor, genericDownloadFile } from "../handlers/utils";
+import TransferQrDialog from "../components/TransferQrDialog";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
@@ -244,13 +238,6 @@ export default function SavedTransfer() {
 
     const [openInfoDialog, setOpenInfoDialog] = useState(false);
     const [selectedMessage, setSelectedMessage] = useState<any>(null);
-    const [showPassword, setShowPassword] = useState(false);
-    const [includePasswordInLink, setIncludePasswordInLink] = useState(true);
-
-    function buildTransferLink(msg: any, withPassword: boolean = true) {
-        const base = `https://localhost/link-transfer/${msg.messageData.id}`;
-        return withPassword ? `${base}#${msg.password}` : base;
-    }
 
     const handleOpenInfoDialog = (message: any) => {
         setSelectedMessage(message);
@@ -260,18 +247,6 @@ export default function SavedTransfer() {
     const handleCloseInfoDialog = () => {
         setOpenInfoDialog(false);
         setSelectedMessage(null);
-        setShowPassword(false);
-        setIncludePasswordInLink(true);
-    };
-
-    const handleCopyLink = async () => {
-        if (!selectedMessage) return;
-        try {
-            await navigator.clipboard.writeText(buildTransferLink(selectedMessage, includePasswordInLink));
-            success("Link copied to clipboard!");
-        } catch (e) {
-            error("Failed to copy link");
-        }
     };
 
     const handleChangePassword = () => {
@@ -648,144 +623,43 @@ export default function SavedTransfer() {
                 </Dialog>
 
                 {/* Transfer Info Dialog */}
-                <Dialog
-                    open={openInfoDialog}
-                    onClose={handleCloseInfoDialog}
-                    fullWidth
-                    maxWidth="xs"
-                >
-                    <DialogTitle sx={{ pr: 6 }}>
-                        Transfer Info
-                        <IconButton
-                            onClick={handleCloseInfoDialog}
-                            sx={{ position: "absolute", right: 8, top: 8 }}
-                        >
-                            <CloseIcon />
-                        </IconButton>
-                    </DialogTitle>
+                {selectedMessage && (
+                    <TransferQrDialog
+                        open={openInfoDialog}
+                        onClose={handleCloseInfoDialog}
+                        title="Transfer Info"
+                        transferId={selectedMessage.messageData.id}
+                        password={selectedMessage.password}
+                        filename={selectedMessage.messageData.filename}
+                        actions={
+                            <>
+                                <Button onClick={handleChangePassword} startIcon={<LockResetIcon />}>
+                                    Change password
+                                </Button>
 
-                    <DialogContent>
-                        {selectedMessage && (
-                            <Stack spacing={3} sx={{ pt: 1, alignItems: "center" }}>
-                                <Typography sx={{ fontWeight: 600, textAlign: "center", overflowWrap: "anywhere" }}>
-                                    {selectedMessage.messageData.filename}
-                                </Typography>
-
-                                <Box
-                                    sx={{
-                                        p: 2,
-                                        borderRadius: 3,
-                                        border: "1px solid #f1e7ee",
-                                        backgroundColor: "#ffffff",
+                                <Button
+                                    color="error"
+                                    startIcon={<DeleteIcon />}
+                                    onClick={() => {
+                                        const msgToDelete = selectedMessage;
+                                        handleCloseInfoDialog();
+                                        handleClickOpenDialog(msgToDelete);
                                     }}
                                 >
-                                    <QRCodeSVG value={buildTransferLink(selectedMessage, includePasswordInLink)} size={180} />
-                                </Box>
+                                    Delete
+                                </Button>
 
-                                <TextField
-                                    fullWidth
-                                    label="Transfer link"
-                                    value={buildTransferLink(selectedMessage, includePasswordInLink)}
-                                    slotProps={{
-                                        input: {
-                                            readOnly: true,
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <LinkIcon />
-                                                </InputAdornment>
-                                            ),
-                                            endAdornment: (
-                                                <InputAdornment position="end">
-                                                    <IconButton onClick={handleCopyLink} edge="end" size="small">
-                                                        <ContentCopyIcon fontSize="small" />
-                                                    </IconButton>
-                                                </InputAdornment>
-                                            ),
-                                        }
-                                    }}
-                                />
-
-                                <FormControlLabel
-                                    sx={{
-                                        width: "100%",
-                                        m: 0,
-                                        justifyContent: "space-between",
-                                        px: 1.5,
-                                        py: 0.75,
-                                        borderRadius: 3,
-                                        border: "1px solid #f1e7ee",
-                                        backgroundColor: "#fff7fb",
-                                    }}
-                                    labelPlacement="start"
-                                    control={
-                                        <Switch
-                                            checked={includePasswordInLink}
-                                            onChange={(e) => setIncludePasswordInLink(e.target.checked)}
-                                        />
-                                    }
-                                    label={
-                                        <Typography variant="body2" sx={{ fontWeight: 600, color: "#2b0f1f" }}>
-                                            Include password in link
-                                        </Typography>
-                                    }
-                                />
-
-                                <TextField
-                                    fullWidth
-                                    label="Password"
-                                    type={showPassword ? "text" : "password"}
-                                    value={selectedMessage.password ?? ""}
-                                    slotProps={{
-                                        input: {
-                                            readOnly: true,
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <KeyIcon />
-                                                </InputAdornment>
-                                            ),
-                                            endAdornment: (
-                                                <InputAdornment position="end">
-                                                    <IconButton onClick={() => setShowPassword((p) => !p)} edge="end" size="small">
-                                                        {showPassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
-                                                    </IconButton>
-                                                </InputAdornment>
-                                            ),
-                                        }
-                                    }}
-                                />
-                            </Stack>
-                        )}
-                    </DialogContent>
-
-                    <DialogActions sx={{ px: 3, pb: 3, flexWrap: "wrap", gap: 1 }}>
-                        <Button
-                            onClick={handleChangePassword}
-                            startIcon={<LockResetIcon />}
-                        >
-                            Change password
-                        </Button>
-
-                        <Button
-                            color="error"
-                            startIcon={<DeleteIcon />}
-                            onClick={() => {
-                                const msgToDelete = selectedMessage;
-                                handleCloseInfoDialog();
-                                handleClickOpenDialog(msgToDelete);
-                            }}
-                        >
-                            Delete
-                        </Button>
-
-                        <Button
-                            variant="contained"
-                            startIcon={<DownloadIcon />}
-                            onClick={() => downloadFile(selectedMessage)}
-                        >
-                            Download
-                        </Button>
-                    </DialogActions>
-                </Dialog>
+                                <Button
+                                    variant="contained"
+                                    startIcon={<DownloadIcon />}
+                                    onClick={() => downloadFile(selectedMessage)}
+                                >
+                                    Download
+                                </Button>
+                            </>
+                        }
+                    />
+                )}
 
                 {/* Delete Confirmation Dialog */}
                 <Dialog

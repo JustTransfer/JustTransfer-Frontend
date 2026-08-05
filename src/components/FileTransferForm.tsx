@@ -12,14 +12,9 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import AddBoxIcon from '@mui/icons-material/AddBox';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DescriptionIcon from '@mui/icons-material/Description';
 import LinearProgress from '@mui/material/LinearProgress';
 import type { LinearProgressProps } from "@mui/material/LinearProgress";
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -29,7 +24,8 @@ import { useNotification } from "../hooks/useNotificationContext";
 import * as errors from "../messages/errors";
 import PasswordStrength from "./passwordStrength";
 import AcceptTermsService from "./acceptTermsService";
-import { formatSize } from "../handlers/utils";
+import { formatSize, parseTransferLink } from "../handlers/utils";
+import TransferQrDialog from "./TransferQrDialog";
 
 type CommonProps = {
     maxFileSize: number;
@@ -531,37 +527,12 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             </Box >
 
             {/* Dialog with link pop up */}
-            < Dialog open={openDialog} onClose={handleCloseDialog}
-                maxWidth={"sm"}
-                fullWidth
-                sx={{
-                    '& .MuiDialog-paper': {
-                        borderRadius: 3,
-                    },
-                }}
-            >
-                <DialogTitle>Link ready!</DialogTitle>
-                <DialogContent
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 2,
-                    }}
-                >
-                    <TextField label="Transfer link" value={link} fullWidth />
-                    <ContentCopyIcon sx={{ color: "primary.main", "&:hover": { cursor: "pointer" } }}
-                        onClick={() => {
-                            navigator.clipboard.writeText(link);
-                            success("Link copied");
-                        }} />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => window.open(link, '_blank', 'noopener,noreferrer')}>
-                        Open link
-                    </Button>
-                    <Button onClick={handleCloseDialog}>Close</Button>
-                </DialogActions>
-            </Dialog >
+            <TransferQrDialog
+                open={openDialog}
+                onClose={handleCloseDialog}
+                title="Link ready!"
+                {...parseTransferLink(link)}
+            />
             {/*</Paper >*/}
         </>
     );
