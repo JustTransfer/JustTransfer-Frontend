@@ -37,6 +37,7 @@ import Layout from "../components/layout";
 import { getOneLinkMessageMetadata, getOneLinkMessage } from "../handlers/crypto_link";
 import { getSavedTransfers, addSavedTransfer } from "../handlers/crypto";
 import { deleteLinkMessageAPI } from "../handlers/api_link";
+import { deleteSavedTransferAPI } from "../handlers/api";
 import { formatSize, formatCreated, relativeExpire, expireColor, genericDownloadFile } from "../handlers/utils";
 
 import * as errors from "../messages/errors";
@@ -311,7 +312,7 @@ export default function SavedTransfer() {
                         auth_key: msg.auth_key,
                     });
                 } catch (e) {
-                    console.error("Failed for", msg.transfer_id, e);
+                    await deleteSavedTransferAPI(msg.id);
                 }
             }
 

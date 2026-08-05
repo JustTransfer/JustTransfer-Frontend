@@ -171,24 +171,6 @@ async function uploadFileToS3(url: string, cfile: Uint8Array, onProgress?: (perc
     return { ETag: response!.headers.get("ETag") || "" };
 }
 
-/*async function finishUploadFileToS3(file_id: string, upload_id: string, etags: string[], signature_metadata: string, signature: string) {
-
-    const response = await apiFetch(`${apiUrl}/message/uploadfinish/${file_id}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            upload_id,
-            etags,
-            signature_metadata,
-            signature,
-        }),
-    });
-
-    return response.status;
-}*/
-
 async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (chunk: Uint8Array) => Promise<number>, url: string, onProgress?: (percent: number) => void) {
 
     const chunkSizeWithTag = chunkSize + tagSize;

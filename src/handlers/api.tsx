@@ -297,4 +297,16 @@ async function addSavedTransferAPI(nonce_transfer_id: string, enc_transfer_id: s
     return response.status;
 }
 
-export { apiFetch, registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, verifyEmailAPI, requestResetPasswordAPI, endPasswordResetAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyEmailAPI, getSavedTransfersAPI, addSavedTransferAPI };
+async function deleteSavedTransferAPI(saved_transfer_id: string) {
+
+    const response = await apiFetch(`${apiUrl}/user/saved-transfer/${saved_transfer_id}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    return response.status;
+}
+
+export { apiFetch, registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, verifyEmailAPI, requestResetPasswordAPI, endPasswordResetAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyEmailAPI, getSavedTransfersAPI, addSavedTransferAPI, deleteSavedTransferAPI };
