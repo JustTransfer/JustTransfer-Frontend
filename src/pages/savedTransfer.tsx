@@ -411,7 +411,7 @@ export default function SavedTransfer() {
                                                     <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ alignItems: { xs: "flex-start", sm: "center" }, minWidth: 0 }}>
                                                         <PersonIcon sx={{ fontSize: 16, opacity: 0.7 }} />
                                                         <Typography variant="caption" color="text.secondary" sx={{ minWidth: 0, overflowWrap: "anywhere", lineHeight: 1.4 }}>
-                                                            From <b>{msg.sender}</b> • Sended {formatCreated(msg.messageData.creation_time)}
+                                                            From <b>{msg.sender ?? "Unknown"}</b> • Sended {formatCreated(msg.messageData.creation_time)}
                                                         </Typography>
                                                     </Stack>
 
