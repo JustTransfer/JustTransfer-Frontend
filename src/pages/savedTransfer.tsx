@@ -36,6 +36,8 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import LockResetIcon from '@mui/icons-material/LockReset';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
+import Switch from "@mui/material/Switch";
+import FormControlLabel from "@mui/material/FormControlLabel";
 
 import { QRCodeSVG } from "qrcode.react";
 
@@ -243,9 +245,11 @@ export default function SavedTransfer() {
     const [openInfoDialog, setOpenInfoDialog] = useState(false);
     const [selectedMessage, setSelectedMessage] = useState<any>(null);
     const [showPassword, setShowPassword] = useState(false);
+    const [includePasswordInLink, setIncludePasswordInLink] = useState(true);
 
-    function buildTransferLink(msg: any) {
-        return `https://localhost/link-transfer/${msg.messageData.id}#${msg.password}`;
+    function buildTransferLink(msg: any, withPassword: boolean = true) {
+        const base = `https://localhost/link-transfer/${msg.messageData.id}`;
+        return withPassword ? `${base}#${msg.password}` : base;
     }
 
     const handleOpenInfoDialog = (message: any) => {
@@ -257,12 +261,13 @@ export default function SavedTransfer() {
         setOpenInfoDialog(false);
         setSelectedMessage(null);
         setShowPassword(false);
+        setIncludePasswordInLink(true);
     };
 
     const handleCopyLink = async () => {
         if (!selectedMessage) return;
         try {
-            await navigator.clipboard.writeText(buildTransferLink(selectedMessage));
+            await navigator.clipboard.writeText(buildTransferLink(selectedMessage, includePasswordInLink));
             success("Link copied to clipboard!");
         } catch (e) {
             error("Failed to copy link");
@@ -674,13 +679,13 @@ export default function SavedTransfer() {
                                         backgroundColor: "#ffffff",
                                     }}
                                 >
-                                    <QRCodeSVG value={buildTransferLink(selectedMessage)} size={180} />
+                                    <QRCodeSVG value={buildTransferLink(selectedMessage, includePasswordInLink)} size={180} />
                                 </Box>
 
                                 <TextField
                                     fullWidth
                                     label="Transfer link"
-                                    value={buildTransferLink(selectedMessage)}
+                                    value={buildTransferLink(selectedMessage, includePasswordInLink)}
                                     slotProps={{
                                         input: {
                                             readOnly: true,
@@ -698,6 +703,31 @@ export default function SavedTransfer() {
                                             ),
                                         }
                                     }}
+                                />
+
+                                <FormControlLabel
+                                    sx={{
+                                        width: "100%",
+                                        m: 0,
+                                        justifyContent: "space-between",
+                                        px: 1.5,
+                                        py: 0.75,
+                                        borderRadius: 3,
+                                        border: "1px solid #f1e7ee",
+                                        backgroundColor: "#fff7fb",
+                                    }}
+                                    labelPlacement="start"
+                                    control={
+                                        <Switch
+                                            checked={includePasswordInLink}
+                                            onChange={(e) => setIncludePasswordInLink(e.target.checked)}
+                                        />
+                                    }
+                                    label={
+                                        <Typography variant="body2" sx={{ fontWeight: 600, color: "#2b0f1f" }}>
+                                            Include password in link
+                                        </Typography>
+                                    }
                                 />
 
                                 <TextField
