@@ -30,6 +30,13 @@ import LinkIcon from "@mui/icons-material/Link";
 import KeyIcon from "@mui/icons-material/Key";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from '@mui/icons-material/Add';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import LockResetIcon from '@mui/icons-material/LockReset';
+
+import { QRCodeSVG } from "qrcode.react";
 
 import { useNotification } from "../hooks/useNotificationContext";
 import { useAuth } from "../hooks/useAuth";
@@ -48,61 +55,85 @@ type Props = {
     progress?: number;
     onDownload: () => void;
     onDelete: () => void;
+    onInfo: () => void;
     compact?: boolean;
 };
 
-function DownloadSection({ msg, progress, onDownload, onDelete, compact = false }: Props) {
+function DownloadSection({ msg, progress, onDownload, onDelete, onInfo, compact = false }: Props) {
 
     const downloadsLeft = msg.messageData.max_downloads - msg.messageData.number_downloads;
 
     // Invalid signature -> block download
     if (msg.messageData.signatureValid === false) {
         return (
-            <Box sx={{
-                display: "flex",
-                flexDirection: { xs: "column", sm: "row" },
-                alignItems: "center",
-                gap: 2,
-                width: "100%",
-            }}>
-                <Chip color="error" label="Tampered" />
+            <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                    width: "100%",
+                    alignItems: "center",
+                    justifyContent: compact ? "flex-start" : { xs: "flex-start", sm: "flex-end" },
+                }}
+            >
+                <Chip color="error" label="Tampered" size={compact ? "small" : "medium"} />
 
-                <IconButton color="primary" onClick={onDelete}>
-                    <DeleteIcon />
+                <IconButton onClick={onInfo} size={compact ? "small" : "medium"} aria-label="transfer info">
+                    <InfoOutlinedIcon fontSize={compact ? "small" : "medium"} />
                 </IconButton>
-            </Box>
+
+                <IconButton color="primary" onClick={onDelete} size={compact ? "small" : "medium"} aria-label="delete message">
+                    <DeleteIcon fontSize={compact ? "small" : "medium"} />
+                </IconButton>
+            </Stack>
         );
     }
 
     // Already fully used
     if (downloadsLeft <= 0) {
-        return <Chip size={compact ? "small" : "medium"} label="Limit reached" />;
-    }
-
-    // Downloading state
-    if (progress !== undefined) {
         return (
-            <Stack direction="row" spacing={1} sx={{ alignItems: "center", minWidth: 90, justifyContent: { xs: "flex-start", md: "flex-end" } }}>
-                <CircularProgress variant="determinate" value={progress} size={compact ? 20 : 22} />
-                <Typography variant="caption">{Math.round(progress)}%</Typography>
+            <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                    width: compact ? "100%" : "auto",
+                    alignItems: "center",
+                    justifyContent: compact ? "space-between" : "flex-end",
+                }}
+            >
+                <Chip size={compact ? "small" : "medium"} label="Limit reached" />
+
+                <IconButton onClick={onInfo} size={compact ? "small" : "medium"} aria-label="transfer info">
+                    <InfoOutlinedIcon fontSize={compact ? "small" : "medium"} />
+                </IconButton>
             </Stack>
         );
     }
 
-    // Ready state
+    // Compact (mobile) ready/downloading state
     if (compact) {
         return (
             <Stack direction="row" spacing={1} sx={{ width: "100%", alignItems: "center" }}>
-                <Button
-                    fullWidth
-                    variant="contained"
-                    size="small"
-                    startIcon={<DownloadIcon />}
-                    onClick={onDownload}
-                    sx={{ flex: 1 }}
-                >
-                    Download
-                </Button>
+                {progress !== undefined ? (
+                    <Stack direction="row" spacing={1} sx={{ flex: 1, alignItems: "center" }}>
+                        <CircularProgress variant="determinate" value={progress} size={20} />
+                        <Typography variant="caption">{Math.round(progress)}%</Typography>
+                    </Stack>
+                ) : (
+                    <Button
+                        fullWidth
+                        variant="contained"
+                        size="small"
+                        startIcon={<DownloadIcon />}
+                        onClick={onDownload}
+                        sx={{ flex: 1 }}
+                    >
+                        Download
+                    </Button>
+                )}
+
+                <IconButton onClick={onInfo} size="small" aria-label="transfer info">
+                    <InfoOutlinedIcon fontSize="small" />
+                </IconButton>
 
                 <IconButton color="primary" onClick={onDelete} size="small" aria-label="delete message">
                     <DeleteIcon fontSize="small" />
@@ -111,6 +142,7 @@ function DownloadSection({ msg, progress, onDownload, onDelete, compact = false 
         );
     }
 
+    // Desktop ready/downloading state
     return (
         <Box sx={{
             display: "flex",
@@ -120,11 +152,21 @@ function DownloadSection({ msg, progress, onDownload, onDelete, compact = false 
             width: "100%",
             justifyContent: { xs: "flex-start", sm: "flex-end" },
         }}>
-            <IconButton color="primary" onClick={onDownload}>
-                <DownloadIcon />
+            {progress !== undefined ? (
+                <Stack direction="row" spacing={1} sx={{ alignItems: "center", minWidth: 90, justifyContent: { xs: "flex-start", md: "flex-end" } }}>
+                    <CircularProgress variant="determinate" value={progress} size={22} />
+                    <Typography variant="caption">{Math.round(progress)}%</Typography>
+                </Stack>
+            ) : (
+                <IconButton color="primary" onClick={onDownload}>
+                    <DownloadIcon />
+                </IconButton>
+            )}
+
+            <IconButton color="primary" onClick={onInfo} aria-label="transfer info">
+                <InfoOutlinedIcon />
             </IconButton>
 
-            {/* todo fix it to be less visible and do the same for the mobile version */}
             {msg.auth_key && (
                 <IconButton color="primary" onClick={onDelete}>
                     <DeleteIcon />
@@ -184,7 +226,7 @@ export default function SavedTransfer() {
 
     const { exportKey } = useAuth();
 
-    const { success, error } = useNotification();
+    const { success, warning, error } = useNotification();
     const [messages, setMessages] = useState<Array<any>>([]);
     const [downloadProgress, setDownloadProgress] = useState<Record<string, number>>({});
     const [loading, setLoading] = useState(true);
@@ -196,6 +238,40 @@ export default function SavedTransfer() {
     const [transferInput, setTransferInput] = useState("");
     const [passwordInput, setPasswordInput] = useState("");
     const [addingTransfer, setAddingTransfer] = useState(false);
+
+    const [openInfoDialog, setOpenInfoDialog] = useState(false);
+    const [selectedMessage, setSelectedMessage] = useState<any>(null);
+    const [showPassword, setShowPassword] = useState(false);
+
+    function buildTransferLink(msg: any) {
+        return `https://localhost/link-transfer/${msg.messageData.id}#${msg.password}`;
+    }
+
+    const handleOpenInfoDialog = (message: any) => {
+        setSelectedMessage(message);
+        setOpenInfoDialog(true);
+    };
+
+    const handleCloseInfoDialog = () => {
+        setOpenInfoDialog(false);
+        setSelectedMessage(null);
+        setShowPassword(false);
+    };
+
+    const handleCopyLink = async () => {
+        if (!selectedMessage) return;
+        try {
+            await navigator.clipboard.writeText(buildTransferLink(selectedMessage));
+            success("Link copied to clipboard!");
+        } catch (e) {
+            error("Failed to copy link");
+        }
+    };
+
+    const handleChangePassword = () => {
+        console.log("Change password not implemented yet");
+        warning("Change password not implemented yet");
+    };
 
     async function handleAddTransfer() {
         try {
@@ -310,6 +386,7 @@ export default function SavedTransfer() {
                     tmpMessagesData.push({
                         ...result,
                         auth_key: msg.auth_key,
+                        password: msg.password,
                     });
                 } catch (e) {
                     await deleteSavedTransferAPI(msg.id);
@@ -375,6 +452,7 @@ export default function SavedTransfer() {
                                 {messages.map((msg) => (
                                     <ListItem
                                         key={msg.messageData.id}
+                                        onClick={() => handleOpenInfoDialog(msg)}
                                         sx={{
                                             width: "100%",
                                             borderRadius: 3,
@@ -387,6 +465,7 @@ export default function SavedTransfer() {
                                             backgroundColor: "#ffffff",
                                             boxShadow: "0 12px 28px rgba(83, 24, 60, 0.06)",
                                             gap: { xs: 1.25, md: 2 },
+                                            cursor: "pointer",
                                             "&:hover": { backgroundColor: "#fff7fb" }
                                         }}
                                     >
@@ -441,12 +520,16 @@ export default function SavedTransfer() {
                                         />
 
 
-                                        <Box sx={{ width: { xs: "100%", md: "auto" }, display: "flex", justifyContent: { xs: "flex-start", md: "flex-end" } }}>
+                                        <Box
+                                            sx={{ width: { xs: "100%", md: "auto" }, display: "flex", justifyContent: { xs: "flex-start", md: "flex-end" } }}
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
                                             <DownloadSection
                                                 msg={msg}
                                                 progress={downloadProgress[msg.messageData.id]}
                                                 onDownload={() => downloadFile(msg)}
                                                 onDelete={() => handleClickOpenDialog(msg)}
+                                                onInfo={() => handleOpenInfoDialog(msg)}
                                                 compact={compactInbox}
                                             />
                                         </Box>
@@ -556,6 +639,121 @@ export default function SavedTransfer() {
                         </Button>
                     </DialogActions>
 
+                </Dialog>
+
+                {/* Transfer Info Dialog */}
+                <Dialog
+                    open={openInfoDialog}
+                    onClose={handleCloseInfoDialog}
+                    fullWidth
+                    maxWidth="xs"
+                >
+                    <DialogTitle sx={{ pr: 6 }}>
+                        Transfer Info
+                        <IconButton
+                            onClick={handleCloseInfoDialog}
+                            sx={{ position: "absolute", right: 8, top: 8 }}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    </DialogTitle>
+
+                    <DialogContent>
+                        {selectedMessage && (
+                            <Stack spacing={3} sx={{ pt: 1, alignItems: "center" }}>
+                                <Typography sx={{ fontWeight: 600, textAlign: "center", overflowWrap: "anywhere" }}>
+                                    {selectedMessage.messageData.filename}
+                                </Typography>
+
+                                <Box
+                                    sx={{
+                                        p: 2,
+                                        borderRadius: 3,
+                                        border: "1px solid #f1e7ee",
+                                        backgroundColor: "#ffffff",
+                                    }}
+                                >
+                                    <QRCodeSVG value={buildTransferLink(selectedMessage)} size={180} />
+                                </Box>
+
+                                <TextField
+                                    fullWidth
+                                    label="Transfer link"
+                                    value={buildTransferLink(selectedMessage)}
+                                    slotProps={{
+                                        input: {
+                                            readOnly: true,
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <LinkIcon />
+                                                </InputAdornment>
+                                            ),
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <IconButton onClick={handleCopyLink} edge="end" size="small">
+                                                        <ContentCopyIcon fontSize="small" />
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            ),
+                                        }
+                                    }}
+                                />
+
+                                <TextField
+                                    fullWidth
+                                    label="Password"
+                                    type={showPassword ? "text" : "password"}
+                                    value={selectedMessage.password ?? ""}
+                                    slotProps={{
+                                        input: {
+                                            readOnly: true,
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <KeyIcon />
+                                                </InputAdornment>
+                                            ),
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <IconButton onClick={() => setShowPassword((p) => !p)} edge="end" size="small">
+                                                        {showPassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            ),
+                                        }
+                                    }}
+                                />
+                            </Stack>
+                        )}
+                    </DialogContent>
+
+                    <DialogActions sx={{ px: 3, pb: 3, flexWrap: "wrap", gap: 1 }}>
+                        <Button
+                            onClick={handleChangePassword}
+                            startIcon={<LockResetIcon />}
+                        >
+                            Change password
+                        </Button>
+
+                        <Button
+                            color="error"
+                            startIcon={<DeleteIcon />}
+                            onClick={() => {
+                                const msgToDelete = selectedMessage;
+                                handleCloseInfoDialog();
+                                handleClickOpenDialog(msgToDelete);
+                            }}
+                        >
+                            Delete
+                        </Button>
+
+                        <Button
+                            variant="contained"
+                            startIcon={<DownloadIcon />}
+                            onClick={() => downloadFile(selectedMessage)}
+                        >
+                            Download
+                        </Button>
+                    </DialogActions>
                 </Dialog>
 
                 {/* Delete Confirmation Dialog */}

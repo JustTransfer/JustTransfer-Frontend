@@ -17,6 +17,7 @@
     "@serenity-kit/opaque": "^1.1.0",
     "js-base64": "^3.8.0",
     "libsodium-wrappers-sumo": "^0.8.4",
+    "qrcode.react": "^4.2.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-markdown": "^10.1.0",
