@@ -234,7 +234,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
         }
 
         // Get the email of the receiver if provided
-        data.receiver_email = formData.get("receiver") as string;
+        data.receiver_email = (formData.get("receiver") as string) || undefined;
 
         try {
             setIsSending(true);
