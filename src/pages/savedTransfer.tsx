@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -31,7 +32,6 @@ import KeyIcon from "@mui/icons-material/Key";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from '@mui/icons-material/Add';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import LockResetIcon from '@mui/icons-material/LockReset';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 
 import { useNotification } from "../hooks/useNotificationContext";
@@ -42,7 +42,6 @@ import { getSavedTransfers, addSavedTransfer } from "../handlers/crypto";
 import { deleteLinkMessageAPI } from "../handlers/api_link";
 import { deleteSavedTransferAPI } from "../handlers/api";
 import { formatSize, formatCreated, relativeExpire, expireColor, genericDownloadFile } from "../handlers/utils";
-import TransferQrDialog from "../components/TransferQrDialog";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
@@ -198,6 +197,7 @@ function parseTransferInput(input: string, password: string) {
 
 export default function SavedTransfer() {
 
+    const navigate = useNavigate();
     const theme = useTheme();
     const compactInbox = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -223,7 +223,7 @@ export default function SavedTransfer() {
 
     const { exportKey } = useAuth();
 
-    const { success, warning, error } = useNotification();
+    const { success, error } = useNotification();
     const [messages, setMessages] = useState<Array<any>>([]);
     const [downloadProgress, setDownloadProgress] = useState<Record<string, number>>({});
     const [loading, setLoading] = useState(true);
@@ -235,24 +235,6 @@ export default function SavedTransfer() {
     const [transferInput, setTransferInput] = useState("");
     const [passwordInput, setPasswordInput] = useState("");
     const [addingTransfer, setAddingTransfer] = useState(false);
-
-    const [openInfoDialog, setOpenInfoDialog] = useState(false);
-    const [selectedMessage, setSelectedMessage] = useState<any>(null);
-
-    const handleOpenInfoDialog = (message: any) => {
-        setSelectedMessage(message);
-        setOpenInfoDialog(true);
-    };
-
-    const handleCloseInfoDialog = () => {
-        setOpenInfoDialog(false);
-        setSelectedMessage(null);
-    };
-
-    const handleChangePassword = () => {
-        console.log("Change password not implemented yet");
-        warning("Change password not implemented yet");
-    };
 
     async function handleAddTransfer() {
         try {
@@ -433,7 +415,7 @@ export default function SavedTransfer() {
                                 {messages.map((msg) => (
                                     <ListItem
                                         key={msg.messageData.id}
-                                        onClick={() => handleOpenInfoDialog(msg)}
+                                        onClick={() => navigate(`/transfers/${msg.messageData.id}`)}
                                         sx={{
                                             width: "100%",
                                             borderRadius: 3,
@@ -510,7 +492,7 @@ export default function SavedTransfer() {
                                                 progress={downloadProgress[msg.messageData.id]}
                                                 onDownload={() => downloadFile(msg)}
                                                 onDelete={() => handleClickOpenDialog(msg)}
-                                                onInfo={() => handleOpenInfoDialog(msg)}
+                                                onInfo={() => navigate(`/transfers/${msg.messageData.id}`)}
                                                 compact={compactInbox}
                                             />
                                         </Box>
@@ -621,45 +603,6 @@ export default function SavedTransfer() {
                     </DialogActions>
 
                 </Dialog>
-
-                {/* Transfer Info Dialog */}
-                {selectedMessage && (
-                    <TransferQrDialog
-                        open={openInfoDialog}
-                        onClose={handleCloseInfoDialog}
-                        title="Transfer Info"
-                        transferId={selectedMessage.messageData.id}
-                        password={selectedMessage.password}
-                        filename={selectedMessage.messageData.filename}
-                        actions={
-                            <>
-                                <Button onClick={handleChangePassword} startIcon={<LockResetIcon />}>
-                                    Change password
-                                </Button>
-
-                                <Button
-                                    color="error"
-                                    startIcon={<DeleteIcon />}
-                                    onClick={() => {
-                                        const msgToDelete = selectedMessage;
-                                        handleCloseInfoDialog();
-                                        handleClickOpenDialog(msgToDelete);
-                                    }}
-                                >
-                                    Delete
-                                </Button>
-
-                                <Button
-                                    variant="contained"
-                                    startIcon={<DownloadIcon />}
-                                    onClick={() => downloadFile(selectedMessage)}
-                                >
-                                    Download
-                                </Button>
-                            </>
-                        }
-                    />
-                )}
 
                 {/* Delete Confirmation Dialog */}
                 <Dialog

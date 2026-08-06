@@ -18,6 +18,7 @@ import Logout from './pages/logout';
 
 import NewTransfer from './pages/new-transfer';
 import SavedTransfers from './pages/savedTransfer';
+import TransferDetails from './pages/transferDetails';
 import AccountPage from './pages/account';
 import PricingPage from './pages/pricing';
 import Error from './pages/error';
@@ -62,6 +63,12 @@ function App() {
             <Route path="/transfers" element={
               <ProtectedRoute>
                 <SavedTransfers />
+              </ProtectedRoute>}
+            />
+
+            <Route path="/transfers/:id" element={
+              <ProtectedRoute>
+                <TransferDetails />
               </ProtectedRoute>}
             />
 

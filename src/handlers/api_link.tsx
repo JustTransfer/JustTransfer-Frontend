@@ -96,6 +96,24 @@ async function sendLinkMessageAPI(id: string, client_registration_finish: string
     return (await response.json());
 }
 
+async function updateLinkMessageAPI(id: string, auth_key: string, max_downloads: number, lifetime: number) {
+
+    const response = await apiFetch(`${apiUrl}/link/message/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            auth_key,
+            max_downloads,
+            lifetime,
+        }),
+    },
+    );
+
+    return response.status;
+}
+
 async function deleteLinkMessageAPI(id: string, auth_key: string) {
 
     const response = await apiFetch(`${apiUrl}/link/message/${id}`, {
@@ -266,4 +284,4 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
     return 0;
 }
 
-export { postLinkMessageLoginStartAPI, postLinkMessageLoginEndAPI, getLinkMessageMetadataAPI, getLinkMessageAPI, sendLinkMessageStartAPI, sendLinkMessageAPI, deleteLinkMessageAPI, finishUploadFileToS3Link, uploadFileToS3, downloadFileFromS3 };
+export { postLinkMessageLoginStartAPI, postLinkMessageLoginEndAPI, getLinkMessageMetadataAPI, getLinkMessageAPI, sendLinkMessageStartAPI, sendLinkMessageAPI, updateLinkMessageAPI, deleteLinkMessageAPI, finishUploadFileToS3Link, uploadFileToS3, downloadFileFromS3 };

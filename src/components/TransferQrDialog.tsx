@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -23,6 +23,7 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { QRCodeSVG } from "qrcode.react";
 
 import { useNotification } from "../hooks/useNotificationContext";
+import { frontendUrl } from "../handlers/config";
 
 type Props = {
     open: boolean;
@@ -32,8 +33,6 @@ type Props = {
     title?: string;
     filename?: string;
     baseUrl?: string;
-    /** Optional custom action buttons. If omitted, a default "Close" button is shown. */
-    actions?: ReactNode;
 };
 
 export default function TransferQrDialog({
@@ -43,8 +42,6 @@ export default function TransferQrDialog({
     password,
     title = "Transfer link",
     filename,
-    baseUrl = "https://localhost/link-transfer",
-    actions,
 }: Props) {
 
     const { success, error } = useNotification();
@@ -61,8 +58,8 @@ export default function TransferQrDialog({
     }, [open]);
 
     const link = includePasswordInLink && password
-        ? `${baseUrl}/${transferId}#${password}`
-        : `${baseUrl}/${transferId}`;
+        ? `${frontendUrl}/link-transfer/${transferId}#${password}`
+        : `${frontendUrl}/link-transfer/${transferId}`;
 
     const handleCopyLink = async () => {
         try {
@@ -210,11 +207,9 @@ export default function TransferQrDialog({
             </DialogContent>
 
             <DialogActions sx={{ px: 3, pb: 3, flexWrap: "wrap", gap: 1 }}>
-                {actions ?? (
-                    <Button onClick={onClose} fullWidth variant="outlined" sx={{ borderRadius: 2 }}>
-                        Close
-                    </Button>
-                )}
+                <Button onClick={onClose} fullWidth variant="outlined" sx={{ borderRadius: 2 }}>
+                    Close
+                </Button>
             </DialogActions>
         </Dialog>
     );
