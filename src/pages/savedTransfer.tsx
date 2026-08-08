@@ -57,118 +57,59 @@ type Props = {
 
 function DownloadSection({ msg, progress, onDownload, onDelete, onInfo, compact = false }: Props) {
 
-    const downloadsLeft = msg.messageData.max_downloads - msg.messageData.number_downloads;
+    const tampered = msg.messageData.signatureValid === false;
+    const downloadsLeft = tampered ? 0 : msg.messageData.max_downloads - msg.messageData.number_downloads;
+    const limitReached = !tampered && downloadsLeft <= 0;
 
-    // Invalid signature -> block download
-    if (msg.messageData.signatureValid === false) {
-        return (
-            <Stack
-                direction="row"
-                spacing={1}
-                sx={{
-                    width: "100%",
-                    alignItems: "center",
-                    justifyContent: compact ? "flex-start" : { xs: "flex-start", sm: "flex-end" },
-                }}
-            >
-                <Chip color="error" label="Tampered" size={compact ? "small" : "medium"} />
+    const canDownload = !tampered && !limitReached;
+    const canInfo = !tampered;
+    const canDelete = !!msg.auth_key;
 
-                <IconButton onClick={onInfo} size={compact ? "small" : "medium"} aria-label="transfer info">
-                    <InfoOutlinedIcon fontSize={compact ? "small" : "medium"} />
-                </IconButton>
+    const iconSize = compact ? "small" : "medium";
 
-                <IconButton color="primary" onClick={onDelete} size={compact ? "small" : "medium"} aria-label="delete message">
-                    <DeleteIcon fontSize={compact ? "small" : "medium"} />
-                </IconButton>
-            </Stack>
-        );
-    }
+    const downloadControl = progress !== undefined ? (
+        <Stack direction="row" spacing={1} sx={{ alignItems: "center", minWidth: compact ? undefined : 90, justifyContent: { xs: "flex-start", md: "flex-end" } }}>
+            <CircularProgress variant="determinate" value={progress} size={compact ? 20 : 22} />
+            <Typography variant="caption">{Math.round(progress)}%</Typography>
+        </Stack>
+    ) : compact ? (
+        <Button
+            fullWidth
+            variant="contained"
+            size="small"
+            startIcon={<DownloadIcon />}
+            onClick={onDownload}
+            disabled={!canDownload}
+            sx={{ flex: 1 }}
+        >
+            Download
+        </Button>
+    ) : (
+        <IconButton color="primary" onClick={onDownload} disabled={!canDownload} aria-label="download">
+            <DownloadIcon fontSize={iconSize} />
+        </IconButton>
+    );
 
-    // Already fully used
-    if (downloadsLeft <= 0) {
-        return (
-            <Stack
-                direction="row"
-                spacing={1}
-                sx={{
-                    width: compact ? "100%" : "auto",
-                    alignItems: "center",
-                    justifyContent: compact ? "space-between" : "flex-end",
-                }}
-            >
-                <Chip size={compact ? "small" : "medium"} label="Limit reached" />
-
-                <IconButton onClick={onInfo} size={compact ? "small" : "medium"} aria-label="transfer info">
-                    <InfoOutlinedIcon fontSize={compact ? "small" : "medium"} />
-                </IconButton>
-            </Stack>
-        );
-    }
-
-    // Compact (mobile) ready/downloading state
-    if (compact) {
-        return (
-            <Stack direction="row" spacing={1} sx={{ width: "100%", alignItems: "center" }}>
-                {progress !== undefined ? (
-                    <Stack direction="row" spacing={1} sx={{ flex: 1, alignItems: "center" }}>
-                        <CircularProgress variant="determinate" value={progress} size={20} />
-                        <Typography variant="caption">{Math.round(progress)}%</Typography>
-                    </Stack>
-                ) : (
-                    <Button
-                        fullWidth
-                        variant="contained"
-                        size="small"
-                        startIcon={<DownloadIcon />}
-                        onClick={onDownload}
-                        sx={{ flex: 1 }}
-                    >
-                        Download
-                    </Button>
-                )}
-
-                <IconButton onClick={onInfo} size="small" aria-label="transfer info">
-                    <InfoOutlinedIcon fontSize="small" />
-                </IconButton>
-
-                <IconButton color="primary" onClick={onDelete} size="small" aria-label="delete message">
-                    <DeleteIcon fontSize="small" />
-                </IconButton>
-            </Stack>
-        );
-    }
-
-    // Desktop ready/downloading state
     return (
-        <Box sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            alignItems: "center",
-            gap: 2,
-            width: "100%",
-            justifyContent: { xs: "flex-start", sm: "flex-end" },
-        }}>
-            {progress !== undefined ? (
-                <Stack direction="row" spacing={1} sx={{ alignItems: "center", minWidth: 90, justifyContent: { xs: "flex-start", md: "flex-end" } }}>
-                    <CircularProgress variant="determinate" value={progress} size={22} />
-                    <Typography variant="caption">{Math.round(progress)}%</Typography>
-                </Stack>
-            ) : (
-                <IconButton color="primary" onClick={onDownload}>
-                    <DownloadIcon />
-                </IconButton>
-            )}
+        <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+                width: compact ? "100%" : "auto",
+                alignItems: "center",
+                justifyContent: compact ? "flex-start" : { xs: "flex-start", sm: "flex-end" },
+            }}
+        >
+            {downloadControl}
 
-            <IconButton color="primary" onClick={onInfo} aria-label="transfer info">
-                <InfoOutlinedIcon />
+            <IconButton onClick={onInfo} disabled={!canInfo} size={iconSize} aria-label="transfer info">
+                <InfoOutlinedIcon fontSize={iconSize} />
             </IconButton>
 
-            {msg.auth_key && (
-                <IconButton color="primary" onClick={onDelete}>
-                    <DeleteIcon />
-                </IconButton>
-            )}
-        </Box>
+            <IconButton color="primary" onClick={onDelete} disabled={!canDelete} size={iconSize} aria-label="delete message">
+                <DeleteIcon fontSize={iconSize} />
+            </IconButton>
+        </Stack>
     );
 }
 
@@ -352,7 +293,19 @@ export default function SavedTransfer() {
                         password: msg.password,
                     });
                 } catch (e) {
-                    await deleteSavedTransferAPI(msg.id);
+                    if (e instanceof Error && e.message === errors.errorFailureMACVerification) {
+
+                        tmpMessagesData.push({
+                            messageData: {
+                                id: msg.transfer_id,
+                                signatureValid: false,
+                            },
+                            auth_key: msg.auth_key,
+                            password: msg.password,
+                        });
+                    } else {
+                        await deleteSavedTransferAPI(msg.id);
+                    }
                 }
             }
 
@@ -412,92 +365,101 @@ export default function SavedTransfer() {
                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", pt: 3 }}>
                         {messages.length > 0 && !loading ? (
                             <Stack spacing={1} sx={{ width: "100%" }}>
-                                {messages.map((msg) => (
-                                    <ListItem
-                                        key={msg.messageData.id}
-                                        onClick={() => navigate(`/transfers/${msg.messageData.id}`)}
-                                        sx={{
-                                            width: "100%",
-                                            borderRadius: 3,
-                                            px: { xs: 1.5, md: 3 },
-                                            py: { xs: 1.5, md: 1.6 },
-                                            display: "flex",
-                                            alignItems: { xs: "stretch", md: "center" },
-                                            flexDirection: { xs: "column", md: "row" },
-                                            border: "1px solid #f1e7ee",
-                                            backgroundColor: "#ffffff",
-                                            boxShadow: "0 12px 28px rgba(83, 24, 60, 0.06)",
-                                            gap: { xs: 1.25, md: 2 },
-                                            cursor: "pointer",
-                                            "&:hover": { backgroundColor: "#fff7fb" }
-                                        }}
-                                    >
-                                        <ListItemIcon sx={{ display: { xs: "none", sm: "flex" }, minWidth: { xs: 0, md: 40 }, alignSelf: { xs: "flex-start", md: "center" }, mt: { xs: 0.25, md: 0 } }}>
-                                            {msg.signatureValid === false && (
-                                                <ErrorOutlineOutlinedIcon color="error" />
-                                            ) || (
-                                                    <InsertDriveFileIcon color="primary" />
-                                                )
+                                {messages.map((msg) => {
 
-                                            }
-                                        </ListItemIcon>
+                                    const tampered = msg.messageData.signatureValid === false;
 
-                                        <ListItemText
-                                            sx={{
-                                                minWidth: 0,
-                                                width: "100%",
-                                                mr: { xs: 0, md: 2 },
+                                    return (
+                                        <ListItem
+                                            key={msg.messageData.id}
+                                            onClick={() => {
+                                                if (!tampered) {
+                                                    navigate(`/transfers/${msg.messageData.id}`);
+                                                } else {
+                                                    error("This transfer has been tampered and cannot be opened.");
+                                                }
                                             }}
-                                            primary={
-                                                <Stack spacing={compactInbox ? 0.75 : 1} sx={{ width: "100%" }}>
-                                                    <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ alignItems: { xs: "flex-start", sm: "center" }, minWidth: 0 }}>
-                                                        <PersonIcon sx={{ fontSize: 16, opacity: 0.7 }} />
-                                                        <Typography variant="caption" color="text.secondary" sx={{ minWidth: 0, overflowWrap: "anywhere", lineHeight: 1.4 }}>
-                                                            From <b>{msg.sender ?? "Unknown"}</b> • Sended {formatCreated(msg.messageData.creation_time)}
-                                                        </Typography>
-                                                    </Stack>
-
-                                                    <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ alignItems: { xs: "flex-start", sm: "center" }, minWidth: 0 }}>
-                                                        <Typography sx={{ fontWeight: 600, overflowWrap: "anywhere", fontSize: compactInbox ? "0.98rem" : undefined, lineHeight: 1.35 }}>
-                                                            {msg.messageData.filename}
-                                                        </Typography>
-                                                        <Chip label={formatSize(msg.messageData.file_size)} size="small" />
-                                                    </Stack>
-
-                                                    <Stack direction={compactInbox ? "column" : "row"} spacing={1} sx={{ mt: 0, alignItems: "flex-start", flexWrap: "wrap", rowGap: 1 }}>
-                                                        <Chip
-                                                            size="small"
-                                                            variant={expireColor(msg.messageData) === "error.main" ? "filled" : expireColor(msg.messageData) === "warning.main" ? "filled" : "outlined"}
-                                                            label={relativeExpire(msg.messageData)}
-                                                            color={expireColor(msg.messageData) === "error.main" ? "error" : expireColor(msg.messageData) === "warning.main" ? "warning" : "default"}
-                                                        />
-                                                        <Chip
-                                                            size="small"
-                                                            variant={(msg.messageData.max_downloads - msg.messageData.number_downloads) <= 1 ? "filled" : "outlined"}
-                                                            label={`${msg.messageData.max_downloads - msg.messageData.number_downloads} downloads remaining`}
-                                                            color={(msg.messageData.max_downloads - msg.messageData.number_downloads) <= 1 ? "warning" : "default"}
-                                                        />
-                                                    </Stack>
-                                                </Stack>
-                                            }
-                                        />
-
-
-                                        <Box
-                                            sx={{ width: { xs: "100%", md: "auto" }, display: "flex", justifyContent: { xs: "flex-start", md: "flex-end" } }}
-                                            onClick={(e) => e.stopPropagation()}
+                                            sx={{
+                                                width: "100%",
+                                                borderRadius: 3,
+                                                px: { xs: 1.5, md: 3 },
+                                                py: { xs: 1.5, md: 1.6 },
+                                                display: "flex",
+                                                alignItems: { xs: "stretch", md: "center" },
+                                                flexDirection: { xs: "column", md: "row" },
+                                                border: "1px solid #f1e7ee",
+                                                backgroundColor: "#ffffff",
+                                                boxShadow: "0 12px 28px rgba(83, 24, 60, 0.06)",
+                                                gap: { xs: 1.25, md: 2 },
+                                                cursor: "pointer",
+                                                "&:hover": { backgroundColor: "#fff7fb" }
+                                            }}
                                         >
-                                            <DownloadSection
-                                                msg={msg}
-                                                progress={downloadProgress[msg.messageData.id]}
-                                                onDownload={() => downloadFile(msg)}
-                                                onDelete={() => handleClickOpenDialog(msg)}
-                                                onInfo={() => navigate(`/transfers/${msg.messageData.id}`)}
-                                                compact={compactInbox}
+                                            <ListItemIcon sx={{ display: { xs: "none", sm: "flex" }, minWidth: { xs: 0, md: 40 }, alignSelf: { xs: "flex-start", md: "center" }, mt: { xs: 0.25, md: 0 } }}>
+                                                {tampered ? (
+                                                    <ErrorOutlineOutlinedIcon color="error" />
+                                                ) : (
+                                                    <InsertDriveFileIcon color="primary" />
+                                                )}
+                                            </ListItemIcon>
+
+                                            <ListItemText
+                                                sx={{ minWidth: 0, width: "100%", mr: { xs: 0, md: 2 } }}
+                                                primary={
+                                                    <Stack spacing={compactInbox ? 0.75 : 1} sx={{ width: "100%" }}>
+                                                        <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ alignItems: { xs: "flex-start", sm: "center" }, minWidth: 0 }}>
+                                                            <PersonIcon sx={{ fontSize: 16, opacity: 0.7 }} />
+                                                            <Typography variant="caption" color="text.secondary" sx={{ minWidth: 0, overflowWrap: "anywhere", lineHeight: 1.4 }}>
+                                                                From <b>{msg.sender ?? "Unknown"}</b> • Sended{" "}
+                                                                {tampered ? "Unknown" : formatCreated(msg.messageData.creation_time)}
+                                                            </Typography>
+                                                        </Stack>
+
+                                                        <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ alignItems: { xs: "flex-start", sm: "center" }, minWidth: 0 }}>
+                                                            <Typography sx={{ fontWeight: 600, overflowWrap: "anywhere", fontSize: compactInbox ? "0.98rem" : undefined, lineHeight: 1.35 }}>
+                                                                {tampered ? "Unknown file" : msg.messageData.filename}
+                                                            </Typography>
+                                                            <Chip label={tampered ? "Unknown size" : formatSize(msg.messageData.file_size)} size="small" />
+                                                        </Stack>
+
+                                                        <Stack direction={compactInbox ? "column" : "row"} spacing={1} sx={{ mt: 0, alignItems: "flex-start", flexWrap: "wrap", rowGap: 1 }}>
+                                                            {tampered ? (
+                                                                <Chip size="small" color="error" label="Tampered" />
+                                                            ) : (
+                                                                <>
+                                                                    <Chip
+                                                                        size="small"
+                                                                        variant={expireColor(msg.messageData) === "error.main" ? "filled" : expireColor(msg.messageData) === "warning.main" ? "filled" : "outlined"}
+                                                                        label={relativeExpire(msg.messageData)}
+                                                                        color={expireColor(msg.messageData) === "error.main" ? "error" : expireColor(msg.messageData) === "warning.main" ? "warning" : "default"}
+                                                                    />
+                                                                    <Chip
+                                                                        size="small"
+                                                                        variant={(msg.messageData.max_downloads - msg.messageData.number_downloads) <= 1 ? "filled" : "outlined"}
+                                                                        label={`${msg.messageData.max_downloads - msg.messageData.number_downloads} downloads remaining`}
+                                                                        color={(msg.messageData.max_downloads - msg.messageData.number_downloads) <= 1 ? "warning" : "default"}
+                                                                    />
+                                                                </>
+                                                            )}
+                                                        </Stack>
+                                                    </Stack>
+                                                }
                                             />
-                                        </Box>
-                                    </ListItem>
-                                ))}
+
+
+                                            <Box sx={{ width: { xs: "100%", md: "auto" }, display: "flex", justifyContent: { xs: "flex-start", md: "flex-end" } }} onClick={(e) => e.stopPropagation()}>
+                                                <DownloadSection
+                                                    msg={msg}
+                                                    progress={downloadProgress[msg.messageData.id]}
+                                                    onDownload={() => downloadFile(msg)}
+                                                    onDelete={() => handleClickOpenDialog(msg)}
+                                                    onInfo={() => navigate(`/transfers/${msg.messageData.id}`)}
+                                                    compact={compactInbox}
+                                                />
+                                            </Box>
+                                        </ListItem>
+                                    );
+                                })}
                             </Stack>
 
                         ) : (
