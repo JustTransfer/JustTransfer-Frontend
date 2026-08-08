@@ -62,7 +62,7 @@ function DownloadSection({ msg, progress, onDownload, onDelete, onInfo, compact 
     const limitReached = !tampered && downloadsLeft <= 0;
 
     const canDownload = !tampered && !limitReached;
-    const canInfo = !tampered;
+    const canInfo = !tampered && !limitReached;
     const canDelete = !!msg.auth_key;
 
     const iconSize = compact ? "small" : "medium";
@@ -373,10 +373,12 @@ export default function SavedTransfer() {
                                         <ListItem
                                             key={msg.messageData.id}
                                             onClick={() => {
-                                                if (!tampered) {
+                                                if (!tampered && msg.messageData.max_downloads - msg.messageData.number_downloads > 0) {
                                                     navigate(`/transfers/${msg.messageData.id}`);
+                                                } else if (tampered) {
+                                                    error("This transfer has been tampered with and cannot be accessed.");
                                                 } else {
-                                                    error("This transfer has been tampered and cannot be opened.");
+                                                    error("This transfer has reached its download limit.");
                                                 }
                                             }}
                                             sx={{
