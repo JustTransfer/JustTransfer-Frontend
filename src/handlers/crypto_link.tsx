@@ -2,7 +2,7 @@ import { Base64 } from 'js-base64';
 
 import { getSodium, getOpaque } from "./utils";
 
-import { uploadFileToS3, downloadFileFromS3 } from "./api_link";
+import { uploadFileToS3, downloadFileFromS3, updateLinkMessageAPI } from "./api_link";
 import { postLinkMessageLoginStartAPI, postLinkMessageLoginEndAPI, getLinkMessageMetadataAPI, getLinkMessageAPI, sendLinkMessageStartAPI, sendLinkMessageAPI, finishUploadFileToS3Link } from "./api_link";
 
 import * as errors from "../messages/errors";
@@ -45,7 +45,7 @@ async function getOneLinkMessageMetadata(password: string, message_id: string) {
 
     // Get the message metadata
     const result2 = await getLinkMessageMetadataAPI(message_id);
-    let { id, c_enc_key, nonce_enc_key, c_mac_key, nonce_mac_key, cfilename, nonce_filename, file_id, creation_time, mac, lifetime, max_downloads, number_downloads, file_size, chunk_size } = result2.message;
+    let { id, c_enc_key, nonce_enc_key, c_mac_key, nonce_mac_key, cfilename, nonce_filename, file_id, max_downloads, lifetime, creation_time, hash_file, mac, number_downloads, file_size, chunk_size } = result2.message;
 
     const sodium = await getSodium();
 
@@ -87,7 +87,7 @@ async function getOneLinkMessageMetadata(password: string, message_id: string) {
         MacKey: Base64.fromUint8Array(MacKey, true),
         message: "Message metadata retrieved successfully!",
         messageData: {
-            id, cfilename, filename, nonce_filename, message_id, file_id, creation_time, mac, lifetime, max_downloads, number_downloads, file_size, chunk_size
+            id, cfilename, filename, nonce_filename, message_id, file_id, creation_time, hash_file, mac, lifetime, max_downloads, number_downloads, file_size, chunk_size
         }
     };
 }
@@ -341,4 +341,62 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
     };
 }
 
-export { getOneLinkMessageMetadata, getOneLinkMessage, sendMessageLink };
+///
+/// Update Link Message
+///
+
+async function updateMessageLink(id: string, auth_key_b64: string, AegisKey_b64: string, MacKey_b64: string, filename: string, maxDownloads: number, lifetimeDays: number, fileHash_b64: string, message_file_id: string, chunkSize: number, timestamp: string, file_size: number) {
+
+    const sodium = await getSodium();
+
+    const AegisKey = Base64.toUint8Array(AegisKey_b64);
+    const MacKey = Base64.toUint8Array(MacKey_b64);
+
+    // Construct the auth data for the message
+    const auth_data = {
+        max_downloads: maxDownloads,
+        lifetime: lifetimeDays,
+        creation_time: timestamp,
+        file_size: file_size,
+        chunk_size: chunkSize,
+    };
+    const auth_data_encoded = new TextEncoder().encode(JSON.stringify(auth_data));
+
+    // Authenticate the auth data and encrypt the filename
+    const nonce_filename = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
+    const cfilename = sodium.crypto_aead_aegis256_encrypt(new TextEncoder().encode(filename), auth_data_encoded, null, nonce_filename, AegisKey);
+
+    const cfilename_b64 = Base64.fromUint8Array(cfilename, true);
+    const nonce_filename_b64 = Base64.fromUint8Array(nonce_filename, true);
+
+    const full_auth_data = {
+        cfilename: cfilename,
+        nonce_filename: nonce_filename,
+        file_id: message_file_id,
+        max_downloads: maxDownloads,
+        lifetime: lifetimeDays,
+        creation_time: timestamp,
+        file_size: file_size,
+        chunk_size: chunkSize,
+    };
+
+    // Init the global MAC
+    let mac_state = sodium.crypto_auth_hmacsha512256_init(MacKey);
+    sodium.crypto_auth_hmacsha512256_update(mac_state, new TextEncoder().encode(JSON.stringify(full_auth_data)));
+    sodium.crypto_auth_hmacsha512256_update(mac_state, Base64.toUint8Array(fileHash_b64));
+    const mac = sodium.crypto_auth_hmacsha512256_final(mac_state);
+    const mac_b64 = Base64.fromUint8Array(mac, true);
+
+    await updateLinkMessageAPI(id, auth_key_b64, cfilename_b64, nonce_filename_b64, maxDownloads, lifetimeDays, mac_b64);
+
+    return {
+        nonce_filename: nonce_filename,
+        cfilename: cfilename,
+        max_downloads: maxDownloads,
+        lifetime: lifetimeDays,
+        mac: mac,
+        message: "Message updated successfully!",
+    }
+}
+
+export { getOneLinkMessageMetadata, getOneLinkMessage, sendMessageLink, updateMessageLink };

@@ -42,9 +42,9 @@ import { useNotification } from "../hooks/useNotificationContext";
 import { useServerConfig } from "../hooks/useServerConfig";
 import { useAuth } from "../hooks/useAuth";
 import Layout from "../components/layout";
-import { getOneLinkMessageMetadata, getOneLinkMessage } from "../handlers/crypto_link";
+import { getOneLinkMessageMetadata, getOneLinkMessage, updateMessageLink } from "../handlers/crypto_link";
 import { getSavedTransfers } from "../handlers/crypto";
-import { updateLinkMessageAPI, deleteLinkMessageAPI } from "../handlers/api_link";
+import { deleteLinkMessageAPI } from "../handlers/api_link";
 import { formatSize, formatCreated, relativeExpire, expireColor, genericDownloadFile } from "../handlers/utils";
 import { frontendUrl } from "../handlers/config";
 
@@ -183,7 +183,11 @@ export default function TransferDetails() {
 
         setSaving(true);
         try {
-            await updateLinkMessageAPI(message.messageData.id, message.auth_key, maxDownloads, lifetimeDays);
+            // await updateLinkMessageAPI(message.messageData.id, message.auth_key, message.cfilename, message.nonce_filename, maxDownloads, lifetimeDays);
+
+            console.log("Updating transfer with values:", message);
+
+            const { nonce_filename, cfilename, mac } = await updateMessageLink(message.messageData.id, message.auth_key, message.AegisKey, message.MacKey, message.messageData.filename, maxDownloads, lifetimeDays, message.messageData.hash_file, message.messageData.file_id, message.messageData.chunk_size, message.messageData.creation_time, message.messageData.file_size);
 
             success("Transfer updated successfully!");
 
@@ -191,6 +195,10 @@ export default function TransferDetails() {
                 ...prev,
                 messageData: {
                     ...prev.messageData,
+
+                    cfilename: cfilename,
+                    nonce_filename: nonce_filename,
+                    mac: mac,
                     max_downloads: maxDownloads,
                     lifetime: lifetimeDays,
                 },
