@@ -137,6 +137,44 @@ async function deleteLinkMessageAPI(id: string, auth_key: string) {
     return response.status;
 }
 
+
+async function updatePasswordLinkMessageStartAPI(id: string, client_registration_start: string) {
+
+    const response = await apiFetch(`${apiUrl}/link/message/${id}/password/start`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            client_registration_start,
+        }),
+    },
+    );
+
+    return (await response.json());
+}
+
+async function updatePasswordLinkMessageEndAPI(id: string, client_registration_finish: string, auth_key: string, c_enc_key: string, nonce_enc_key: string, c_mac_key: string, nonce_mac_key: string) {
+
+    const response = await apiFetch(`${apiUrl}/link/message/${id}/password/end`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            auth_key,
+            client_registration_finish,
+            c_enc_key,
+            nonce_enc_key,
+            c_mac_key,
+            nonce_mac_key,
+        }),
+    },
+    );
+
+    return (await response.json());
+}
+
 //
 // Upload and Download to/from S3
 //
@@ -292,4 +330,4 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
     return 0;
 }
 
-export { postLinkMessageLoginStartAPI, postLinkMessageLoginEndAPI, getLinkMessageMetadataAPI, getLinkMessageAPI, sendLinkMessageStartAPI, sendLinkMessageAPI, updateLinkMessageAPI, deleteLinkMessageAPI, finishUploadFileToS3Link, uploadFileToS3, downloadFileFromS3 };
+export { postLinkMessageLoginStartAPI, postLinkMessageLoginEndAPI, getLinkMessageMetadataAPI, getLinkMessageAPI, sendLinkMessageStartAPI, sendLinkMessageAPI, updateLinkMessageAPI, deleteLinkMessageAPI, updatePasswordLinkMessageStartAPI, updatePasswordLinkMessageEndAPI, finishUploadFileToS3Link, uploadFileToS3, downloadFileFromS3 };

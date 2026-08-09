@@ -2,7 +2,7 @@ import { Base64 } from 'js-base64';
 
 import { getSodium, getOpaque } from "./utils";
 
-import { uploadFileToS3, downloadFileFromS3, updateLinkMessageAPI } from "./api_link";
+import { uploadFileToS3, downloadFileFromS3, updateLinkMessageAPI, updatePasswordLinkMessageStartAPI, updatePasswordLinkMessageEndAPI } from "./api_link";
 import { postLinkMessageLoginStartAPI, postLinkMessageLoginEndAPI, getLinkMessageMetadataAPI, getLinkMessageAPI, sendLinkMessageStartAPI, sendLinkMessageAPI, finishUploadFileToS3Link } from "./api_link";
 
 import * as errors from "../messages/errors";
@@ -403,15 +403,54 @@ async function updateMessageLink(id: string, auth_key_b64: string, AegisKey_b64:
 /// Update Link Password
 ///
 
-async function updateLinkPassword(id: string, auth_key: string, newPassword: string) {
+async function updateLinkPassword(id: string, auth_key: string, AegisKey_b64: string, MacKey_b64: string, password: string) {
 
-    // const opaque = await getOpaque();
+    const opaque = await getOpaque();
+    const sodium = await getSodium();
 
+    const AegisKey = Base64.toUint8Array(AegisKey_b64);
+    const MacKey = Base64.toUint8Array(MacKey_b64);
+
+    // Create key from OPAQUE
+    const { clientRegistrationState, registrationRequest } = opaque.client.startRegistration({ password });
+
+    const response = await updatePasswordLinkMessageStartAPI(id, registrationRequest);
+
+    const registrationResponse = response.result;
+
+    const { exportKey, serverStaticPublicKey: _serverStaticPublicKey, registrationRecord } = opaque.client.finishRegistration({
+        clientRegistrationState,
+        registrationResponse,
+        password,
+    });
+
+    if (!exportKey || exportKey.length < 64) {
+        throw new Error(errors.errorKeyDerivationFailed);
+    }
+
+    // Decode the export key
+    const exportKeyDecoded = Base64.toUint8Array(exportKey).slice(0, 32);
+
+    // Encrypt the keys with the new export key
+    const nonce_enc_key = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
+    const c_enc_key = sodium.crypto_aead_aegis256_encrypt(AegisKey, null, null, nonce_enc_key, exportKeyDecoded);
+    const nonce_mac_key = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
+    const c_mac_key = sodium.crypto_aead_aegis256_encrypt(MacKey, null, null, nonce_mac_key, exportKeyDecoded);
+
+    await updatePasswordLinkMessageEndAPI(
+        id,
+        registrationRecord,
+        auth_key,
+        Base64.fromUint8Array(c_enc_key, true),
+        Base64.fromUint8Array(nonce_enc_key, true),
+        Base64.fromUint8Array(c_mac_key, true),
+        Base64.fromUint8Array(nonce_mac_key, true),
+    );
 
     return {
         id: id,
         auth_key: auth_key,
-        password: newPassword,
+        password: password,
     }
 }
 

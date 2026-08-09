@@ -243,6 +243,8 @@ export default function TransferDetails() {
             const { auth_key, password } = await updateLinkPassword(
                 message.messageData.id,
                 message.auth_key,
+                message.AegisKey,
+                message.MacKey,
                 newPassword
             );
 
