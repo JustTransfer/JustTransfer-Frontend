@@ -293,9 +293,12 @@ export default function TransferDetails() {
                                 </Stack>
                             </Stack>
 
-                            <IconButton color="primary" onClick={() => setOpenDeleteDialog(true)} aria-label="delete transfer">
-                                <DeleteIcon />
-                            </IconButton>
+
+                            {message.auth_key && (
+                                <IconButton color="primary" onClick={() => setOpenDeleteDialog(true)} aria-label="delete transfer">
+                                    <DeleteIcon />
+                                </IconButton>
+                            )}
                         </Box>
 
                         {/* Body: two columns on md+, stacked on mobile */}
@@ -429,97 +432,99 @@ export default function TransferDetails() {
                                     </Stack>
                                 </Box>
 
-                                {/* Transfer settings, styled like FileTransferForm's accordion */}
-                                <Accordion
-                                    defaultExpanded
-                                    disableGutters
-                                    elevation={0}
-                                    sx={{
-                                        width: "100%",
-                                        border: "1px solid",
-                                        borderColor: "divider",
-                                        borderRadius: 2,
-                                        "&:before": {
-                                            display: "none",
-                                        },
-                                    }}
-                                >
-                                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                                            Transfer settings
-                                        </Typography>
-                                    </AccordionSummary>
-
-                                    <AccordionDetails
+                                {/* Transfer settings */}
+                                {message.auth_key && (
+                                    <Accordion
+                                        defaultExpanded
+                                        disableGutters
+                                        elevation={0}
                                         sx={{
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            gap: 2,
+                                            width: "100%",
+                                            border: "1px solid",
+                                            borderColor: "divider",
+                                            borderRadius: 2,
+                                            "&:before": {
+                                                display: "none",
+                                            },
                                         }}
                                     >
-                                        <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-                                            <TextField
-                                                label="Max Downloads"
-                                                name="maxDownloads"
-                                                type="number"
-                                                slotProps={{
-                                                    htmlInput: { min: 1, max: maxDownloadsAccount },
-                                                }}
-                                                variant="outlined"
-                                                fullWidth
-                                                required
-                                                value={maxDownloads}
-                                                onChange={(e) => {
-                                                    const v = e.target.value;
-                                                    setMaxDownloads(v === "" ? "" : Number(v));
-                                                }}
-                                                error={maxDownloadsInvalid}
-                                                helperText={
-                                                    maxDownloadsInvalid
-                                                        ? `Must be between 1 and ${maxDownloadsAccount}`
-                                                        : maxDownloadsAccount
-                                                            ? `Max allowed: ${maxDownloadsAccount}`
-                                                            : undefined
-                                                }
-                                            />
+                                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                                            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                                                Transfer settings
+                                            </Typography>
+                                        </AccordionSummary>
 
-                                            <TextField
-                                                label="Lifetime"
-                                                name="lifetime"
-                                                type="number"
-                                                slotProps={{
-                                                    htmlInput: { min: 1, max: maxLifetimeAccount },
-                                                }}
-                                                variant="outlined"
-                                                fullWidth
-                                                required
-                                                value={lifetimeDays}
-                                                onChange={(e) => {
-                                                    const v = e.target.value;
-                                                    setLifetimeDays(v === "" ? "" : Number(v));
-                                                }}
-                                                error={lifetimeInvalid}
-                                                helperText={
-                                                    lifetimeInvalid
-                                                        ? `Must be between 1 and ${maxLifetimeAccount} days`
-                                                        : maxLifetimeAccount
-                                                            ? `Max allowed: ${maxLifetimeAccount} days`
-                                                            : undefined
-                                                }
-                                            />
-                                        </Stack>
-
-                                        <Button
-                                            fullWidth
-                                            variant="contained"
-                                            startIcon={saving ? <CircularProgress size={18} color="inherit" /> : <SaveIcon />}
-                                            onClick={handleSave}
-                                            disabled={saving || !settingsChanged || maxDownloadsInvalid || lifetimeInvalid}
+                                        <AccordionDetails
+                                            sx={{
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                gap: 2,
+                                            }}
                                         >
-                                            Save changes
-                                        </Button>
-                                    </AccordionDetails>
-                                </Accordion>
+                                            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                                                <TextField
+                                                    label="Max Downloads"
+                                                    name="maxDownloads"
+                                                    type="number"
+                                                    slotProps={{
+                                                        htmlInput: { min: 1, max: maxDownloadsAccount },
+                                                    }}
+                                                    variant="outlined"
+                                                    fullWidth
+                                                    required
+                                                    value={maxDownloads}
+                                                    onChange={(e) => {
+                                                        const v = e.target.value;
+                                                        setMaxDownloads(v === "" ? "" : Number(v));
+                                                    }}
+                                                    error={maxDownloadsInvalid}
+                                                    helperText={
+                                                        maxDownloadsInvalid
+                                                            ? `Must be between 1 and ${maxDownloadsAccount}`
+                                                            : maxDownloadsAccount
+                                                                ? `Max allowed: ${maxDownloadsAccount}`
+                                                                : undefined
+                                                    }
+                                                />
+
+                                                <TextField
+                                                    label="Lifetime"
+                                                    name="lifetime"
+                                                    type="number"
+                                                    slotProps={{
+                                                        htmlInput: { min: 1, max: maxLifetimeAccount },
+                                                    }}
+                                                    variant="outlined"
+                                                    fullWidth
+                                                    required
+                                                    value={lifetimeDays}
+                                                    onChange={(e) => {
+                                                        const v = e.target.value;
+                                                        setLifetimeDays(v === "" ? "" : Number(v));
+                                                    }}
+                                                    error={lifetimeInvalid}
+                                                    helperText={
+                                                        lifetimeInvalid
+                                                            ? `Must be between 1 and ${maxLifetimeAccount} days`
+                                                            : maxLifetimeAccount
+                                                                ? `Max allowed: ${maxLifetimeAccount} days`
+                                                                : undefined
+                                                    }
+                                                />
+                                            </Stack>
+
+                                            <Button
+                                                fullWidth
+                                                variant="contained"
+                                                startIcon={saving ? <CircularProgress size={18} color="inherit" /> : <SaveIcon />}
+                                                onClick={handleSave}
+                                                disabled={saving || !settingsChanged || maxDownloadsInvalid || lifetimeInvalid}
+                                            >
+                                                Save changes
+                                            </Button>
+                                        </AccordionDetails>
+                                    </Accordion>
+                                )}
 
                                 <Divider />
 
