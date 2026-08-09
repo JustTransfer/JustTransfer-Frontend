@@ -70,7 +70,7 @@ async function sendLinkMessageStartAPI(client_registration_start: string) {
     return (await response.json());
 }
 
-async function sendLinkMessageAPI(id: string, client_registration_finish: string, cfilename: string, nonce_filename: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
+async function sendLinkMessageAPI(id: string, client_registration_finish: string, c_enc_key: string, nonce_enc_key: string, c_mac_key: string, nonce_mac_key: string, cfilename: string, nonce_filename: string, max_downloads: number, lifetime: number, creation_time: any, file_size: number) {
 
     const response = await apiFetch(`${apiUrl}/link/message`, {
         method: "POST",
@@ -80,6 +80,10 @@ async function sendLinkMessageAPI(id: string, client_registration_finish: string
         body: JSON.stringify({
             id,
             client_registration_finish,
+            c_enc_key,
+            nonce_enc_key,
+            c_mac_key,
+            nonce_mac_key,
             cfilename,
             nonce_filename,
             max_downloads,
@@ -134,7 +138,7 @@ async function deleteLinkMessageAPI(id: string, auth_key: string) {
 // Upload and Download to/from S3
 //
 
-async function finishUploadFileToS3Link(id: string, file_id: string, upload_id: string, etags: string[], mac: string, receiver_email?: string) {
+async function finishUploadFileToS3Link(id: string, file_id: string, upload_id: string, etags: string[], hash_file: string, mac: string, receiver_email?: string) {
 
     const response = await apiFetch(`${apiUrl}/link/message/${id}/uploadfinish/${file_id}`, {
         method: "POST",
@@ -144,6 +148,7 @@ async function finishUploadFileToS3Link(id: string, file_id: string, upload_id: 
         body: JSON.stringify({
             upload_id,
             etags,
+            hash_file,
             mac,
             receiver_email,
         }),

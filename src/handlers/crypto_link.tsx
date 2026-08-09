@@ -41,13 +41,21 @@ async function getOneLinkMessageMetadata(password: string, message_id: string) {
     await postLinkMessageLoginEndAPI(message_id, finishLoginRequest);
 
     // Decode export key
-    const exportKeyAegisDecoded = Base64.toUint8Array(exportKey).slice(0, 32);
+    const exportKeyDecoded = Base64.toUint8Array(exportKey).slice(0, 32);
 
     // Get the message metadata
     const result2 = await getLinkMessageMetadataAPI(message_id);
-    let { id, cfilename, nonce_filename, file_id, creation_time, mac, lifetime, max_downloads, number_downloads, file_size, chunk_size } = result2.message;
+    let { id, c_enc_key, nonce_enc_key, c_mac_key, nonce_mac_key, cfilename, nonce_filename, file_id, creation_time, mac, lifetime, max_downloads, number_downloads, file_size, chunk_size } = result2.message;
 
     const sodium = await getSodium();
+
+    // Decrypt the keys with the export key
+    const AegisKey = sodium.crypto_aead_aegis256_decrypt(null, Base64.toUint8Array(c_enc_key), null, Base64.toUint8Array(nonce_enc_key), exportKeyDecoded);
+    const MacKey = sodium.crypto_aead_aegis256_decrypt(null, Base64.toUint8Array(c_mac_key), null, Base64.toUint8Array(nonce_mac_key), exportKeyDecoded);
+
+    if (!AegisKey || !MacKey) {
+        throw new Error(errors.errorKeyDerivationFailed);
+    }
 
     // Get the Encoded fileds of the message
     cfilename = Base64.toUint8Array(cfilename);
@@ -66,7 +74,7 @@ async function getOneLinkMessageMetadata(password: string, message_id: string) {
     // Decrypt the filename and verify the auth data using the export key
     let filename: string;
     try {
-        const filenameBytes = sodium.crypto_aead_aegis256_decrypt(null, cfilename, new TextEncoder().encode(JSON.stringify(auth_data)), nonce_filename, exportKeyAegisDecoded);
+        const filenameBytes = sodium.crypto_aead_aegis256_decrypt(null, cfilename, new TextEncoder().encode(JSON.stringify(auth_data)), nonce_filename, AegisKey);
         filename = new TextDecoder().decode(filenameBytes);
     } catch (e) {
         throw new Error(errors.errorFailureMACVerification);
@@ -75,6 +83,8 @@ async function getOneLinkMessageMetadata(password: string, message_id: string) {
     return {
         success: true,
         exportKey,
+        AegisKey: Base64.fromUint8Array(AegisKey, true),
+        MacKey: Base64.fromUint8Array(MacKey, true),
         message: "Message metadata retrieved successfully!",
         messageData: {
             id, cfilename, filename, nonce_filename, message_id, file_id, creation_time, mac, lifetime, max_downloads, number_downloads, file_size, chunk_size
@@ -86,7 +96,7 @@ async function getOneLinkMessageMetadata(password: string, message_id: string) {
 /// Get Link Message Content
 ///
 
-async function getOneLinkMessage(exportKey: string, message: any, onChunk: (chunk: Uint8Array, filename: string) => Promise<void>, onProgress?: (percent: number) => void) {
+async function getOneLinkMessage(AegisKeyEncoded: string, MacKeyEncoded: string, message: any, onChunk: (chunk: Uint8Array, filename: string) => Promise<void>, onProgress?: (percent: number) => void) {
 
     const sodium = await getSodium();
 
@@ -95,11 +105,11 @@ async function getOneLinkMessage(exportKey: string, message: any, onChunk: (chun
     const downloadUrl = repsonse.download_url;
 
     // Get the key for the file decryption
-    const exportKeyAegisDecoded = Base64.toUint8Array(exportKey).slice(0, 32);
-    const exportKeyMacDecoded = Base64.toUint8Array(exportKey).slice(32, 64);
+    const AegisKey = Base64.toUint8Array(AegisKeyEncoded);
+    const MacKey = Base64.toUint8Array(MacKeyEncoded);
 
     // Init the global MAC
-    let mac_state = sodium.crypto_auth_hmacsha512256_init(exportKeyMacDecoded);
+    let mac_state = sodium.crypto_auth_hmacsha512256_init(MacKey);
 
     // Construct the auth data for the message
     const full_auth_data = {
@@ -117,16 +127,17 @@ async function getOneLinkMessage(exportKey: string, message: any, onChunk: (chun
     // Authenticate the auth data with global MAC
     sodium.crypto_auth_hmacsha512256_update(mac_state, auth_data_encoded);
 
+    let hash_state = sodium.crypto_generichash_init(null, 64); // 512 bits for the hash output
 
     const decryptChunk = (chunk: Uint8Array) => {
         const nonce_chunk = chunk.slice(0, sodium.crypto_aead_aegis256_NPUBBYTES);
         const ciphertext_chunk = chunk.slice(sodium.crypto_aead_aegis256_NPUBBYTES);
 
-        // Authenticate the encrypted chunk with the global MAC
-        sodium.crypto_auth_hmacsha512256_update(mac_state, chunk);
+        // Update the file hash with the encrypted chunk
+        sodium.crypto_generichash_update(hash_state, chunk);
 
         try {
-            const decryptedChunk = sodium.crypto_aead_aegis256_decrypt(null, ciphertext_chunk, null, nonce_chunk, exportKeyAegisDecoded);
+            const decryptedChunk = sodium.crypto_aead_aegis256_decrypt(null, ciphertext_chunk, null, nonce_chunk, AegisKey);
             return { decryptedChunk };
         } catch (e) {
             console.error("Decryption of chunk failed");
@@ -144,6 +155,12 @@ async function getOneLinkMessage(exportKey: string, message: any, onChunk: (chun
 
         return -1;
     }, downloadUrl, onProgress);
+
+    // Finalize the global hash
+    const file_hash = sodium.crypto_generichash_final(hash_state, 64);
+
+    // Update the global MAC with the file hash
+    sodium.crypto_auth_hmacsha512256_update(mac_state, file_hash);
 
     // Finalize the global MAC and check it against the MAC sent by the sender
     const calc_mac = sodium.crypto_auth_hmacsha512256_final(mac_state);
@@ -196,8 +213,22 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
     }
 
     // Decode the export key
-    const exportKeyAegisDecoded = Base64.toUint8Array(exportKey).slice(0, 32); // Take only first 32 bytes for the filename and auth data
-    const exportKeyMacDecoded = Base64.toUint8Array(exportKey).slice(32, 64); // Take last 32 bytes for MAC key for the file encryption
+    const exportKeyDecoded = Base64.toUint8Array(exportKey).slice(0, 32);
+
+    // Generate keys for encryption and MAC
+    const AegisKey = sodium.crypto_aead_aegis256_keygen();
+    const MacKey = sodium.crypto_auth_hmacsha512256_keygen();
+
+    // Encrypt the keys with the export key
+    const nonce_enc_key = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
+    const c_enc_key = sodium.crypto_aead_aegis256_encrypt(AegisKey, null, null, nonce_enc_key, exportKeyDecoded);
+    const nonce_mac_key = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
+    const c_mac_key = sodium.crypto_aead_aegis256_encrypt(MacKey, null, null, nonce_mac_key, exportKeyDecoded);
+
+    const nonce_enc_key_b64 = Base64.fromUint8Array(nonce_enc_key, true);
+    const c_enc_key_b64 = Base64.fromUint8Array(c_enc_key, true);
+    const nonce_mac_key_b64 = Base64.fromUint8Array(nonce_mac_key, true);
+    const c_mac_key_b64 = Base64.fromUint8Array(c_mac_key, true);
 
     // Get the current timestamp
     const timestamp = new Date().toISOString();
@@ -215,13 +246,13 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
 
     // Authenticate the auth data and encrypt the filename
     const nonce_filename = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
-    const cfilename = sodium.crypto_aead_aegis256_encrypt(new TextEncoder().encode(fileName), auth_data_encoded, null, nonce_filename, exportKeyAegisDecoded);
+    const cfilename = sodium.crypto_aead_aegis256_encrypt(new TextEncoder().encode(fileName), auth_data_encoded, null, nonce_filename, AegisKey);
 
     const cfilename_b64 = Base64.fromUint8Array(cfilename, true);
     const nonce_filename_b64 = Base64.fromUint8Array(nonce_filename, true);
 
     // Send the initial request to get an upload ID
-    const response2 = await sendLinkMessageAPI(id, registrationRecord, cfilename_b64, nonce_filename_b64, maxDownloads, lifetimeDays, timestamp, totalLength);
+    const response2 = await sendLinkMessageAPI(id, registrationRecord, c_enc_key_b64, nonce_enc_key_b64, c_mac_key_b64, nonce_mac_key_b64, cfilename_b64, nonce_filename_b64, maxDownloads, lifetimeDays, timestamp, totalLength);
     const uploadUrls = response2.upload_urls;
     const transferId = response2.transfer_id;
     const upload_id = response2.upload_id;
@@ -232,7 +263,7 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
     }
 
     // Init the global MAC
-    let mac_state = sodium.crypto_auth_hmacsha512256_init(exportKeyMacDecoded);
+    let mac_state = sodium.crypto_auth_hmacsha512256_init(MacKey);
 
     const full_auth_data = {
         cfilename: cfilename,
@@ -248,6 +279,8 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
     // Authenticate the auth data with global MAC
     sodium.crypto_auth_hmacsha512256_update(mac_state, new TextEncoder().encode(JSON.stringify(full_auth_data)));
 
+    let hash_state = sodium.crypto_generichash_init(null, 64); // 512 bits for the hash output
+
     let ETags: string[] = [];
 
     for (let offset = 0; offset < file.size; offset += chunkSize) {
@@ -258,15 +291,15 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
 
         // Encrypt the chunk
         const nonce_chunk = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
-        const encryptedChunk = sodium.crypto_aead_aegis256_encrypt(buf, null, null, nonce_chunk, exportKeyAegisDecoded);
+        const encryptedChunk = sodium.crypto_aead_aegis256_encrypt(buf, null, null, nonce_chunk, AegisKey);
 
         // Add nonce at the beginning of the chunk
         const encryptedChunkWithNonce = new Uint8Array(nonce_chunk.length + encryptedChunk.length);
         encryptedChunkWithNonce.set(nonce_chunk, 0);
         encryptedChunkWithNonce.set(encryptedChunk, nonce_chunk.length);
 
-        // Authenticate the encrypted chunk with the global MAC
-        sodium.crypto_auth_hmacsha512256_update(mac_state, encryptedChunkWithNonce);
+        // Update the global hash with the encrypted chunk
+        sodium.crypto_generichash_update(hash_state, encryptedChunkWithNonce);
 
         // Upload the chunk to S3
         const chunkUploadResp = await uploadFileToS3(uploadUrls[offset / chunkSize], encryptedChunkWithNonce, void 0);
@@ -276,12 +309,17 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
         onProgress?.(Math.min(((offset + chunkSize) / totalLength) * 100, 100)); // Avoid going over 100% if the last chunk is smaller than chunkSize
     }
 
-    // Finalize the global MAC
+    // Finalize the global hash
+    const file_hash = sodium.crypto_generichash_final(hash_state, 64);
+    const file_hash_b64 = Base64.fromUint8Array(file_hash, true);
+
+    // Finalize the global MAC with the file hash
+    sodium.crypto_auth_hmacsha512256_update(mac_state, file_hash);
     const mac = sodium.crypto_auth_hmacsha512256_final(mac_state);
     const mac_b64 = Base64.fromUint8Array(mac, true);
 
     // Finalize the upload
-    const response3 = await finishUploadFileToS3Link(id, message_file_id, upload_id, ETags, mac_b64, receiver_email);
+    const response3 = await finishUploadFileToS3Link(id, message_file_id, upload_id, ETags, file_hash_b64, mac_b64, receiver_email);
     const auth_key = response3.auth_key;
 
     // Construct the link to be shared

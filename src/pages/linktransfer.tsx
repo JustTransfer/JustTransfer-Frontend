@@ -55,7 +55,8 @@ export default function LinkTransfer() {
         setShowPassword(prev => !prev);
     };
 
-    const [exportKey, setExportKey] = useState<string>("");
+    const [AegisKeyEncoded, setAegisKeyEncoded] = useState<string>("");
+    const [MacKeyEncoded, setMacKeyEncoded] = useState<string>("");
     const [messageData, setMessageData] = useState<any>(null);
 
     const limitReached = messageData && messageData.max_downloads !== 0 && messageData.number_downloads >= messageData.max_downloads;
@@ -86,7 +87,8 @@ export default function LinkTransfer() {
             setDownloadProgress(0);
             const result = await getOneLinkMessageMetadata(password as string, id!);
 
-            setExportKey(result.exportKey);
+            setAegisKeyEncoded(result.AegisKey);
+            setMacKeyEncoded(result.MacKey);
             setMessageData(result.messageData);
 
             success(strings.msgFileInfoDecrypted);
@@ -114,7 +116,7 @@ export default function LinkTransfer() {
             await genericDownloadFile({
                 fileName: messageData.filename,
                 download: (onChunk, onProgress) =>
-                    getOneLinkMessage(exportKey, messageData, onChunk, onProgress),
+                    getOneLinkMessage(AegisKeyEncoded, MacKeyEncoded, messageData, onChunk, onProgress),
                 onProgress: setDownloadProgress,
                 onSuccess: () => {
                     success(strings.msgFileDownloaded);

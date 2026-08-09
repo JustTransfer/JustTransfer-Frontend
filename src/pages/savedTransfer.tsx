@@ -242,7 +242,7 @@ export default function SavedTransfer() {
             await genericDownloadFile({
                 fileName: message.messageData.filename,
                 download: (onChunk: any, onProgress: any) =>
-                    getOneLinkMessage(message.exportKey, message.messageData, onChunk, onProgress),
+                    getOneLinkMessage(message.AegisKey, message.MacKey, message.messageData, onChunk, onProgress),
                 onProgress: (percent: number) =>
                     setDownloadProgress(prev => ({
                         ...prev,
