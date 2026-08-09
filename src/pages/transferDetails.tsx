@@ -31,6 +31,9 @@ import SaveIcon from "@mui/icons-material/Save";
 import PersonIcon from "@mui/icons-material/Person";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import Collapse from "@mui/material/Collapse";
 
 import { QRCodeSVG } from "qrcode.react";
 
@@ -39,7 +42,7 @@ import { useServerConfig } from "../hooks/useServerConfig";
 import { useAuth } from "../hooks/useAuth";
 import Layout from "../components/layout";
 import { getOneLinkMessageMetadata, getOneLinkMessage, updateMessageLink, updateLinkPassword } from "../handlers/crypto_link";
-import { getSavedTransfers } from "../handlers/crypto";
+import { getSavedTransfers, addSavedTransfer } from "../handlers/crypto";
 import { deleteLinkMessageAPI } from "../handlers/api_link";
 import { formatSize, formatCreated, relativeExpire, expireColor, genericDownloadFile } from "../handlers/utils";
 import { frontendUrl } from "../handlers/config";
@@ -66,6 +69,7 @@ export default function TransferDetails() {
     const [includePasswordInLink, setIncludePasswordInLink] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
 
+    const [isUsingManualPassword, setIsUsingManualPassword] = useState(true);
     const [changingPassword, setChangingPassword] = useState(false);
     const [newPassword, setNewPassword] = useState("");
     const [confirmNewPassword, setConfirmNewPassword] = useState("");
@@ -176,6 +180,20 @@ export default function TransferDetails() {
         }
     }
 
+    const handlePasswordModeChange = (_event: React.MouseEvent<HTMLElement>, nextValue: string | null) => {
+        if (nextValue === null) return;
+
+        const manual = nextValue === "manual";
+        setIsUsingManualPassword(manual);
+
+        setNewPassword("");
+        setConfirmNewPassword("");
+        setIsNewPasswordStrong(false);
+        setShowNewPassword(false);
+        setErrorWeakNewPassword(false);
+        setErrorNewPasswordMismatch(false);
+    };
+
     const settingsChanged = message
         ? maxDownloads !== message.messageData.max_downloads || lifetimeDays !== (message.messageData.lifetime ?? 0)
         : false;
@@ -220,20 +238,22 @@ export default function TransferDetails() {
 
         let hasError = false;
 
-        if (!isNewPasswordStrong) {
-            error(errors.errorWeakPassword);
-            setErrorWeakNewPassword(true);
-            hasError = true;
-        } else {
-            setErrorWeakNewPassword(false);
-        }
+        if (isUsingManualPassword) {
+            if (!isNewPasswordStrong) {
+                error(errors.errorWeakPassword);
+                setErrorWeakNewPassword(true);
+                hasError = true;
+            } else {
+                setErrorWeakNewPassword(false);
+            }
 
-        if (newPassword !== confirmNewPassword) {
-            error(errors.errorPasswordMismatch);
-            setErrorNewPasswordMismatch(true);
-            hasError = true;
-        } else {
-            setErrorNewPasswordMismatch(false);
+            if (newPassword !== confirmNewPassword) {
+                error(errors.errorPasswordMismatch);
+                setErrorNewPasswordMismatch(true);
+                hasError = true;
+            } else {
+                setErrorNewPasswordMismatch(false);
+            }
         }
 
         if (hasError) return;
@@ -245,7 +265,14 @@ export default function TransferDetails() {
                 message.auth_key,
                 message.AegisKey,
                 message.MacKey,
-                newPassword
+                isUsingManualPassword ? newPassword : undefined
+            );
+
+            await addSavedTransfer(
+                message.messageData.id,
+                password,
+                exportKey!,
+                auth_key
             );
 
             success("Password updated successfully!");
@@ -582,54 +609,99 @@ export default function TransferDetails() {
                                             </Typography>
 
                                             <Stack spacing={2}>
-                                                <TextField
-                                                    label="New password"
-                                                    name="newPassword"
-                                                    type={showNewPassword ? "text" : "password"}
-                                                    variant="outlined"
+                                                <ToggleButtonGroup
+                                                    exclusive
                                                     fullWidth
-                                                    required
-                                                    value={newPassword}
-                                                    onChange={(e) => setNewPassword(e.target.value)}
-                                                    error={errorWeakNewPassword}
-                                                    helperText={errorWeakNewPassword ? errors.errorWeakPassword : ""}
-                                                    slotProps={{
-                                                        input: {
-                                                            endAdornment: (
-                                                                <InputAdornment position="end">
-                                                                    <IconButton
-                                                                        aria-label={showNewPassword ? "Hide password" : "Show password"}
-                                                                        onClick={() => setShowNewPassword((p) => !p)}
-                                                                    >
-                                                                        {showNewPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                                                                    </IconButton>
-                                                                </InputAdornment>
-                                                            ),
+                                                    value={isUsingManualPassword ? "manual" : "auto"}
+                                                    onChange={handlePasswordModeChange}
+                                                    sx={{
+                                                        display: "grid",
+                                                        gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                                                        gap: 1,
+                                                        "& .MuiToggleButtonGroup-grouped": {
+                                                            border: 0,
+                                                            borderRadius: 2,
+                                                            textTransform: "none",
+                                                            px: { xs: 1, sm: 2 },
+                                                            py: { xs: 1, sm: 1.25 },
+                                                            width: "100%",
                                                         },
                                                     }}
-                                                />
+                                                >
+                                                    <ToggleButton value="manual" aria-label="Set password manually" sx={{ textAlign: "left", alignItems: "flex-start" }}>
+                                                        <Box sx={{ width: "100%" }}>
+                                                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                                                                Set manually
+                                                            </Typography>
+                                                            <Typography variant="caption" color="text.secondary">
+                                                                Choose your own password
+                                                            </Typography>
+                                                        </Box>
+                                                    </ToggleButton>
+                                                    <ToggleButton value="auto" aria-label="Auto-generate password" sx={{ textAlign: "left", alignItems: "flex-start" }}>
+                                                        <Box sx={{ width: "100%" }}>
+                                                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                                                                Auto-generate
+                                                            </Typography>
+                                                            <Typography variant="caption" color="text.secondary">
+                                                                Replaces the shared link's password
+                                                            </Typography>
+                                                        </Box>
+                                                    </ToggleButton>
+                                                </ToggleButtonGroup>
 
-                                                <PasswordStrength password={newPassword} onStrengthChange={setIsNewPasswordStrong} />
+                                                <Collapse in={isUsingManualPassword} unmountOnExit>
+                                                    <Stack spacing={2}>
+                                                        <TextField
+                                                            label="New password"
+                                                            name="newPassword"
+                                                            type={showNewPassword ? "text" : "password"}
+                                                            variant="outlined"
+                                                            fullWidth
+                                                            required
+                                                            value={newPassword}
+                                                            onChange={(e) => setNewPassword(e.target.value)}
+                                                            error={errorWeakNewPassword}
+                                                            helperText={errorWeakNewPassword ? errors.errorWeakPassword : ""}
+                                                            slotProps={{
+                                                                input: {
+                                                                    endAdornment: (
+                                                                        <InputAdornment position="end">
+                                                                            <IconButton
+                                                                                aria-label={showNewPassword ? "Hide password" : "Show password"}
+                                                                                onClick={() => setShowNewPassword((p) => !p)}
+                                                                            >
+                                                                                {showNewPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                                                            </IconButton>
+                                                                        </InputAdornment>
+                                                                    ),
+                                                                },
+                                                            }}
+                                                        />
 
-                                                <TextField
-                                                    label="Confirm new password"
-                                                    name="confirmNewPassword"
-                                                    type="password"
-                                                    variant="outlined"
-                                                    fullWidth
-                                                    required
-                                                    value={confirmNewPassword}
-                                                    onChange={(e) => setConfirmNewPassword(e.target.value)}
-                                                    error={errorNewPasswordMismatch}
-                                                    helperText={errorNewPasswordMismatch ? errors.errorPasswordMismatch : ""}
-                                                />
+                                                        <PasswordStrength password={newPassword} onStrengthChange={setIsNewPasswordStrong} />
+
+                                                        <TextField
+                                                            label="Confirm new password"
+                                                            name="confirmNewPassword"
+                                                            type="password"
+                                                            variant="outlined"
+                                                            fullWidth
+                                                            required
+                                                            value={confirmNewPassword}
+                                                            onChange={(e) => setConfirmNewPassword(e.target.value)}
+                                                            error={errorNewPasswordMismatch}
+                                                            helperText={errorNewPasswordMismatch ? errors.errorPasswordMismatch : ""}
+                                                        />
+                                                    </Stack>
+                                                </Collapse>
 
                                                 <Button
                                                     fullWidth
                                                     variant="contained"
                                                     startIcon={changingPassword ? <CircularProgress size={18} color="inherit" /> : <SaveIcon />}
                                                     onClick={handleChangePassword}
-                                                    disabled={changingPassword || !newPassword || !confirmNewPassword}
+                                                    disabled={changingPassword || (isUsingManualPassword && (!newPassword || !confirmNewPassword))}
                                                 >
                                                     Update password
                                                 </Button>

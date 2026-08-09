@@ -403,10 +403,15 @@ async function updateMessageLink(id: string, auth_key_b64: string, AegisKey_b64:
 /// Update Link Password
 ///
 
-async function updateLinkPassword(id: string, auth_key: string, AegisKey_b64: string, MacKey_b64: string, password: string) {
+async function updateLinkPassword(id: string, auth_key: string, AegisKey_b64: string, MacKey_b64: string, password?: string) {
 
     const opaque = await getOpaque();
     const sodium = await getSodium();
+
+    if (!password) {
+        const randomBytes = sodium.randombytes_buf(linkTransferGeneratedPasswordLen);
+        password = Base64.fromUint8Array(randomBytes, true);
+    }
 
     const AegisKey = Base64.toUint8Array(AegisKey_b64);
     const MacKey = Base64.toUint8Array(MacKey_b64);

@@ -309,6 +309,13 @@ export default function SavedTransfer() {
                 }
             }
 
+            // Most recent first; tampered entries (no creation_time) sink to the bottom
+            tmpMessagesData.sort((a, b) => {
+                const timeA = a.messageData.creation_time ? new Date(a.messageData.creation_time).getTime() : -Infinity;
+                const timeB = b.messageData.creation_time ? new Date(b.messageData.creation_time).getTime() : -Infinity;
+                return timeB - timeA;
+            });
+
             setMessages(tmpMessagesData);
         } catch (e) {
             error("Failed to load messages: " + (e instanceof Error ? e.message : errors.errorUnknown));
