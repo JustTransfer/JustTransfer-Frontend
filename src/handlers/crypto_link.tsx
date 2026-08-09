@@ -399,4 +399,20 @@ async function updateMessageLink(id: string, auth_key_b64: string, AegisKey_b64:
     }
 }
 
-export { getOneLinkMessageMetadata, getOneLinkMessage, sendMessageLink, updateMessageLink };
+///
+/// Update Link Password
+///
+
+async function updateLinkPassword(id: string, auth_key: string, newPassword: string) {
+
+    // const opaque = await getOpaque();
+
+
+    return {
+        id: id,
+        auth_key: auth_key,
+        password: newPassword,
+    }
+}
+
+export { getOneLinkMessageMetadata, getOneLinkMessage, sendMessageLink, updateMessageLink, updateLinkPassword };

@@ -16,10 +16,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
@@ -42,11 +38,12 @@ import { useNotification } from "../hooks/useNotificationContext";
 import { useServerConfig } from "../hooks/useServerConfig";
 import { useAuth } from "../hooks/useAuth";
 import Layout from "../components/layout";
-import { getOneLinkMessageMetadata, getOneLinkMessage, updateMessageLink } from "../handlers/crypto_link";
+import { getOneLinkMessageMetadata, getOneLinkMessage, updateMessageLink, updateLinkPassword } from "../handlers/crypto_link";
 import { getSavedTransfers } from "../handlers/crypto";
 import { deleteLinkMessageAPI } from "../handlers/api_link";
 import { formatSize, formatCreated, relativeExpire, expireColor, genericDownloadFile } from "../handlers/utils";
 import { frontendUrl } from "../handlers/config";
+import PasswordStrength from "../components/passwordStrength";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
@@ -68,6 +65,14 @@ export default function TransferDetails() {
 
     const [includePasswordInLink, setIncludePasswordInLink] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
+
+    const [changingPassword, setChangingPassword] = useState(false);
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmNewPassword, setConfirmNewPassword] = useState("");
+    const [isNewPasswordStrong, setIsNewPasswordStrong] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [errorWeakNewPassword, setErrorWeakNewPassword] = useState(false);
+    const [errorNewPasswordMismatch, setErrorNewPasswordMismatch] = useState(false);
 
     const [maxDownloads, setMaxDownloads] = useState<number | "">(0);
     const [lifetimeDays, setLifetimeDays] = useState<number | "">(0);
@@ -210,6 +215,56 @@ export default function TransferDetails() {
         }
     }
 
+    async function handleChangePassword() {
+        if (!message) return;
+
+        let hasError = false;
+
+        if (!isNewPasswordStrong) {
+            error(errors.errorWeakPassword);
+            setErrorWeakNewPassword(true);
+            hasError = true;
+        } else {
+            setErrorWeakNewPassword(false);
+        }
+
+        if (newPassword !== confirmNewPassword) {
+            error(errors.errorPasswordMismatch);
+            setErrorNewPasswordMismatch(true);
+            hasError = true;
+        } else {
+            setErrorNewPasswordMismatch(false);
+        }
+
+        if (hasError) return;
+
+        setChangingPassword(true);
+        try {
+            const { auth_key, password } = await updateLinkPassword(
+                message.messageData.id,
+                message.auth_key,
+                newPassword
+            );
+
+            success("Password updated successfully!");
+
+            setMessage((prev: any) => ({
+                ...prev,
+                auth_key,
+                password,
+            }));
+
+            setNewPassword("");
+            setConfirmNewPassword("");
+            setIsNewPasswordStrong(false);
+            setShowNewPassword(false);
+        } catch (e) {
+            error("Failed to update password: " + (e instanceof Error ? e.message : errors.errorUnknown));
+        } finally {
+            setChangingPassword(false);
+        }
+    }
+
     async function handleDownload() {
         if (!message) return;
 
@@ -287,20 +342,10 @@ export default function TransferDetails() {
                                 <IconButton onClick={() => navigate("/transfers")} aria-label="back">
                                     <ArrowBackIcon />
                                 </IconButton>
-                                <Stack spacing={0.25} sx={{ minWidth: 0 }}>
-                                    <Typography variant={compact ? "h6" : "h5"} sx={{ fontWeight: 700, color: "#2b0f1f" }}>
-                                        Transfer Details
-                                    </Typography>
-                                    <Typography
-                                        variant="body2"
-                                        color="text.secondary"
-                                        sx={{ overflowWrap: "anywhere", display: { xs: "none", sm: "block" } }}
-                                    >
-                                        {message.messageData.filename}
-                                    </Typography>
-                                </Stack>
+                                <Typography variant={compact ? "h6" : "h5"} sx={{ fontWeight: 700, color: "#2b0f1f" }}>
+                                    Transfer Details
+                                </Typography>
                             </Stack>
-
 
                             {message.auth_key && (
                                 <IconButton color="primary" onClick={() => setOpenDeleteDialog(true)} aria-label="delete transfer">
@@ -309,93 +354,144 @@ export default function TransferDetails() {
                             )}
                         </Box>
 
+                        {/* File summary */}
+                        <Box sx={{ ...panelSx, mb: { xs: 3, md: 4 } }}>
+                            <Stack direction={{ xs: "column", sm: "row" }} spacing={{ xs: 1.5, sm: 2 }} sx={{ alignItems: { xs: "flex-start", sm: "center" }, justifyContent: "space-between" }}>
+                                <Stack direction="row" spacing={1.5} sx={{ alignItems: "center", minWidth: 0 }}>
+                                    <InsertDriveFileIcon color="primary" />
+                                    <Stack spacing={0.25} sx={{ minWidth: 0 }}>
+                                        <Typography sx={{ fontWeight: 600, overflowWrap: "anywhere" }}>
+                                            {message.messageData.filename}
+                                        </Typography>
+                                        <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
+                                            <PersonIcon sx={{ fontSize: 14, opacity: 0.7 }} />
+                                            <Typography variant="caption" color="text.secondary">
+                                                From <b>{message.sender ?? "Unknown"}</b> • Sent {formatCreated(message.messageData.creation_time)}
+                                            </Typography>
+                                        </Stack>
+                                    </Stack>
+                                </Stack>
+
+                                <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", rowGap: 1, justifyContent: { xs: "flex-start", sm: "flex-end" } }}>
+                                    <Chip size="small" label={formatSize(message.messageData.file_size)} />
+                                    <Chip
+                                        size="small"
+                                        label={relativeExpire(message.messageData)}
+                                        color={expireColor(message.messageData) === "error.main" ? "error" : expireColor(message.messageData) === "warning.main" ? "warning" : "default"}
+                                    />
+                                    <Chip
+                                        size="small"
+                                        label={`${downloadsLeft} downloads remaining`}
+                                        color={downloadsLeft <= 1 ? "warning" : "default"}
+                                        variant={downloadsLeft <= 1 ? "filled" : "outlined"}
+                                    />
+                                </Stack>
+                            </Stack>
+                        </Box>
+
                         {/* Body: two columns on md+, stacked on mobile */}
                         <Stack direction={{ xs: "column", md: "row" }} spacing={{ xs: 3, md: 5 }} sx={{ alignItems: "stretch" }}>
 
-                            {/* Left column: QR + link + password */}
-                            <Stack spacing={3} sx={{ flex: 1, minWidth: 0, alignItems: "center" }}>
-                                <Box sx={{ p: 2, borderRadius: 3, border: "1px solid #f1e7ee", backgroundColor: "#ffffff" }}>
-                                    <QRCodeSVG value={link} size={compact ? 160 : 200} />
-                                </Box>
+                            {/* Left column: Share */}
+                            <Stack spacing={2.5} sx={{ flex: 1, minWidth: 0 }}>
+                                <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#2b0f1f" }}>
+                                    Share
+                                </Typography>
 
-                                <TextField
-                                    fullWidth
-                                    label="Transfer link"
-                                    value={link}
-                                    slotProps={{
-                                        input: {
-                                            readOnly: true,
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <LinkIcon />
-                                                </InputAdornment>
-                                            ),
-                                            endAdornment: (
-                                                <InputAdornment position="end">
-                                                    <IconButton onClick={handleCopyLink} edge="end" size="small">
-                                                        <ContentCopyIcon fontSize="small" />
-                                                    </IconButton>
-                                                </InputAdornment>
-                                            ),
-                                        }
-                                    }}
-                                />
+                                <Stack spacing={3} sx={{ alignItems: "center" }}>
+                                    <Box sx={{ p: 2, borderRadius: 3, border: "1px solid #f1e7ee", backgroundColor: "#ffffff" }}>
+                                        <QRCodeSVG value={link} size={compact ? 160 : 200} />
+                                    </Box>
 
-                                {message.password && (
-                                    <>
-                                        <FormControlLabel
-                                            sx={{
-                                                width: "100%",
-                                                m: 0,
-                                                justifyContent: "space-between",
-                                                px: 1.5,
-                                                py: 0.75,
-                                                borderRadius: 3,
-                                                border: "1px solid #f1e7ee",
-                                                backgroundColor: "#fff7fb",
-                                            }}
-                                            labelPlacement="start"
-                                            control={
-                                                <Switch
-                                                    checked={includePasswordInLink}
-                                                    onChange={(e) => setIncludePasswordInLink(e.target.checked)}
-                                                />
+                                    <TextField
+                                        fullWidth
+                                        label="Transfer link"
+                                        value={link}
+                                        slotProps={{
+                                            input: {
+                                                readOnly: true,
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <LinkIcon />
+                                                    </InputAdornment>
+                                                ),
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <IconButton onClick={handleCopyLink} edge="end" size="small">
+                                                            <ContentCopyIcon fontSize="small" />
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                ),
                                             }
-                                            label={
-                                                <Typography variant="body2" sx={{ fontWeight: 600, color: "#2b0f1f" }}>
-                                                    Include password in link
-                                                </Typography>
-                                            }
-                                        />
+                                        }}
+                                    />
 
-                                        <TextField
-                                            fullWidth
-                                            label="Password"
-                                            type={showPassword ? "text" : "password"}
-                                            value={message.password}
-                                            slotProps={{
-                                                input: {
-                                                    readOnly: true,
-                                                    startAdornment: (
-                                                        <InputAdornment position="start">
-                                                            <KeyIcon />
-                                                        </InputAdornment>
-                                                    ),
-                                                    endAdornment: (
-                                                        <InputAdornment position="end">
-                                                            <IconButton onClick={() => setShowPassword((p) => !p)} edge="end" size="small">
-                                                                {showPassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
-                                                            </IconButton>
-                                                            <IconButton onClick={handleCopyPassword} edge="end" size="small">
-                                                                <ContentCopyIcon fontSize="small" />
-                                                            </IconButton>
-                                                        </InputAdornment>
-                                                    ),
+                                    {message.password && (
+                                        <>
+                                            <FormControlLabel
+                                                sx={{
+                                                    width: "100%",
+                                                    m: 0,
+                                                    justifyContent: "space-between",
+                                                    px: 1.5,
+                                                    py: 0.75,
+                                                    borderRadius: 3,
+                                                    border: "1px solid #f1e7ee",
+                                                    backgroundColor: "#fff7fb",
+                                                }}
+                                                labelPlacement="start"
+                                                control={
+                                                    <Switch
+                                                        checked={includePasswordInLink}
+                                                        onChange={(e) => setIncludePasswordInLink(e.target.checked)}
+                                                    />
                                                 }
-                                            }}
-                                        />
-                                    </>
-                                )}
+                                                label={
+                                                    <Typography variant="body2" sx={{ fontWeight: 600, color: "#2b0f1f" }}>
+                                                        Include password in link
+                                                    </Typography>
+                                                }
+                                            />
+
+                                            <TextField
+                                                fullWidth
+                                                label="Password"
+                                                type={showPassword ? "text" : "password"}
+                                                value={message.password}
+                                                slotProps={{
+                                                    input: {
+                                                        readOnly: true,
+                                                        startAdornment: (
+                                                            <InputAdornment position="start">
+                                                                <KeyIcon />
+                                                            </InputAdornment>
+                                                        ),
+                                                        endAdornment: (
+                                                            <InputAdornment position="end">
+                                                                <IconButton onClick={() => setShowPassword((p) => !p)} edge="end" size="small">
+                                                                    {showPassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                                                                </IconButton>
+                                                                <IconButton onClick={handleCopyPassword} edge="end" size="small">
+                                                                    <ContentCopyIcon fontSize="small" />
+                                                                </IconButton>
+                                                            </InputAdornment>
+                                                        ),
+                                                    }
+                                                }}
+                                            />
+                                        </>
+                                    )}
+
+                                    <Button
+                                        fullWidth
+                                        variant="contained"
+                                        startIcon={downloadProgress !== undefined ? <CircularProgress size={18} color="inherit" /> : <DownloadIcon />}
+                                        onClick={handleDownload}
+                                        disabled={downloadsLeft <= 0 || downloadProgress !== undefined}
+                                    >
+                                        {downloadProgress !== undefined ? `Downloading ${Math.round(downloadProgress)}%` : "Download"}
+                                    </Button>
+                                </Stack>
                             </Stack>
 
                             {stackedLayout ? (
@@ -404,153 +500,144 @@ export default function TransferDetails() {
                                 <Divider orientation="vertical" flexItem sx={{ borderColor: "#f1e7ee" }} />
                             )}
 
-                            {/* Right column: file summary + editable settings + actions */}
-                            <Stack spacing={3} sx={{ flex: 1, minWidth: 0 }}>
+                            {/* Right column: Manage */}
+                            <Stack spacing={2.5} sx={{ flex: 1, minWidth: 0 }}>
+                                <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#2b0f1f" }}>
+                                    Manage
+                                </Typography>
 
-                                <Box sx={panelSx}>
-                                    <Stack spacing={1.5}>
-                                        <Stack direction="row" spacing={1.5} sx={{ alignItems: "center", minWidth: 0 }}>
-                                            <InsertDriveFileIcon color="primary" />
-                                            <Typography sx={{ fontWeight: 600, overflowWrap: "anywhere" }}>
-                                                {message.messageData.filename}
-                                            </Typography>
-                                        </Stack>
-
-                                        <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-                                            <PersonIcon sx={{ fontSize: 16, opacity: 0.7 }} />
-                                            <Typography variant="caption" color="text.secondary">
-                                                From <b>{message.sender ?? "Unknown"}</b> • Sent {formatCreated(message.messageData.creation_time)}
-                                            </Typography>
-                                        </Stack>
-
-                                        <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", rowGap: 1 }}>
-                                            <Chip size="small" label={formatSize(message.messageData.file_size)} />
-                                            <Chip
-                                                size="small"
-                                                label={relativeExpire(message.messageData)}
-                                                color={expireColor(message.messageData) === "error.main" ? "error" : expireColor(message.messageData) === "warning.main" ? "warning" : "default"}
-                                            />
-                                            <Chip
-                                                size="small"
-                                                label={`${downloadsLeft} downloads remaining`}
-                                                color={downloadsLeft <= 1 ? "warning" : "default"}
-                                                variant={downloadsLeft <= 1 ? "filled" : "outlined"}
-                                            />
-                                        </Stack>
-                                    </Stack>
-                                </Box>
-
-                                {/* Transfer settings */}
-                                {message.auth_key && (
-                                    <Accordion
-                                        defaultExpanded
-                                        disableGutters
-                                        elevation={0}
-                                        sx={{
-                                            width: "100%",
-                                            border: "1px solid",
-                                            borderColor: "divider",
-                                            borderRadius: 2,
-                                            "&:before": {
-                                                display: "none",
-                                            },
-                                        }}
-                                    >
-                                        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                                            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                                {message.auth_key ? (
+                                    <Stack spacing={3}>
+                                        <Box sx={{ ...panelSx, backgroundColor: "#ffffff" }}>
+                                            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
                                                 Transfer settings
                                             </Typography>
-                                        </AccordionSummary>
 
-                                        <AccordionDetails
-                                            sx={{
-                                                display: "flex",
-                                                flexDirection: "column",
-                                                gap: 2,
-                                            }}
-                                        >
-                                            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-                                                <TextField
-                                                    label="Max Downloads"
-                                                    name="maxDownloads"
-                                                    type="number"
-                                                    slotProps={{
-                                                        htmlInput: { min: 1, max: maxDownloadsAccount },
-                                                    }}
-                                                    variant="outlined"
-                                                    fullWidth
-                                                    required
-                                                    value={maxDownloads}
-                                                    onChange={(e) => {
-                                                        const v = e.target.value;
-                                                        setMaxDownloads(v === "" ? "" : Number(v));
-                                                    }}
-                                                    error={maxDownloadsInvalid}
-                                                    helperText={
-                                                        maxDownloadsInvalid
-                                                            ? `Must be between 1 and ${maxDownloadsAccount}`
-                                                            : maxDownloadsAccount
-                                                                ? `Max allowed: ${maxDownloadsAccount}`
-                                                                : undefined
-                                                    }
-                                                />
+                                            <Stack spacing={2}>
+                                                <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                                                    <TextField
+                                                        label="Max Downloads"
+                                                        name="maxDownloads"
+                                                        type="number"
+                                                        slotProps={{ htmlInput: { min: 1, max: maxDownloadsAccount } }}
+                                                        variant="outlined"
+                                                        fullWidth
+                                                        required
+                                                        value={maxDownloads}
+                                                        onChange={(e) => {
+                                                            const v = e.target.value;
+                                                            setMaxDownloads(v === "" ? "" : Number(v));
+                                                        }}
+                                                        error={maxDownloadsInvalid}
+                                                        helperText={
+                                                            maxDownloadsInvalid
+                                                                ? `Must be between 1 and ${maxDownloadsAccount}`
+                                                                : maxDownloadsAccount
+                                                                    ? `Max allowed: ${maxDownloadsAccount}`
+                                                                    : undefined
+                                                        }
+                                                    />
 
-                                                <TextField
-                                                    label="Lifetime"
-                                                    name="lifetime"
-                                                    type="number"
-                                                    slotProps={{
-                                                        htmlInput: { min: 1, max: maxLifetimeAccount },
-                                                    }}
-                                                    variant="outlined"
+                                                    <TextField
+                                                        label="Lifetime"
+                                                        name="lifetime"
+                                                        type="number"
+                                                        slotProps={{ htmlInput: { min: 1, max: maxLifetimeAccount } }}
+                                                        variant="outlined"
+                                                        fullWidth
+                                                        required
+                                                        value={lifetimeDays}
+                                                        onChange={(e) => {
+                                                            const v = e.target.value;
+                                                            setLifetimeDays(v === "" ? "" : Number(v));
+                                                        }}
+                                                        error={lifetimeInvalid}
+                                                        helperText={
+                                                            lifetimeInvalid
+                                                                ? `Must be between 1 and ${maxLifetimeAccount} days`
+                                                                : maxLifetimeAccount
+                                                                    ? `Max allowed: ${maxLifetimeAccount} days`
+                                                                    : undefined
+                                                        }
+                                                    />
+                                                </Stack>
+
+                                                <Button
                                                     fullWidth
-                                                    required
-                                                    value={lifetimeDays}
-                                                    onChange={(e) => {
-                                                        const v = e.target.value;
-                                                        setLifetimeDays(v === "" ? "" : Number(v));
-                                                    }}
-                                                    error={lifetimeInvalid}
-                                                    helperText={
-                                                        lifetimeInvalid
-                                                            ? `Must be between 1 and ${maxLifetimeAccount} days`
-                                                            : maxLifetimeAccount
-                                                                ? `Max allowed: ${maxLifetimeAccount} days`
-                                                                : undefined
-                                                    }
-                                                />
+                                                    variant="contained"
+                                                    startIcon={saving ? <CircularProgress size={18} color="inherit" /> : <SaveIcon />}
+                                                    onClick={handleSave}
+                                                    disabled={saving || !settingsChanged || maxDownloadsInvalid || lifetimeInvalid}
+                                                >
+                                                    Save changes
+                                                </Button>
                                             </Stack>
+                                        </Box>
 
-                                            <Button
-                                                fullWidth
-                                                variant="contained"
-                                                startIcon={saving ? <CircularProgress size={18} color="inherit" /> : <SaveIcon />}
-                                                onClick={handleSave}
-                                                disabled={saving || !settingsChanged || maxDownloadsInvalid || lifetimeInvalid}
-                                            >
-                                                Save changes
-                                            </Button>
-                                        </AccordionDetails>
-                                    </Accordion>
-                                )}
+                                        <Box sx={{ ...panelSx, backgroundColor: "#ffffff" }}>
+                                            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
+                                                Change password
+                                            </Typography>
 
-                                <Divider />
+                                            <Stack spacing={2}>
+                                                <TextField
+                                                    label="New password"
+                                                    name="newPassword"
+                                                    type={showNewPassword ? "text" : "password"}
+                                                    variant="outlined"
+                                                    fullWidth
+                                                    required
+                                                    value={newPassword}
+                                                    onChange={(e) => setNewPassword(e.target.value)}
+                                                    error={errorWeakNewPassword}
+                                                    helperText={errorWeakNewPassword ? errors.errorWeakPassword : ""}
+                                                    slotProps={{
+                                                        input: {
+                                                            endAdornment: (
+                                                                <InputAdornment position="end">
+                                                                    <IconButton
+                                                                        aria-label={showNewPassword ? "Hide password" : "Show password"}
+                                                                        onClick={() => setShowNewPassword((p) => !p)}
+                                                                    >
+                                                                        {showNewPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                                                    </IconButton>
+                                                                </InputAdornment>
+                                                            ),
+                                                        },
+                                                    }}
+                                                />
 
-                                {downloadProgress !== undefined ? (
-                                    <Stack direction="row" spacing={1} sx={{ alignItems: "center", justifyContent: "center" }}>
-                                        <CircularProgress variant="determinate" value={downloadProgress} size={22} />
-                                        <Typography variant="caption">{Math.round(downloadProgress)}%</Typography>
+                                                <PasswordStrength password={newPassword} onStrengthChange={setIsNewPasswordStrong} />
+
+                                                <TextField
+                                                    label="Confirm new password"
+                                                    name="confirmNewPassword"
+                                                    type="password"
+                                                    variant="outlined"
+                                                    fullWidth
+                                                    required
+                                                    value={confirmNewPassword}
+                                                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                                                    error={errorNewPasswordMismatch}
+                                                    helperText={errorNewPasswordMismatch ? errors.errorPasswordMismatch : ""}
+                                                />
+
+                                                <Button
+                                                    fullWidth
+                                                    variant="contained"
+                                                    startIcon={changingPassword ? <CircularProgress size={18} color="inherit" /> : <SaveIcon />}
+                                                    onClick={handleChangePassword}
+                                                    disabled={changingPassword || !newPassword || !confirmNewPassword}
+                                                >
+                                                    Update password
+                                                </Button>
+                                            </Stack>
+                                        </Box>
                                     </Stack>
                                 ) : (
-                                    <Button
-                                        fullWidth
-                                        variant="outlined"
-                                        startIcon={<DownloadIcon />}
-                                        onClick={handleDownload}
-                                        disabled={downloadsLeft <= 0}
-                                    >
-                                        Download
-                                    </Button>
+                                    <Typography variant="body2" color="text.secondary">
+                                        You don't have owner access to manage this transfer's settings.
+                                    </Typography>
                                 )}
                             </Stack>
                         </Stack>
