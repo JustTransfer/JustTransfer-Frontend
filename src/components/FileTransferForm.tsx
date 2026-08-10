@@ -72,7 +72,6 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
     const [isStrong, setIsStrong] = useState(false);
 
     const [errorReceiver, setErrorReceiver] = useState(false);
-    // const [helperTextReceiver, setHelperTextReceiver] = useState("");
 
     const [errorPassword, setErrorPassword] = useState(false);
     const [errorWeakPassword, setErrorWeakPassword] = useState(false);
@@ -325,7 +324,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
 
                     ) : (
                         <>
-                            <AddBoxIcon sx={{ fontSize: { xs: 56, sm: 80 }, color: "primary.main" }} />
+                            <AddBoxIcon sx={{ fontSize: { xs: 56, sm: 80 }, color: isDragging ? "primary.main" : "grey.400", }} />
                             <Typography variant="subtitle1" sx={{ fontWeight: "bold", fontSize: { xs: "1rem", sm: "1.1rem" } }}>
                                 Click to add a file
                             </Typography>
