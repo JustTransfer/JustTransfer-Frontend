@@ -37,6 +37,7 @@ export default function LinkTransfer() {
         boxShadow: "0 18px 40px rgba(83, 24, 60, 0.12)",
         backgroundColor: "#ffffff",
         p: { xs: 3, md: 5 },
+        overflow: "hidden",
     };
 
     const statTileSx = {
@@ -189,10 +190,9 @@ export default function LinkTransfer() {
             >
 
                 <Paper elevation={0} sx={cardSx}>
-                    <Box component="form" sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }} onSubmit={handleSubmit}>
-
+                    <Box component="form" sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, width: "100%", minWidth: 0 }} onSubmit={handleSubmit}>
                         {messageData ? (
-                            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+                            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, width: "100%", minWidth: 0 }}>
 
                                 <Box sx={{
                                     display: "flex",
@@ -200,12 +200,22 @@ export default function LinkTransfer() {
                                     alignItems: "center",
                                     gap: 1,
                                     width: "100%",
+                                    minWidth: 0,
                                 }}>
                                     <Box sx={{ p: 2, borderRadius: 3, backgroundColor: "#fff0f8" }}>
                                         <DescriptionIcon sx={{ fontSize: 60, color: "primary.main" }} />
                                     </Box>
 
-                                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                                    <Typography
+                                        variant="h5"
+                                        sx={{
+                                            fontWeight: "bold",
+                                            width: "100%",
+                                            wordBreak: "break-word",
+                                            overflowWrap: "anywhere",
+                                            hyphens: "auto",
+                                        }}
+                                    >
                                         {messageData.filename}
                                     </Typography>
 
@@ -221,6 +231,7 @@ export default function LinkTransfer() {
                                         gridTemplateColumns: "1fr 1fr",
                                         gap: 2,
                                         width: "100%",
+                                        minWidth: 0,
                                         mt: 2,
                                     }}
                                 >
