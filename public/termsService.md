@@ -1,6 +1,6 @@
 # Terms of Service
 
-**Last Updated:** 30.06.2026
+**Last Updated:** 10.08.2026
 
 ## Article 1 - Purpose and Acceptance
 
@@ -30,22 +30,18 @@ We may amend these Terms from time to time. Material changes will become effecti
 
 The Service provides secure end-to-end encrypted file transfers hosted exclusively within Switzerland.
 
-Two transfer modes are available:
+All transfers are link-based:
 
-Link Transfer
-
-- upload files;
+- upload a file;
 - generate a secure download link;
-- optional password protection;
+- optional password protection, or an automatically generated password;
 - configurable retention period (lifetime);
-- configurable maximum download limit.
+- configurable maximum download limit;
+- if you are a registered user, you may optionally specify a recipient's email address; the recipient will then receive an email containing the transfer link.
 
-Direct Transfer
+If the recipient is a registered user, the transfer may be automatically associated with their account, and the transfer password may be automatically saved to their account for easier access, as described in Article 6 and in our Privacy Policy.
 
-- transfer encrypted files directly from one registered account to another;
-- recipient selected by account;
-- configurable retention period (lifetime);
-- configurable maximum download limit.
+Registered users may manage transfers they own through their account, including viewing the transfer link and password, changing the transfer password, updating the maximum number of allowed downloads, updating the transfer lifetime, and deleting the transfer, as further described in Article 6.
 
 Features include:
 
@@ -63,7 +59,7 @@ File contents and filenames are encrypted on the sender's device before transmis
 
 ### 2.3
 
-Because the Service uses end-to-end encryption, the Company cannot decrypt, inspect, recover, or modify user files.
+Because the Service uses end-to-end encryption, the Company cannot decrypt, inspect, recover, or modify user files. Where a transfer password is automatically saved to a recipient's account, that password is itself end-to-end encrypted before being stored, and its association with any particular account is not visible to the Company in readable form, as further described in our Privacy Policy.
 
 ### 2.4
 
@@ -87,7 +83,7 @@ The Service may be temporarily unavailable due to maintenance, upgrades, securit
 
 ### 3.4
 
-Users are responsible for securely retaining passwords, recovery information and any decryption credentials. The Company cannot recover encrypted files where the necessary credentials have been lost.
+Users are responsible for securely retaining passwords, recovery information and any decryption credentials. The Company cannot recover encrypted files where the necessary credentials have been lost and no password has been saved to an account the user controls.
 
 ---
 
@@ -131,7 +127,7 @@ You agree not to use the Service for:
 
 ### 5.4
 
-You are solely responsible for distributing download links and decryption passwords securely.
+You are solely responsible for distributing download links and decryption passwords securely, including when you choose to have JustTransfer notify a recipient by email on your behalf.
 
 ### 5.5
 
@@ -143,7 +139,7 @@ You acknowledge that anyone possessing both the download link and the required d
 
 ### 6.1
 
-Registered users must provide accurate and up-to-date account information.
+Registered users authenticate using an email address and password. Registered users must provide an accurate and up-to-date email address.
 
 ### 6.2
 
@@ -154,6 +150,14 @@ Users are responsible for maintaining the confidentiality of their passwords.
 Users are responsible for all activities performed using their account.
 
 ### 6.4
+
+For transfers they own, registered users may, through their account: view the transfer link and password, change the transfer password, update the maximum number of allowed downloads, update the transfer lifetime, and delete the transfer at any time before it expires.
+
+### 6.5
+
+If a registered user receives a transfer, the transfer may be automatically associated with their account, and the transfer password may be automatically saved to their account so that it does not need to be entered manually. This feature, and how saved passwords are protected, is described in our Privacy Policy.
+
+### 6.6
 
 The Company may suspend accounts involved in abuse, fraud or unlawful activity.
 
@@ -228,7 +232,7 @@ Your rights regarding personal data are described in our Privacy Policy.
 
 ### 12.1
 
-The Company may comply with legally binding requests from competent authorities in accordance with applicable Swiss law. Due to end-to-end encryption, the Company may be technically incapable of providing readable file contents.
+The Company may comply with legally binding requests from competent authorities in accordance with applicable Swiss law. Due to end-to-end encryption, the Company may be technically incapable of providing readable file contents or saved transfer passwords.
 
 ---
 

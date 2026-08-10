@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last Updated:** 30.06.2026
+**Last Updated:** 10.08.2026
 
 ---
 
@@ -44,8 +44,7 @@ This Privacy Policy applies to:
 
 - our website;
 - user accounts;
-- Link Transfers;
-- Direct Transfers;
+- Transfers;
 - customer support;
 - all related services provided by JustTransfer.
 
@@ -70,8 +69,7 @@ JustTransfer has been designed according to the following principles:
 
 When you create an account, we process:
 
-- username;
-- email address;
+- email address (used as your account identifier and for authentication);
 - password (processed and stored only as a secure cryptographic hash).
 
 Passwords are never processed or stored in plaintext.
@@ -80,11 +78,9 @@ Passwords are never processed or stored in plaintext.
 
 ## 5.2 Transfer Metadata
 
-To provide the Service, we process operational metadata.
+To provide the Service, we process operational metadata for every Transfer. All Transfers are link-based.
 
-Depending on the transfer type, this may include:
-
-### Link Transfer
+This may include:
 
 - transfer identifier;
 - upload timestamp;
@@ -93,24 +89,26 @@ Depending on the transfer type, this may include:
 - maximum download limit;
 - current download count;
 - encrypted file size;
-- technical logs necessary for operation and security.
-
-### Direct Transfer
-
-- sender account;
-- recipient account;
-- transfer identifier;
-- upload timestamp;
-- expiration timestamp;
-- selected retention period;
-- maximum download limit;
-- current download count;
-- encrypted file size;
-- technical logs necessary for operation and security.
+- technical logs necessary for operation and security;
+- the sender's account, if the sender is registered;
+- the recipient's email address, if the sender chooses to notify a recipient by email;
+- the recipient's account, if the recipient is registered and the transfer becomes associated with their account.
 
 ---
 
-## 5.3 Encrypted File Data
+## 5.3 Saved Transfer Passwords
+
+If you access a Transfer while logged into a JustTransfer account, the transfer password may be automatically saved to your account so that you do not need to re-enter it on future visits.
+
+Saved transfer passwords are end-to-end encrypted on your device before being stored, using keys derived from your account credentials. As a result:
+
+- JustTransfer stores only the encrypted password and cannot read it in plaintext;
+- JustTransfer cannot determine, from stored data alone, which transfers a given account has saved a password for — the association between an account and a saved transfer password is itself stored in encrypted form and is not visible to us;
+- saved transfer passwords are deleted automatically when the associated transfer is deleted or expires, or when you delete your account.
+
+---
+
+## 5.4 Encrypted File Data
 
 Files uploaded through JustTransfer are encrypted on your device before transmission.
 
@@ -123,7 +121,7 @@ Because of end-to-end encryption, JustTransfer cannot decrypt, inspect, analyze 
 
 ---
 
-## 5.4 Technical Information
+## 5.5 Technical Information
 
 When you use the Service, we may automatically process technical information such as:
 
@@ -145,7 +143,10 @@ We process personal data only where necessary to:
 
 - provide the Service;
 - create and manage user accounts;
-- enable secure file transfers;
+- enable secure, link-based file transfers;
+- notify a recipient by email when a sender chooses to specify one;
+- associate a received transfer with a recipient's account, and save the transfer password to that account, where applicable;
+- allow account holders to view, manage, and delete their own transfers, including viewing the transfer link and password, changing the transfer password, and updating the download limit or lifetime;
 - maintain system security;
 - detect abuse and fraud;
 - comply with legal obligations;
@@ -169,6 +170,8 @@ The encryption occurs on the sender's device before transmission.
 
 Under normal operation, JustTransfer does not possess the cryptographic keys necessary to decrypt customer files.
 
+This remains true even when a transfer password is automatically saved to a recipient's account (see Section 5.3): the saved password is itself end-to-end encrypted before it reaches our servers, and the link between an account and the transfers it has saved passwords for is not visible to us in readable form.
+
 Accordingly, we cannot:
 
 - read your files;
@@ -176,7 +179,7 @@ Accordingly, we cannot:
 - recover lost encrypted files;
 - disclose readable file contents to third parties.
 
-If you lose the credentials required to decrypt your files, recovery is technically impossible.
+If you lose the credentials required to decrypt a file, and no password has been saved to an account you control, recovery is technically impossible.
 
 ---
 
@@ -194,15 +197,11 @@ If, in exceptional circumstances, personal data must be transferred outside Swit
 
 Account information is retained for as long as your account remains active and thereafter only as required by applicable law or legitimate operational needs.
 
-If you delete your account, we will delete or anonymize your personal data unless we are required or permitted to retain certain information to comply with legal obligations, resolve disputes, enforce our agreements, or protect the security and integrity of the Service.
+If you delete your account, all data stored under that account, including any encrypted saved transfer passwords, is deleted, unless we are required or permitted to retain certain information to comply with legal obligations, resolve disputes, enforce our agreements, or protect the security and integrity of the Service.
 
-## Link Transfers
+## Transfers
 
-Encrypted files and associated operational metadata are automatically deleted after the selected retention period expires unless deleted earlier by the user, for abuse prevention, or where required by law.
-
-## Direct Transfers
-
-Encrypted files and associated operational metadata are automatically deleted after the selected retention period expires unless deleted earlier by the user, for abuse prevention, or where required by law.
+Encrypted files and associated operational metadata, including any recipient email address, are automatically deleted after the selected retention period expires, unless deleted earlier by the user, for abuse prevention, or where required by law. Any encrypted saved password linked to a deleted transfer becomes permanently unusable once the transfer itself is deleted.
 
 ## Security Logs
 
@@ -224,7 +223,7 @@ We may disclose personal data only where necessary:
 - to protect the security or integrity of the Service;
 - where disclosure is required by applicable law.
 
-Because file contents are protected by end-to-end encryption, we may be technically unable to provide readable file contents even when legally requested.
+Because file contents, and any saved transfer passwords, are protected by end-to-end encryption, we may be technically unable to provide readable file contents or saved passwords even when legally requested.
 
 ---
 
@@ -244,7 +243,8 @@ We implement appropriate technical and organizational measures designed to prote
 
 - HTTPS/TLS encrypted communications;
 - end-to-end encryption of files and filenames;
-- secure password hashing;
+- secure password hashing for account passwords;
+- end-to-end encryption of saved transfer passwords, stored in a form that does not reveal to us which account is associated with which transfer;
 - access controls;
 - logging and monitoring;
 - regular security updates;
@@ -271,7 +271,7 @@ Subject to the Swiss Federal Act on Data Protection (FADP / LPD), you may have t
 - object to certain processing where provided by law;
 - withdraw consent where processing is based on consent.
 
-Because encrypted file contents are inaccessible to us, we may be unable to provide readable copies of files protected by end-to-end encryption.
+Because encrypted file contents, and any saved transfer passwords, are inaccessible to us, we may be unable to provide readable copies of files or saved passwords protected by end-to-end encryption.
 
 Requests may be submitted using the contact information provided below.
 
