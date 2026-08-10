@@ -324,7 +324,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
 
                     ) : (
                         <>
-                            <AddBoxIcon sx={{ fontSize: { xs: 56, sm: 80 }, color: isDragging ? "primary.main" : "grey.400", }} />
+                            <AddBoxIcon sx={{ fontSize: { xs: 56, sm: 80 }, color: "primary.main" }} />
                             <Typography variant="subtitle1" sx={{ fontWeight: "bold", fontSize: { xs: "1rem", sm: "1.1rem" } }}>
                                 Click to add a file
                             </Typography>
