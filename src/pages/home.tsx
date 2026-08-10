@@ -90,28 +90,12 @@ export default function HomePage() {
                                 - no compromises.
                             </Typography>
                             <Typography variant="body1" sx={{ color: "#5a4454", maxWidth: 520 }}>
-                                Anonymous transfers up to {formatSize(linkLimits.maxFileSize)} with {linkLimits.maxDownloads} downloads and {linkLimits.maxLifetime}-day expiry. Share a secure link in seconds.
+                                Send a secure link up to {formatSize(linkLimits.maxFileSize)}, with {linkLimits.maxDownloads} downloads and {linkLimits.maxLifetime}-day expiry — no account needed. Create an account to manage transfers after you send them.
                             </Typography>
                             <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                                 <Chip label="No account needed" size="small" />
                                 <Chip label="End-to-end encryption" size="small" />
                                 <Chip label="Auto-delete" size="small" />
-                            </Box>
-                            <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2, flexWrap: "wrap" }}>
-                                <Button
-                                    variant="contained"
-                                    onClick={() => {
-                                        document.getElementById("how-it-works")?.scrollIntoView({
-                                            behavior: "smooth",
-                                            block: "start",
-                                        });
-                                    }}
-                                >
-                                    See how it works
-                                </Button>
-                                <Button variant="outlined" onClick={() => navigate("/login")}>
-                                    Login for direct transfer
-                                </Button>
                             </Box>
                         </Box>
 
@@ -157,7 +141,7 @@ export default function HomePage() {
                                 </Box>
                             )}
                             <Typography variant="body2" sx={{ color: "#7a6474", mt: 2, textAlign: "center" }}>
-                                Direct transfers require an account. <RouterLink to="/register">Create an account</RouterLink> or <RouterLink to="/login">log in</RouterLink>.
+                                Want to notify a recipient by email or manage this transfer later? <RouterLink to="/register">Create an account</RouterLink> or <RouterLink to="/login">log in</RouterLink>.
                             </Typography>
                         </Box>
                     </Box>
@@ -206,7 +190,7 @@ export default function HomePage() {
                                 <Typography variant="h6" sx={{ fontWeight: 700 }}>2. Share</Typography>
                             </Box>
                             <Typography variant="body1" color="text.secondary" sx={{ fontSize: "1.02rem" }}>
-                                Share the encrypted link with anyone.
+                                Share the link yourself, or, if you're signed in, let us email it to your recipient directly.
                             </Typography>
                         </Box>
                         <Box sx={{ p: 4, borderRadius: 4, border: "1px solid #f1e7ee", backgroundColor: "#ffffff" }}>
@@ -276,7 +260,7 @@ export default function HomePage() {
                                 Built-in privacy protections
                             </Typography>
                             <Typography variant="body1" sx={{ color: "#6f5164", mb: 3 }}>
-                                Zero-knowledge encryption, anonymous sharing, and automatic expiry keep your data private from upload to download.
+                                End-to-end encryption, anonymous sharing, and automatic expiry keep your data private from upload to download.
                             </Typography>
                             <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", mb: 3 }}>
                                 <Chip label="No tracking" size="small" sx={{ backgroundColor: "#fff", border: "1px solid #ebc7dc" }} />
@@ -378,7 +362,7 @@ export default function HomePage() {
                     </Box>
                 </Box>
 
-                {/* Link vs Direct transfer section */}
+                {/* Guest vs Account section */}
                 <Box
                     sx={{
                         width: "100%",
@@ -393,43 +377,34 @@ export default function HomePage() {
                     }}
                 >
                     <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, textAlign: "center" }}>
-                        Choose your transfer style
+                        Send as a guest, or unlock more with an account
                     </Typography>
                     <Typography
                         variant="body1"
                         sx={{ color: "#7a6474", mb: 5, textAlign: "center", maxWidth: 520, mx: "auto" }}
                     >
-                        Compare the experience and who each flow is built for.
+                        Every transfer is a secure link. An account just gives you more control over it.
                     </Typography>
                     <Box sx={{ maxWidth: maxWidthPage, mx: "auto", display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)" }, gap: 3 }}>
                         <Box sx={{ p: 3.5, borderRadius: 4, border: "1px solid #e3c3d6", background: "linear-gradient(135deg, #ffffff 0%, #ffeef7 100%)", boxShadow: "0 18px 48px rgba(83, 24, 60, 0.16)" }}>
                             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
                                 <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "primary.main" }}>
-                                    Link transfer
+                                    Guest transfer
                                 </Typography>
                                 <Chip label="No account" size="small" sx={{ backgroundColor: "#fff", border: "1px solid #e9cddd" }} />
                             </Box>
                             <Typography variant="body2" sx={{ color: "#6e5a69", mb: 2, maxWidth: { xs: "100%", sm: 360 } }}>
-                                Share a secure link with password protection and flexible download settings.
+                                Upload a file, set a password, and get a shareable link in seconds.
                             </Typography>
                             <Box sx={{ display: "grid", gap: 1.25, mb: 2.5, maxWidth: { xs: "100%", sm: 360 } }}>
                                 <Box>
                                     <Typography variant="caption" sx={{ textTransform: "uppercase", letterSpacing: "0.08em", color: "#9a7f8f" }}>
-                                        Key features
+                                        Included
                                     </Typography>
                                     <Box component="ul" sx={{ color: "#5f4b58", m: 0, pl: 2, display: "grid", gap: 0.6 }}>
-                                        <Typography component="li" variant="body2">
-                                            Password required
-                                        </Typography>
-                                        <Typography component="li" variant="body2">
-                                            Shareable links
-                                        </Typography>
-                                        <Typography component="li" variant="body2">
-                                            Flexible expiry and download limits
-                                        </Typography>
-                                        <Typography component="li" variant="body2">
-                                            Anonymous sharing
-                                        </Typography>
+                                        <Typography component="li" variant="body2">End-to-end encryption with a password</Typography>
+                                        <Typography component="li" variant="body2">Flexible expiry and download limits</Typography>
+                                        <Typography component="li" variant="body2">Fully anonymous, no sign-up</Typography>
                                     </Box>
                                 </Box>
                                 <Box>
@@ -437,50 +412,35 @@ export default function HomePage() {
                                         Best for
                                     </Typography>
                                     <Box component="ul" sx={{ color: "#5f4b58", m: 0, pl: 2, display: "grid", gap: 0.6 }}>
-                                        <Typography component="li" variant="body2">
-                                            One-to-many sharing
-                                        </Typography>
-                                        <Typography component="li" variant="body2">
-                                            External recipients
-                                        </Typography>
-                                        <Typography component="li" variant="body2">
-                                            Guest transfers
-                                        </Typography>
+                                        <Typography component="li" variant="body2">One-off, quick shares</Typography>
+                                        <Typography component="li" variant="body2">Anonymous senders</Typography>
                                     </Box>
                                 </Box>
                             </Box>
                             <Button size="small" variant="contained" href="#transfer-form">
-                                Start link transfer
+                                Start a transfer
                             </Button>
                         </Box>
                         <Box sx={{ p: 3.5, borderRadius: 4, border: "1px solid #cf9fbe", background: "linear-gradient(135deg, #ffe2f2 0%, #ffffff 100%)", boxShadow: "0 22px 60px rgba(83, 24, 60, 0.2)" }}>
                             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
                                 <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "primary.main" }}>
-                                    Direct transfer
+                                    Account transfer
                                 </Typography>
-                                <Chip label="Account required" size="small" sx={{ backgroundColor: "#fff", border: "1px solid #e9cddd" }} />
+                                <Chip label="Account" size="small" sx={{ backgroundColor: "#fff", border: "1px solid #e9cddd" }} />
                             </Box>
                             <Typography variant="body2" sx={{ color: "#6e5a69", mb: 2, maxWidth: { xs: "100%", sm: 360 } }}>
-                                Send directly to users without sharing links or passwords.
+                                Everything in a guest transfer, plus full control after you hit send.
                             </Typography>
                             <Box sx={{ display: "grid", gap: 1.25, mb: 2.5, maxWidth: { xs: "100%", sm: 360 } }}>
                                 <Box>
                                     <Typography variant="caption" sx={{ textTransform: "uppercase", letterSpacing: "0.08em", color: "#9a7f8f" }}>
-                                        Features
+                                        Included
                                     </Typography>
                                     <Box component="ul" sx={{ color: "#5f4b58", m: 0, pl: 2, display: "grid", gap: 0.6 }}>
-                                        <Typography component="li" variant="body2">
-                                            No password required
-                                        </Typography>
-                                        <Typography component="li" variant="body2">
-                                            No links - send directly to user accounts
-                                        </Typography>
-                                        <Typography component="li" variant="body2">
-                                            Flexible expiry and download limits
-                                        </Typography>
-                                        <Typography component="li" variant="body2">
-                                            Authenticated sharing
-                                        </Typography>
+                                        <Typography component="li" variant="body2">Notify a recipient by email</Typography>
+                                        <Typography component="li" variant="body2">View or change the password anytime</Typography>
+                                        <Typography component="li" variant="body2">Update download limit and expiry</Typography>
+                                        <Typography component="li" variant="body2">Delete a transfer early</Typography>
                                     </Box>
                                 </Box>
                                 <Box>
@@ -488,20 +448,13 @@ export default function HomePage() {
                                         Best for
                                     </Typography>
                                     <Box component="ul" sx={{ color: "#5f4b58", m: 0, pl: 2, display: "grid", gap: 0.6 }}>
-                                        <Typography component="li" variant="body2">
-                                            One-to-one sharing
-                                        </Typography>
-                                        <Typography component="li" variant="body2">
-                                            Known recipients
-                                        </Typography>
-                                        <Typography component="li" variant="body2">
-                                            Frequent transfers
-                                        </Typography>
+                                        <Typography component="li" variant="body2">Recurring or managed sharing</Typography>
+                                        <Typography component="li" variant="body2">Sending to known recipients</Typography>
                                     </Box>
                                 </Box>
                             </Box>
-                            <Button size="small" variant="outlined" onClick={() => navigate("/login")}>
-                                Login to use direct transfer
+                            <Button size="small" variant="outlined" onClick={() => navigate("/register")}>
+                                Create a free account
                             </Button>
                         </Box>
                     </Box>
@@ -538,7 +491,7 @@ export default function HomePage() {
                             Ready to transfer?
                         </Typography>
                         <Typography variant="body1" sx={{ opacity: 0.9, mb: 3 }}>
-                            Start a secure link transfer in seconds or create an account for direct transfers.
+                            Send a secure link in seconds and create an account to manage your transfers and notify recipients by email.
                         </Typography>
                         <Box sx={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>
                             <Button variant="contained" color="secondary" href="#transfer-form">
