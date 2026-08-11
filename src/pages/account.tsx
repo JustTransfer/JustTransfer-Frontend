@@ -383,11 +383,9 @@ export default function AccountPage() {
                                     Delete Account
                                 </Typography>
                                 <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
-                                    Deleting your account will permanently remove all your data, including current transfers.
+                                    Deleting your account will permanently remove all your data, including saved transfers. Current transfers are not affected.
                                     <br />
-                                    This information cannot be recovered once your account is deleted.
-
-                                    This action cannot be undone.
+                                    Information cannot be recovered once your account is deleted. This action cannot be undone.
                                 </Typography>
                             </Box>
                             <Button

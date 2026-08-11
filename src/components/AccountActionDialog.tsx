@@ -140,7 +140,7 @@ export default function AccountActionDialog({
 
                     {isDelete && (
                         <Alert severity="warning" sx={{ mb: 3 }}>
-                            This action is irreversible! All your sent and received transfers will be deleted.
+                            This action is irreversible! All your saved transfers will be deleted. Current transfers are not affected.
                         </Alert>
                     )}
 
