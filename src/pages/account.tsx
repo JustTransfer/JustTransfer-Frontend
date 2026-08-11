@@ -214,9 +214,6 @@ export default function AccountPage() {
                                 {email ?
                                     <>
                                         <Typography variant="h6">{email}</Typography>
-                                        <Typography variant="body2" color="text.secondary" sx={{ overflowWrap: "anywhere", wordBreak: "break-word" }}>
-                                            {email}
-                                        </Typography>
                                     </>
                                     : (
                                         <Typography variant="h6">Loading...</Typography>
