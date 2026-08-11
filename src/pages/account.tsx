@@ -23,7 +23,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useServerConfig } from "../hooks/useServerConfig";
 import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
-import { changePassword, generateNewKeys } from "../handlers/crypto";
+import { changePassword, generateNewKeys, getSavedTransfers } from "../handlers/crypto";
 import { getAccountInfoAPI, deleteAccountAPI } from "../handlers/api";
 import { formatSize } from "../handlers/utils";
 import AccountActionDialog from "../components/AccountActionDialog";
@@ -128,7 +128,8 @@ export default function AccountPage() {
     async function handleChangePassword(currentPassword: string, newPassword: string) {
         try {
 
-            const result = await changePassword(email, currentPassword, newPassword, keys!);
+            const saved_transfers = await getSavedTransfers(exportKey!);
+            const result = await changePassword(email, currentPassword, newPassword, keys!, saved_transfers);
 
             if (!result.success) {
                 throw new Error(result.message || errors.errorChangePassword);

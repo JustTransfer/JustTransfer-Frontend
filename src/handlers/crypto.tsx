@@ -2,7 +2,7 @@ import { Base64 } from 'js-base64';
 
 import { getSodium, getOpaque } from "./utils";
 
-import { registerStartAPI, registerEndAPI, registerUpdateAPI, endPasswordResetAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, getSavedTransfersAPI, addSavedTransferAPI } from "./api";
+import { registerStartAPI, registerEndAPI, registerUpdateAPI, endPasswordResetAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, getSavedTransfersAPI, addSavedTransferAPI, deleteSavedTransferAPI } from "./api";
 
 import * as errors from "../messages/errors";
 
@@ -163,7 +163,7 @@ async function register(email: string, password: string) {
     };
 }
 
-async function changePassword(email: string, password: string, newPassword: string, keys: any[]) {
+async function changePassword(email: string, password: string, newPassword: string, keys: any[], saved_transfers: any[]) {
 
     // Login to verify password and refresh session
     const response = await loginProcess(email, password);
@@ -195,6 +195,16 @@ async function changePassword(email: string, password: string, newPassword: stri
 
     // Decrypt the keys with the new export key
     const decryptedKeys = await decryptKeys(response3.keys, exportKeyDecoded);
+
+    // Delete all saved transfers
+    for (let transfer of saved_transfers) {
+        await deleteSavedTransferAPI(transfer.id);
+    }
+
+    // Re-encrypt and save all saved transfers with the new export key
+    for (let transfer of saved_transfers) {
+        await addSavedTransfer(transfer.transfer_id, transfer.password, Base64.fromUint8Array(exportKeyDecoded, true), transfer.auth_key);
+    }
 
     // Return success
     return {
