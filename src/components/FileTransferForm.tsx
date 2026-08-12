@@ -19,6 +19,9 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Switch from "@mui/material/Switch";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Tooltip from "@mui/material/Tooltip";
 
 import { useNotification } from "../hooks/useNotificationContext";
 import * as errors from "../messages/errors";
@@ -55,6 +58,7 @@ type FileTransferFormProps =
                 lifetime: number;
                 maxDownloads: number;
                 receiver_email?: string;
+                isSigned: boolean;
             },
             onProgress: (percent: number) => void
         ) => Promise<string | void>;
@@ -70,6 +74,9 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
     const [isUsingPassword, setIsUsingPassword] = useState(false);
     const [password, setPassword] = useState("");
     const [isStrong, setIsStrong] = useState(false);
+    const [isSigned, setIsSigned] = useState(false);
+
+    const canSign = type === "connected"; // Only allow signing for connected users
 
     const [errorReceiver, setErrorReceiver] = useState(false);
 
@@ -174,6 +181,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
         setPassword("");
         setIsStrong(false);
         setAcceptedTerms(false);
+        setIsSigned(false);
     };
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -189,6 +197,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             file: selectedFile,
             lifetime: Number(formData.get("lifetime")),
             maxDownloads: Number(formData.get("maxDownloads")),
+            isSigned: isSigned && canSign,
         };
 
 
@@ -462,45 +471,94 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                     <AccordionDetails
                         sx={{
                             display: "flex",
-                            flexDirection: { xs: "column", sm: "row" },
+                            flexDirection: "column",
                             gap: 2,
                         }}
                     >
-                        <TextField
-                            label="Max Downloads"
-                            name="maxDownloads"
-                            type="number"
-                            slotProps={{
-                                htmlInput: { min: 1, max: maxDownloads },
+                        <Box
+                            sx={{
+                                display: "grid",
+                                gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                                gap: 2,
                             }}
-                            variant="outlined"
-                            fullWidth
-                            required
-                            defaultValue={maxDownloads}
-                            helperText={
-                                maxDownloads
-                                    ? `Max allowed: ${maxDownloads}`
-                                    : undefined
-                            }
-                        />
+                        >
+                            <TextField
+                                label="Max Downloads"
+                                name="maxDownloads"
+                                type="number"
+                                slotProps={{
+                                    htmlInput: { min: 1, max: maxDownloads },
+                                }}
+                                variant="outlined"
+                                fullWidth
+                                required
+                                defaultValue={maxDownloads}
+                                helperText={
+                                    maxDownloads
+                                        ? `Max allowed: ${maxDownloads}`
+                                        : undefined
+                                }
+                            />
 
-                        <TextField
-                            label="Lifetime"
-                            name="lifetime"
-                            type="number"
-                            slotProps={{
-                                htmlInput: { min: 1, max: maxLifetime },
+                            <TextField
+                                label="Lifetime"
+                                name="lifetime"
+                                type="number"
+                                slotProps={{
+                                    htmlInput: { min: 1, max: maxLifetime },
+                                }}
+                                variant="outlined"
+                                fullWidth
+                                required
+                                defaultValue={maxLifetime}
+                                helperText={
+                                    maxLifetime
+                                        ? `Max allowed: ${maxLifetime} days`
+                                        : undefined
+                                }
+                            />
+                        </Box>
+
+                        {/* Sign transfer toggle */}
+                        <Box
+                            sx={{
+                                p: { xs: 1.5, sm: 2 },
+                                borderRadius: 2,
+                                border: "1px solid",
+                                borderColor: "divider",
+                                textAlign: "left",
                             }}
-                            variant="outlined"
-                            fullWidth
-                            required
-                            defaultValue={maxLifetime}
-                            helperText={
-                                maxLifetime
-                                    ? `Max allowed: ${maxLifetime} days`
-                                    : undefined
-                            }
-                        />
+                        >
+                            <Tooltip
+                                title={canSign ? "" : "Sign in to your account to sign transfers"}
+                                disableHoverListener={canSign}
+                            >
+                                <span style={{ display: "inline-flex" }}>
+                                    <FormControlLabel
+                                        sx={{ m: 0, alignItems: "flex-start", gap: 1 }}
+                                        control={
+                                            <Switch
+                                                checked={isSigned}
+                                                disabled={!canSign}
+                                                onChange={(e) => setIsSigned(e.target.checked)}
+                                            />
+                                        }
+                                        label={
+                                            <Box>
+                                                <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                                                    Sign this transfer
+                                                </Typography>
+                                                <Typography variant="caption" color="text.secondary">
+                                                    {canSign
+                                                        ? "Cryptographically sign this transfer with your account key"
+                                                        : "Available when connected to an account"}
+                                                </Typography>
+                                            </Box>
+                                        }
+                                    />
+                                </span>
+                            </Tooltip>
+                        </Box>
                     </AccordionDetails>
                 </Accordion>
 

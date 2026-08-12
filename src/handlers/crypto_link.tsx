@@ -1,6 +1,7 @@
 import { Base64 } from 'js-base64';
 
 import { getSodium, getOpaque } from "./utils";
+import { getCachedPublicKeySign } from "./cachePubKey";
 
 import { uploadFileToS3, downloadFileFromS3, updateLinkMessageAPI, updatePasswordLinkMessageStartAPI, updatePasswordLinkMessageEndAPI } from "./api_link";
 import { postLinkMessageLoginStartAPI, postLinkMessageLoginEndAPI, getLinkMessageMetadataAPI, getLinkMessageAPI, sendLinkMessageStartAPI, sendLinkMessageAPI, finishUploadFileToS3Link } from "./api_link";
@@ -45,9 +46,30 @@ async function getOneLinkMessageMetadata(password: string, message_id: string) {
 
     // Get the message metadata
     const result2 = await getLinkMessageMetadataAPI(message_id);
-    let { id, c_enc_key, nonce_enc_key, c_mac_key, nonce_mac_key, cfilename, nonce_filename, file_id, max_downloads, lifetime, creation_time, hash_file, mac, number_downloads, file_size, chunk_size } = result2.message;
+    let { id, c_enc_key, nonce_enc_key, c_mac_key, nonce_mac_key, cfilename, nonce_filename, file_id, max_downloads, lifetime, creation_time, hash_file, mac, number_downloads, file_size, chunk_size, sender_key_id, signature_metadata, signature } = result2.message;
+
+    // Get the Encoded fileds of the message
+    cfilename = Base64.toUint8Array(cfilename);
+    nonce_filename = Base64.toUint8Array(nonce_filename);
+    mac = Base64.toUint8Array(mac);
 
     const sodium = await getSodium();
+
+    // Check the signature if not empty
+    if (signature_metadata && signature_metadata.length > 0 && signature && signature.length > 0) {
+        const signature_metadata_decoded = Base64.toUint8Array(signature_metadata);
+
+        let PublicKeySignSender = await getCachedPublicKeySign(sender_key_id);
+
+        // Verify the signature of the metadata
+        const isValidSignature = sodium.crypto_sign_verify_detached(signature_metadata_decoded, new TextEncoder().encode(JSON.stringify({
+            cfilename, nonce_filename, file_id, max_downloads, lifetime, creation_time, file_size, chunk_size
+        })), PublicKeySignSender);
+
+        if (!isValidSignature) {
+            throw new Error(errors.errorFailureSignatureVerification);
+        }
+    }
 
     // Decrypt the keys with the export key
     const AegisKey = sodium.crypto_aead_aegis256_decrypt(null, Base64.toUint8Array(c_enc_key), null, Base64.toUint8Array(nonce_enc_key), exportKeyDecoded);
@@ -56,11 +78,6 @@ async function getOneLinkMessageMetadata(password: string, message_id: string) {
     if (!AegisKey || !MacKey) {
         throw new Error(errors.errorKeyDerivationFailed);
     }
-
-    // Get the Encoded fileds of the message
-    cfilename = Base64.toUint8Array(cfilename);
-    nonce_filename = Base64.toUint8Array(nonce_filename);
-    mac = Base64.toUint8Array(mac);
 
     // Decrypt the filename and check auth data
     const auth_data = {
@@ -87,7 +104,7 @@ async function getOneLinkMessageMetadata(password: string, message_id: string) {
         MacKey: Base64.fromUint8Array(MacKey, true),
         message: "Message metadata retrieved successfully!",
         messageData: {
-            id, cfilename, filename, nonce_filename, message_id, file_id, creation_time, hash_file, mac, lifetime, max_downloads, number_downloads, file_size, chunk_size
+            id, cfilename, filename, nonce_filename, message_id, file_id, creation_time, hash_file, mac, lifetime, max_downloads, number_downloads, file_size, chunk_size, sender_key_id, signature_metadata, signature
         }
     };
 }
@@ -126,6 +143,15 @@ async function getOneLinkMessage(AegisKeyEncoded: string, MacKeyEncoded: string,
 
     // Authenticate the auth data with global MAC
     sodium.crypto_auth_hmacsha512256_update(mac_state, auth_data_encoded);
+
+    // Check if the message is signed
+    console.log("Message: ", message);
+    const isSigned = !!(message.signature && message.signature.length > 0);
+    let sign_state: any;
+    if (isSigned) {
+        sign_state = sodium.crypto_sign_init();
+        sodium.crypto_sign_update(sign_state, auth_data_encoded);
+    }
 
     let hash_state = sodium.crypto_generichash_init(null, 64); // 512 bits for the hash output
 
@@ -168,6 +194,24 @@ async function getOneLinkMessage(AegisKeyEncoded: string, MacKeyEncoded: string,
         throw new Error(errors.errorFailureMACVerification);
     }
 
+    // Finish and verify the signature over metadata + file hash
+    if (isSigned) {
+        sodium.crypto_sign_update(sign_state, file_hash);
+
+        const PublicKeySignSender = await getCachedPublicKeySign(message.sender_key_id);
+        const signature_decoded = Base64.toUint8Array(message.signature);
+
+        const isValidSignature = sodium.crypto_sign_final_verify(sign_state, signature_decoded, PublicKeySignSender);
+        if (!isValidSignature) {
+            throw new Error(errors.errorFailureSignatureVerification);
+        }
+
+        console.log("Signature verified successfully!");
+
+        // Set the sender
+        message.sender = message.sender_key_id; // TODO
+    }
+
     return message;
 }
 
@@ -175,7 +219,12 @@ async function getOneLinkMessage(AegisKeyEncoded: string, MacKeyEncoded: string,
 /// Send Link Message
 ///
 
-async function sendMessageLink(fileName: string, file: File, lifetimeDays: number, maxDownloads: number, password?: string, onProgress?: (percent: number) => void, receiver_email?: string) {
+async function sendMessageLink(fileName: string, file: File, lifetimeDays: number, maxDownloads: number, is_signed: boolean, keyId?: string, privateKeySign?: string, password?: string, onProgress?: (percent: number) => void, receiver_email?: string) {
+
+    let state: any;
+    let sender_key_id: string | undefined = undefined;
+    let signature_metadata_b64: string | undefined = undefined;
+    let signature_b64: string | undefined = undefined;
 
     const opaque = await getOpaque();
     const sodium = await getSodium();
@@ -275,9 +324,24 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
         file_size: file.size,
         chunk_size: chunkSize,
     };
+    const full_auth_data_encoded = new TextEncoder().encode(JSON.stringify(full_auth_data));
 
     // Authenticate the auth data with global MAC
-    sodium.crypto_auth_hmacsha512256_update(mac_state, new TextEncoder().encode(JSON.stringify(full_auth_data)));
+    sodium.crypto_auth_hmacsha512256_update(mac_state, full_auth_data_encoded);
+
+    // Optionally sign the metadata of the message
+    if (is_signed && privateKeySign) {
+        sender_key_id = keyId;
+
+        const PrivateKeySignDecoded = Base64.toUint8Array(privateKeySign);
+
+        const signature_metadata = sodium.crypto_sign_detached(full_auth_data_encoded, PrivateKeySignDecoded);
+        signature_metadata_b64 = Base64.fromUint8Array(signature_metadata, true);
+
+        // Update the signature with the metadata JSON structure
+        state = sodium.crypto_sign_init();
+        sodium.crypto_sign_update(state, full_auth_data_encoded);
+    }
 
     let hash_state = sodium.crypto_generichash_init(null, 64); // 512 bits for the hash output
 
@@ -318,8 +382,17 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
     const mac = sodium.crypto_auth_hmacsha512256_final(mac_state);
     const mac_b64 = Base64.fromUint8Array(mac, true);
 
+    // Optionally sign the metadata of the message
+    if (is_signed && privateKeySign) {
+        // Finalize the signature with the file hash
+        const PrivateKeySignDecoded = Base64.toUint8Array(privateKeySign);
+        sodium.crypto_sign_update(state, file_hash);
+        const signature = sodium.crypto_sign_final_create(state, PrivateKeySignDecoded);
+        signature_b64 = Base64.fromUint8Array(signature, true);
+    }
+
     // Finalize the upload
-    const response3 = await finishUploadFileToS3Link(id, message_file_id, upload_id, ETags, file_hash_b64, mac_b64, receiver_email);
+    const response3 = await finishUploadFileToS3Link(id, message_file_id, upload_id, ETags, file_hash_b64, mac_b64, receiver_email, sender_key_id, signature_metadata_b64, signature_b64);
     const auth_key = response3.auth_key;
 
     // Construct the link to be shared

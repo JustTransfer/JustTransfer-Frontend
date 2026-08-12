@@ -121,6 +121,9 @@ export default function HomePage() {
                                             data.file,
                                             data.lifetime,
                                             data.maxDownloads,
+                                            false,
+                                            undefined,
+                                            undefined,
                                             data.password,
                                             onProgress
                                         );

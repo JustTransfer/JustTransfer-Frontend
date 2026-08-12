@@ -16,7 +16,7 @@ export default function NewTransfer() {
     const { config } = useServerConfig();
     const { role, exportKey, getLatestKeys } = useAuth();
 
-    const [_keys, setKeys] = useState<any>(null);
+    const [keys, setKeys] = useState<any>(null);
 
     const maxFileSize = role === "premium" ? config?.max_file_size_connected_premium! : config?.max_file_size_connected!;
     const maxDownloads = role === "premium" ? config?.max_downloads_connected_premium! : config?.max_downloads_connected!;
@@ -28,6 +28,9 @@ export default function NewTransfer() {
         lifetime: number,
         maxDownloads: number,
         password: string,
+        privateKeySign: string | undefined,
+        isSigned: boolean,
+        keyId: string | undefined,
         onProgress: (percent: number) => void,
         receiver_email?: string
     ): Promise<string> {
@@ -37,6 +40,9 @@ export default function NewTransfer() {
             file,
             lifetime,
             maxDownloads,
+            isSigned,
+            keyId,
+            privateKeySign,
             password,
             onProgress,
             receiver_email
@@ -53,6 +59,7 @@ export default function NewTransfer() {
             try {
                 const latestKeys = await getLatestKeys();
                 setKeys(latestKeys);
+                console.log("Latest keys fetched:", latestKeys);
             } catch (err) {
                 console.error("Failed to fetch latest keys:", err);
             }
@@ -145,6 +152,9 @@ export default function NewTransfer() {
                                             data.lifetime,
                                             data.maxDownloads,
                                             data.password,
+                                            keys.sign_private_key,
+                                            data.isSigned,
+                                            keys.id,
                                             onProgress,
                                             data.receiver_email
                                         )

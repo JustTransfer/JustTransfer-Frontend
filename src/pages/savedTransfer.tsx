@@ -294,7 +294,15 @@ export default function SavedTransfer() {
                     });
                 } catch (e) {
                     if (e instanceof Error && e.message === errors.errorFailureMACVerification) {
-
+                        tmpMessagesData.push({
+                            messageData: {
+                                id: msg.transfer_id,
+                                signatureValid: false,
+                            },
+                            auth_key: msg.auth_key,
+                            password: msg.password,
+                        });
+                    } else if (e instanceof Error && e.message === errors.errorFailureSignatureVerification) {
                         tmpMessagesData.push({
                             messageData: {
                                 id: msg.transfer_id,
@@ -304,6 +312,7 @@ export default function SavedTransfer() {
                             password: msg.password,
                         });
                     } else {
+                        error("Failed to load message metadata: " + (e instanceof Error ? e.message : errors.errorUnknown));
                         await deleteSavedTransferAPI(msg.id);
                     }
                 }
