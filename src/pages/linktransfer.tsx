@@ -219,6 +219,10 @@ export default function LinkTransfer() {
                                         {messageData.filename}
                                     </Typography>
 
+                                    <Typography variant="body2" sx={{ color: '#6e5a69' }}>
+                                        From <b>{messageData.sender}</b>
+                                    </Typography>
+
                                     <Typography variant="body1" sx={{ color: '#6e5a69' }}>
                                         Transfer ready for decryption and download.
                                     </Typography>

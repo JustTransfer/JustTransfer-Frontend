@@ -395,7 +395,7 @@ export default function TransferDetails() {
                                         <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
                                             <PersonIcon sx={{ fontSize: 14, opacity: 0.7 }} />
                                             <Typography variant="caption" color="text.secondary">
-                                                From <b>{message.sender ?? "Unknown"}</b> • Sent {formatCreated(message.messageData.creation_time)}
+                                                From <b>{message.messageData.sender}</b> • Sent {formatCreated(message.messageData.creation_time)}
                                             </Typography>
                                         </Stack>
                                     </Stack>
