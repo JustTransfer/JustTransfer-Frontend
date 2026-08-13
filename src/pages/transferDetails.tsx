@@ -206,10 +206,6 @@ export default function TransferDetails() {
 
         setSaving(true);
         try {
-            // await updateLinkMessageAPI(message.messageData.id, message.auth_key, message.cfilename, message.nonce_filename, maxDownloads, lifetimeDays);
-
-            console.log("Updating transfer with values:", message);
-
             const { nonce_filename, cfilename, mac } = await updateMessageLink(message.messageData.id, message.auth_key, message.AegisKey, message.MacKey, message.messageData.filename, maxDownloads, lifetimeDays, message.messageData.hash_file, message.messageData.file_id, message.messageData.chunk_size, message.messageData.creation_time, message.messageData.file_size);
 
             success("Transfer updated successfully!");

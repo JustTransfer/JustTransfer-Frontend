@@ -59,7 +59,6 @@ export default function NewTransfer() {
             try {
                 const latestKeys = await getLatestKeys();
                 setKeys(latestKeys);
-                console.log("Latest keys fetched:", latestKeys);
             } catch (err) {
                 console.error("Failed to fetch latest keys:", err);
             }
