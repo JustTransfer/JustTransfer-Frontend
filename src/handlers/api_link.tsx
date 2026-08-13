@@ -179,7 +179,7 @@ async function updatePasswordLinkMessageEndAPI(id: string, client_registration_f
 // Upload and Download to/from S3
 //
 
-async function finishUploadFileToS3Link(id: string, file_id: string, upload_id: string, etags: string[], hash_file: string, mac: string, receiver_email?: string, sender_key_id?: string, signature_metadata?: string, signature?: string) {
+async function finishUploadFileToS3Link(id: string, file_id: string, upload_id: string, etags: string[], hash_file: string, mac: string, is_signed: boolean, receiver_email?: string, sender_key_id?: string, signature_metadata?: string, signature?: string) {
 
     const response = await apiFetch(`${apiUrl}/link/message/${id}/uploadfinish/${file_id}`, {
         method: "POST",
@@ -192,6 +192,7 @@ async function finishUploadFileToS3Link(id: string, file_id: string, upload_id: 
             hash_file,
             mac,
             receiver_email,
+            is_signed,
             sender_key_id,
             signature_metadata,
             signature,
