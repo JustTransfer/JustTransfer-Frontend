@@ -1,4 +1,4 @@
-import { Base64 } from "js-base64";
+/*import { Base64 } from "js-base64";
 import { getPublicKeyAPI, getPublicKeyEmailAPI } from "./api";
 
 type PublicKeyPair = {
@@ -85,4 +85,4 @@ export async function getCachedPublicKeySign(keyId: string): Promise<{ email: st
         email,
         publicKeySign: publicKeySignBytes,
     };
-}
+}*/

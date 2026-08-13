@@ -1,7 +1,6 @@
 import { Base64 } from 'js-base64';
 
 import { getSodium, getOpaque } from "./utils";
-import { getCachedPublicKeySign } from "./cachePubKey";
 
 import { uploadFileToS3, downloadFileFromS3, updateLinkMessageAPI, updatePasswordLinkMessageStartAPI, updatePasswordLinkMessageEndAPI } from "./api_link";
 import { postLinkMessageLoginStartAPI, postLinkMessageLoginEndAPI, getLinkMessageMetadataAPI, getLinkMessageAPI, sendLinkMessageStartAPI, sendLinkMessageAPI, finishUploadFileToS3Link } from "./api_link";
@@ -46,7 +45,7 @@ async function getOneLinkMessageMetadata(password: string, message_id: string) {
 
     // Get the message metadata
     const result2 = await getLinkMessageMetadataAPI(message_id);
-    let { id, c_enc_key, nonce_enc_key, c_mac_key, nonce_mac_key, cfilename, nonce_filename, file_id, max_downloads, lifetime, creation_time, hash_file, mac, number_downloads, file_size, chunk_size, sender_key_id, signature_metadata, signature } = result2.message;
+    let { id, c_enc_key, nonce_enc_key, c_mac_key, nonce_mac_key, cfilename, nonce_filename, file_id, max_downloads, lifetime, creation_time, hash_file, mac, number_downloads, file_size, chunk_size, sender_pub_key, sender_email, signature_metadata, signature } = result2.message;
 
     // Get the Encoded fileds of the message
     cfilename = Base64.toUint8Array(cfilename);
@@ -59,19 +58,18 @@ async function getOneLinkMessageMetadata(password: string, message_id: string) {
     let sender = "Unknown";
     if (signature_metadata && signature_metadata.length > 0 && signature && signature.length > 0) {
         const signature_metadata_decoded = Base64.toUint8Array(signature_metadata);
-
-        let { email, publicKeySign } = await getCachedPublicKeySign(sender_key_id);
+        const sender_pub_key_decoded = Base64.toUint8Array(sender_pub_key);
 
         // Verify the signature of the metadata
         const isValidSignature = sodium.crypto_sign_verify_detached(signature_metadata_decoded, new TextEncoder().encode(JSON.stringify({
             cfilename, nonce_filename, file_id, max_downloads, lifetime, creation_time, file_size, chunk_size
-        })), publicKeySign);
+        })), sender_pub_key_decoded);
 
         if (!isValidSignature) {
             throw new Error(errors.errorFailureSignatureVerification);
         }
 
-        sender = email;
+        sender = sender_email;
     }
 
     // Decrypt the keys with the export key
@@ -107,7 +105,7 @@ async function getOneLinkMessageMetadata(password: string, message_id: string) {
         MacKey: Base64.fromUint8Array(MacKey, true),
         message: "Message metadata retrieved successfully!",
         messageData: {
-            id, cfilename, filename, nonce_filename, message_id, file_id, creation_time, hash_file, mac, lifetime, max_downloads, number_downloads, file_size, chunk_size, sender_key_id, signature_metadata, signature, sender
+            id, cfilename, filename, nonce_filename, message_id, file_id, creation_time, hash_file, mac, lifetime, max_downloads, number_downloads, file_size, chunk_size, signature_metadata, signature, sender
         }
     };
 }
@@ -201,9 +199,9 @@ async function getOneLinkMessage(AegisKeyEncoded: string, MacKeyEncoded: string,
         sodium.crypto_sign_update(sign_state, file_hash);
 
         const signature_decoded = Base64.toUint8Array(message.signature);
-        let { email: _, publicKeySign } = await getCachedPublicKeySign(message.sender_key_id);
+        const sender_pub_key_decoded = Base64.toUint8Array(message.sender_pub_key);
 
-        const isValidSignature = sodium.crypto_sign_final_verify(sign_state, signature_decoded, publicKeySign);
+        const isValidSignature = sodium.crypto_sign_final_verify(sign_state, signature_decoded, sender_pub_key_decoded);
         if (!isValidSignature) {
             throw new Error(errors.errorFailureSignatureVerification);
         }
