@@ -22,6 +22,10 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Tooltip from "@mui/material/Tooltip";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
 
 import { useNotification } from "../hooks/useNotificationContext";
 import * as errors from "../messages/errors";
@@ -82,6 +86,8 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
 
     const [errorPassword, setErrorPassword] = useState(false);
     const [errorWeakPassword, setErrorWeakPassword] = useState(false);
+
+    const [openSignWarning, setOpenSignWarning] = useState(false);
 
     const [isSending, setIsSending] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -540,7 +546,13 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                                             <Switch
                                                 checked={isSigned}
                                                 disabled={!canSign}
-                                                onChange={(e) => setIsSigned(e.target.checked)}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setOpenSignWarning(true);
+                                                    } else {
+                                                        setIsSigned(false);
+                                                    }
+                                                }}
                                             />
                                         }
                                         label={
@@ -590,7 +602,48 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 title="Link ready!"
                 {...parseTransferLink(link)}
             />
-            {/*</Paper >*/}
+
+            {/* Sign warning dialog */}
+            <Dialog
+                open={openSignWarning}
+                onClose={() => setOpenSignWarning(false)}
+                maxWidth="xs"
+                fullWidth
+            >
+                <DialogContent sx={{ pt: 4, px: 3.5, pb: 2 }}>
+                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2.5, textAlign: "center" }}>
+                        <Box sx={{
+                            width: 56, height: 56, borderRadius: "50%",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            backgroundColor: "#fff4e5",
+                        }}>
+                            <WarningAmberRoundedIcon sx={{ fontSize: 28, color: "#ed6c02" }} />
+                        </Box>
+                        <Box>
+                            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                                Your email will be visible
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                Signing proves this transfer came from you, but your email address will be visible to anyone with access to it.
+                            </Typography>
+                        </Box>
+                    </Box>
+                </DialogContent>
+                <DialogActions sx={{ px: 3.5, pb: 3.5, pt: 1, gap: 1.5 }}>
+                    <Button fullWidth variant="outlined" onClick={() => setOpenSignWarning(false)}>
+                        Cancel
+                    </Button>
+                    <Button
+                        fullWidth
+                        variant="contained"
+                        color="warning"
+                        onClick={() => { setIsSigned(true); setOpenSignWarning(false); }}
+                        autoFocus
+                    >
+                        Continue
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }
