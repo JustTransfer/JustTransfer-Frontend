@@ -317,7 +317,7 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                     Log in
                                 </Button>
                                 <Button color="primary" variant="contained" onClick={() => navigate("/register")}>
-                                    Get started
+                                    Create account
                                 </Button>
                             </>
                         )}
