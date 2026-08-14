@@ -305,11 +305,19 @@ export default function Layout({ title, content }: { title: string; content: Rea
                     }}>
                         {!isLoggedIn && (
                             <>
-                                <Button color="secondary" onClick={() => navigate("/register")} sx={{ ":hover": { color: "#E906E5", backgroundColor: "transparent" } }}>
-                                    Create account
-                                </Button>
-                                <Button color="primary" variant='contained' onClick={() => navigate("/login")} sx={{}}>
+                                <Button color="secondary" variant="text" onClick={() => navigate("/login")}
+                                    sx={{
+                                        transition: "background-color 0.2s, color 0.2s",
+                                        ":hover": {
+                                            backgroundColor: "#E906E5",
+                                            color: "#fff",
+                                        },
+                                    }}
+                                >
                                     Log in
+                                </Button>
+                                <Button color="primary" variant="contained" onClick={() => navigate("/register")}>
+                                    Get started
                                 </Button>
                             </>
                         )}
@@ -515,6 +523,6 @@ export default function Layout({ title, content }: { title: string; content: Rea
                 {/* Footer*/}
                 <Footer isLoggedIn={isLoggedIn} />
             </Box>
-        </ThemeProvider>
+        </ThemeProvider >
     );
 }

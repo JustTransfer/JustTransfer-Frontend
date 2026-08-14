@@ -8,11 +8,13 @@ import CircularProgress from "@mui/material/CircularProgress";
 import UploadIcon from '@mui/icons-material/Upload';
 import LinkIcon from '@mui/icons-material/Link';
 import DownloadIcon from '@mui/icons-material/Download';
+import NoAccountsIcon from '@mui/icons-material/NoAccounts';
+import DeleteIcon from '@mui/icons-material/Delete';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
 import { useServerConfig } from "../hooks/useServerConfig";
 import Layout from "../components/layout";
 import { sendMessageLink } from "../handlers/crypto_link";
-import { formatSize } from "../handlers/utils";
 import Pricing from "../components/Pricing";
 
 import FileTransferForm from "../components/FileTransferForm";
@@ -23,12 +25,6 @@ export default function HomePage() {
 
     const maxWidthPage = 1400;
     const sectionPaddingX = { xs: 2, md: 4 };
-
-    const linkLimits = {
-        maxFileSize: config?.max_file_size_link || 0,
-        maxDownloads: config?.max_downloads_link || 0,
-        maxLifetime: config?.max_lifetime_link || 0,
-    };
 
     return (
         <Layout title="Home" content={
@@ -87,15 +83,41 @@ export default function HomePage() {
                             >
                                 Send large files securely
                                 <br />
-                                - no compromises.
+                                - <Box component="span" sx={{ color: "primary.main" }}> no compromises.</Box>
                             </Typography>
                             <Typography variant="body1" sx={{ color: "#5a4454", maxWidth: 520 }}>
-                                Send a secure link up to {formatSize(linkLimits.maxFileSize)}, with {linkLimits.maxDownloads} downloads and {linkLimits.maxLifetime}-day expiry — no account needed. Create an account to manage transfers after you send them.
+                                End-to-end encrypted transfers with simple links. Your privacy is our priority.
                             </Typography>
-                            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                                <Chip label="No account needed" size="small" />
-                                <Chip label="End-to-end encryption" size="small" />
-                                <Chip label="Auto-delete" size="small" />
+
+                            {/* Feature highlights */}
+                            <Box sx={{
+                                display: { xs: "none", sm: "flex" },
+                                gap: 1.25,
+                                flexWrap: "wrap"
+                            }}>
+                                {[
+                                    { icon: <LockOutlinedIcon sx={{ fontSize: 18 }} />, label: "End-to-end encryption" },
+                                    { icon: <NoAccountsIcon sx={{ fontSize: 18 }} />, label: "No account needed" },
+                                    { icon: <DeleteIcon sx={{ fontSize: 18 }} />, label: "Auto-delete" },
+                                ].map((item) => (
+                                    <Box
+                                        key={item.label}
+                                        sx={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: 0.75,
+                                            px: 1.5,
+                                            py: 0.75,
+                                            borderRadius: 2,
+                                            backgroundColor: "#fbe3f0",
+                                        }}
+                                    >
+                                        {item.icon}
+                                        <Typography variant="body2" sx={{ /*fontWeight: 600,*/ color: "#2b0f1f" }}>
+                                            {item.label}
+                                        </Typography>
+                                    </Box>
+                                ))}
                             </Box>
                         </Box>
 
@@ -143,8 +165,10 @@ export default function HomePage() {
                                     <CircularProgress />
                                 </Box>
                             )}
-                            <Typography variant="body2" sx={{ color: "#7a6474", mt: 2, textAlign: "center" }}>
-                                Want to notify a recipient by email or manage this transfer later? <RouterLink to="/register">Create an account</RouterLink> or <RouterLink to="/login">log in</RouterLink>.
+                            <Typography variant="body2" sx={{ color: "#7a6474", mt: 0, textAlign: "center" }}>
+                                Want to notify a recipient by email or manage this transfer later?
+                                <br />
+                                <RouterLink to="/register">Create an account</RouterLink> or <RouterLink to="/login">log in</RouterLink>.
                             </Typography>
                         </Box>
                     </Box>
