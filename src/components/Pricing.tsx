@@ -152,9 +152,9 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: 120 }}>
-                            <Typography variant="body2">Transfer files up to {renderLimitValue(linkLimits.maxFileSize, formatSize)}</Typography>
+                            <Typography variant="body2">Maximum file size: {renderLimitValue(linkLimits.maxFileSize, formatSize)}</Typography>
                             <Typography variant="body2">Files available for {renderLimitValue(linkLimits.maxLifetime)} days</Typography>
-                            <Typography variant="body2">Up to {renderLimitValue(linkLimits.maxDownloads)} downloads per transfer</Typography>
+                            <Typography variant="body2">{renderLimitValue(linkLimits.maxDownloads)} downloads per transfer</Typography>
                         </Box>
                     </Box>
                     {
@@ -179,9 +179,9 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: 120 }}>
-                            <Typography variant="body2">Transfer files up to {renderLimitValue(connectedLimits.maxFileSize, formatSize)}</Typography>
+                            <Typography variant="body2">Maximum file size: {renderLimitValue(connectedLimits.maxFileSize, formatSize)}</Typography>
                             <Typography variant="body2">Files available for {renderLimitValue(connectedLimits.maxLifetime)} days</Typography>
-                            <Typography variant="body2">Up to {renderLimitValue(connectedLimits.maxDownloads)} downloads per transfer</Typography>
+                            <Typography variant="body2">{renderLimitValue(connectedLimits.maxDownloads)} downloads per transfer</Typography>
                         </Box>
                         {isCurrentPlan("user") && (
                             <Chip label="Current plan" size="small" sx={currentPlanChipSx} />
@@ -210,9 +210,9 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: 120 }}>
-                            <Typography variant="body2">Transfer files up to {renderLimitValue(premiumLimits.maxFileSize, formatSize)}</Typography>
+                            <Typography variant="body2">Maximum file size: {renderLimitValue(premiumLimits.maxFileSize, formatSize)}</Typography>
                             <Typography variant="body2">Files available for {renderLimitValue(premiumLimits.maxLifetime)} days</Typography>
-                            <Typography variant="body2">Up to {renderLimitValue(premiumLimits.maxDownloads)} downloads per transfer</Typography>
+                            <Typography variant="body2">{renderLimitValue(premiumLimits.maxDownloads)} downloads per transfer</Typography>
                         </Box>
                         {isCurrentPlan("premium") && (
                             <Chip label="Current plan" size="small" sx={currentPlanChipSx} />
