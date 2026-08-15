@@ -58,10 +58,11 @@ export default function TransferDetails() {
     const compact = useMediaQuery(theme.breakpoints.down("sm"));
     const stackedLayout = useMediaQuery(theme.breakpoints.down("md"));
 
-    const { role, exportKey } = useAuth();
+    const { role, exportKey, getLatestKeys } = useAuth();
     const { config } = useServerConfig();
     const { success, error } = useNotification();
 
+    const [keys, setKeys] = useState<any>(null);
     const [message, setMessage] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [notFound, setNotFound] = useState(false);
@@ -154,8 +155,20 @@ export default function TransferDetails() {
 
     useEffect(() => {
         loadTransfer();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, exportKey]);
+
+    useEffect(() => {
+        const fetchKeys = async () => {
+            try {
+                const latestKeys = await getLatestKeys();
+                setKeys(latestKeys);
+            } catch (err) {
+                console.error("Failed to fetch latest keys:", err);
+            }
+        };
+
+        fetchKeys();
+    }, [getLatestKeys]);
 
     const link = includePasswordInLink && message?.password
         ? `${frontendUrl}/link-transfer/${id}#${message.password}`
@@ -206,7 +219,7 @@ export default function TransferDetails() {
 
         setSaving(true);
         try {
-            const { nonce_filename, cfilename, mac } = await updateMessageLink(message.messageData.id, message.auth_key, message.AegisKey, message.MacKey, message.messageData.filename, maxDownloads, lifetimeDays, message.messageData.hash_file, message.messageData.file_id, message.messageData.chunk_size, message.messageData.creation_time, message.messageData.file_size, message.messageData.is_signed);
+            const { nonce_filename, cfilename, mac, signature_metadata, signature } = await updateMessageLink(message.messageData.id, message.auth_key, message.AegisKey, message.MacKey, message.messageData.filename, maxDownloads, lifetimeDays, message.messageData.hash_file, message.messageData.file_id, message.messageData.chunk_size, message.messageData.creation_time, message.messageData.file_size, message.messageData.is_signed, keys.sign_private_key, keys.id);
 
             success("Transfer updated successfully!");
 
@@ -220,6 +233,8 @@ export default function TransferDetails() {
                     mac: mac,
                     max_downloads: maxDownloads,
                     lifetime: lifetimeDays,
+                    signature_metadata: signature_metadata ?? prev.messageData.signature_metadata,
+                    signature: signature ?? prev.messageData.signature,
                 },
             }));
         } catch (e) {

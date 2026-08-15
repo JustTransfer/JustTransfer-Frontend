@@ -420,7 +420,10 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
 /// Update Link Message
 ///
 
-async function updateMessageLink(id: string, auth_key_b64: string, AegisKey_b64: string, MacKey_b64: string, filename: string, maxDownloads: number, lifetimeDays: number, fileHash_b64: string, message_file_id: string, chunkSize: number, timestamp: string, file_size: number, is_signed: boolean) {
+async function updateMessageLink(id: string, auth_key_b64: string, AegisKey_b64: string, MacKey_b64: string, filename: string, maxDownloads: number, lifetimeDays: number, fileHash_b64: string, message_file_id: string, chunkSize: number, timestamp: string, file_size: number, is_signed: boolean, privateKeySign?: string, sender_key_id?: string) {
+
+    let signature_metadata_b64: string | undefined;
+    let signature_b64: string | undefined;
 
     const sodium = await getSodium();
 
@@ -456,15 +459,29 @@ async function updateMessageLink(id: string, auth_key_b64: string, AegisKey_b64:
         chunk_size: chunkSize,
         is_signed: is_signed,
     };
+    const full_auth_data_encoded = new TextEncoder().encode(JSON.stringify(full_auth_data));
 
     // Init the global MAC
     let mac_state = sodium.crypto_auth_hmacsha512256_init(MacKey);
-    sodium.crypto_auth_hmacsha512256_update(mac_state, new TextEncoder().encode(JSON.stringify(full_auth_data)));
+    sodium.crypto_auth_hmacsha512256_update(mac_state, full_auth_data_encoded);
     sodium.crypto_auth_hmacsha512256_update(mac_state, Base64.toUint8Array(fileHash_b64));
     const mac = sodium.crypto_auth_hmacsha512256_final(mac_state);
     const mac_b64 = Base64.fromUint8Array(mac, true);
 
-    await updateLinkMessageAPI(id, auth_key_b64, cfilename_b64, nonce_filename_b64, maxDownloads, lifetimeDays, mac_b64);
+    if (is_signed) {
+        const PrivateKeySignDecoded = Base64.toUint8Array(privateKeySign!);
+
+        const signature_metadata = sodium.crypto_sign_detached(full_auth_data_encoded, PrivateKeySignDecoded);
+        signature_metadata_b64 = Base64.fromUint8Array(signature_metadata, true);
+
+        const state = sodium.crypto_sign_init();
+        sodium.crypto_sign_update(state, full_auth_data_encoded);
+        sodium.crypto_sign_update(state, Base64.toUint8Array(fileHash_b64));
+        const signature = sodium.crypto_sign_final_create(state, PrivateKeySignDecoded);
+        signature_b64 = Base64.fromUint8Array(signature, true);
+    }
+
+    await updateLinkMessageAPI(id, auth_key_b64, cfilename_b64, nonce_filename_b64, maxDownloads, lifetimeDays, mac_b64, sender_key_id, signature_metadata_b64, signature_b64);
 
     return {
         nonce_filename: nonce_filename,
@@ -472,6 +489,8 @@ async function updateMessageLink(id: string, auth_key_b64: string, AegisKey_b64:
         max_downloads: maxDownloads,
         lifetime: lifetimeDays,
         mac: mac,
+        signature_metadata: signature_metadata_b64,
+        signature: signature_b64,
         message: "Message updated successfully!",
     }
 }

@@ -100,7 +100,7 @@ async function sendLinkMessageAPI(id: string, client_registration_finish: string
     return (await response.json());
 }
 
-async function updateLinkMessageAPI(id: string, auth_key: string, cfilename: string, nonce_filename: string, max_downloads: number, lifetime: number, mac: string) {
+async function updateLinkMessageAPI(id: string, auth_key: string, cfilename: string, nonce_filename: string, max_downloads: number, lifetime: number, mac: string, sender_key_id?: string, signature_metadata?: string, signature?: string) {
 
     const response = await apiFetch(`${apiUrl}/link/message/${id}`, {
         method: "PUT",
@@ -114,6 +114,9 @@ async function updateLinkMessageAPI(id: string, auth_key: string, cfilename: str
             max_downloads,
             lifetime,
             mac,
+            sender_key_id,
+            signature_metadata,
+            signature,
         }),
     },
     );
