@@ -420,7 +420,7 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
 /// Update Link Message
 ///
 
-async function updateMessageLink(id: string, auth_key_b64: string, AegisKey_b64: string, MacKey_b64: string, filename: string, maxDownloads: number, lifetimeDays: number, fileHash_b64: string, message_file_id: string, chunkSize: number, timestamp: string, file_size: number) {
+async function updateMessageLink(id: string, auth_key_b64: string, AegisKey_b64: string, MacKey_b64: string, filename: string, maxDownloads: number, lifetimeDays: number, fileHash_b64: string, message_file_id: string, chunkSize: number, timestamp: string, file_size: number, is_signed: boolean) {
 
     const sodium = await getSodium();
 
@@ -434,6 +434,7 @@ async function updateMessageLink(id: string, auth_key_b64: string, AegisKey_b64:
         creation_time: timestamp,
         file_size: file_size,
         chunk_size: chunkSize,
+        is_signed: is_signed,
     };
     const auth_data_encoded = new TextEncoder().encode(JSON.stringify(auth_data));
 
@@ -453,6 +454,7 @@ async function updateMessageLink(id: string, auth_key_b64: string, AegisKey_b64:
         creation_time: timestamp,
         file_size: file_size,
         chunk_size: chunkSize,
+        is_signed: is_signed,
     };
 
     // Init the global MAC

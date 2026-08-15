@@ -206,7 +206,7 @@ export default function TransferDetails() {
 
         setSaving(true);
         try {
-            const { nonce_filename, cfilename, mac } = await updateMessageLink(message.messageData.id, message.auth_key, message.AegisKey, message.MacKey, message.messageData.filename, maxDownloads, lifetimeDays, message.messageData.hash_file, message.messageData.file_id, message.messageData.chunk_size, message.messageData.creation_time, message.messageData.file_size);
+            const { nonce_filename, cfilename, mac } = await updateMessageLink(message.messageData.id, message.auth_key, message.AegisKey, message.MacKey, message.messageData.filename, maxDownloads, lifetimeDays, message.messageData.hash_file, message.messageData.file_id, message.messageData.chunk_size, message.messageData.creation_time, message.messageData.file_size, message.messageData.is_signed);
 
             success("Transfer updated successfully!");
 
