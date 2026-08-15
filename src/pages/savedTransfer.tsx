@@ -164,7 +164,7 @@ export default function SavedTransfer() {
 
     const { exportKey } = useAuth();
 
-    const { success, error } = useNotification();
+    const { success, error, info } = useNotification();
     const [messages, setMessages] = useState<Array<any>>([]);
     const [downloadProgress, setDownloadProgress] = useState<Record<string, number>>({});
     const [loading, setLoading] = useState(true);
@@ -312,7 +312,7 @@ export default function SavedTransfer() {
                             password: msg.password,
                         });
                     } else {
-                        error("Failed to load message metadata: " + (e instanceof Error ? e.message : errors.errorUnknown));
+                        info("Deleting saved transfer " + msg.transfer_id);
                         await deleteSavedTransferAPI(msg.id);
                     }
                 }
@@ -646,7 +646,7 @@ export default function SavedTransfer() {
                                         variant="body2"
                                         sx={{ fontWeight: 600, overflowWrap: "anywhere", textAlign: "left", lineHeight: 1.3 }}
                                     >
-                                        {messageToDelete.messageData.filename}
+                                        {messageToDelete.messageData.filename || "Unknown file"}
                                     </Typography>
                                 </Box>
                             )}
