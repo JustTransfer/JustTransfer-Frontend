@@ -69,7 +69,7 @@ export default function TransferDetails() {
     const [includePasswordInLink, setIncludePasswordInLink] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
 
-    const [isUsingManualPassword, setIsUsingManualPassword] = useState(true);
+    const [isUsingManualPassword, setIsUsingManualPassword] = useState(false);
     const [changingPassword, setChangingPassword] = useState(false);
     const [newPassword, setNewPassword] = useState("");
     const [confirmNewPassword, setConfirmNewPassword] = useState("");
@@ -624,16 +624,6 @@ export default function TransferDetails() {
                                                         },
                                                     }}
                                                 >
-                                                    <ToggleButton value="manual" aria-label="Set password manually" sx={{ textAlign: "left", alignItems: "flex-start" }}>
-                                                        <Box sx={{ width: "100%" }}>
-                                                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                                                                Set manually
-                                                            </Typography>
-                                                            <Typography variant="caption" color="text.secondary">
-                                                                Choose your own password
-                                                            </Typography>
-                                                        </Box>
-                                                    </ToggleButton>
                                                     <ToggleButton value="auto" aria-label="Auto-generate password" sx={{ textAlign: "left", alignItems: "flex-start" }}>
                                                         <Box sx={{ width: "100%" }}>
                                                             <Typography variant="body2" sx={{ fontWeight: 700 }}>
@@ -641,6 +631,16 @@ export default function TransferDetails() {
                                                             </Typography>
                                                             <Typography variant="caption" color="text.secondary">
                                                                 Replaces the shared link's password
+                                                            </Typography>
+                                                        </Box>
+                                                    </ToggleButton>
+                                                    <ToggleButton value="manual" aria-label="Set password manually" sx={{ textAlign: "left", alignItems: "flex-start" }}>
+                                                        <Box sx={{ width: "100%" }}>
+                                                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                                                                Set manually
+                                                            </Typography>
+                                                            <Typography variant="caption" color="text.secondary">
+                                                                Choose your own password
                                                             </Typography>
                                                         </Box>
                                                     </ToggleButton>
