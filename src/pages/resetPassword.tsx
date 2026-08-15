@@ -146,7 +146,7 @@ export default function ResetPasswordPage() {
                     </Typography>
 
                     <Alert severity="warning" sx={{ mb: 3, borderRadius: 2 }}>
-                        All sent and received transfers will be deleted!
+                        Resetting your password will delete your saved transfers. The transfers themselves are not deleted, but you'll need to re-enter their password to access them again.
                     </Alert>
 
                     <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }} onSubmit={handleSubmit}>

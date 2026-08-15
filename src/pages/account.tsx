@@ -380,9 +380,29 @@ export default function AccountPage() {
                                     Delete Account
                                 </Typography>
                                 <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
-                                    Deleting your account will permanently remove all your data, including saved transfers. Current transfers are not affected.
-                                    <br />
-                                    Information cannot be recovered once your account is deleted. This action cannot be undone.
+                                    Deleting your account is permanent and cannot be undone.
+                                </Typography>
+                                <Box
+                                    component="ul"
+                                    sx={{
+                                        mt: 1,
+                                        mb: 0,
+                                        pl: 3,
+                                        color: "text.primary",
+                                    }}
+                                >
+                                    <Typography component="li" variant="body2">
+                                        <b>Signed transfers</b>, including their files, will be permanently deleted.
+                                    </Typography>
+                                    <Typography component="li" variant="body2">
+                                        <b>Unsigned transfers</b> will remain on the server until they expire naturally, but you'll lose all access to them once your account is gone.
+                                    </Typography>
+                                    <Typography component="li" variant="body2">
+                                        <b>Saved transfers</b> in your account will be removed.
+                                    </Typography>
+                                </Box>
+                                <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
+                                    None of this can be recovered afterward.
                                 </Typography>
                             </Box>
                             <Button

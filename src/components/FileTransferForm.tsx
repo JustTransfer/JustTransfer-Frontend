@@ -261,10 +261,8 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
         } catch (e: any) {
             if (e.message === errors.errorUserNotFound) {
                 setErrorReceiver(true);
-                //setHelperTextReceiver(errors.errorUserNotFound);
             } else {
                 setErrorReceiver(false);
-                //setHelperTextReceiver("");
             }
 
             error(e.message || "Unknown error");
