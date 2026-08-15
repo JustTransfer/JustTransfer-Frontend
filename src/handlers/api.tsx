@@ -54,7 +54,6 @@ async function registerEndAPI(email: string, client_registration_finish: string,
         }),
     },
         {
-            409: new Error(errors.errorEmailTaken),
             507: new Error(errors.errorMaxUserAccountsReached),
         },
     );
