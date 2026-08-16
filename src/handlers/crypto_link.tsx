@@ -424,6 +424,7 @@ async function updateMessageLink(id: string, auth_key_b64: string, AegisKey_b64:
 
     let signature_metadata_b64: string | undefined;
     let signature_b64: string | undefined;
+    let sender_key_id_final: string | undefined;
 
     const sodium = await getSodium();
 
@@ -479,9 +480,12 @@ async function updateMessageLink(id: string, auth_key_b64: string, AegisKey_b64:
         sodium.crypto_sign_update(state, Base64.toUint8Array(fileHash_b64));
         const signature = sodium.crypto_sign_final_create(state, PrivateKeySignDecoded);
         signature_b64 = Base64.fromUint8Array(signature, true);
+
+        // Set the sender key ID to the provided key ID
+        sender_key_id_final = sender_key_id;
     }
 
-    await updateLinkMessageAPI(id, auth_key_b64, cfilename_b64, nonce_filename_b64, maxDownloads, lifetimeDays, mac_b64, sender_key_id, signature_metadata_b64, signature_b64);
+    await updateLinkMessageAPI(id, auth_key_b64, cfilename_b64, nonce_filename_b64, maxDownloads, lifetimeDays, mac_b64, sender_key_id_final, signature_metadata_b64, signature_b64);
 
     return {
         nonce_filename: nonce_filename,
