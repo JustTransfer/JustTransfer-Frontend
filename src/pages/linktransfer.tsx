@@ -154,6 +154,22 @@ export default function LinkTransfer() {
         loadMetadata();
     }, []);
 
+    useEffect(() => {
+        // Prevent search engines from indexing this transfer link
+        let metaTag = document.querySelector('meta[name="robots"]');
+        if (!metaTag) {
+            metaTag = document.createElement('meta');
+            metaTag.setAttribute('name', 'robots');
+            document.head.appendChild(metaTag);
+        }
+        metaTag.setAttribute('content', 'noindex, nofollow');
+
+        // Clean up when leaving the page, in case other routes should stay indexable
+        return () => {
+            metaTag?.setAttribute('content', 'index, follow');
+        };
+    }, []);
+
     if (isLoading) {
         return (
             <Layout
