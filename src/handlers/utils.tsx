@@ -108,6 +108,13 @@ export async function genericDownloadFile({
   }
 }
 
+export const formatSpeed = (bytesPerSecond: number) => {
+  if (bytesPerSecond < 1000) return `${bytesPerSecond.toFixed(0)} B/s`;
+  if (bytesPerSecond < 1000 * 1000) return `${(bytesPerSecond / 1000).toFixed(1)} kB/s`;
+  if (bytesPerSecond < 1000 * 1000 * 1000) return `${(bytesPerSecond / (1000 * 1000)).toFixed(1)} MB/s`;
+  return `${(bytesPerSecond / (1000 * 1000 * 1000)).toFixed(2)} GB/s`;
+};
+
 export const formatSize = (bytes: any) => {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KiB`;

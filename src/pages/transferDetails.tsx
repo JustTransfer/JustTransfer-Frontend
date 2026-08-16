@@ -47,6 +47,8 @@ import { deleteLinkMessageAPI } from "../handlers/api_link";
 import { formatSize, formatCreated, relativeExpire, expireColor, genericDownloadFile } from "../handlers/utils";
 import { frontendUrl } from "../handlers/config";
 import PasswordStrength from "../components/passwordStrength";
+import LinearProgressWithLabel from "../components/LinearProgressWithLabel";
+import { useSpeedMeter } from "../handlers/useSpeedMeter";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
@@ -84,6 +86,7 @@ export default function TransferDetails() {
     const [saving, setSaving] = useState(false);
 
     const [downloadProgress, setDownloadProgress] = useState<number | undefined>(undefined);
+    const { speed, updateProgress, reset: resetSpeed } = useSpeedMeter(message?.messageData?.file_size ?? 0);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
     // Account-tier caps, used only to bound the inputs (not as their values)
@@ -309,12 +312,16 @@ export default function TransferDetails() {
         if (!message) return;
 
         setDownloadProgress(0);
+        resetSpeed();
         try {
             await genericDownloadFile({
                 fileName: message.messageData.filename,
                 download: (onChunk: any, onProgress: any) =>
                     getOneLinkMessage(message.AegisKey, message.MacKey, message.messageData, onChunk, onProgress),
-                onProgress: (percent: number) => setDownloadProgress(percent),
+                onProgress: (percent: number) => {
+                    setDownloadProgress(percent);
+                    updateProgress(percent);
+                },
                 onSuccess: () => {
                     success(strings.msgFileDownloaded);
                     setMessage((prev: any) => ({
@@ -522,15 +529,19 @@ export default function TransferDetails() {
                                         </>
                                     )}
 
-                                    <Button
-                                        fullWidth
-                                        variant="contained"
-                                        startIcon={downloadProgress !== undefined ? <CircularProgress size={18} color="inherit" /> : <DownloadIcon />}
-                                        onClick={handleDownload}
-                                        disabled={downloadsLeft <= 0 || downloadProgress !== undefined}
-                                    >
-                                        {downloadProgress !== undefined ? `Downloading ${Math.round(downloadProgress)}%` : "Download"}
-                                    </Button>
+                                    {downloadProgress !== undefined ? (
+                                        <LinearProgressWithLabel value={downloadProgress} speed={speed} />
+                                    ) : (
+                                        <Button
+                                            fullWidth
+                                            variant="contained"
+                                            startIcon={<DownloadIcon />}
+                                            onClick={handleDownload}
+                                            disabled={downloadsLeft <= 0}
+                                        >
+                                            Download
+                                        </Button>
+                                    )}
                                 </Stack>
                             </Stack>
 

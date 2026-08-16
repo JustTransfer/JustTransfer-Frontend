@@ -15,13 +15,13 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import DownloadIcon from '@mui/icons-material/Download';
 import LockIcon from '@mui/icons-material/Lock';
 import DescriptionIcon from '@mui/icons-material/Description';
-import LinearProgress from '@mui/material/LinearProgress';
-import type { LinearProgressProps } from '@mui/material/LinearProgress';
 
 import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
 import { getOneLinkMessageMetadata, getOneLinkMessage } from "../handlers/crypto_link";
 import { formatSize, relativeExpire, formatCreated, genericDownloadFile } from "../handlers/utils";
+import LinearProgressWithLabel from "../components/LinearProgressWithLabel";
+import { useSpeedMeter } from "../handlers/useSpeedMeter";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
@@ -65,22 +65,7 @@ export default function LinkTransfer() {
     const [isLoading, setIsLoading] = useState(true);
     const [isDownloading, setIsDownloading] = useState(false);
     const [downloadProgress, setDownloadProgress] = useState(0);
-
-    function LinearProgressWithLabel(props: LinearProgressProps & { value: number }) {
-        return (
-            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                <Box sx={{ width: '100%', mr: 1 }}>
-                    <LinearProgress variant="determinate" {...props} />
-                </Box>
-                <Box sx={{ minWidth: 35 }}>
-                    <Typography
-                        variant="body2"
-                        sx={{ color: 'text.secondary' }}
-                    >{`${Math.round(props.value)}%`}</Typography>
-                </Box>
-            </Box>
-        );
-    }
+    const { speed, updateProgress, reset: resetSpeed } = useSpeedMeter(messageData?.file_size ?? 0);
 
     async function getMessageMetadata(password: string) {
         try {
@@ -112,13 +97,17 @@ export default function LinkTransfer() {
     async function downloadFile() {
         setIsDownloading(true);
         setDownloadProgress(0);
+        resetSpeed();
 
         try {
             await genericDownloadFile({
                 fileName: messageData.filename,
                 download: (onChunk, onProgress) =>
                     getOneLinkMessage(AegisKeyEncoded, MacKeyEncoded, messageData, onChunk, onProgress),
-                onProgress: setDownloadProgress,
+                onProgress: (percent) => {
+                    setDownloadProgress(percent);
+                    updateProgress(percent);
+                },
                 onSuccess: () => {
                     success(strings.msgFileDownloaded);
                     setMessageData((prev: any) => ({
@@ -301,7 +290,7 @@ export default function LinkTransfer() {
                                 {limitReached ? (
                                     <Chip label="Limit reached" />
                                 ) : isDownloading ? (
-                                    <LinearProgressWithLabel value={downloadProgress} />
+                                    <LinearProgressWithLabel value={downloadProgress} speed={speed} />
                                 ) :
                                     <Button
                                         variant="contained"
