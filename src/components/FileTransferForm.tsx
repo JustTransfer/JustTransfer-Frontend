@@ -12,27 +12,37 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import AddBoxIcon from '@mui/icons-material/AddBox';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DescriptionIcon from '@mui/icons-material/Description';
 import LinearProgress from '@mui/material/LinearProgress';
 import type { LinearProgressProps } from "@mui/material/LinearProgress";
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Switch from "@mui/material/Switch";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Tooltip from "@mui/material/Tooltip";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
 
 import { useNotification } from "../hooks/useNotificationContext";
 import * as errors from "../messages/errors";
 import PasswordStrength from "./passwordStrength";
 import AcceptTermsService from "./acceptTermsService";
-import { formatSize, isValidUsername } from "../handlers/utils";
+import { formatSize, parseTransferLink } from "../handlers/utils";
+import TransferQrDialog from "./TransferQrDialog";
+
+type CommonProps = {
+    maxFileSize: number;
+    maxDownloads: number;
+    maxLifetime: number;
+};
 
 type FileTransferFormProps =
-    | {
-        type: "anonymous";
-        maxFileSize: number;
-        maxDownloads: number;
-        maxLifetime: number;
+    | (CommonProps & {
+        type: "link";
         onSubmit: (
             data: {
                 password: string;
@@ -42,22 +52,21 @@ type FileTransferFormProps =
             },
             onProgress: (percent: number) => void
         ) => Promise<string | void>;
-    }
-    | {
+    })
+    | (CommonProps & {
         type: "connected";
-        maxFileSize: number;
-        maxDownloads: number;
-        maxLifetime: number;
         onSubmit: (
             data: {
-                receiver: string;
+                password: string;
                 file: File;
                 lifetime: number;
                 maxDownloads: number;
+                receiver_email?: string;
+                isSigned: boolean;
             },
             onProgress: (percent: number) => void
         ) => Promise<string | void>;
-    };
+    });
 
 export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxLifetime, onSubmit }: FileTransferFormProps) {
 
@@ -69,12 +78,16 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
     const [isUsingPassword, setIsUsingPassword] = useState(false);
     const [password, setPassword] = useState("");
     const [isStrong, setIsStrong] = useState(false);
+    const [isSigned, setIsSigned] = useState(false);
+
+    const canSign = type === "connected"; // Only allow signing for connected users
 
     const [errorReceiver, setErrorReceiver] = useState(false);
-    const [helperTextReceiver, setHelperTextReceiver] = useState("");
 
     const [errorPassword, setErrorPassword] = useState(false);
     const [errorWeakPassword, setErrorWeakPassword] = useState(false);
+
+    const [openSignWarning, setOpenSignWarning] = useState(false);
 
     const [isSending, setIsSending] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -174,6 +187,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
         setPassword("");
         setIsStrong(false);
         setAcceptedTerms(false);
+        setIsSigned(false);
     };
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -189,85 +203,66 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             file: selectedFile,
             lifetime: Number(formData.get("lifetime")),
             maxDownloads: Number(formData.get("maxDownloads")),
+            isSigned: isSigned && canSign,
         };
 
-        if (type === "anonymous") {
-            const password = formData.get("password") as string;
-            const confirm = formData.get("confirmPassword") as string;
 
-            let hasError = false;
+        const password = formData.get("password") as string;
+        const confirm = formData.get("confirmPassword") as string;
 
-            if (!acceptedTerms) {
-                error(errors.errorTermsServicesNotAccepted);
+        let hasError = false;
+
+        if (type === "link" && !acceptedTerms) {
+            error(errors.errorTermsServicesNotAccepted);
+            hasError = true;
+        }
+
+        // Validate password fields if using password
+        if (isUsingPassword) {
+            if (!isStrong) {
+                error(errors.errorWeakPassword);
+                setErrorWeakPassword(true);
                 hasError = true;
-            }
-
-            // Validate password fields if using password
-            if (isUsingPassword) {
-                if (!isStrong) {
-                    error(errors.errorWeakPassword);
-                    setErrorWeakPassword(true);
-                    hasError = true;
-                } else {
-                    setErrorWeakPassword(false);
-                }
-
-                if (password !== confirm) {
-                    error(errors.errorPasswordMismatch);
-                    setErrorPassword(true);
-                    hasError = true;
-                } else {
-                    setErrorPassword(false);
-                }
-            }
-
-            if (hasError) {
-                return;
-            }
-
-            setErrorPassword(false);
-            if (isUsingPassword) {
-                data.password = password;
             } else {
-                data.password = undefined; // Let the backend generate a random password
+                setErrorWeakPassword(false);
             }
-        } else {
 
-            data.receiver = formData.get("receiver") as string;
-
-            // Validate receiver field
-            if (!isValidUsername(data.receiver)) {
-                error(errors.errorInvalidUsernameShort);
-                setErrorReceiver(true);
-                setHelperTextReceiver(errors.errorInvalidUsernameShort);
-                return;
+            if (password !== confirm) {
+                error(errors.errorPasswordMismatch);
+                setErrorPassword(true);
+                hasError = true;
             } else {
-                setErrorReceiver(false);
-                setHelperTextReceiver("");
+                setErrorPassword(false);
             }
         }
+
+        if (hasError) {
+            return;
+        }
+
+        setErrorPassword(false);
+        if (isUsingPassword) {
+            data.password = password;
+        } else {
+            data.password = undefined; // Let the backend generate a random password
+        }
+
+        // Get the email of the receiver if provided
+        data.receiver_email = (formData.get("receiver") as string) || undefined;
 
         try {
             setIsSending(true);
             setProgress(0);
             const result = await onSubmit(data, (percent) => setProgress(percent));
-            if (type === "anonymous" && typeof result === "string") {
-                setLink(result);
-                setOpenDialog(true);
-            }
+            setLink(result!);
+            setOpenDialog(true);
             success("File uploaded successfully!");
 
-            // Reset form and state if connected
-            if (type === "connected") {
-                handleCloseDialog();
-            }
         } catch (e: any) {
             if (e.message === errors.errorUserNotFound) {
                 setErrorReceiver(true);
-                setHelperTextReceiver(errors.errorUserNotFound);
             } else {
                 setErrorReceiver(false);
-                setHelperTextReceiver("");
             }
 
             error(e.message || "Unknown error");
@@ -353,115 +348,232 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                     )}
                 </Box>
 
-                <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: "stretch", gap: 2, width: "100%" }}>
-                    <TextField label="Max Downloads" name="maxDownloads" type="number" slotProps={{ htmlInput: { min: 1, max: maxDownloads } }} variant="outlined" fullWidth required helperText={maxDownloads ? `Max allowed: ${maxDownloads}` : undefined} />
-                    <TextField label="Lifetime" name="lifetime" type="number" slotProps={{ htmlInput: { min: 1, max: maxLifetime } }} variant="outlined" fullWidth required helperText={maxLifetime ? `Max allowed: ${maxLifetime} days` : undefined} />
+                <TextField
+                    label="Recipient email"
+                    name="receiver"
+                    type="email"
+                    fullWidth
+                    disabled={type === "link"}
+                    error={errorReceiver}
+                    helperText={
+                        type === "connected"
+                            ? "Optional. If provided, the recipient will receive an email notification."
+                            : "Only available for registered users."
+                    }
+                />
+
+                <Box sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                    width: "100%",
+                }}>
+                    <Box sx={{
+                        p: { xs: 1.5, sm: 2 },
+                        borderRadius: 3,
+                        border: "1px solid",
+                        borderColor: "divider",
+                        backgroundColor: "background.paper",
+                        textAlign: "left",
+                    }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+                            Password choice
+                        </Typography>
+                        <ToggleButtonGroup
+                            exclusive
+                            fullWidth
+                            value={isUsingPassword ? "manual" : "auto"}
+                            onChange={handlePasswordModeChange}
+                            sx={{
+                                display: "grid",
+                                gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                                gap: 1,
+                                "& .MuiToggleButtonGroup-grouped": {
+                                    border: 0,
+                                    borderRadius: 2,
+                                    textTransform: "none",
+                                    px: { xs: 1, sm: 2 },
+                                    py: { xs: 1, sm: 1.25 },
+                                    width: "100%",
+                                },
+                            }}
+                        >
+                            <ToggleButton value="auto" aria-label="Use generated password" sx={{ textAlign: "left", alignItems: "flex-start" }}>
+                                <Box sx={{ width: "100%" }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                                        Auto-generate
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        Automatically added to the link
+                                    </Typography>
+                                </Box>
+                            </ToggleButton>
+                            <ToggleButton value="manual" aria-label="Set password manually" sx={{ textAlign: "left", alignItems: "flex-start" }}>
+                                <Box sx={{ width: "100%" }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                                        Set manually
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        Choose your own password
+                                    </Typography>
+                                </Box>
+                            </ToggleButton>
+                        </ToggleButtonGroup>
+                    </Box>
+
+                    <Collapse in={isUsingPassword} unmountOnExit>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                            <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
+                                onChange={(e) => setPassword(e.target.value)}
+                                error={errorWeakPassword}
+                                helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
+                                slotProps={{
+                                    input: {
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                                    onClick={handleTogglePassword}
+                                                >
+                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    },
+                                }}
+                            />
+
+                            <PasswordStrength password={password} onStrengthChange={setIsStrong} />
+
+                            <TextField label="Confirm Password" name="confirmPassword" type="password" variant="outlined" fullWidth required
+                                error={errorPassword}
+                                helperText={errorPassword ? errors.errorPasswordMismatch : ""}
+                            />
+                        </Box>
+                    </Collapse>
                 </Box>
 
-                {
-                    type === "anonymous" ? (
+                <Accordion
+                    disableGutters
+                    elevation={0}
+                    sx={{
+                        width: "100%",
+                        border: "1px solid",
+                        borderColor: "divider",
+                        borderRadius: 2,
+                        "&:before": {
+                            display: "none",
+                        },
+                    }}
+                >
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                            Transfer settings
+                        </Typography>
+                    </AccordionSummary>
 
-                        <Box sx={{
+                    <AccordionDetails
+                        sx={{
                             display: "flex",
                             flexDirection: "column",
                             gap: 2,
-                            width: "100%",
-                        }}>
-                            <Box sx={{
-                                p: { xs: 1.5, sm: 2 },
-                                borderRadius: 3,
-                                border: "1px solid",
-                                borderColor: "divider",
-                                backgroundColor: "background.paper",
-                                textAlign: "left",
-                            }}>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-                                    Password choice
-                                </Typography>
-                                <ToggleButtonGroup
-                                    exclusive
-                                    fullWidth
-                                    value={isUsingPassword ? "manual" : "auto"}
-                                    onChange={handlePasswordModeChange}
-                                    sx={{
-                                        display: "grid",
-                                        gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-                                        gap: 1,
-                                        "& .MuiToggleButtonGroup-grouped": {
-                                            border: 0,
-                                            borderRadius: 2,
-                                            textTransform: "none",
-                                            px: { xs: 1, sm: 2 },
-                                            py: { xs: 1, sm: 1.25 },
-                                            width: "100%",
-                                        },
-                                    }}
-                                >
-                                    <ToggleButton value="auto" aria-label="Use generated password" sx={{ textAlign: "left", alignItems: "flex-start" }}>
-                                        <Box sx={{ width: "100%" }}>
-                                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                                                Auto-generate
-                                            </Typography>
-                                            <Typography variant="caption" color="text.secondary">
-                                                Automatically added to the link
-                                            </Typography>
-                                        </Box>
-                                    </ToggleButton>
-                                    <ToggleButton value="manual" aria-label="Set password manually" sx={{ textAlign: "left", alignItems: "flex-start" }}>
-                                        <Box sx={{ width: "100%" }}>
-                                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                                                Set manually
-                                            </Typography>
-                                            <Typography variant="caption" color="text.secondary">
-                                                Choose your own password
-                                            </Typography>
-                                        </Box>
-                                    </ToggleButton>
-                                </ToggleButtonGroup>
-                            </Box>
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                display: "grid",
+                                gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                                gap: 2,
+                            }}
+                        >
+                            <TextField
+                                label="Max Downloads"
+                                name="maxDownloads"
+                                type="number"
+                                slotProps={{
+                                    htmlInput: { min: 1, max: maxDownloads },
+                                }}
+                                variant="outlined"
+                                fullWidth
+                                required
+                                defaultValue={maxDownloads}
+                                helperText={
+                                    maxDownloads
+                                        ? `Max allowed: ${maxDownloads}`
+                                        : undefined
+                                }
+                            />
 
-                            <Collapse in={isUsingPassword} unmountOnExit>
-                                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                                    <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        error={errorWeakPassword}
-                                        helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
-                                        slotProps={{
-                                            input: {
-                                                endAdornment: (
-                                                    <InputAdornment position="end">
-                                                        <IconButton
-                                                            aria-label={showPassword ? "Hide password" : "Show password"}
-                                                            onClick={handleTogglePassword}
-                                                        >
-                                                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                                                        </IconButton>
-                                                    </InputAdornment>
-                                                ),
-                                            },
-                                        }}
-                                    />
-
-                                    <PasswordStrength password={password} onStrengthChange={setIsStrong} />
-
-                                    <TextField label="Confirm Password" name="confirmPassword" type="password" variant="outlined" fullWidth required
-                                        error={errorPassword}
-                                        helperText={errorPassword ? errors.errorPasswordMismatch : ""}
-                                    />
-                                </Box>
-                            </Collapse>
+                            <TextField
+                                label="Lifetime"
+                                name="lifetime"
+                                type="number"
+                                slotProps={{
+                                    htmlInput: { min: 1, max: maxLifetime },
+                                }}
+                                variant="outlined"
+                                fullWidth
+                                required
+                                defaultValue={maxLifetime}
+                                helperText={
+                                    maxLifetime
+                                        ? `Max allowed: ${maxLifetime} days`
+                                        : undefined
+                                }
+                            />
                         </Box>
 
-                    ) : (
-                        <TextField label="Receiver" name="receiver" type="text" variant="outlined" fullWidth required
-                            error={errorReceiver}
-                            helperText={helperTextReceiver}
-                        />
-                    )
-                }
+                        {/* Sign transfer toggle */}
+                        <Box
+                            sx={{
+                                p: { xs: 1.5, sm: 2 },
+                                borderRadius: 2,
+                                border: "1px solid",
+                                borderColor: "divider",
+                                textAlign: "left",
+                            }}
+                        >
+                            <Tooltip
+                                title={canSign ? "" : "Sign in to your account to sign transfers"}
+                                disableHoverListener={canSign}
+                            >
+                                <span style={{ display: "inline-flex" }}>
+                                    <FormControlLabel
+                                        sx={{ m: 0, alignItems: "flex-start", gap: 1 }}
+                                        control={
+                                            <Switch
+                                                checked={isSigned}
+                                                disabled={!canSign}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setOpenSignWarning(true);
+                                                    } else {
+                                                        setIsSigned(false);
+                                                    }
+                                                }}
+                                            />
+                                        }
+                                        label={
+                                            <Box>
+                                                <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                                                    Sign this transfer
+                                                </Typography>
+                                                <Typography variant="caption" color="text.secondary">
+                                                    {canSign
+                                                        ? "Cryptographically sign this transfer with your account key"
+                                                        : "Available when connected to an account"}
+                                                </Typography>
+                                            </Box>
+                                        }
+                                    />
+                                </span>
+                            </Tooltip>
+                        </Box>
+                    </AccordionDetails>
+                </Accordion>
 
                 {
-                    type === "anonymous" ? (
+                    type === "link" ? (
                         <AcceptTermsService
                             accepted={acceptedTerms}
                             onChange={setAcceptedTerms}
@@ -476,50 +588,60 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                     isSending ? (
                         <LinearProgressWithLabel value={progress} />
                     ) : (
-                        <>
-                            {type === "anonymous" ? (
-                                <Button type="submit" variant="contained" fullWidth>Get a Link</Button>
-                            ) : (
-                                <Button type="submit" variant="contained" fullWidth>Send File</Button>
-                            )}
-                        </>
+                        <Button type="submit" variant="contained" fullWidth>Get a Link</Button>
                     )
                 }
             </Box >
 
             {/* Dialog with link pop up */}
-            < Dialog open={openDialog} onClose={handleCloseDialog}
-                maxWidth={"sm"}
+            <TransferQrDialog
+                open={openDialog}
+                onClose={handleCloseDialog}
+                title="Link ready!"
+                {...parseTransferLink(link)}
+            />
+
+            {/* Sign warning dialog */}
+            <Dialog
+                open={openSignWarning}
+                onClose={() => setOpenSignWarning(false)}
+                maxWidth="xs"
                 fullWidth
-                sx={{
-                    '& .MuiDialog-paper': {
-                        borderRadius: 3,
-                    },
-                }}
             >
-                <DialogTitle>Link ready!</DialogTitle>
-                <DialogContent
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 2,
-                    }}
-                >
-                    <TextField label="Transfer link" value={link} fullWidth />
-                    <ContentCopyIcon sx={{ color: "primary.main", "&:hover": { cursor: "pointer" } }}
-                        onClick={() => {
-                            navigator.clipboard.writeText(link);
-                            success("Link copied");
-                        }} />
+                <DialogContent sx={{ pt: 4, px: 3.5, pb: 2 }}>
+                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2.5, textAlign: "center" }}>
+                        <Box sx={{
+                            width: 56, height: 56, borderRadius: "50%",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            backgroundColor: "#fff4e5",
+                        }}>
+                            <WarningAmberRoundedIcon sx={{ fontSize: 28, color: "#ed6c02" }} />
+                        </Box>
+                        <Box>
+                            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                                Your email will be visible
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                Signing proves this transfer came from you, but your email address will be visible to anyone with access to it.
+                            </Typography>
+                        </Box>
+                    </Box>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => window.open(link, '_blank', 'noopener,noreferrer')}>
-                        Open link
+                <DialogActions sx={{ px: 3.5, pb: 3.5, pt: 1, gap: 1.5 }}>
+                    <Button fullWidth variant="outlined" onClick={() => setOpenSignWarning(false)}>
+                        Cancel
                     </Button>
-                    <Button onClick={handleCloseDialog}>Close</Button>
+                    <Button
+                        fullWidth
+                        variant="contained"
+                        color="warning"
+                        onClick={() => { setIsSigned(true); setOpenSignWarning(false); }}
+                        autoFocus
+                    >
+                        Continue
+                    </Button>
                 </DialogActions>
-            </Dialog >
-            {/*</Paper >*/}
+            </Dialog>
         </>
     );
 }

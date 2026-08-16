@@ -2,24 +2,57 @@ import { useState, useEffect } from "react";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import { useServerConfig } from "../hooks/useServerConfig";
 import Layout from "../components/layout";
-import { sendMessage } from "../handlers/crypto";
-import { sendMessageAnonymous } from "../handlers/crypto_anonymous";
-import FileTransferFormSelect from "../components/FileTransferFormSelect";
+import { addSavedTransfer } from "../handlers/crypto";
+import { sendMessageLink } from "../handlers/crypto_link";
+import FileTransferForm from "../components/FileTransferForm";
 import { useAuth } from "../hooks/useAuth";
 
 export default function NewTransfer() {
     const maxWidthPage = 1400;
     const { config } = useServerConfig();
-    const { username, role, getLatestKeys } = useAuth();
+    const { role, exportKey, getLatestKeys } = useAuth();
 
     const [keys, setKeys] = useState<any>(null);
 
     const maxFileSize = role === "premium" ? config?.max_file_size_connected_premium! : config?.max_file_size_connected!;
     const maxDownloads = role === "premium" ? config?.max_downloads_connected_premium! : config?.max_downloads_connected!;
     const maxLifetime = role === "premium" ? config?.max_lifetime_connected_premium! : config?.max_lifetime_connected!;
+
+    async function sendTransfer(
+        fileName: string,
+        file: File,
+        lifetime: number,
+        maxDownloads: number,
+        password: string,
+        privateKeySign: string | undefined,
+        isSigned: boolean,
+        keyId: string | undefined,
+        onProgress: (percent: number) => void,
+        receiver_email?: string
+    ): Promise<string> {
+
+        const result = await sendMessageLink(
+            fileName,
+            file,
+            lifetime,
+            maxDownloads,
+            isSigned,
+            keyId,
+            privateKeySign,
+            password,
+            onProgress,
+            receiver_email
+        );
+
+        // Save the transfer to account's saved transfers
+        await addSavedTransfer(result.id, result.password, exportKey!, result.auth_key);
+
+        return result.link;
+    }
 
     useEffect(() => {
         const fetchKeys = async () => {
@@ -105,43 +138,40 @@ export default function NewTransfer() {
                                 border: "1px solid #f0dbea",
                             }}
                         >
-                            <FileTransferFormSelect
-                                type="both"
-                                propsLink={{
-                                    maxFileSize: config?.max_file_size_anonymous!,
-                                    maxDownloads: config?.max_downloads_anonymous!,
-                                    maxLifetime: config?.max_lifetime_anonymous!,
-                                    onSubmit: async (data, onProgress) => {
-                                        const result = await sendMessageAnonymous(
+                            {config ? (
+                                <FileTransferForm
+                                    type="connected"
+                                    maxFileSize={maxFileSize}
+                                    maxDownloads={maxDownloads}
+                                    maxLifetime={maxLifetime}
+                                    onSubmit={async (data, onProgress) => {
+                                        return await sendTransfer(
                                             data.file.name,
                                             data.file,
                                             data.lifetime,
                                             data.maxDownloads,
                                             data.password,
-                                            onProgress
-                                        );
-                                        return result.link;
-                                    },
-                                }}
-                                propsDirect={{
-                                    maxFileSize: maxFileSize,
-                                    maxDownloads: maxDownloads,
-                                    maxLifetime: maxLifetime,
-                                    onSubmit: async (data, onProgress) => {
-                                        await sendMessage(
-                                            username!,
-                                            keys.enc_private_key,
                                             keys.sign_private_key,
-                                            data.receiver!,
-                                            data.file.name,
-                                            data.file,
-                                            data.lifetime,
-                                            data.maxDownloads,
-                                            onProgress
-                                        );
-                                    }
-                                }}
-                            />
+                                            data.isSigned,
+                                            keys.id,
+                                            onProgress,
+                                            data.receiver_email
+                                        )
+                                    }}
+                                />
+                            ) : (
+                                <Box
+                                    sx={{
+                                        height: "100%",
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        minHeight: 700,
+                                    }}
+                                >
+                                    <CircularProgress />
+                                </Box>
+                            )}
                         </Box>
                     </Box>
                 </Box>

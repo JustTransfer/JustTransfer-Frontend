@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -23,7 +23,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useServerConfig } from "../hooks/useServerConfig";
 import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
-import { changePassword, generateNewKeys } from "../handlers/crypto";
+import { changePassword, generateNewKeys, getSavedTransfers } from "../handlers/crypto";
 import { getAccountInfoAPI, deleteAccountAPI } from "../handlers/api";
 import { formatSize } from "../handlers/utils";
 import AccountActionDialog from "../components/AccountActionDialog";
@@ -97,7 +97,6 @@ export default function AccountPage() {
     const { success, error } = useNotification();
     const { updateKeys, keys, exportKey } = useAuth();
 
-    const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [role, setRole] = useState("");
     const [numberTransfers, setNumberTransfers] = useState(0);
@@ -108,7 +107,7 @@ export default function AccountPage() {
     async function handleRotateKeys(currentPassword: string) {
         try {
 
-            const result = await generateNewKeys(username, currentPassword, exportKey!);
+            const result = await generateNewKeys(email, currentPassword, exportKey!);
 
             if (!result.success) {
                 throw new Error(result.message || errors.errorRotateKeys);
@@ -129,7 +128,8 @@ export default function AccountPage() {
     async function handleChangePassword(currentPassword: string, newPassword: string) {
         try {
 
-            const result = await changePassword(username, currentPassword, newPassword, keys!);
+            const saved_transfers = await getSavedTransfers(exportKey!);
+            const result = await changePassword(email, currentPassword, newPassword, keys!, saved_transfers);
 
             if (!result.success) {
                 throw new Error(result.message || errors.errorChangePassword);
@@ -150,7 +150,7 @@ export default function AccountPage() {
     async function handleDeleteAccount() {
         try {
 
-            const result = await deleteAccountAPI(username);
+            const result = await deleteAccountAPI(email);
 
             if (result !== 204) {
                 throw new Error(errors.errorDeleteAccount);
@@ -172,7 +172,6 @@ export default function AccountPage() {
         async function fetchAccountInfo() {
             try {
                 const accountInfo = await getAccountInfoAPI();
-                setUsername(accountInfo.username);
                 setEmail(accountInfo.email);
                 setRole(accountInfo.role);
                 setNumberTransfers(accountInfo.number_transfers);
@@ -204,7 +203,7 @@ export default function AccountPage() {
                                     boxShadow: "0 10px 22px rgba(65, 88, 208, 0.25)",
                                 }}
                             >
-                                {username?.[0]?.toUpperCase()}
+                                {email?.[0]?.toUpperCase()}
                             </Avatar>
 
                             <Box
@@ -212,12 +211,9 @@ export default function AccountPage() {
                                     minWidth: 0,
                                     px: { xs: 1, sm: 0 },
                                 }}>
-                                {(username && email) ?
+                                {email ?
                                     <>
-                                        <Typography variant="h6">{username}</Typography>
-                                        <Typography variant="body2" color="text.secondary" sx={{ overflowWrap: "anywhere", wordBreak: "break-word" }}>
-                                            {email}
-                                        </Typography>
+                                        <Typography variant="h6">{email}</Typography>
                                     </>
                                     : (
                                         <Typography variant="h6">Loading...</Typography>
@@ -384,11 +380,29 @@ export default function AccountPage() {
                                     Delete Account
                                 </Typography>
                                 <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
-                                    Deleting your account will permanently remove all your data, including current transfers.
-                                    <br />
-                                    This information cannot be recovered once your account is deleted.
-
-                                    This action cannot be undone.
+                                    Deleting your account is permanent and cannot be undone.
+                                </Typography>
+                                <Box
+                                    component="ul"
+                                    sx={{
+                                        mt: 1,
+                                        mb: 0,
+                                        pl: 3,
+                                        color: "text.primary",
+                                    }}
+                                >
+                                    <Typography component="li" variant="body2">
+                                        <b>Signed transfers</b>, including their files, will be permanently deleted.
+                                    </Typography>
+                                    <Typography component="li" variant="body2">
+                                        <b>Unsigned transfers</b> will remain on the server until they expire naturally, but you'll lose all access to them once your account is gone.
+                                    </Typography>
+                                    <Typography component="li" variant="body2">
+                                        <b>Saved transfers</b> in your account will be removed.
+                                    </Typography>
+                                </Box>
+                                <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
+                                    None of this can be recovered afterward.
                                 </Typography>
                             </Box>
                             <Button

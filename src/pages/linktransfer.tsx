@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import React, { useState, useEffect } from "react";
 
 import Box from "@mui/material/Box";
@@ -18,18 +18,15 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import LinearProgress from '@mui/material/LinearProgress';
 import type { LinearProgressProps } from '@mui/material/LinearProgress';
 
-// @ts-ignore
-import streamSaver from 'streamsaver';
-
 import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
-import { getOneAnonymousMessageMetadata, getOneAnonymousMessage } from "../handlers/crypto_anonymous";
-import { formatSize, relativeExpire, formatCreated } from "../handlers/utils";
+import { getOneLinkMessageMetadata, getOneLinkMessage } from "../handlers/crypto_link";
+import { formatSize, relativeExpire, formatCreated, genericDownloadFile } from "../handlers/utils";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
 
-export default function AnonymousTransfer() {
+export default function LinkTransfer() {
 
     const cardSx = {
         width: "100%",
@@ -40,6 +37,7 @@ export default function AnonymousTransfer() {
         boxShadow: "0 18px 40px rgba(83, 24, 60, 0.12)",
         backgroundColor: "#ffffff",
         p: { xs: 3, md: 5 },
+        overflow: "hidden",
     };
 
     const statTileSx = {
@@ -58,7 +56,8 @@ export default function AnonymousTransfer() {
         setShowPassword(prev => !prev);
     };
 
-    const [exportKey, setExportKey] = useState<string>("");
+    const [AegisKeyEncoded, setAegisKeyEncoded] = useState<string>("");
+    const [MacKeyEncoded, setMacKeyEncoded] = useState<string>("");
     const [messageData, setMessageData] = useState<any>(null);
 
     const limitReached = messageData && messageData.max_downloads !== 0 && messageData.number_downloads >= messageData.max_downloads;
@@ -87,9 +86,10 @@ export default function AnonymousTransfer() {
         try {
             setIsDownloading(false);
             setDownloadProgress(0);
-            const result = await getOneAnonymousMessageMetadata(password as string, id!);
+            const result = await getOneLinkMessageMetadata(password as string, id!);
 
-            setExportKey(result.exportKey);
+            setAegisKeyEncoded(result.AegisKey);
+            setMacKeyEncoded(result.MacKey);
             setMessageData(result.messageData);
 
             success(strings.msgFileInfoDecrypted);
@@ -110,75 +110,26 @@ export default function AnonymousTransfer() {
     }
 
     async function downloadFile() {
+        setIsDownloading(true);
         setDownloadProgress(0);
 
         try {
-            setIsDownloading(true);
-
-            // Check if StreamSaver is supported (has service worker support)
-            const supportsStreaming = typeof streamSaver !== 'undefined' && 'serviceWorker' in navigator && window.WritableStream;
-
-            if (supportsStreaming) {
-                // Use StreamSaver for streaming download (memory efficient)
-                console.log("Using StreamSaver for streaming download");
-                const fileStream = streamSaver.createWriteStream(messageData.filename);
-                const writer = fileStream.getWriter();
-
-                try {
-                    await getOneAnonymousMessage(exportKey, messageData, async (chunk, _name) => {
-                        // Write chunk directly to the stream
-                        await writer.write(chunk);
-                    }, (percent: number) => {
-                        setDownloadProgress(percent);
-                    });
-                } catch (e) {
-                    // If an error occurs during streaming, abort the stream to prevent hanging (e.g., signature verification failure)
-                    await writer.abort(e);
-                    throw e; // Re-throw to be caught by outer catch
-                }
-
-                // Close the stream
-                await writer.close();
-            } else {
-                // Fallback to traditional blob download (stores in memory)
-                console.log("Using fallback blob download");
-                const chunks: Uint8Array[] = [];
-
-                await getOneAnonymousMessage(exportKey, messageData, async (chunk, _name) => {
-                    // Collect chunks in memory
-                    chunks.push(new Uint8Array(chunk));
-                }, (percent: number) => {
-                    setDownloadProgress(percent);
-                });
-
-                // Create blob from all chunks
-                const blob = new Blob(chunks as BlobPart[], { type: "application/octet-stream" });
-                const url = URL.createObjectURL(blob);
-
-                // Trigger download
-                try {
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = messageData.filename;
-                    a.style.display = "none";
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                } finally {
-                    // Cleanup
-                    URL.revokeObjectURL(url);
-                }
-            }
-
-            success(strings.msgFileDownloaded);
-
-            // Increment download count
-            setMessageData((prev: any) => ({ ...prev, number_downloads: prev.number_downloads + 1 }));
-
+            await genericDownloadFile({
+                fileName: messageData.filename,
+                download: (onChunk, onProgress) =>
+                    getOneLinkMessage(AegisKeyEncoded, MacKeyEncoded, messageData, onChunk, onProgress),
+                onProgress: setDownloadProgress,
+                onSuccess: () => {
+                    success(strings.msgFileDownloaded);
+                    setMessageData((prev: any) => ({
+                        ...prev,
+                        number_downloads: prev.number_downloads + 1,
+                    }));
+                },
+            });
         } catch (e) {
             error("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
         } finally {
-            // Reset progress indicator
             setIsDownloading(false);
             setDownloadProgress(0);
         }
@@ -201,6 +152,22 @@ export default function AnonymousTransfer() {
         };
 
         loadMetadata();
+    }, []);
+
+    useEffect(() => {
+        // Prevent search engines from indexing this transfer link
+        let metaTag = document.querySelector('meta[name="robots"]');
+        if (!metaTag) {
+            metaTag = document.createElement('meta');
+            metaTag.setAttribute('name', 'robots');
+            document.head.appendChild(metaTag);
+        }
+        metaTag.setAttribute('content', 'noindex, nofollow');
+
+        // Clean up when leaving the page, in case other routes should stay indexable
+        return () => {
+            metaTag?.setAttribute('content', 'index, follow');
+        };
     }, []);
 
     if (isLoading) {
@@ -239,10 +206,9 @@ export default function AnonymousTransfer() {
             >
 
                 <Paper elevation={0} sx={cardSx}>
-                    <Box component="form" sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }} onSubmit={handleSubmit}>
-
+                    <Box component="form" sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, width: "100%", minWidth: 0 }} onSubmit={handleSubmit}>
                         {messageData ? (
-                            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+                            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, width: "100%", minWidth: 0 }}>
 
                                 <Box sx={{
                                     display: "flex",
@@ -250,13 +216,27 @@ export default function AnonymousTransfer() {
                                     alignItems: "center",
                                     gap: 1,
                                     width: "100%",
+                                    minWidth: 0,
                                 }}>
                                     <Box sx={{ p: 2, borderRadius: 3, backgroundColor: "#fff0f8" }}>
                                         <DescriptionIcon sx={{ fontSize: 60, color: "primary.main" }} />
                                     </Box>
 
-                                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                                    <Typography
+                                        variant="h5"
+                                        sx={{
+                                            fontWeight: "bold",
+                                            width: "100%",
+                                            wordBreak: "break-word",
+                                            overflowWrap: "anywhere",
+                                            hyphens: "auto",
+                                        }}
+                                    >
                                         {messageData.filename}
+                                    </Typography>
+
+                                    <Typography variant="body2" sx={{ color: '#6e5a69' }}>
+                                        From <b>{messageData.sender}</b>
                                     </Typography>
 
                                     <Typography variant="body1" sx={{ color: '#6e5a69' }}>
@@ -271,6 +251,7 @@ export default function AnonymousTransfer() {
                                         gridTemplateColumns: "1fr 1fr",
                                         gap: 2,
                                         width: "100%",
+                                        minWidth: 0,
                                         mt: 2,
                                     }}
                                 >

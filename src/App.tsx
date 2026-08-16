@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router";
 
 import ScrollToTop from './components/scrollToTop';
 import { NotificationProvider } from './hooks/useNotificationContext';
@@ -8,7 +8,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import HomePage from './pages/home';
 import TermsService from './pages/termsService';
 import PrivacyPolicy from './pages/privacyPolicy';
-import AnonymousTransfer from './pages/anonymoustransfer';
+import LinkTransfer from './pages/linktransfer';
 import CreateAccountPage from './pages/createaccount';
 import VerifyEmailPage from './pages/verifyemail';
 import ResetPasswordRequestPage from './pages/resetPasswordRequest';
@@ -17,8 +17,8 @@ import LoginPage from './pages/login';
 import Logout from './pages/logout';
 
 import NewTransfer from './pages/new-transfer';
-import Inbox from './pages/inbox';
-import Transfers from './pages/transfers';
+import SavedTransfers from './pages/savedTransfer';
+import TransferDetails from './pages/transferDetails';
 import AccountPage from './pages/account';
 import PricingPage from './pages/pricing';
 import Error from './pages/error';
@@ -43,7 +43,7 @@ function App() {
             <Route path="/reset-password" element={<ResetPasswordRequestPage />} />
             <Route path="/reset-password/:id" element={<ResetPasswordPage />} />
 
-            <Route path="/anonymous-transfer/:id" element={<AnonymousTransfer />} />
+            <Route path="/link-transfer/:id" element={<LinkTransfer />} />
 
             <Route path="/terms" element={<TermsService />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
@@ -62,13 +62,13 @@ function App() {
 
             <Route path="/transfers" element={
               <ProtectedRoute>
-                <Transfers />
+                <SavedTransfers />
               </ProtectedRoute>}
             />
 
-            <Route path="/inbox" element={
+            <Route path="/transfers/:id" element={
               <ProtectedRoute>
-                <Inbox />
+                <TransferDetails />
               </ProtectedRoute>}
             />
 

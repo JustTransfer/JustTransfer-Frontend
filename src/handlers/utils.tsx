@@ -1,5 +1,6 @@
-const MIN_LENGTH_USERNAME = 3;
-const MAX_LENGTH_USERNAME = 32;
+// @ts-ignore
+import streamSaver from 'streamsaver';
+
 const DAY = 86400000; // milliseconds in a day
 
 // Dynamically import libsodium-wrappers
@@ -27,15 +28,85 @@ export async function getOpaque() {
   return opaque;
 }
 
+// Generic download function
+export async function genericDownloadFile({
+  fileName,
+  download,
+  onProgress,
+  onSuccess,
+  onError,
+}: {
+  fileName: string;
+  download: (
+    onChunk: (chunk: Uint8Array, name: string) => Promise<void>,
+    onProgress: (percent: number) => void
+  ) => Promise<void>;
+  onProgress: (percent: number) => void;
+  onSuccess?: () => void;
+  onError?: () => void;
+}) {
+  try {
+    const supportsStreaming =
+      typeof streamSaver !== "undefined" &&
+      "serviceWorker" in navigator &&
+      window.WritableStream;
 
-export function isValidUsername(username: string): Boolean {
-  return (
-    username.length >= MIN_LENGTH_USERNAME &&
-    username.length <= MAX_LENGTH_USERNAME &&
-    /^[a-z0-9_]+$/.test(username)
-  );
+    if (supportsStreaming) {
+      console.log("Using StreamSaver for streaming download");
+
+      const fileStream = streamSaver.createWriteStream(fileName);
+      const writer = fileStream.getWriter();
+
+      try {
+        await download(
+          async (chunk) => {
+            await writer.write(chunk);
+          },
+          onProgress
+        );
+      } catch (e) {
+        await writer.abort(e);
+        throw e;
+      }
+
+      await writer.close();
+    } else {
+      console.log("Using fallback blob download");
+
+      const chunks: Uint8Array[] = [];
+
+      await download(
+        async (chunk) => {
+          chunks.push(new Uint8Array(chunk));
+        },
+        onProgress
+      );
+
+      const blob = new Blob(chunks as BlobPart[], {
+        type: "application/octet-stream",
+      });
+
+      const url = URL.createObjectURL(blob);
+
+      try {
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+    }
+
+    onSuccess?.();
+  } catch (e) {
+    onError?.();
+    throw e;
+  }
 }
-
 
 export const formatSize = (bytes: any) => {
   if (bytes < 1024) return `${bytes} B`;
@@ -100,4 +171,15 @@ export function relativeExpire(msg: any, short = false) {
 
   // return `Expires ${expire.toLocaleDateString()} at ${time}`;
   return short ? `${expire.toLocaleDateString()} at ${time}` : `Expires on ${expire.toLocaleDateString()} at ${time}`;
+}
+
+export function parseTransferLink(fullLink: string): { transferId: string; password: string } {
+  try {
+    const url = new URL(fullLink);
+    const transferId = url.pathname.split("/").filter(Boolean).pop() ?? "";
+    const password = url.hash.substring(1);
+    return { transferId, password };
+  } catch {
+    return { transferId: "", password: "" };
+  }
 }

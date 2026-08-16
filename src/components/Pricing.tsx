@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -65,10 +65,10 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
         boxShadow: "0 24px 64px rgba(83, 24, 60, 0.22)",
     };
 
-    const anonymousLimits = {
-        maxFileSize: config?.max_file_size_anonymous,
-        maxDownloads: config?.max_downloads_anonymous,
-        maxLifetime: config?.max_lifetime_anonymous,
+    const linkLimits = {
+        maxFileSize: config?.max_file_size_link,
+        maxDownloads: config?.max_downloads_link,
+        maxLifetime: config?.max_lifetime_link,
     };
 
     const connectedLimits = {
@@ -152,9 +152,9 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: 120 }}>
-                            <Typography variant="body2">Transfer files up to {renderLimitValue(anonymousLimits.maxFileSize, formatSize)}</Typography>
-                            <Typography variant="body2">Files available for {renderLimitValue(anonymousLimits.maxLifetime)} days</Typography>
-                            <Typography variant="body2">Up to {renderLimitValue(anonymousLimits.maxDownloads)} downloads per transfer</Typography>
+                            <Typography variant="body2">Maximum file size: {renderLimitValue(linkLimits.maxFileSize, formatSize)}</Typography>
+                            <Typography variant="body2">Files available for {renderLimitValue(linkLimits.maxLifetime)} days</Typography>
+                            <Typography variant="body2">{renderLimitValue(linkLimits.maxDownloads)} downloads per transfer</Typography>
                         </Box>
                     </Box>
                     {
@@ -179,9 +179,9 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: 120 }}>
-                            <Typography variant="body2">Transfer files up to {renderLimitValue(connectedLimits.maxFileSize, formatSize)}</Typography>
+                            <Typography variant="body2">Maximum file size: {renderLimitValue(connectedLimits.maxFileSize, formatSize)}</Typography>
                             <Typography variant="body2">Files available for {renderLimitValue(connectedLimits.maxLifetime)} days</Typography>
-                            <Typography variant="body2">Up to {renderLimitValue(connectedLimits.maxDownloads)} downloads per transfer</Typography>
+                            <Typography variant="body2">{renderLimitValue(connectedLimits.maxDownloads)} downloads per transfer</Typography>
                         </Box>
                         {isCurrentPlan("user") && (
                             <Chip label="Current plan" size="small" sx={currentPlanChipSx} />
@@ -210,9 +210,9 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: 120 }}>
-                            <Typography variant="body2">Transfer files up to {renderLimitValue(premiumLimits.maxFileSize, formatSize)}</Typography>
+                            <Typography variant="body2">Maximum file size: {renderLimitValue(premiumLimits.maxFileSize, formatSize)}</Typography>
                             <Typography variant="body2">Files available for {renderLimitValue(premiumLimits.maxLifetime)} days</Typography>
-                            <Typography variant="body2">Up to {renderLimitValue(premiumLimits.maxDownloads)} downloads per transfer</Typography>
+                            <Typography variant="body2">{renderLimitValue(premiumLimits.maxDownloads)} downloads per transfer</Typography>
                         </Box>
                         {isCurrentPlan("premium") && (
                             <Chip label="Current plan" size="small" sx={currentPlanChipSx} />

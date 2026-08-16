@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -16,7 +16,6 @@ import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
 import { register } from "../handlers/crypto";
 import PasswordStrength from "../components/passwordStrength";
-import { isValidUsername } from "../handlers/utils";
 import AcceptTermsService from "../components/acceptTermsService";
 
 import * as errors from "../messages/errors";
@@ -39,7 +38,6 @@ export default function CreateAccountPage() {
 
     const navigate = useNavigate();
 
-    const [errorInvalidUsername, setErrorInvalidUsername] = useState(false);
     const [errorPasswordMismatch, setErrorPasswordMismatch] = useState(false);
     const [errorWeakPassword, setErrorWeakPassword] = useState(false);
     const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -57,7 +55,6 @@ export default function CreateAccountPage() {
         const form = event.currentTarget;
         const formData = new FormData(form);
         const data = {
-            username: formData.get("username"),
             email: formData.get("email"),
             password: formData.get("password"),
             confirmPassword: formData.get("confirmPassword"),
@@ -68,14 +65,6 @@ export default function CreateAccountPage() {
         if (!acceptedTerms) {
             error(errors.errorTermsServicesNotAccepted);
             hasError = true;
-        }
-
-        if (!isValidUsername(data.username as string)) {
-            setErrorInvalidUsername(true);
-            error(errors.errorInvalidUsernameShort);
-            hasError = true;
-        } else {
-            setErrorInvalidUsername(false);
         }
 
         if (!isStrong) {
@@ -102,7 +91,7 @@ export default function CreateAccountPage() {
         setErrorPasswordMismatch(false);
 
         try {
-            const result = await register(data.username as string, data.email as string, data.password as string);
+            const result = await register(data.email as string, data.password as string);
 
             if (result.success) {
                 success(strings.msgAccountCreated);
@@ -143,16 +132,6 @@ export default function CreateAccountPage() {
                     </Typography>
 
                     <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 4 }} onSubmit={handleSubmit}>
-                        <TextField
-                            label="Username"
-                            name="username"
-                            type="text"
-                            variant="outlined"
-                            fullWidth
-                            required
-                            error={errorInvalidUsername}
-                            helperText={errorInvalidUsername ? errors.errorInvalidUsername : ""}
-                        />
                         <TextField
                             label="Email"
                             name="email"

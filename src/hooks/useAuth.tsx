@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 import * as errors from "../messages/errors";
 
@@ -16,7 +16,7 @@ type Key = {
 }
 
 type LoginData = {
-    username: string;
+    email: string;
     role: string;
     exportKey: string;
     keys: Key[];
@@ -28,7 +28,7 @@ type updateKeysData = {
 }
 
 type AuthContextType = {
-    username: string | null;
+    email: string | null;
     role: string | null;
     exportKey: string | null;
     keys: Key[] | null;
@@ -42,7 +42,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: any) => {
 
-    const [username, setUsername] = useState<string | null>(null);
+    const [email, setEmail] = useState<string | null>(null);
     const [role, setRole] = useState<string | null>(null);
 
     const [exportKey, setExportKey] = useState<string | null>(null);
@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }: any) => {
     const navigate = useNavigate();
 
     const login = async (data: LoginData) => {
-        setUsername(data.username);
+        setEmail(data.email);
         setRole(data.role);
         setExportKey(data.exportKey);
         setKeys(data.keys);
@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }: any) => {
 
 
     const logout = async () => {
-        setUsername(null);
+        setEmail(null);
         setRole(null);
         setExportKey(null);
         setKeys(null);
@@ -91,7 +91,7 @@ export const AuthProvider = ({ children }: any) => {
 
     const value = useMemo(
         () => ({
-            username,
+            email,
             role,
             exportKey,
             keys,
@@ -100,7 +100,7 @@ export const AuthProvider = ({ children }: any) => {
             getLatestKeys,
             logout,
         }),
-        [username, role, exportKey, keys]
+        [email, role, exportKey, keys]
     );
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

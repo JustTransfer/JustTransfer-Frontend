@@ -2,9 +2,9 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 type ServerConfig = {
     result: string;
-    max_lifetime_anonymous: number;
-    max_file_size_anonymous: number,
-    max_downloads_anonymous: number,
+    max_lifetime_link: number;
+    max_file_size_link: number,
+    max_downloads_link: number,
     price_connected: number,
     max_lifetime_connected: number,
     max_file_size_connected: number,
@@ -21,6 +21,7 @@ type ServerConfigContextType = {
     config: ServerConfig | null;
 };
 
+
 const ServerConfigContext = createContext<ServerConfigContextType | undefined>(undefined);
 
 export const ServerConfigProvider = ({ children }: any) => {
@@ -28,11 +29,15 @@ export const ServerConfigProvider = ({ children }: any) => {
 
     useEffect(() => {
         const fetchConfig = async () => {
-            const res = await fetch("/api/config");
-            const data = await res.json();
-            setConfig(data);
+            try {
+                const res = await fetch("/api/config");
+                if (!res.ok) throw new Error("Failed to load config");
+                const data = await res.json();
+                setConfig(data);
+            } catch (e: any) {
+                console.error("Error fetching server config:", e);
+            }
         };
-
         fetchConfig();
     }, []);
 

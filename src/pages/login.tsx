@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -17,7 +17,6 @@ import { useNotification } from "../hooks/useNotificationContext";
 import { useAuth } from "../hooks/useAuth";
 import Layout from "../components/layout";
 import { loginProcess } from "../handlers/crypto";
-import { isValidUsername } from "../handlers/utils";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
@@ -39,8 +38,6 @@ export default function LoginPage() {
     const navigate = useNavigate();
     const { login } = useAuth();
 
-    const [errorInvalidUsername, setErrorInvalidUsername] = useState(false);
-
     const [showPassword, setShowPassword] = useState(false);
     const handleTogglePassword = () => {
         setShowPassword(prev => !prev);
@@ -51,33 +48,25 @@ export default function LoginPage() {
         const form = event.currentTarget;
         const formData = new FormData(form);
         const data = {
-            username: formData.get("username"),
+            email: formData.get("email"),
             password: formData.get("password"),
         };
 
         let hasError = false;
-
-        if (!isValidUsername(data.username as string)) {
-            setErrorInvalidUsername(true);
-            error(errors.errorInvalidUsernameShort);
-            hasError = true;
-        } else {
-            setErrorInvalidUsername(false);
-        }
 
         if (hasError) {
             return;
         }
 
         try {
-            const result = await loginProcess(data.username as string, data.password as string);
+            const result = await loginProcess(data.email as string, data.password as string);
 
             if (result.success) {
 
                 success(strings.msgLoginSuccessful);
 
                 login({
-                    username: result.username!,
+                    email: result.email!,
                     role: result.role,
                     exportKey: result.exportKey!,
                     keys: result.keys!,
@@ -116,10 +105,7 @@ export default function LoginPage() {
                     </Typography>
 
                     <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 4 }} onSubmit={handleSubmit}>
-                        <TextField label="Username" name="username" type="text" variant="outlined" fullWidth required
-                            error={errorInvalidUsername}
-                            helperText={errorInvalidUsername ? errors.errorInvalidUsername : ""}
-                        />
+                        <TextField label="Email" name="email" type="text" variant="outlined" fullWidth required />
                         <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
                             slotProps={{
                                 input: {

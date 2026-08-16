@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useNavigate, Link as RouterLink } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router";
+import { useLocation } from "react-router";
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -17,7 +17,6 @@ import HomeIcon from '@mui/icons-material/Home';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import Button from '@mui/material/Button';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 import SendIcon from '@mui/icons-material/Send';
@@ -198,9 +197,9 @@ export default function Layout({ title, content }: { title: string; content: Rea
 
     const isActive = (path: string) => location.pathname === path;
 
-    const { username } = useAuth();
-    const isLoggedIn = !!username;
-    const userInitial = username?.trim().charAt(0).toUpperCase() || "";
+    const { email } = useAuth();
+    const isLoggedIn = !!email;
+    const userInitial = email?.trim().charAt(0).toUpperCase() || "";
     const menuButtonStyle = (path: string) => ({
         justifyContent: "flex-start",
         textTransform: "none",
@@ -223,7 +222,6 @@ export default function Layout({ title, content }: { title: string; content: Rea
 
     const mobileMenuItems = isLoggedIn ? [
         { label: "New Transfer", icon: <SendIcon />, path: "/new-transfer" },
-        { label: "Inbox", icon: <CloudDownloadIcon />, path: "/inbox" },
         { label: "Active Transfers", icon: <CloudUploadIcon />, path: "/transfers" },
         { label: "Account", icon: <AccountCircleIcon />, path: "/account" },
         { label: "Logout", icon: <LogoutIcon />, path: "/logout" },
@@ -307,11 +305,19 @@ export default function Layout({ title, content }: { title: string; content: Rea
                     }}>
                         {!isLoggedIn && (
                             <>
-                                <Button color="secondary" onClick={() => navigate("/register")} sx={{ ":hover": { color: "#E906E5", backgroundColor: "transparent" } }}>
-                                    Create account
-                                </Button>
-                                <Button color="primary" variant='contained' onClick={() => navigate("/login")} sx={{}}>
+                                <Button color="secondary" variant="text" onClick={() => navigate("/login")}
+                                    sx={{
+                                        transition: "background-color 0.2s, color 0.2s",
+                                        ":hover": {
+                                            backgroundColor: "#E906E5",
+                                            color: "#fff",
+                                        },
+                                    }}
+                                >
                                     Log in
+                                </Button>
+                                <Button color="primary" variant="contained" onClick={() => navigate("/register")}>
+                                    Create account
                                 </Button>
                             </>
                         )}
@@ -442,15 +448,6 @@ export default function Layout({ title, content }: { title: string; content: Rea
                                         New Transfer
                                     </Button>
                                     <Button
-                                        startIcon={<CloudDownloadIcon />}
-                                        fullWidth
-                                        size="large"
-                                        onClick={() => navigate("/inbox")}
-                                        sx={menuButtonStyle("/inbox")}
-                                    >
-                                        Inbox
-                                    </Button>
-                                    <Button
                                         startIcon={<CloudUploadIcon />}
                                         fullWidth
                                         size="large"
@@ -526,6 +523,6 @@ export default function Layout({ title, content }: { title: string; content: Rea
                 {/* Footer*/}
                 <Footer isLoggedIn={isLoggedIn} />
             </Box>
-        </ThemeProvider>
+        </ThemeProvider >
     );
 }

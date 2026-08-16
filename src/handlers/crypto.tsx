@@ -2,8 +2,7 @@ import { Base64 } from 'js-base64';
 
 import { getSodium, getOpaque } from "./utils";
 
-import { registerStartAPI, registerEndAPI, registerUpdateAPI, endPasswordResetAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, getMessagesAPI, getOneMessageAPI, sendMessageAPI, uploadFileToS3, finishUploadFileToS3, downloadFileFromS3 } from "./api";
-import { getKeyIdByUsername, getCachedPublicKeyEnc, getCachedPublicKeySign } from "./cachePubKey";
+import { registerStartAPI, registerEndAPI, registerUpdateAPI, endPasswordResetAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, getSavedTransfersAPI, addSavedTransferAPI, deleteSavedTransferAPI } from "./api";
 
 import * as errors from "../messages/errors";
 
@@ -132,12 +131,12 @@ async function encryptkeys(keys: any[], exportKeyDecoded: Uint8Array) {
     return encryptedKeys;
 }
 
-async function register(username: string, email: string, password: string) {
+async function register(email: string, password: string) {
 
     const opaque = await getOpaque();
     const { clientRegistrationState, registrationRequest } = opaque.client.startRegistration({ password });
 
-    const response = await registerStartAPI(username, registrationRequest);
+    const response = await registerStartAPI(email, registrationRequest);
 
     const registrationResponse = response.result;
 
@@ -153,22 +152,21 @@ async function register(username: string, email: string, password: string) {
     // Generate encryption key pair and encrypt private keys with the export key
     const keys = await generateAndEncryptKeys(exportKeyDecoded);
 
-    await registerEndAPI(username, email, registrationRecord, keys.enc_cipher_private_key, keys.enc_nonce_private_key, keys.enc_public_key, keys.sign_cipher_private_key, keys.sign_nonce_private_key, keys.sign_public_key);
+    await registerEndAPI(email, registrationRecord, keys.enc_cipher_private_key, keys.enc_nonce_private_key, keys.enc_public_key, keys.sign_cipher_private_key, keys.sign_nonce_private_key, keys.sign_public_key);
 
 
     // Return success
     return {
         success: true,
         message: "Register successful!",
-        username,
         exportKey: Base64.fromUint8Array(exportKeyDecoded, true),
     };
 }
 
-async function changePassword(username: string, password: string, newPassword: string, keys: any[]) {
+async function changePassword(email: string, password: string, newPassword: string, keys: any[], saved_transfers: any[]) {
 
     // Login to verify password and refresh session
-    const response = await loginProcess(username, password);
+    const response = await loginProcess(email, password);
 
     if (!response.success) {
         throw Error(errors.errorWrongPassword);
@@ -177,7 +175,7 @@ async function changePassword(username: string, password: string, newPassword: s
     const opaque = await getOpaque();
     const { clientRegistrationState, registrationRequest } = opaque.client.startRegistration({ password: newPassword });
 
-    const response2 = await registerStartAPI(username, registrationRequest);
+    const response2 = await registerStartAPI(email, registrationRequest);
 
     const registrationResponse = response2.result;
 
@@ -198,6 +196,16 @@ async function changePassword(username: string, password: string, newPassword: s
     // Decrypt the keys with the new export key
     const decryptedKeys = await decryptKeys(response3.keys, exportKeyDecoded);
 
+    // Delete all saved transfers
+    for (let transfer of saved_transfers) {
+        await deleteSavedTransferAPI(transfer.id);
+    }
+
+    // Re-encrypt and save all saved transfers with the new export key
+    for (let transfer of saved_transfers) {
+        await addSavedTransfer(transfer.transfer_id, transfer.password, Base64.fromUint8Array(exportKeyDecoded, true), transfer.auth_key);
+    }
+
     // Return success
     return {
         success: true,
@@ -207,12 +215,12 @@ async function changePassword(username: string, password: string, newPassword: s
     };
 }
 
-async function resetPassword(username: string, password: string, token: string) {
+async function resetPassword(email: string, password: string, token: string) {
 
     const opaque = await getOpaque();
     const { clientRegistrationState, registrationRequest } = opaque.client.startRegistration({ password: password });
 
-    const response2 = await registerStartAPI(username, registrationRequest);
+    const response2 = await registerStartAPI(email, registrationRequest);
 
     const registrationResponse = response2.result;
 
@@ -246,10 +254,10 @@ async function resetPassword(username: string, password: string, token: string) 
     };
 }
 
-async function generateNewKeys(username: string, password: string, exportKey: string) {
+async function generateNewKeys(email: string, password: string, exportKey: string) {
 
     // Login to verify password and refresh session
-    const response = await loginProcess(username, password);
+    const response = await loginProcess(email, password);
     if (!response.success) {
         throw Error(errors.errorWrongPassword);
     }
@@ -272,14 +280,14 @@ async function generateNewKeys(username: string, password: string, exportKey: st
     };
 }
 
-async function loginProcess(username: string, password: string) {
+async function loginProcess(email: string, password: string) {
 
     const opaque = await getOpaque();
     const { clientLoginState, startLoginRequest } = opaque.client.startLogin({
         password,
     });
 
-    const response = await loginStartAPI(username, startLoginRequest);
+    const response = await loginStartAPI(email, startLoginRequest);
 
     const loginResponse = response.result;
 
@@ -298,7 +306,7 @@ async function loginProcess(username: string, password: string) {
 
     const { exportKey, serverStaticPublicKey: _serverStaticPublicKey, finishLoginRequest, sessionKey: _sessionKey } = loginResult;
 
-    const result2 = await loginEndAPI(username, finishLoginRequest);
+    const result2 = await loginEndAPI(email, finishLoginRequest);
 
     // Decode it from base64Url
     const exportKeyDecoded = Base64.toUint8Array(exportKey).slice(0, 32); // Take only first 32 bytes
@@ -310,7 +318,7 @@ async function loginProcess(username: string, password: string) {
     return {
         success: true,
         message: "Log in successful!",
-        username,
+        email,
         role,
         exportKey: Base64.fromUint8Array(exportKeyDecoded, true),
         keys: decryptedKeys,
@@ -318,262 +326,85 @@ async function loginProcess(username: string, password: string) {
 }
 
 async function logoutProcess() {
-
     await logoutAPI();
-
 }
 
-async function getMessages(keys: any[]) {
+async function getSavedTransfers(exportKey: string) {
 
     const sodium = await getSodium();
 
-    const response = await getMessagesAPI();
+    const exportKeyDecoded = Base64.toUint8Array(exportKey);
 
-    // For each message:
-    for (let msg of response.messages) {
+    const response = await getSavedTransfersAPI();
 
-        // Get the Encoded fileds of the message
-        msg.kem_ciphertext_filename = Base64.toUint8Array(msg.kem_ciphertext_filename);
-        msg.cfilename = Base64.toUint8Array(msg.cfilename);
-        msg.nonce_filename = Base64.toUint8Array(msg.nonce_filename);
-        msg.kem_ciphertext_file = Base64.toUint8Array(msg.kem_ciphertext_file);
-        msg.signature_metadata = Base64.toUint8Array(msg.signature_metadata);
-        msg.signature = Base64.toUint8Array(msg.signature);
+    for (let transfer of response.saved_transfers) {
+        // Convert the keys from base64 to Uint8Array
+        const nonce_transfer_id = Base64.toUint8Array(transfer.nonce_transfer_id);
+        const enc_transfer_id = Base64.toUint8Array(transfer.enc_transfer_id);
+        const nonce_password = Base64.toUint8Array(transfer.nonce_password);
+        const enc_password = Base64.toUint8Array(transfer.enc_password);
 
-        // Get the public keys sign of the sender
-        const PublicKeySignSender = await getCachedPublicKeySign(msg.sender_key_id);
+        // Decrypt transfer_id and password
+        const transfer_id = sodium.crypto_aead_aegis256_decrypt(null, enc_transfer_id, null, nonce_transfer_id, exportKeyDecoded);
+        const password = sodium.crypto_aead_aegis256_decrypt(null, enc_password, null, nonce_password, exportKeyDecoded);
 
-        // Check the signature of metadata
-        const messageMetadata = {
-            cfilename: msg.cfilename,
-            nonce_filename: msg.nonce_filename,
-            file_id: msg.file_id,
-            sender: msg.sender,
-            receiver: msg.receiver,
-            max_downloads: msg.max_downloads,
-            lifetime: msg.lifetime,
-            creation_time: msg.creation_time,
-            file_size: msg.file_size,
-            chunk_size: msg.chunk_size,
-        };
-
-        msg.signatureValid = sodium.crypto_sign_verify_detached(msg.signature_metadata, new TextEncoder().encode(JSON.stringify(messageMetadata)), PublicKeySignSender);
-        if (!msg.signatureValid) {
-            msg.filename = "Invalid signature";
-            continue; // Skip this message
+        // Decrypt auth_key if it exists
+        if (transfer.nonce_auth_key && transfer.enc_auth_key) {
+            const nonce_auth_key = Base64.toUint8Array(transfer.nonce_auth_key);
+            const enc_auth_key = Base64.toUint8Array(transfer.enc_auth_key);
+            const auth_key = sodium.crypto_aead_aegis256_decrypt(null, enc_auth_key, null, nonce_auth_key, exportKeyDecoded);
+            transfer.auth_key = new TextDecoder().decode(auth_key);
         }
 
-        // Get the private key with msg.receiver_key_id
-        const PrivateKeyEnc = keys.find((k: any) => k.id === msg.receiver_key_id)?.enc_private_key;
-        if (!PrivateKeyEnc) {
-            throw new Error(errors.errorNoValidKeys);
-        }
-
-        const PrivateKeyEncDecoded = Base64.toUint8Array(PrivateKeyEnc);
-
-        // Decrypt the filename to display it in the inbox
-        const sharedSecretFilename = sodium.crypto_kem_dec(msg.kem_ciphertext_filename, PrivateKeyEncDecoded);
-        const filenameBytes = sodium.crypto_aead_aegis256_decrypt(null, msg.cfilename, null, msg.nonce_filename, sharedSecretFilename);
-
-        msg.filename = new TextDecoder().decode(filenameBytes);
+        // Store decrypted values back in the transfer object as strings
+        transfer.transfer_id = new TextDecoder().decode(transfer_id);
+        transfer.password = new TextDecoder().decode(password);
     }
 
-
-    return response.messages;
+    return response.saved_transfers;
 }
 
-async function getOneMessage(username: string, keys: any[], message: any, onChunk: (chunk: Uint8Array, filename: string) => Promise<void>, onProgress?: (percent: number) => void) {
+async function addSavedTransfer(transfer_id: string, transfer_password: string, exportKey: string, auth_key?: string) {
 
     const sodium = await getSodium();
 
-    // Get the private key with message.receiver_key_id
-    const PrivateKeyEnc = keys.find((k: any) => k.id === message.receiver_key_id)?.enc_private_key;
-    if (!PrivateKeyEnc) {
-        throw new Error(errors.errorNoValidKeys);
-    }
-    const PrivateKeyEncDecoded = Base64.toUint8Array(PrivateKeyEnc);
+    const exportKeyDecoded = Base64.toUint8Array(exportKey);
 
-    // Get the message download URL
-    const response = await getOneMessageAPI(message.file_id);
-    const downloadUrl = response.download_url;
+    // Encrypt the transfer_id
+    const nonce_transfer_id = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
+    const enc_transfer_id = sodium.crypto_aead_aegis256_encrypt(transfer_id, null, null, nonce_transfer_id, exportKeyDecoded);
 
-    // Get the public key sign of the sender to check signature
-    const PublicKeySignSender = await getCachedPublicKeySign(message.sender_key_id);
+    // Encrypt the transfer_password
+    const nonce_password = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
+    const enc_password = sodium.crypto_aead_aegis256_encrypt(transfer_password, null, null, nonce_password, exportKeyDecoded);
 
-    // Construct the signature
-    let state = sodium.crypto_sign_init();
-
-    // Generate a JSON representation of the message metadata for the signature
-    const messageMetadata = {
-        cfilename: message.cfilename,
-        nonce_filename: message.nonce_filename,
-        file_id: message.file_id,
-        sender: message.sender,
-        receiver: username!,
-        max_downloads: message.max_downloads,
-        lifetime: message.lifetime,
-        creation_time: message.creation_time,
-        file_size: message.file_size,
-        chunk_size: message.chunk_size,
+    const body: any = {
+        nonce_transfer_id: Base64.fromUint8Array(nonce_transfer_id, true),
+        enc_transfer_id: Base64.fromUint8Array(enc_transfer_id, true),
+        nonce_password: Base64.fromUint8Array(nonce_password, true),
+        enc_password: Base64.fromUint8Array(enc_password, true),
     };
 
-    // Update the signature with the metadata JSON structure
-    sodium.crypto_sign_update(state, new TextEncoder().encode(JSON.stringify(messageMetadata)));
+    // Encrypt the auth_key
+    if (auth_key) {
+        const nonce_auth_key = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
+        const enc_auth_key = sodium.crypto_aead_aegis256_encrypt(auth_key, null, null, nonce_auth_key, exportKeyDecoded);
 
-    // Decrypt the filename
-    const shared_key_filename = sodium.crypto_kem_dec(message.kem_ciphertext_filename, PrivateKeyEncDecoded);
-    const filenameBytes = sodium.crypto_aead_aegis256_decrypt(null, message.cfilename, null, message.nonce_filename, shared_key_filename);
-    message.filename = new TextDecoder().decode(filenameBytes);
-
-    const shared_key = sodium.crypto_kem_dec(message.kem_ciphertext_file, PrivateKeyEncDecoded);
-
-    const decryptChunk = (chunk: Uint8Array) => {
-
-        // Add chunk to signature
-        sodium.crypto_sign_update(state, chunk);
-
-        // Decrypt chunk
-        const nonce_chunk = chunk.slice(0, sodium.crypto_aead_aegis256_NPUBBYTES);
-        const ciphertext_chunk = chunk.slice(sodium.crypto_aead_aegis256_NPUBBYTES);
-        try {
-            const decryptedChunk = sodium.crypto_aead_aegis256_decrypt(null, ciphertext_chunk, null, nonce_chunk, shared_key);
-            return { decryptedChunk };
-        } catch (e) {
-            console.error("Decryption of chunk failed");
-            return { decryptedChunk: null };
-        }
-    };
-
-    const tagSize = sodium.crypto_aead_aegis256_NPUBBYTES + sodium.crypto_aead_aegis256_ABYTES; // For each chunk: nonce at the beginning + MAC at the end
-    await downloadFileFromS3(message.chunk_size, tagSize, async (chunk: any) => {
-        const { decryptedChunk } = decryptChunk(chunk);
-        if (decryptedChunk) {
-            await onChunk(decryptedChunk, message.filename); // send chunk progressively
-            return 1; // Decryption successful
-        }
-
-        return -1; // Decryption failed
-    }, downloadUrl, onProgress);
-
-
-    // Verify the signature
-    message.signatureValid = sodium.crypto_sign_final_verify(state, message.signature, PublicKeySignSender);
-    if (!message.signatureValid) {
-        throw new Error(errors.errorFailureSignatureVerification);
+        // Store the encrypted auth_key and nonce in the transfer object
+        body.nonce_auth_key = Base64.fromUint8Array(nonce_auth_key, true);
+        body.enc_auth_key = Base64.fromUint8Array(enc_auth_key, true);
     }
 
-    return message;
+    const response = await addSavedTransferAPI(
+        body.nonce_transfer_id,
+        body.enc_transfer_id,
+        body.nonce_password,
+        body.enc_password,
+        body.nonce_auth_key,
+        body.enc_auth_key
+    );
+
+    return response;
 }
 
-async function sendMessage(username: string, _privateKeyEnc: string, privateKeySign: string, receiver: string, fileName: string, file: File, lifetimeDays: number, maxDownloads: number, onProgress?: (percent: number) => void) {
-
-    const sodium = await getSodium();
-
-    const PrivateKeySignDecoded = Base64.toUint8Array(privateKeySign);
-
-    // Get receiver's public encryption key
-    const senderKeyId = await getKeyIdByUsername(username);
-    const receiverKeyId = await getKeyIdByUsername(receiver);
-    const PublicKeyEncReceiver = await getCachedPublicKeyEnc(receiverKeyId);
-
-    // Generate shared secret
-    const { ciphertext: kemCiphertextFilename, sharedSecret: sharedSecretFilename } = sodium.crypto_kem_enc(PublicKeyEncReceiver);
-    const { ciphertext: kemCiphertextFile, sharedSecret: sharedSecretFile } = sodium.crypto_kem_enc(PublicKeyEncReceiver);
-
-    const kemCiphertextFilename_b64 = Base64.fromUint8Array(kemCiphertextFilename, true);
-    const kemCiphertextFile_b64 = Base64.fromUint8Array(kemCiphertextFile, true);
-
-
-    // Encrypt the filename
-    const nonce_filename = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
-    const cfilename = sodium.crypto_aead_aegis256_encrypt(new TextEncoder().encode(fileName), null, null, nonce_filename, sharedSecretFilename);
-
-    const cfilename_b64 = Base64.fromUint8Array(cfilename, true);
-    const nonce_filename_b64 = Base64.fromUint8Array(nonce_filename, true);
-
-    // Get the current timestamp
-    const timestamp = new Date().toISOString();
-
-    // Send the message
-    const response = await sendMessageAPI(senderKeyId, receiverKeyId, kemCiphertextFilename_b64, cfilename_b64, nonce_filename_b64, kemCiphertextFile_b64, maxDownloads, lifetimeDays, timestamp, file.size);
-
-    // Get the upload URL
-    const uploadUrls = response.upload_urls;
-    const upload_id = response.upload_id;
-    const messageFileId = response.message_file_id;
-    const chunkSize = response.chunk_size;
-
-    if (!chunkSize || chunkSize <= 0) {
-        throw new Error(errors.errorAPIRequestFailed);
-    }
-
-    // Sign the metadata of the message
-    let state = sodium.crypto_sign_init();
-
-    const metadata = {
-        cfilename: cfilename,
-        nonce_filename: nonce_filename,
-        file_id: messageFileId,
-        sender: username!,
-        receiver: receiver,
-        max_downloads: maxDownloads,
-        lifetime: lifetimeDays,
-        creation_time: timestamp,
-        file_size: file.size,
-        chunk_size: chunkSize,
-    };
-
-    const metadata_json_string = new TextEncoder().encode(JSON.stringify(metadata))
-
-    // Sign the metadata of the message
-    const signature_metadata = sodium.crypto_sign_detached(metadata_json_string, PrivateKeySignDecoded);
-
-    // Update the signature with the metadata JSON structure
-    sodium.crypto_sign_update(state, metadata_json_string);
-
-    // Encrypt the file in chunks
-    const totalLength = file.size;
-
-    if (uploadUrls.length !== Math.ceil(file.size / chunkSize)) {
-        throw new Error(errors.errorAPIRequestFailed);
-    }
-
-    let ETags: string[] = [];
-
-    for (let offset = 0; offset < file.size; offset += chunkSize) {
-        const slice = file.slice(offset, offset + chunkSize);
-        const buf = new Uint8Array(await slice.arrayBuffer());
-
-        // Encrypt the chunk
-        const nonce_chunk = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
-        const encryptedChunk = sodium.crypto_aead_aegis256_encrypt(buf, null, null, nonce_chunk, sharedSecretFile);
-
-        // Add nonce at the beginning of the chunk
-        const encryptedChunkWithNonce = new Uint8Array(nonce_chunk.length + encryptedChunk.length);
-        encryptedChunkWithNonce.set(nonce_chunk);
-        encryptedChunkWithNonce.set(encryptedChunk, nonce_chunk.length);
-
-        // Update the signature
-        sodium.crypto_sign_update(state, encryptedChunkWithNonce);
-
-        // Upload the chunk to S3
-        const chunkUploadResp = await uploadFileToS3(uploadUrls[offset / chunkSize], encryptedChunkWithNonce, void 0);
-        ETags.push(chunkUploadResp.ETag);
-
-        // Update progress
-        onProgress?.(Math.min(((offset + chunkSize) / totalLength) * 100, 100)); // Avoid going over 100% if the last chunk is smaller than chunkSize
-    }
-
-    // Finalize the signature
-    const signature = sodium.crypto_sign_final_create(state, PrivateKeySignDecoded);
-
-    // Finalize the upload
-    await finishUploadFileToS3(messageFileId, upload_id, ETags, Base64.fromUint8Array(signature_metadata, true), Base64.fromUint8Array(signature, true));
-
-    return {
-        success: true,
-        message: "Message sent successfully!",
-    };
-}
-
-export { register, changePassword, generateNewKeys, resetPassword, loginProcess, logoutProcess, sendMessage, getMessages, getOneMessage };
+export { register, changePassword, generateNewKeys, resetPassword, loginProcess, logoutProcess, getSavedTransfers, addSavedTransfer };
