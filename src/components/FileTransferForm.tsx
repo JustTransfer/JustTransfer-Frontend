@@ -13,8 +13,6 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import DescriptionIcon from '@mui/icons-material/Description';
-import LinearProgress from '@mui/material/LinearProgress';
-import type { LinearProgressProps } from "@mui/material/LinearProgress";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -33,6 +31,9 @@ import PasswordStrength from "./passwordStrength";
 import AcceptTermsService from "./acceptTermsService";
 import { formatSize, parseTransferLink } from "../handlers/utils";
 import TransferQrDialog from "./TransferQrDialog";
+import LinearProgressWithLabel from "./LinearProgressWithLabel";
+import { useSpeedMeter } from "../handlers/useSpeedMeter";
+
 
 type CommonProps = {
     maxFileSize: number;
@@ -91,6 +92,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
 
     const [isSending, setIsSending] = useState(false);
     const [progress, setProgress] = useState(0);
+    const { speed, updateProgress, reset: resetSpeed } = useSpeedMeter(selectedFile?.size ?? 0);
     const [link, setLink] = useState("");
     const [openDialog, setOpenDialog] = useState(false);
 
@@ -116,21 +118,6 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
     const formRef = useRef<HTMLFormElement | null>(null);
 
     const [acceptedTerms, setAcceptedTerms] = useState(false);
-
-    function LinearProgressWithLabel(props: LinearProgressProps & { value: number }) {
-        return (
-            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                <Box sx={{ width: '100%', mr: 1 }}>
-                    <LinearProgress variant="determinate" {...props} />
-                </Box>
-                <Box sx={{ minWidth: 35 }}>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        {`${Math.round(props.value)}%`}
-                    </Typography>
-                </Box>
-            </Box>
-        );
-    }
 
     const handleIconClick = () => fileInputRef.current?.click();
 
@@ -182,6 +169,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
         setLink("");
         setSelectedFile(null);
         setProgress(0);
+        resetSpeed();
         setIsSending(false);
         formRef.current?.reset();
         setPassword("");
@@ -253,7 +241,13 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
         try {
             setIsSending(true);
             setProgress(0);
-            const result = await onSubmit(data, (percent) => setProgress(percent));
+            resetSpeed();
+
+            const result = await onSubmit(data, (percent) => {
+                setProgress(percent);
+                updateProgress(percent);
+            }
+            );
             setLink(result!);
             setOpenDialog(true);
             success("File uploaded successfully!");
@@ -584,13 +578,11 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 }
 
 
-                {
-                    isSending ? (
-                        <LinearProgressWithLabel value={progress} />
-                    ) : (
-                        <Button type="submit" variant="contained" fullWidth>Get a Link</Button>
-                    )
-                }
+                {isSending ? (
+                    <LinearProgressWithLabel value={progress} speed={speed} />
+                ) : (
+                    <Button type="submit" variant="contained" fullWidth>Get a Link</Button>
+                )}
             </Box >
 
             {/* Dialog with link pop up */}
