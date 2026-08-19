@@ -175,6 +175,29 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     }}
                 />
 
+                <Typography
+                    variant="body2"
+                    align="center"
+                    sx={{ opacity: 0.7, mb: 1 }}
+                >
+                    We use{' '}
+                    <Link
+                        href="https://umami.is"
+                        target="_blank"
+                        rel="noreferrer"
+                        color="inherit"
+                        underline="hover"
+                    >
+                        Umami
+                    </Link>
+                    , a privacy-friendly, cookieless analytics tool. No personal data is
+                    collected, sold, or shared. See our{' '}
+                    <Link component={RouterLink} to="/privacy-policy" color="inherit" underline="hover">
+                        Privacy Policy
+                    </Link>
+                    {' '}for details.
+                </Typography>
+
                 {/* Bottom */}
                 <Typography
                     variant="body2"
