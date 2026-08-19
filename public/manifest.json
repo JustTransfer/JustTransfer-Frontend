@@ -17,9 +17,9 @@
       "type": "image/webp"
     },
     {
-      "src": "/JT.ico",
-      "sizes": "16x16 24x24 32x32 64x64",
-      "type": "image/x-icon"
+      "src": "/favicon-96.png",
+      "sizes": "96x96",
+      "type": "image/png"
     }
   ]
 }

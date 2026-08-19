@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last Updated:** 10.08.2026
+**Last Updated:** 19.08.2026
 
 ---
 
@@ -137,6 +137,16 @@ These data are processed solely for security, abuse prevention, troubleshooting 
 
 ---
 
+## 5.6 Analytics
+
+We use Umami, a self-hosted, cookieless analytics platform, to understand aggregate usage of our website (e.g. page views, referral sources, general visitor counts).
+
+Umami does not use cookies or persistent identifiers. Visitor identifiers are derived from a salted, rotating hash and are not linked to your account, email address, or any other personal data we hold. Analytics data is aggregated and is not used for advertising, profiling, or cross-site tracking.
+
+Analytics infrastructure is hosted exclusively within Switzerland, consistent with our data storage principles (see Section 8).
+
+---
+
 # 6. How We Use Your Personal Data
 
 We process personal data only where necessary to:
@@ -151,7 +161,8 @@ We process personal data only where necessary to:
 - detect abuse and fraud;
 - comply with legal obligations;
 - respond to customer support requests;
-- improve the reliability and availability of the Service.
+- improve the reliability and availability of the Service;
+- understand aggregate website usage through privacy-friendly, cookieless analytics.
 
 We do not use personal data for advertising or profiling.
 
@@ -257,6 +268,8 @@ No Internet-based service can guarantee absolute security.
 # 13. Cookies
 
 We use only cookies and similar technologies necessary for authentication, security, session management and user preferences. We do not use advertising cookies.
+
+Our analytics tool (Umami, see Section 5.6) does not use cookies or any client-side storage.
 
 ---
 
