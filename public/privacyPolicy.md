@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last Updated:** 10.08.2026
+**Last Updated:** 19.08.2026
 
 ---
 
