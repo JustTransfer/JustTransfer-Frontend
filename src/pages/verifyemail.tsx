@@ -53,8 +53,7 @@ export default function VerifyEmailPage() {
     }, []);
 
     return (
-        <Layout title="Verify Email" content={
-
+        <Layout content={
             id ? (
                 <Box
                     sx={{

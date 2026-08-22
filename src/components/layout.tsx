@@ -218,7 +218,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
     );
 }
 
-export default function Layout({ title, content }: { title: string; content: React.ReactNode }) {
+export default function Layout({ content }: { content: React.ReactNode }) {
 
     const navigate = useNavigate();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -302,18 +302,6 @@ export default function Layout({ title, content }: { title: string; content: Rea
                             () => navigate(isLoggedIn ? "/new-transfer" : "/")
                         }
                     />
-
-                    {/* Title */}
-                    <Typography
-                        variant="h6"
-                        sx={{
-                            ml: { xs: 0, md: 6 },
-                            fontWeight: "bold",
-                            display: { xs: "none", sm: "block" },
-                        }}
-                    >
-                        {title}
-                    </Typography>
 
                     <Box sx={{
                         marginLeft: "auto",

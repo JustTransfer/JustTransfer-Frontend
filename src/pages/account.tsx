@@ -196,7 +196,6 @@ export default function AccountPage() {
 
     return (
         <Layout
-            title="Account Settings"
             content={
                 <Box sx={pageSx}>
                     <Stack spacing={4} sx={contentCardSx}>

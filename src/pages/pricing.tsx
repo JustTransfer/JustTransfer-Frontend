@@ -63,7 +63,6 @@ export default function PricingPage() {
 
     return (
         <Layout
-            title="Pricing"
             content={
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 2, alignItems: "center" }}>
                     <Box sx={{ width: "86%" }}>
