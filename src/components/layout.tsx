@@ -25,7 +25,6 @@ import Link from '@mui/material/Link';
 
 import { useAuth } from "../hooks/useAuth";
 import { emailAddress } from "../handlers/config";
-import BetaBanner from './betaBanner';
 
 const headerHeight = "65px";
 const logoMarginTop = '-10px';
@@ -198,6 +197,14 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     {' '}for details.
                 </Typography>
 
+                <Typography
+                    variant="body2"
+                    align="center"
+                    sx={{ opacity: 0.7, mb: 1 }}
+                >
+                    JustTransfer is currently in beta — expect occasional bugs, and thanks for helping us test.
+                </Typography>
+
                 {/* Bottom */}
                 <Typography
                     variant="body2"
@@ -307,18 +314,6 @@ export default function Layout({ title, content }: { title: string; content: Rea
                     >
                         {title}
                     </Typography>
-
-                    {/* Beta banner */}
-                    <Box
-                        sx={{
-                            display: "flex",
-                            flex: 1,
-                            justifyContent: "center",
-                            minWidth: 0,
-                        }}
-                    >
-                        <BetaBanner />
-                    </Box>
 
                     <Box sx={{
                         marginLeft: "auto",
