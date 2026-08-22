@@ -97,7 +97,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                 >
                     {/* About */}
                     <Box sx={{ minWidth: { xs: "100%", sm: footerMinAboutWidth }, flex: 1 }}>
-                        <Typography variant="h6" gutterBottom>
+                        <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
                             JustTransfer
                         </Typography>
                         <Typography variant="body2" sx={{ opacity: 0.8 }}>
@@ -107,7 +107,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
 
                     {/* Resources */}
                     <Box sx={{ minWidth: { xs: "100%", sm: footerMinResourceWidth } }}>
-                        <Typography variant="subtitle1" gutterBottom>
+                        <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: "bold" }}>
                             Ressources
                         </Typography>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -134,7 +134,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
 
                     {/* Legal */}
                     <Box sx={{ minWidth: { xs: "100%", sm: footerMinLegalWidth } }}>
-                        <Typography variant="subtitle1" gutterBottom>
+                        <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: "bold" }}>
                             Legal
                         </Typography>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -149,7 +149,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
 
                     {/* Contact */}
                     <Box sx={{ minWidth: { xs: "100%", sm: footerMinLinkWidth } }}>
-                        <Typography variant="subtitle1" gutterBottom>
+                        <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: "bold" }}>
                             Contact
                         </Typography>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
