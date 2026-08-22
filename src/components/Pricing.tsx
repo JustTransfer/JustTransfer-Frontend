@@ -5,30 +5,23 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 
-import { useNotification } from "../hooks/useNotificationContext";
 import { useServerConfig } from "../hooks/useServerConfig";
 import { formatSize } from "../handlers/utils";
 import { emailAddress } from "../handlers/config";
 
+export type Plan = "user" | "premium";
+
 export type PricingProps = {
     isLoggedIn: boolean;
-    currentPlan?: "user" | "premium";
+    currentPlan?: Plan;
+    onSelectPlan?: (plan: Plan) => void;
 };
 
 
-export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
+export default function Pricing({ isLoggedIn, currentPlan, onSelectPlan }: PricingProps) {
 
     const navigate = useNavigate();
     const { config } = useServerConfig();
-    const { warning } = useNotification();
-
-    const buttonText = isLoggedIn ? "Upgrade Account" : "Get Started";
-    const buttonAction = isLoggedIn
-        ? () => {
-            navigate("/pricing");
-            warning("Premium plans are launching soon! Stay tuned for updates.");
-        }
-        : () => navigate("/register");
 
     const isLoadingLimits = !config;
 
@@ -93,7 +86,7 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
         return formatter ? formatter(value) : value;
     };
 
-    const isCurrentPlan = (plan: PricingProps["currentPlan"]) => currentPlan === plan;
+    const isCurrentPlan = (plan: Plan) => currentPlan === plan;
 
     const currentPlanChipSx = {
         alignSelf: "center",
@@ -103,6 +96,22 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
         backgroundColor: "#fff1f8",
         border: "1px solid #e7bfd7",
         color: "#7a4a66",
+    };
+
+    // Logged-out users to register page, logged-in users to checkout for selected plan
+    const handlePlanAction = (plan: Plan) => {
+        if (!isLoggedIn) {
+            navigate("/register");
+            return;
+        }
+        onSelectPlan?.(plan);
+    };
+
+    const planButtonLabel = (plan: Plan) => {
+        if (!isLoggedIn) {
+            return "Get Started";
+        }
+        return plan === "user" ? "Switch to Free" : "Upgrade to Premium";
     };
 
     return (
@@ -124,7 +133,7 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
                     Plans and pricing
                 </Typography>
                 <Typography variant="body2" sx={{ color: "#7a6474" }}>
-                    Free link transfers today. Premium plans launch soon.
+                    Free link transfers today. Upgrade anytime for more storage and longer retention.
                 </Typography>
             </Box>
             <Box
@@ -159,8 +168,8 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
                     </Box>
                     {
                         !isLoggedIn && (
-                            <Button variant="outlined" fullWidth size="small" onClick={buttonAction} sx={{ mt: "auto" }}>
-                                {buttonText}
+                            <Button variant="outlined" fullWidth size="small" onClick={() => navigate("/register")} sx={{ mt: "auto" }}>
+                                Get Started
                             </Button>
                         )
                     }
@@ -188,9 +197,15 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
                         )}
                     </Box>
                     {
-                        !isLoggedIn && (
-                            <Button variant="contained" fullWidth size="small" onClick={buttonAction} sx={{ mt: "auto" }}>
-                                {buttonText}
+                        !isCurrentPlan("user") && (
+                            <Button
+                                variant="contained"
+                                fullWidth
+                                size="small"
+                                onClick={() => handlePlanAction("user")}
+                                sx={{ mt: "auto" }}
+                            >
+                                {planButtonLabel("user")}
                             </Button>
                         )
                     }
@@ -219,9 +234,15 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
                         )}
                     </Box>
                     {
-                        currentPlan !== "premium" && (
-                            <Button variant="contained" fullWidth size="small" onClick={buttonAction} sx={{ mt: "auto" }}>
-                                {buttonText}
+                        !isCurrentPlan("premium") && (
+                            <Button
+                                variant="contained"
+                                fullWidth
+                                size="small"
+                                onClick={() => handlePlanAction("premium")}
+                                sx={{ mt: "auto" }}
+                            >
+                                {planButtonLabel("premium")}
                             </Button>
                         )
                     }

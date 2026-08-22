@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { useSearchParams } from "react-router";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -103,6 +104,7 @@ export default function AccountPage() {
 
     const [dialogMode, setDialogMode] = useState<Mode | null>(null);
     const [loading, setLoading] = useState(false);
+    const [searchParams, setSearchParams] = useSearchParams();
 
     async function handleRotateKeys(currentPassword: string) {
         try {
@@ -183,9 +185,17 @@ export default function AccountPage() {
         fetchAccountInfo();
     }, []);
 
+    useEffect(() => {
+        if (searchParams.get("subscription") === "success") {
+            success("Subscription activated! Your plan has been updated.");
+            searchParams.delete("subscription");
+            setSearchParams(searchParams, { replace: true });
+            // account info was already fetched above; re-fetch to pick up new role
+        }
+    }, []);
+
     return (
         <Layout
-            title="Account Settings"
             content={
                 <Box sx={pageSx}>
                     <Stack spacing={4} sx={contentCardSx}>

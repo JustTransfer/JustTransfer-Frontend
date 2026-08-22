@@ -44,37 +44,37 @@ export default function ResetPasswordRequestPage() {
     }
 
     return (
-        <Layout title="Reset Password Request" content={
+        <Layout
+            content={
+                <Box
+                    sx={{
+                        width: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        flex: 1,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        py: { xs: 4, md: 6 },
+                    }}
+                >
+                    <Paper elevation={0} sx={cardSx}>
+                        <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold", color: "#2b0f1f" }}>
+                            Reset Password
+                        </Typography>
 
-            <Box
-                sx={{
-                    width: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    flex: 1,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    py: { xs: 4, md: 6 },
-                }}
-            >
-                <Paper elevation={0} sx={cardSx}>
-                    <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold", color: "#2b0f1f" }}>
-                        Reset Password
-                    </Typography>
+                        <Typography variant="body1" sx={{ mb: 3, color: "#6e5a69" }}>
+                            Enter your email address below and we'll send you a link to reset your password.
+                        </Typography>
 
-                    <Typography variant="body1" sx={{ mb: 3, color: "#6e5a69" }}>
-                        Enter your email address below and we'll send you a link to reset your password.
-                    </Typography>
+                        <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }} onSubmit={handleSubmit}>
+                            <TextField label="Email" name="email" type="email" variant="outlined" fullWidth required />
+                            <Button type="submit" variant="contained" sx={{ mt: 2 }}>
+                                Send Reset Password Email
+                            </Button>
+                        </Box>
+                    </Paper>
+                </ Box>
 
-                    <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }} onSubmit={handleSubmit}>
-                        <TextField label="Email" name="email" type="email" variant="outlined" fullWidth required />
-                        <Button type="submit" variant="contained" sx={{ mt: 2 }}>
-                            Send Reset Password Email
-                        </Button>
-                    </Box>
-                </Paper>
-            </ Box>
-
-        } />
+            } />
     );
 }

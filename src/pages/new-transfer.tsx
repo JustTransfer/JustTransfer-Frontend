@@ -68,114 +68,115 @@ export default function NewTransfer() {
     }, [getLatestKeys]);
 
     return (
-        <Layout title="New Transfer" content={
-            <Box
-                sx={{
-                    flex: 1,
-                    width: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: { xs: 3, md: 4 },
-                    py: { xs: 3, md: 4 },
-                }}
-            >
+        <Layout
+            content={
                 <Box
                     sx={{
+                        flex: 1,
                         width: "100%",
-                        maxWidth: maxWidthPage,
-                        mx: "auto",
-                        borderRadius: 4,
-                        border: "1px solid #f1e7ee",
-                        boxShadow: "0 18px 40px rgba(83, 24, 60, 0.08)",
-                        background: "radial-gradient(1200px 500px at 15% -10%, #ffa6da 0%, #fff7fb 45%, #ffffff 100%)",
-                        p: { xs: 2.5, md: 4 },
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: { xs: 3, md: 4 },
+                        py: { xs: 3, md: 4 },
                     }}
                 >
                     <Box
                         sx={{
-                            display: "grid",
-                            gridTemplateColumns: { xs: "1fr", md: "1.05fr 0.95fr" },
-                            gap: { xs: 4, md: 6 },
-                            alignItems: "start",
+                            width: "100%",
+                            maxWidth: maxWidthPage,
+                            mx: "auto",
+                            borderRadius: 4,
+                            border: "1px solid #f1e7ee",
+                            boxShadow: "0 18px 40px rgba(83, 24, 60, 0.08)",
+                            background: "radial-gradient(1200px 500px at 15% -10%, #ffa6da 0%, #fff7fb 45%, #ffffff 100%)",
+                            p: { xs: 2.5, md: 4 },
                         }}
                     >
                         <Box
                             sx={{
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "flex-start",
-                                justifyContent: "center",
-                                mt: { xs: 0, md: 15, lg: 25 },
+                                display: "grid",
+                                gridTemplateColumns: { xs: "1fr", md: "1.05fr 0.95fr" },
+                                gap: { xs: 4, md: 6 },
+                                alignItems: "start",
                             }}
                         >
-                            <Typography
-                                variant="h3"
+                            <Box
                                 sx={{
-                                    fontSize: {
-                                        xs: "2.5rem",   // ~h5
-                                        sm: "3rem",     // ~h4
-                                    },
-                                    fontWeight: 700,
-                                    letterSpacing: "-0.02em",
-                                    mb: { xs: 1, sm: 2 },
-                                    color: "#2b0f1f",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "flex-start",
+                                    justifyContent: "center",
+                                    mt: { xs: 0, md: 15, lg: 25 },
                                 }}
                             >
-                                Send files with end-to-end encryption.
-                            </Typography>
-                            <Typography variant="body1" sx={{ color: "#5a4454", maxWidth: 520 }}>
-                                Create secure links or send directly to a user account. Transfers stay encrypted and auto-expire.
-                            </Typography>
-                        </Box>
-
-                        <Box
-                            sx={{
-                                backgroundColor: "#ffffff",
-                                borderRadius: 3,
-                                p: 2,
-                                boxShadow: "0 24px 60px rgba(119, 41, 93, 0.15)",
-                                border: "1px solid #f0dbea",
-                            }}
-                        >
-                            {config ? (
-                                <FileTransferForm
-                                    type="connected"
-                                    maxFileSize={maxFileSize}
-                                    maxDownloads={maxDownloads}
-                                    maxLifetime={maxLifetime}
-                                    onSubmit={async (data, onProgress) => {
-                                        return await sendTransfer(
-                                            data.file.name,
-                                            data.file,
-                                            data.lifetime,
-                                            data.maxDownloads,
-                                            data.password,
-                                            keys.sign_private_key,
-                                            data.isSigned,
-                                            keys.id,
-                                            onProgress,
-                                            data.receiver_email
-                                        )
-                                    }}
-                                />
-                            ) : (
-                                <Box
+                                <Typography
+                                    variant="h3"
                                     sx={{
-                                        height: "100%",
-                                        display: "flex",
-                                        justifyContent: "center",
-                                        alignItems: "center",
-                                        minHeight: 700,
+                                        fontSize: {
+                                            xs: "2.5rem",   // ~h5
+                                            sm: "3rem",     // ~h4
+                                        },
+                                        fontWeight: 700,
+                                        letterSpacing: "-0.02em",
+                                        mb: { xs: 1, sm: 2 },
+                                        color: "#2b0f1f",
                                     }}
                                 >
-                                    <CircularProgress />
-                                </Box>
-                            )}
+                                    Send files with end-to-end encryption.
+                                </Typography>
+                                <Typography variant="body1" sx={{ color: "#5a4454", maxWidth: 520 }}>
+                                    Create secure links or send directly to a user account. Transfers stay encrypted and auto-expire.
+                                </Typography>
+                            </Box>
+
+                            <Box
+                                sx={{
+                                    backgroundColor: "#ffffff",
+                                    borderRadius: 3,
+                                    p: 2,
+                                    boxShadow: "0 24px 60px rgba(119, 41, 93, 0.15)",
+                                    border: "1px solid #f0dbea",
+                                }}
+                            >
+                                {config ? (
+                                    <FileTransferForm
+                                        type="connected"
+                                        maxFileSize={maxFileSize}
+                                        maxDownloads={maxDownloads}
+                                        maxLifetime={maxLifetime}
+                                        onSubmit={async (data, onProgress) => {
+                                            return await sendTransfer(
+                                                data.file.name,
+                                                data.file,
+                                                data.lifetime,
+                                                data.maxDownloads,
+                                                data.password,
+                                                keys.sign_private_key,
+                                                data.isSigned,
+                                                keys.id,
+                                                onProgress,
+                                                data.receiver_email
+                                            )
+                                        }}
+                                    />
+                                ) : (
+                                    <Box
+                                        sx={{
+                                            height: "100%",
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                            minHeight: 700,
+                                        }}
+                                    >
+                                        <CircularProgress />
+                                    </Box>
+                                )}
+                            </Box>
                         </Box>
                     </Box>
                 </Box>
-            </Box>
-        } />
+            } />
     );
 }

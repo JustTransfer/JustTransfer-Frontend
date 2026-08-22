@@ -308,4 +308,20 @@ async function deleteSavedTransferAPI(saved_transfer_id: string) {
     return response.status;
 }
 
-export { apiFetch, registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, verifyEmailAPI, requestResetPasswordAPI, endPasswordResetAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyEmailAPI, getSavedTransfersAPI, addSavedTransferAPI, deleteSavedTransferAPI };
+async function createSubscriptionCheckoutAPI(plan: "user" | "premium"): Promise<string> {
+    const res = await fetch(`${apiUrl}/subscription/checkout`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
+    });
+
+    if (!res.ok) {
+        throw new Error("Failed to start subscription checkout");
+    }
+
+    const data = await res.json();
+    return data.checkout_url;
+}
+
+export { apiFetch, registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, verifyEmailAPI, requestResetPasswordAPI, endPasswordResetAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyEmailAPI, getSavedTransfersAPI, addSavedTransferAPI, deleteSavedTransferAPI, createSubscriptionCheckoutAPI };
