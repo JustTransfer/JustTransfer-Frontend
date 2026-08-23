@@ -9,7 +9,6 @@ import UploadIcon from '@mui/icons-material/Upload';
 import LinkIcon from '@mui/icons-material/Link';
 import DownloadIcon from '@mui/icons-material/Download';
 import NoAccountsIcon from '@mui/icons-material/NoAccounts';
-import DeleteIcon from '@mui/icons-material/Delete';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
 import { useServerConfig } from "../hooks/useServerConfig";
@@ -20,6 +19,18 @@ import Faq from "../components/Faq";
 import CompetitorComparison from "../components/CompetitorComparison";
 
 import FileTransferForm from "../components/FileTransferForm";
+
+const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "JustTransfer",
+    url: "https://justtransfer.ch",
+    logo: "https://justtransfer.ch/JustTransfer.webp",
+    description: "Open-source, end-to-end encrypted file transfer service based in Switzerland.",
+    sameAs: [
+        "https://github.com/JustTransfer/",
+    ],
+};
 
 export default function HomePage() {
     const navigate = useNavigate();
@@ -42,6 +53,13 @@ export default function HomePage() {
                         py: { xs: 3, md: 0 },
                     }}
                 >
+
+                    {/* Hero section */}
+                    <script
+                        type="application/ld+json"
+                        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+                    />
+
                     <Box
                         sx={{
                             mx: "auto",
@@ -73,13 +91,15 @@ export default function HomePage() {
                                 }}
                             >
                                 <Typography
+                                    variant="h1"
+                                    component="h1"
                                     sx={{
                                         letterSpacing: "-0.02em",
                                         lineHeight: { xs: 1, md: 1.2 },
                                         color: "#2b0f1f",
                                         fontSize: {
-                                            xs: "2.5rem",   // ~h5
-                                            sm: "3rem",     // ~h4
+                                            xs: "2.5rem",
+                                            sm: "3rem",
                                         },
                                         fontWeight: 700,
                                     }}
@@ -193,7 +213,7 @@ export default function HomePage() {
                         }}
                     >
                         <Box sx={{ maxWidth: maxWidthPage, mx: "auto", textAlign: "center", mb: 6 }}>
-                            <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+                            <Typography variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
                                 How a secure transfer works
                             </Typography>
                             <Typography variant="body1" sx={{ color: "#7a6474", fontSize: "1.05rem" }}>
