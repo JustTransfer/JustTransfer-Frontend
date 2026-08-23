@@ -16,6 +16,8 @@ import { useServerConfig } from "../hooks/useServerConfig";
 import Layout from "../components/layout";
 import { sendMessageLink } from "../handlers/crypto_link";
 import Pricing from "../components/Pricing";
+import Faq from "../components/Faq";
+import CompetitorComparison from "../components/CompetitorComparison";
 
 import FileTransferForm from "../components/FileTransferForm";
 
@@ -87,7 +89,7 @@ export default function HomePage() {
                                     - <Box component="span" sx={{ color: "primary.main" }}> no compromises.</Box>
                                 </Typography>
                                 <Typography variant="body1" sx={{ color: "#5a4454", maxWidth: 520 }}>
-                                    End-to-end encrypted transfers with simple links. Your privacy is our priority.
+                                    End-to-end encrypted transfers with simple links. Based in Switzerland, your privacy is our priority.
                                 </Typography>
 
                                 {/* Feature highlights */}
@@ -99,7 +101,7 @@ export default function HomePage() {
                                     {[
                                         { icon: <LockOutlinedIcon sx={{ fontSize: 18 }} />, label: "End-to-end encryption" },
                                         { icon: <NoAccountsIcon sx={{ fontSize: 18 }} />, label: "No account needed" },
-                                        { icon: <DeleteIcon sx={{ fontSize: 18 }} />, label: "Auto-delete" },
+                                        { icon: <Box component="span" sx={{ fontSize: 16, lineHeight: 1 }}>🇨🇭</Box>, label: "Based in Switzerland" },
                                     ].map((item) => (
                                         <Box
                                             key={item.label}
@@ -490,6 +492,13 @@ export default function HomePage() {
 
                     {/* Pricing section */}
                     <Pricing isLoggedIn={false} />
+
+
+                    {/* Comparison table */}
+                    <CompetitorComparison />
+
+                    {/* FAQ */}
+                    <Faq />
 
                     {/* Call to action */}
                     <Box
