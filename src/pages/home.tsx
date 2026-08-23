@@ -53,14 +53,15 @@ export default function HomePage() {
                         py: { xs: 3, md: 0 },
                     }}
                 >
-
-                    {/* Hero section */}
                     <script
                         type="application/ld+json"
                         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
                     />
 
+                    {/* Hero section */}
                     <Box
+                        component="section"
+                        aria-labelledby="hero-heading"
                         sx={{
                             mx: "auto",
                             width: "100%",
@@ -91,6 +92,7 @@ export default function HomePage() {
                                 }}
                             >
                                 <Typography
+                                    id="hero-heading"
                                     variant="h1"
                                     component="h1"
                                     sx={{
@@ -98,8 +100,8 @@ export default function HomePage() {
                                         lineHeight: { xs: 1, md: 1.2 },
                                         color: "#2b0f1f",
                                         fontSize: {
-                                            xs: "2.5rem",
-                                            sm: "3rem",
+                                            xs: "2.5rem",   // ~h5
+                                            sm: "3rem",     // ~h4
                                         },
                                         fontWeight: 700,
                                     }}
@@ -136,7 +138,7 @@ export default function HomePage() {
                                             }}
                                         >
                                             {item.icon}
-                                            <Typography variant="body2" sx={{ /*fontWeight: 600,*/ color: "#2b0f1f" }}>
+                                            <Typography variant="body2" sx={{ color: "#2b0f1f" }}>
                                                 {item.label}
                                             </Typography>
                                         </Box>
@@ -199,7 +201,9 @@ export default function HomePage() {
 
                     {/* How it works section */}
                     <Box
+                        component="section"
                         id="how-it-works"
+                        aria-labelledby="how-it-works-heading"
                         sx={{
                             width: "100%",
                             maxWidth: maxWidthPage,
@@ -213,7 +217,7 @@ export default function HomePage() {
                         }}
                     >
                         <Box sx={{ maxWidth: maxWidthPage, mx: "auto", textAlign: "center", mb: 6 }}>
-                            <Typography variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
+                            <Typography id="how-it-works-heading" variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
                                 How a secure transfer works
                             </Typography>
                             <Typography variant="body1" sx={{ color: "#7a6474", fontSize: "1.05rem" }}>
@@ -226,7 +230,7 @@ export default function HomePage() {
                                     <Box sx={{ width: 46, height: 46, borderRadius: "50%", backgroundColor: "#fbe3f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                         <UploadIcon color="primary" sx={{ fontSize: 24 }} />
                                     </Box>
-                                    <Typography variant="h6" sx={{ fontWeight: 700 }}>1. Upload</Typography>
+                                    <Typography variant="h6" component="h3" sx={{ fontWeight: 700 }}>1. Upload</Typography>
                                 </Box>
                                 <Typography variant="body1" color="text.secondary" sx={{ fontSize: "1.02rem" }}>
                                     Select a file and add a password for encryption.
@@ -237,7 +241,7 @@ export default function HomePage() {
                                     <Box sx={{ width: 46, height: 46, borderRadius: "50%", backgroundColor: "#fbe3f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                         <LinkIcon color="primary" sx={{ fontSize: 24 }} />
                                     </Box>
-                                    <Typography variant="h6" sx={{ fontWeight: 700 }}>2. Share</Typography>
+                                    <Typography variant="h6" component="h3" sx={{ fontWeight: 700 }}>2. Share</Typography>
                                 </Box>
                                 <Typography variant="body1" color="text.secondary" sx={{ fontSize: "1.02rem" }}>
                                     Share the link yourself, or, if you're signed in, let us email it to your recipient directly.
@@ -248,7 +252,7 @@ export default function HomePage() {
                                     <Box sx={{ width: 46, height: 46, borderRadius: "50%", backgroundColor: "#fbe3f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                         <DownloadIcon color="primary" sx={{ fontSize: 24 }} />
                                     </Box>
-                                    <Typography variant="h6" sx={{ fontWeight: 700 }}>3. Download</Typography>
+                                    <Typography variant="h6" component="h3" sx={{ fontWeight: 700 }}>3. Download</Typography>
                                 </Box>
                                 <Typography variant="body1" color="text.secondary" sx={{ fontSize: "1.02rem" }}>
                                     Recipients unlock the file using your password.
@@ -259,6 +263,8 @@ export default function HomePage() {
 
                     {/* Privacy section */}
                     <Box
+                        component="section"
+                        aria-labelledby="privacy-heading"
                         sx={{
                             width: "100%",
                             maxWidth: maxWidthPage,
@@ -306,7 +312,7 @@ export default function HomePage() {
                             }}
                         >
                             <Box>
-                                <Typography variant="h4" sx={{ fontWeight: 700, mb: 1.5, color: "#2b0f1f" }}>
+                                <Typography id="privacy-heading" variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1.5, color: "#2b0f1f" }}>
                                     Built-in privacy protections
                                 </Typography>
                                 <Typography variant="body1" sx={{ color: "#6f5164", mb: 3 }}>
@@ -398,7 +404,7 @@ export default function HomePage() {
                                                 ✓
                                             </Box>
                                             <Box>
-                                                <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#2b0f1f" }}>
+                                                <Typography variant="subtitle2" component="h3" sx={{ fontWeight: 700, color: "#2b0f1f" }}>
                                                     {item.title}
                                                 </Typography>
                                                 <Typography variant="body2" sx={{ color: "#6f5164" }}>
@@ -414,6 +420,8 @@ export default function HomePage() {
 
                     {/* Guest vs Account section */}
                     <Box
+                        component="section"
+                        aria-labelledby="guest-vs-account-heading"
                         sx={{
                             width: "100%",
                             maxWidth: maxWidthPage,
@@ -426,7 +434,7 @@ export default function HomePage() {
                             boxShadow: "0 18px 40px rgba(83, 24, 60, 0.08)",
                         }}
                     >
-                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1, textAlign: "center" }}>
+                        <Typography id="guest-vs-account-heading" variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1, textAlign: "center" }}>
                             Send as a guest, or unlock more with an account
                         </Typography>
                         <Typography
@@ -438,7 +446,7 @@ export default function HomePage() {
                         <Box sx={{ maxWidth: maxWidthPage, mx: "auto", display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)" }, gap: 3 }}>
                             <Box sx={{ p: 3.5, borderRadius: 4, border: "1px solid #e3c3d6", background: "linear-gradient(135deg, #ffffff 0%, #ffeef7 100%)", boxShadow: "0 18px 48px rgba(83, 24, 60, 0.16)" }}>
                                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
-                                    <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "primary.main" }}>
+                                    <Typography variant="subtitle1" component="h3" sx={{ fontWeight: 700, color: "primary.main" }}>
                                         Guest transfer
                                     </Typography>
                                     <Chip label="No account" size="small" sx={{ backgroundColor: "#fff", border: "1px solid #e9cddd" }} />
@@ -473,7 +481,7 @@ export default function HomePage() {
                             </Box>
                             <Box sx={{ p: 3.5, borderRadius: 4, border: "1px solid #cf9fbe", background: "linear-gradient(135deg, #ffe2f2 0%, #ffffff 100%)", boxShadow: "0 22px 60px rgba(83, 24, 60, 0.2)" }}>
                                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
-                                    <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "primary.main" }}>
+                                    <Typography variant="subtitle1" component="h3" sx={{ fontWeight: 700, color: "primary.main" }}>
                                         Account transfer
                                     </Typography>
                                     <Chip label="Account" size="small" sx={{ backgroundColor: "#fff", border: "1px solid #e9cddd" }} />
@@ -511,17 +519,24 @@ export default function HomePage() {
                     </Box>
 
                     {/* Pricing section */}
-                    <Pricing isLoggedIn={false} />
-
+                    <Box component="section" aria-labelledby="pricing-heading">
+                        <Pricing isLoggedIn={false} headingId="pricing-heading" />
+                    </Box>
 
                     {/* Comparison table */}
-                    <CompetitorComparison />
+                    <Box component="section" aria-labelledby="comparison-heading">
+                        <CompetitorComparison headingId="comparison-heading" />
+                    </Box>
 
                     {/* FAQ */}
-                    <Faq />
+                    <Box component="section" aria-labelledby="faq-heading">
+                        <Faq headingId="faq-heading" />
+                    </Box>
 
                     {/* Call to action */}
                     <Box
+                        component="section"
+                        aria-labelledby="cta-heading"
                         sx={{
                             width: "100%",
                             maxWidth: maxWidthPage,
@@ -544,7 +559,7 @@ export default function HomePage() {
                                 textAlign: "center",
                             }}
                         >
-                            <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
+                            <Typography id="cta-heading" variant="h5" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
                                 Ready to transfer?
                             </Typography>
                             <Typography variant="body1" sx={{ opacity: 0.9, mb: 3 }}>
@@ -560,7 +575,7 @@ export default function HomePage() {
                             </Box>
                         </Box>
                     </Box>
-                </Box >
+                </Box>
             } />
     );
 }

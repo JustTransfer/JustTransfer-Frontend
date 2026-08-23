@@ -85,7 +85,11 @@ function CellValue({ value }: { value: string | boolean }) {
     );
 }
 
-export default function CompetitorComparison() {
+export type CompetitorComparisonProps = {
+    headingId?: string;
+};
+
+export default function CompetitorComparison({ headingId }: CompetitorComparisonProps) {
 
     const { config } = useServerConfig();
 
@@ -111,7 +115,7 @@ export default function CompetitorComparison() {
             }}
         >
             <Box sx={{ maxWidth: 1400, mx: "auto", textAlign: "center", mb: 5 }}>
-                <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+                <Typography id={headingId} variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
                     How JustTransfer compares
                 </Typography>
                 <Typography variant="body1" sx={{ color: "#7a6474", fontSize: "1.05rem" }}>

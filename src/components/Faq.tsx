@@ -41,7 +41,7 @@ const faqItems = [
     },
 ];
 
-export default function Faq() {
+export default function Faq({ headingId }: { headingId?: string }) {
     const jsonLd = {
         "@context": "https://schema.org",
         "@type": "FAQPage",
@@ -112,7 +112,7 @@ export default function Faq() {
             />
 
             <Box sx={{ maxWidth: 1400, mx: "auto", textAlign: "center", mb: 6 }}>
-                <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+                <Typography id={headingId} variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
                     Frequently asked questions
                 </Typography>
                 <Typography variant="body1" sx={{ color: "#7a6474", fontSize: "1.05rem" }}>

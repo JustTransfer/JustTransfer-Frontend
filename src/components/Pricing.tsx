@@ -15,10 +15,11 @@ export type PricingProps = {
     isLoggedIn: boolean;
     currentPlan?: Plan;
     onSelectPlan?: (plan: Plan) => void;
+    headingId?: string;
 };
 
 
-export default function Pricing({ isLoggedIn, currentPlan, onSelectPlan }: PricingProps) {
+export default function Pricing({ isLoggedIn, currentPlan, onSelectPlan, headingId }: PricingProps) {
 
     const navigate = useNavigate();
     const { config } = useServerConfig();
@@ -129,7 +130,7 @@ export default function Pricing({ isLoggedIn, currentPlan, onSelectPlan }: Prici
             }}
         >
             <Box sx={{ textAlign: "center", mb: 4 }}>
-                <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+                <Typography id={headingId} variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
                     Plans and pricing
                 </Typography>
                 <Typography variant="body2" sx={{ color: "#7a6474" }}>
@@ -152,7 +153,7 @@ export default function Pricing({ isLoggedIn, currentPlan, onSelectPlan }: Prici
                     sx={normalTileSx}
                 >
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flexGrow: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        <Typography variant="h6" component="h3" sx={{ fontWeight: 600 }}>
                             Link Transfer
                         </Typography>
                         <Box sx={priceRowSx}>
@@ -179,7 +180,7 @@ export default function Pricing({ isLoggedIn, currentPlan, onSelectPlan }: Prici
                     sx={normalTileSx}
                 >
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flexGrow: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        <Typography variant="h6" component="h3" sx={{ fontWeight: 600 }}>
                             Free Account
                         </Typography>
                         <Box sx={priceRowSx}>
@@ -216,7 +217,7 @@ export default function Pricing({ isLoggedIn, currentPlan, onSelectPlan }: Prici
                 >
                     <Chip label="RECOMMENDED" size="small" sx={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", backgroundColor: "primary.main", color: "white" }} />
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flexGrow: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        <Typography variant="h6" component="h3" sx={{ fontWeight: 600 }}>
                             Premium Account
                         </Typography>
                         <Box sx={priceRowSx}>
@@ -252,7 +253,7 @@ export default function Pricing({ isLoggedIn, currentPlan, onSelectPlan }: Prici
                     sx={normalTileSx}
                 >
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flexGrow: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        <Typography variant="h6" component="h3" sx={{ fontWeight: 600 }}>
                             Enterprise
                         </Typography>
                         <Box sx={priceRowSx}>
