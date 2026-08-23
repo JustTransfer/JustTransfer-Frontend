@@ -82,7 +82,7 @@ export default function Faq({ headingId }: { headingId?: string }) {
                 </Typography>
             </AccordionSummary>
             <AccordionDetails>
-                <Typography variant="body2" sx={{ color: "#6f5164" }}>
+                <Typography variant="body1" sx={{ color: "#6f5164" }}>
                     {item.answer}
                 </Typography>
             </AccordionDetails>
