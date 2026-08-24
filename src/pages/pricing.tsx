@@ -10,7 +10,7 @@ import Pricing from "../components/Pricing";
 
 import { useAuth } from "../hooks/useAuth";
 import { useNotification } from "../hooks/useNotificationContext";
-import { createSubscriptionCheckoutAPI } from "../handlers/api";
+import { createSubscriptionCheckoutAPI, cancelSubscriptionAPI } from "../handlers/api";
 import type { PricingProps } from "../components/Pricing";
 
 
@@ -37,19 +37,18 @@ export default function PricingPage() {
     async function handleSelectPlan(plan: "user" | "premium") {
         try {
             if (plan === "user") {
-                // Free tier — no payment. This should cancel any active premium subscription instead (separate endpoint, see below).
-                // await cancelSubscriptionAPI();
-                success("You've been switched to the free plan. TODO not working.");
+                await cancelSubscriptionAPI();
+                success("You've been switched to the free plan.");
+                navigate("/account?subscription=success");
                 return;
             }
 
             const checkoutUrl = await createSubscriptionCheckoutAPI(plan);
-            window.location.href = checkoutUrl;
+            window.location.href = checkoutUrl; // Stripe Checkout Session URL
         } catch (e) {
             error(e instanceof Error ? e.message : "Failed to update subscription");
         }
     }
-
 
     const props: PricingProps = {
         isLoggedIn: true,

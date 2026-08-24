@@ -170,18 +170,18 @@ export default function AccountPage() {
         }
     }
 
-    useEffect(() => {
-        async function fetchAccountInfo() {
-            try {
-                const accountInfo = await getAccountInfoAPI();
-                setEmail(accountInfo.email);
-                setRole(accountInfo.role);
-                setNumberTransfers(accountInfo.number_transfers);
-            } catch (e) {
-                error("Failed to fetch account info: " + (e instanceof Error ? e.message : "Unknown error"));
-            }
+    async function fetchAccountInfo() {
+        try {
+            const accountInfo = await getAccountInfoAPI();
+            setEmail(accountInfo.email);
+            setRole(accountInfo.role);
+            setNumberTransfers(accountInfo.number_transfers);
+        } catch (e) {
+            error("Failed to fetch account info: " + (e instanceof Error ? e.message : "Unknown error"));
         }
+    }
 
+    useEffect(() => {
         fetchAccountInfo();
     }, []);
 
