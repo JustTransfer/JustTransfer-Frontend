@@ -5,30 +5,24 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 
-import { useNotification } from "../hooks/useNotificationContext";
 import { useServerConfig } from "../hooks/useServerConfig";
 import { formatSize } from "../handlers/utils";
 import { emailAddress } from "../handlers/config";
 
+export type Plan = "user" | "premium";
+
 export type PricingProps = {
     isLoggedIn: boolean;
-    currentPlan?: "user" | "premium";
+    currentPlan?: Plan;
+    onSelectPlan?: (plan: Plan) => void;
+    headingId?: string;
 };
 
 
-export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
+export default function Pricing({ isLoggedIn, currentPlan, onSelectPlan, headingId }: PricingProps) {
 
     const navigate = useNavigate();
     const { config } = useServerConfig();
-    const { warning } = useNotification();
-
-    const buttonText = isLoggedIn ? "Upgrade Account" : "Get Started";
-    const buttonAction = isLoggedIn
-        ? () => {
-            navigate("/pricing");
-            warning("Premium plans are launching soon! Stay tuned for updates.");
-        }
-        : () => navigate("/register");
 
     const isLoadingLimits = !config;
 
@@ -93,7 +87,7 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
         return formatter ? formatter(value) : value;
     };
 
-    const isCurrentPlan = (plan: PricingProps["currentPlan"]) => currentPlan === plan;
+    const isCurrentPlan = (plan: Plan) => currentPlan === plan;
 
     const currentPlanChipSx = {
         alignSelf: "center",
@@ -103,6 +97,22 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
         backgroundColor: "#fff1f8",
         border: "1px solid #e7bfd7",
         color: "#7a4a66",
+    };
+
+    // Logged-out users to register page, logged-in users to checkout for selected plan
+    const handlePlanAction = (plan: Plan) => {
+        if (!isLoggedIn) {
+            navigate("/register");
+            return;
+        }
+        onSelectPlan?.(plan);
+    };
+
+    const planButtonLabel = (plan: Plan) => {
+        if (!isLoggedIn) {
+            return "Get Started";
+        }
+        return plan === "user" ? "Switch to Free" : "Upgrade to Premium";
     };
 
     return (
@@ -120,11 +130,11 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
             }}
         >
             <Box sx={{ textAlign: "center", mb: 4 }}>
-                <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+                <Typography id={headingId} variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
                     Plans and pricing
                 </Typography>
                 <Typography variant="body2" sx={{ color: "#7a6474" }}>
-                    Free link transfers today. Premium plans launch soon.
+                    Free link transfers today. Upgrade anytime for more storage and longer retention.
                 </Typography>
             </Box>
             <Box
@@ -143,7 +153,7 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
                     sx={normalTileSx}
                 >
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flexGrow: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        <Typography variant="h6" component="h3" sx={{ fontWeight: 600 }}>
                             Link Transfer
                         </Typography>
                         <Box sx={priceRowSx}>
@@ -159,8 +169,8 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
                     </Box>
                     {
                         !isLoggedIn && (
-                            <Button variant="outlined" fullWidth size="small" onClick={buttonAction} sx={{ mt: "auto" }}>
-                                {buttonText}
+                            <Button variant="outlined" fullWidth size="small" onClick={() => navigate("/register")} sx={{ mt: "auto" }}>
+                                Get Started
                             </Button>
                         )
                     }
@@ -170,7 +180,7 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
                     sx={normalTileSx}
                 >
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flexGrow: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        <Typography variant="h6" component="h3" sx={{ fontWeight: 600 }}>
                             Free Account
                         </Typography>
                         <Box sx={priceRowSx}>
@@ -188,9 +198,15 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
                         )}
                     </Box>
                     {
-                        !isLoggedIn && (
-                            <Button variant="contained" fullWidth size="small" onClick={buttonAction} sx={{ mt: "auto" }}>
-                                {buttonText}
+                        !isCurrentPlan("user") && (
+                            <Button
+                                variant="contained"
+                                fullWidth
+                                size="small"
+                                onClick={() => handlePlanAction("user")}
+                                sx={{ mt: "auto" }}
+                            >
+                                {planButtonLabel("user")}
                             </Button>
                         )
                     }
@@ -201,7 +217,7 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
                 >
                     <Chip label="RECOMMENDED" size="small" sx={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", backgroundColor: "primary.main", color: "white" }} />
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flexGrow: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        <Typography variant="h6" component="h3" sx={{ fontWeight: 600 }}>
                             Premium Account
                         </Typography>
                         <Box sx={priceRowSx}>
@@ -219,9 +235,15 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
                         )}
                     </Box>
                     {
-                        currentPlan !== "premium" && (
-                            <Button variant="contained" fullWidth size="small" onClick={buttonAction} sx={{ mt: "auto" }}>
-                                {buttonText}
+                        !isCurrentPlan("premium") && (
+                            <Button
+                                variant="contained"
+                                fullWidth
+                                size="small"
+                                onClick={() => handlePlanAction("premium")}
+                                sx={{ mt: "auto" }}
+                            >
+                                {planButtonLabel("premium")}
                             </Button>
                         )
                     }
@@ -231,7 +253,7 @@ export default function Pricing({ isLoggedIn, currentPlan }: PricingProps) {
                     sx={normalTileSx}
                 >
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flexGrow: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        <Typography variant="h6" component="h3" sx={{ fontWeight: 600 }}>
                             Enterprise
                         </Typography>
                         <Box sx={priceRowSx}>

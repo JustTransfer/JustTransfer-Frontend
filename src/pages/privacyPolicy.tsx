@@ -26,26 +26,26 @@ export default function PrivacyPolicy() {
     }, []);
 
     return (
-        <Layout title="Home" content={
+        <Layout
+            content={
+                <Box
+                    sx={{
+                        maxWidth: 900,
+                        mx: "auto",
+                        py: { xs: 2, sm: 4 },
+                        "& h1": { mt: 4, mb: 2 },
+                        "& h2": { mt: 3, mb: 2 },
+                        "& h3": { mt: 2, mb: 1 },
+                        "& p": { mb: 2 },
+                        "& ul": { pl: 3, mb: 2 },
+                        "& li": { mb: 0.5 },
+                    }}
+                >
+                    <ReactMarkdown>
+                        {privacyPolicy}
+                    </ReactMarkdown>
+                </Box>
 
-            <Box
-                sx={{
-                    maxWidth: 900,
-                    mx: "auto",
-                    py: { xs: 2, sm: 4 },
-                    "& h1": { mt: 4, mb: 2 },
-                    "& h2": { mt: 3, mb: 2 },
-                    "& h3": { mt: 2, mb: 1 },
-                    "& p": { mb: 2 },
-                    "& ul": { pl: 3, mb: 2 },
-                    "& li": { mb: 0.5 },
-                }}
-            >
-                <ReactMarkdown>
-                    {privacyPolicy}
-                </ReactMarkdown>
-            </Box>
-
-        } />
+            } />
     );
 }

@@ -116,12 +116,19 @@ export const formatSpeed = (bytesPerSecond: number) => {
 };
 
 export const formatSize = (bytes: any) => {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KiB`;
-  if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MiB`;
-  if (bytes < 1024 * 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GiB`;
 
-  return `${(bytes / (1024 * 1024 * 1024 * 1024)).toFixed(1)} TiB`;
+  // Round to 1 decimal place, but remove trailing .0 if present
+  const formatNumber = (n: number) => {
+    const rounded = n.toFixed(1);
+    return rounded.endsWith(".0") ? rounded.slice(0, -2) : rounded;
+  };
+
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${formatNumber(bytes / 1024)} KiB`;
+  if (bytes < 1024 * 1024 * 1024) return `${formatNumber(bytes / (1024 * 1024))} MiB`;
+  if (bytes < 1024 * 1024 * 1024 * 1024) return `${formatNumber(bytes / (1024 * 1024 * 1024))} GiB`;
+
+  return `${formatNumber(bytes / (1024 * 1024 * 1024 * 1024))} TiB`;
 };
 
 export function getExpiration(msg: any) {

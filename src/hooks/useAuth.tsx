@@ -34,6 +34,7 @@ type AuthContextType = {
     keys: Key[] | null;
     login: (data: LoginData) => Promise<void>;
     updateKeys: (data: updateKeysData) => Promise<void>;
+    updateRole: (role: string) => void;
     getLatestKeys: () => Promise<Key>;
     logout: () => void;
 };
@@ -63,6 +64,10 @@ export const AuthProvider = ({ children }: any) => {
         setExportKey(data.exportKey);
         setKeys(data.keys);
     }
+
+    const updateRole = (newRole: string) => {
+        setRole(newRole);
+    };
 
     const getLatestKeys = async () => {
         // get valid keys and lastest
@@ -97,6 +102,7 @@ export const AuthProvider = ({ children }: any) => {
             keys,
             login,
             updateKeys,
+            updateRole,
             getLatestKeys,
             logout,
         }),

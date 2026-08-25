@@ -1,4 +1,5 @@
-import { useNavigate } from "react-router";
+import { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router";
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -8,13 +9,49 @@ import Layout from "../components/layout";
 import Pricing from "../components/Pricing";
 
 import { useAuth } from "../hooks/useAuth";
+import { useNotification } from "../hooks/useNotificationContext";
+import { createSubscriptionCheckoutAPI, cancelSubscriptionAPI } from "../handlers/api";
 import type { PricingProps } from "../components/Pricing";
 
 
 export default function PricingPage() {
 
     const navigate = useNavigate();
-    const { role } = useAuth();
+    const { role, updateRole } = useAuth();
+    const { error, success } = useNotification();
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    useEffect(() => {
+        const status = searchParams.get("subscription");
+        if (status === "failed") {
+            error("Your payment could not be processed. Please try again.");
+        } else if (status === "cancelled") {
+            error("Checkout was cancelled.");
+        }
+        if (status) {
+            searchParams.delete("subscription");
+            setSearchParams(searchParams, { replace: true });
+        }
+    }, []);
+
+    async function handleSelectPlan(plan: "user" | "premium") {
+        try {
+            if (plan === "user") {
+                await cancelSubscriptionAPI();
+                updateRole("user");
+                success("You've been switched to the free plan.");
+                setTimeout(() => {
+                    navigate("/account?subscription=success");
+                }, 1000);
+                return;
+            }
+
+            const checkoutUrl = await createSubscriptionCheckoutAPI(plan);
+            window.location.href = checkoutUrl; // Stripe Checkout Session URL
+        } catch (e) {
+            error(e instanceof Error ? e.message : "Failed to update subscription");
+        }
+    }
 
     const props: PricingProps = {
         isLoggedIn: true,
@@ -23,11 +60,11 @@ export default function PricingPage() {
                 : role === "premium" ? "premium"
                     : role === "user" ? "user"
                         : undefined,
+        onSelectPlan: handleSelectPlan,
     };
 
     return (
         <Layout
-            title="Pricing"
             content={
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 2, alignItems: "center" }}>
                     <Box sx={{ width: "86%" }}>

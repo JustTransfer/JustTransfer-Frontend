@@ -308,4 +308,26 @@ async function deleteSavedTransferAPI(saved_transfer_id: string) {
     return response.status;
 }
 
-export { apiFetch, registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, verifyEmailAPI, requestResetPasswordAPI, endPasswordResetAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyEmailAPI, getSavedTransfersAPI, addSavedTransferAPI, deleteSavedTransferAPI };
+async function createSubscriptionCheckoutAPI(plan: "user" | "premium"): Promise<string> {
+    const response = await apiFetch(`${apiUrl}/subscription/checkout`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
+    });
+
+    const data = await response.json();
+    return data.checkout_url;
+}
+
+async function cancelSubscriptionAPI(): Promise<number> {
+    const response = await apiFetch(`${apiUrl}/subscription/cancel`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+    });
+
+    return response.status;
+}
+
+export { apiFetch, registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, verifyEmailAPI, requestResetPasswordAPI, endPasswordResetAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyEmailAPI, getSavedTransfersAPI, addSavedTransferAPI, deleteSavedTransferAPI, createSubscriptionCheckoutAPI, cancelSubscriptionAPI };

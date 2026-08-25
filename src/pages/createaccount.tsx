@@ -109,105 +109,106 @@ export default function CreateAccountPage() {
     }
 
     return (
-        <Layout title="Create Account" content={
-            <Box
-                sx={{
-                    width: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    py: { xs: 4, md: 6 },
-                    gap: 2,
-                }}
-            >
-                <Paper elevation={0} sx={cardSx}>
+        <Layout
+            content={
+                <Box
+                    sx={{
+                        width: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        py: { xs: 4, md: 6 },
+                        gap: 2,
+                    }}
+                >
+                    <Paper elevation={0} sx={cardSx}>
 
-                    <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1 }}>
-                        Create Account
-                    </Typography>
-
-                    <Typography variant="subtitle1" sx={{ color: "#7a6474" }}>
-                        Join now to securely share your files!
-                    </Typography>
-
-                    <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 4 }} onSubmit={handleSubmit}>
-                        <TextField
-                            label="Email"
-                            name="email"
-                            type="email"
-                            variant="outlined"
-                            fullWidth
-                            required
-                        />
-                        <TextField
-                            label="Password"
-                            name="password"
-                            type={showPassword ? "text" : "password"}
-                            variant="outlined"
-                            fullWidth
-                            required
-                            onChange={(e) => setPassword(e.target.value)}
-                            error={errorWeakPassword}
-                            helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
-                            slotProps={{
-                                input: {
-                                    endAdornment: (
-                                        < InputAdornment position="end" >
-                                            <IconButton
-                                                aria-label={
-                                                    showPassword ? 'hide the password' : 'display the password'
-                                                }
-                                                onClick={handleTogglePassword}
-                                            >
-                                                {showPassword ? <VisibilityOff /> : <Visibility />}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    )
-                                }
-                            }}
-                        />
-
-                        <PasswordStrength password={password} onStrengthChange={setIsStrong} />
-
-                        <TextField
-                            label="Confirm Password"
-                            name="confirmPassword"
-                            type="password"
-                            variant="outlined"
-                            fullWidth
-                            required
-                            error={errorPasswordMismatch}
-                            helperText={errorPasswordMismatch ? errors.errorPasswordMismatch : ""}
-                        />
-
-                        <AcceptTermsService
-                            accepted={acceptedTerms}
-                            onChange={setAcceptedTerms}
-                        />
-
-                        <Button
-                            type="submit"
-                            variant="contained"
-                        >
+                        <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1 }}>
                             Create Account
-                        </Button>
-                    </Box>
-                </Paper>
+                        </Typography>
 
-                <Typography variant="body2" sx={{ color: "#6e5a69" }}>
-                    Already have an account?
-                    <Link
-                        component="button"
-                        variant="body2"
-                        onClick={() => navigate("/login")}
-                        underline="hover"
-                        sx={{ ml: 1, verticalAlign: "baseline" }}
-                    >
-                        Log in
-                    </Link>
-                </Typography>
-            </Box>
-        } />
+                        <Typography variant="subtitle1" sx={{ color: "#7a6474" }}>
+                            Join now to securely share your files!
+                        </Typography>
+
+                        <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 4 }} onSubmit={handleSubmit}>
+                            <TextField
+                                label="Email"
+                                name="email"
+                                type="email"
+                                variant="outlined"
+                                fullWidth
+                                required
+                            />
+                            <TextField
+                                label="Password"
+                                name="password"
+                                type={showPassword ? "text" : "password"}
+                                variant="outlined"
+                                fullWidth
+                                required
+                                onChange={(e) => setPassword(e.target.value)}
+                                error={errorWeakPassword}
+                                helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
+                                slotProps={{
+                                    input: {
+                                        endAdornment: (
+                                            < InputAdornment position="end" >
+                                                <IconButton
+                                                    aria-label={
+                                                        showPassword ? 'hide the password' : 'display the password'
+                                                    }
+                                                    onClick={handleTogglePassword}
+                                                >
+                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        )
+                                    }
+                                }}
+                            />
+
+                            <PasswordStrength password={password} onStrengthChange={setIsStrong} />
+
+                            <TextField
+                                label="Confirm Password"
+                                name="confirmPassword"
+                                type="password"
+                                variant="outlined"
+                                fullWidth
+                                required
+                                error={errorPasswordMismatch}
+                                helperText={errorPasswordMismatch ? errors.errorPasswordMismatch : ""}
+                            />
+
+                            <AcceptTermsService
+                                accepted={acceptedTerms}
+                                onChange={setAcceptedTerms}
+                            />
+
+                            <Button
+                                type="submit"
+                                variant="contained"
+                            >
+                                Create Account
+                            </Button>
+                        </Box>
+                    </Paper>
+
+                    <Typography variant="body2" sx={{ color: "#6e5a69" }}>
+                        Already have an account?
+                        <Link
+                            component="button"
+                            variant="body2"
+                            onClick={() => navigate("/login")}
+                            underline="hover"
+                            sx={{ ml: 1, verticalAlign: "baseline" }}
+                        >
+                            Log in
+                        </Link>
+                    </Typography>
+                </Box>
+            } />
     );
 }

@@ -25,7 +25,6 @@ import Link from '@mui/material/Link';
 
 import { useAuth } from "../hooks/useAuth";
 import { emailAddress } from "../handlers/config";
-import BetaBanner from './betaBanner';
 
 const headerHeight = "65px";
 const logoMarginTop = '-10px';
@@ -98,7 +97,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                 >
                     {/* About */}
                     <Box sx={{ minWidth: { xs: "100%", sm: footerMinAboutWidth }, flex: 1 }}>
-                        <Typography variant="h6" gutterBottom>
+                        <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
                             JustTransfer
                         </Typography>
                         <Typography variant="body2" sx={{ opacity: 0.8 }}>
@@ -108,7 +107,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
 
                     {/* Resources */}
                     <Box sx={{ minWidth: { xs: "100%", sm: footerMinResourceWidth } }}>
-                        <Typography variant="subtitle1" gutterBottom>
+                        <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: "bold" }}>
                             Ressources
                         </Typography>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -135,7 +134,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
 
                     {/* Legal */}
                     <Box sx={{ minWidth: { xs: "100%", sm: footerMinLegalWidth } }}>
-                        <Typography variant="subtitle1" gutterBottom>
+                        <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: "bold" }}>
                             Legal
                         </Typography>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -150,7 +149,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
 
                     {/* Contact */}
                     <Box sx={{ minWidth: { xs: "100%", sm: footerMinLinkWidth } }}>
-                        <Typography variant="subtitle1" gutterBottom>
+                        <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: "bold" }}>
                             Contact
                         </Typography>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -198,6 +197,14 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     {' '}for details.
                 </Typography>
 
+                <Typography
+                    variant="body2"
+                    align="center"
+                    sx={{ opacity: 0.7, mb: 1 }}
+                >
+                    JustTransfer is currently in beta — expect occasional bugs, and thanks for helping us test.
+                </Typography>
+
                 {/* Bottom */}
                 <Typography
                     variant="body2"
@@ -211,7 +218,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
     );
 }
 
-export default function Layout({ title, content }: { title: string; content: React.ReactNode }) {
+export default function Layout({ content }: { content: React.ReactNode }) {
 
     const navigate = useNavigate();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -295,30 +302,6 @@ export default function Layout({ title, content }: { title: string; content: Rea
                             () => navigate(isLoggedIn ? "/new-transfer" : "/")
                         }
                     />
-
-                    {/* Title */}
-                    <Typography
-                        variant="h6"
-                        sx={{
-                            ml: { xs: 0, md: 6 },
-                            fontWeight: "bold",
-                            display: { xs: "none", sm: "block" },
-                        }}
-                    >
-                        {title}
-                    </Typography>
-
-                    {/* Beta banner */}
-                    <Box
-                        sx={{
-                            display: "flex",
-                            flex: 1,
-                            justifyContent: "center",
-                            minWidth: 0,
-                        }}
-                    >
-                        <BetaBanner />
-                    </Box>
 
                     <Box sx={{
                         marginLeft: "auto",

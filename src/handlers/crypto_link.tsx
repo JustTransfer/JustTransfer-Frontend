@@ -229,13 +229,10 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
     const opaque = await getOpaque();
     const sodium = await getSodium();
 
-    let isEmptyPassword = false;
-
     // If password is not provided, generate a random password
     if (password === undefined || password === null || password === "") {
         const randomBytes = sodium.randombytes_buf(linkTransferGeneratedPasswordLen);
         password = Base64.fromUint8Array(randomBytes, true);
-        isEmptyPassword = true;
     }
 
     // Create key from OPAQUE
@@ -398,13 +395,7 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
     const auth_key = response3.auth_key;
 
     // Construct the link to be shared
-    let link: string;
-    if (isEmptyPassword) {
-        link = `${frontendUrl}/link-transfer/${transferId}#${password}`;
-
-    } else {
-        link = `${frontendUrl}/link-transfer/${transferId}`;
-    }
+    let link = `${frontendUrl}/link-transfer/${transferId}#${password}`;
 
     return {
         success: true,

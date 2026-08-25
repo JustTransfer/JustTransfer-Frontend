@@ -124,82 +124,83 @@ export default function ResetPasswordPage() {
     }
 
     return (
-        <Layout title="Reset Password" content={
-            <Box
-                sx={{
-                    width: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    flex: 1,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    py: { xs: 4, md: 6 },
-                }}
-            >
-                <Paper elevation={0} sx={cardSx}>
-                    <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold", color: "#2b0f1f" }}>
-                        Reset Password
-                    </Typography>
-
-                    <Typography variant="body1" sx={{ mb: 3, color: "#6e5a69" }}>
-                        Enter a new password for account with username <strong>{username}</strong>. This action is irreversible!
-                    </Typography>
-
-                    <Alert severity="warning" sx={{ mb: 3, borderRadius: 2 }}>
-                        Resetting your password will delete your saved transfers. The transfers themselves are not deleted, but you'll need to re-enter their password to access them again.
-                    </Alert>
-
-                    <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }} onSubmit={handleSubmit}>
-
-                        <TextField
-                            label="New Password"
-                            name="password"
-                            type={showPassword ? "text" : "password"}
-                            variant="outlined"
-                            fullWidth
-                            required
-                            onChange={(e) => setPassword(e.target.value)}
-                            error={errorWeakPassword}
-                            helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
-                            slotProps={{
-                                input: {
-                                    endAdornment: (
-                                        < InputAdornment position="end" >
-                                            <IconButton
-                                                aria-label={
-                                                    showPassword ? 'hide the password' : 'display the password'
-                                                }
-                                                onClick={handleTogglePassword}
-                                            >
-                                                {showPassword ? <VisibilityOff /> : <Visibility />}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    )
-                                }
-                            }}
-                        />
-
-                        <PasswordStrength password={password} onStrengthChange={setIsStrong} />
-
-                        <TextField
-                            label="Confirm New Password"
-                            name="confirmPassword"
-                            type="password"
-                            variant="outlined"
-                            fullWidth
-                            required
-                            error={errorPasswordMismatch}
-                            helperText={errorPasswordMismatch ? errors.errorPasswordMismatch : ""}
-                        />
-                        <Button
-                            type="submit"
-                            variant="contained"
-                        >
+        <Layout
+            content={
+                <Box
+                    sx={{
+                        width: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        flex: 1,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        py: { xs: 4, md: 6 },
+                    }}
+                >
+                    <Paper elevation={0} sx={cardSx}>
+                        <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold", color: "#2b0f1f" }}>
                             Reset Password
-                        </Button>
-                    </Box>
-                </Paper>
-            </ Box>
-        } />
+                        </Typography>
+
+                        <Typography variant="body1" sx={{ mb: 3, color: "#6e5a69" }}>
+                            Enter a new password for account with username <strong>{username}</strong>. This action is irreversible!
+                        </Typography>
+
+                        <Alert severity="warning" sx={{ mb: 3, borderRadius: 2 }}>
+                            Resetting your password will delete your saved transfers. The transfers themselves are not deleted, but you'll need to re-enter their password to access them again.
+                        </Alert>
+
+                        <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }} onSubmit={handleSubmit}>
+
+                            <TextField
+                                label="New Password"
+                                name="password"
+                                type={showPassword ? "text" : "password"}
+                                variant="outlined"
+                                fullWidth
+                                required
+                                onChange={(e) => setPassword(e.target.value)}
+                                error={errorWeakPassword}
+                                helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
+                                slotProps={{
+                                    input: {
+                                        endAdornment: (
+                                            < InputAdornment position="end" >
+                                                <IconButton
+                                                    aria-label={
+                                                        showPassword ? 'hide the password' : 'display the password'
+                                                    }
+                                                    onClick={handleTogglePassword}
+                                                >
+                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        )
+                                    }
+                                }}
+                            />
+
+                            <PasswordStrength password={password} onStrengthChange={setIsStrong} />
+
+                            <TextField
+                                label="Confirm New Password"
+                                name="confirmPassword"
+                                type="password"
+                                variant="outlined"
+                                fullWidth
+                                required
+                                error={errorPasswordMismatch}
+                                helperText={errorPasswordMismatch ? errors.errorPasswordMismatch : ""}
+                            />
+                            <Button
+                                type="submit"
+                                variant="contained"
+                            >
+                                Reset Password
+                            </Button>
+                        </Box>
+                    </Paper>
+                </ Box>
+            } />
     );
 }

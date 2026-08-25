@@ -26,8 +26,7 @@ export default function TermsService() {
     }, []);
 
     return (
-        <Layout title="Home" content={
-
+        <Layout content={
             <Box
                 sx={{
                     maxWidth: 900,

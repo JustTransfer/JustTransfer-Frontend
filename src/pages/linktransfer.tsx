@@ -162,7 +162,6 @@ export default function LinkTransfer() {
     if (isLoading) {
         return (
             <Layout
-                title="Link Transfer"
                 content={
                     <Box
                         sx={{
@@ -181,185 +180,186 @@ export default function LinkTransfer() {
     }
 
     return (
-        <Layout title="Link Transfer" content={
-            <Box
-                sx={{
-                    flex: 1,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexDirection: "column",
-                    gap: 6,
-                    py: { xs: 4, md: 6 },
-                }}
-            >
+        <Layout
+            content={
+                <Box
+                    sx={{
+                        flex: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexDirection: "column",
+                        gap: 6,
+                        py: { xs: 4, md: 6 },
+                    }}
+                >
 
-                <Paper elevation={0} sx={cardSx}>
-                    <Box component="form" sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, width: "100%", minWidth: 0 }} onSubmit={handleSubmit}>
-                        {messageData ? (
-                            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, width: "100%", minWidth: 0 }}>
+                    <Paper elevation={0} sx={cardSx}>
+                        <Box component="form" sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, width: "100%", minWidth: 0 }} onSubmit={handleSubmit}>
+                            {messageData ? (
+                                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, width: "100%", minWidth: 0 }}>
 
-                                <Box sx={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "center",
-                                    gap: 1,
-                                    width: "100%",
-                                    minWidth: 0,
-                                }}>
-                                    <Box sx={{ p: 2, borderRadius: 3, backgroundColor: "#fff0f8" }}>
-                                        <DescriptionIcon sx={{ fontSize: 60, color: "primary.main" }} />
-                                    </Box>
-
-                                    <Typography
-                                        variant="h5"
-                                        sx={{
-                                            fontWeight: "bold",
-                                            width: "100%",
-                                            wordBreak: "break-word",
-                                            overflowWrap: "anywhere",
-                                            hyphens: "auto",
-                                        }}
-                                    >
-                                        {messageData.filename}
-                                    </Typography>
-
-                                    <Typography variant="body2" sx={{ color: '#6e5a69' }}>
-                                        From <b>{messageData.sender}</b>
-                                    </Typography>
-
-                                    <Typography variant="body1" sx={{ color: '#6e5a69' }}>
-                                        Transfer ready for decryption and download.
-                                    </Typography>
-                                </Box>
-
-
-                                <Box
-                                    sx={{
-                                        display: "grid",
-                                        gridTemplateColumns: "1fr 1fr",
-                                        gap: 2,
+                                    <Box sx={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "center",
+                                        gap: 1,
                                         width: "100%",
                                         minWidth: 0,
-                                        mt: 2,
-                                    }}
-                                >
-                                    {/* Top-left: Size */}
-                                    <Box
-                                        sx={statTileSx}
-                                    >
-                                        <Typography variant="caption" color="text.secondary">Size</Typography>
-                                        <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                                            {formatSize(messageData.file_size)}
+                                    }}>
+                                        <Box sx={{ p: 2, borderRadius: 3, backgroundColor: "#fff0f8" }}>
+                                            <DescriptionIcon sx={{ fontSize: 60, color: "primary.main" }} />
+                                        </Box>
+
+                                        <Typography
+                                            variant="h5"
+                                            sx={{
+                                                fontWeight: "bold",
+                                                width: "100%",
+                                                wordBreak: "break-word",
+                                                overflowWrap: "anywhere",
+                                                hyphens: "auto",
+                                            }}
+                                        >
+                                            {messageData.filename}
+                                        </Typography>
+
+                                        <Typography variant="body2" sx={{ color: '#6e5a69' }}>
+                                            From <b>{messageData.sender}</b>
+                                        </Typography>
+
+                                        <Typography variant="body1" sx={{ color: '#6e5a69' }}>
+                                            Transfer ready for decryption and download.
                                         </Typography>
                                     </Box>
 
-                                    {/* Top-right: Downloads */}
-                                    <Box
-                                        sx={statTileSx}
-                                    >
-                                        <Typography variant="caption" color="text.secondary">Downloads</Typography>
-                                        <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                                            {messageData.number_downloads}/{messageData.max_downloads === 0 ? "∞" : messageData.max_downloads}
-                                        </Typography>
-                                    </Box>
 
-                                    {/* Bottom-left: Created */}
                                     <Box
-                                        sx={statTileSx}
+                                        sx={{
+                                            display: "grid",
+                                            gridTemplateColumns: "1fr 1fr",
+                                            gap: 2,
+                                            width: "100%",
+                                            minWidth: 0,
+                                            mt: 2,
+                                        }}
                                     >
-                                        <Typography variant="caption" color="text.secondary">Created</Typography>
-                                        <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                                            {formatCreated(messageData.creation_time)}
-                                        </Typography>
-                                    </Box>
+                                        {/* Top-left: Size */}
+                                        <Box
+                                            sx={statTileSx}
+                                        >
+                                            <Typography variant="caption" color="text.secondary">Size</Typography>
+                                            <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                                                {formatSize(messageData.file_size)}
+                                            </Typography>
+                                        </Box>
 
-                                    {/* Bottom-right: Expires */}
-                                    <Box
-                                        sx={statTileSx}
-                                    >
-                                        {/* left align the label*/}
-                                        <Typography variant="caption" color="text.secondary">
-                                            Expires
-                                        </Typography>
-                                        <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                                            {relativeExpire(messageData, true)}
-                                        </Typography>
+                                        {/* Top-right: Downloads */}
+                                        <Box
+                                            sx={statTileSx}
+                                        >
+                                            <Typography variant="caption" color="text.secondary">Downloads</Typography>
+                                            <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                                                {messageData.number_downloads}/{messageData.max_downloads === 0 ? "∞" : messageData.max_downloads}
+                                            </Typography>
+                                        </Box>
+
+                                        {/* Bottom-left: Created */}
+                                        <Box
+                                            sx={statTileSx}
+                                        >
+                                            <Typography variant="caption" color="text.secondary">Created</Typography>
+                                            <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                                                {formatCreated(messageData.creation_time)}
+                                            </Typography>
+                                        </Box>
+
+                                        {/* Bottom-right: Expires */}
+                                        <Box
+                                            sx={statTileSx}
+                                        >
+                                            {/* left align the label*/}
+                                            <Typography variant="caption" color="text.secondary">
+                                                Expires
+                                            </Typography>
+                                            <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                                                {relativeExpire(messageData, true)}
+                                            </Typography>
+                                        </Box>
                                     </Box>
+                                    {limitReached ? (
+                                        <Chip label="Limit reached" />
+                                    ) : isDownloading ? (
+                                        <LinearProgressWithLabel value={downloadProgress} speed={speed} />
+                                    ) :
+                                        <Button
+                                            variant="contained"
+                                            startIcon={<DownloadIcon />}
+                                            onClick={downloadFile}
+                                            fullWidth
+                                        >
+                                            Download File
+                                        </Button>
+                                    }
                                 </Box>
-                                {limitReached ? (
-                                    <Chip label="Limit reached" />
-                                ) : isDownloading ? (
-                                    <LinearProgressWithLabel value={downloadProgress} speed={speed} />
-                                ) :
-                                    <Button
-                                        variant="contained"
-                                        startIcon={<DownloadIcon />}
-                                        onClick={downloadFile}
-                                        fullWidth
-                                    >
-                                        Download File
-                                    </Button>
-                                }
-                            </Box>
-                        ) :
-                            <Box sx={{
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "center",
-                                gap: 2,
-                                width: "100%",
-                            }}>
-                                <Box sx={{ p: 2, borderRadius: 3, backgroundColor: "#fff0f8" }}>
-                                    <LockIcon color="primary" sx={{ fontSize: 60 }} />
-                                </Box>
+                            ) :
                                 <Box sx={{
                                     display: "flex",
                                     flexDirection: "column",
                                     alignItems: "center",
-                                    gap: 1,
+                                    gap: 2,
                                     width: "100%",
                                 }}>
-                                    <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                                        Protected Link Transfer
-                                    </Typography>
-                                    <Typography variant="body1" sx={{ color: '#6e5a69', mb: 4 }}>
-                                        This transfer is protected with a password. Please enter the password to view the transfer details and download the file.
-                                    </Typography>
-                                </Box>
-                                <TextField
-                                    label="Password"
-                                    name="password"
-                                    type={showPassword ? "text" : "password"}
-                                    variant="outlined"
-                                    fullWidth
-                                    required
+                                    <Box sx={{ p: 2, borderRadius: 3, backgroundColor: "#fff0f8" }}>
+                                        <LockIcon color="primary" sx={{ fontSize: 60 }} />
+                                    </Box>
+                                    <Box sx={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "center",
+                                        gap: 1,
+                                        width: "100%",
+                                    }}>
+                                        <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                                            Protected Link Transfer
+                                        </Typography>
+                                        <Typography variant="body1" sx={{ color: '#6e5a69', mb: 4 }}>
+                                            This transfer is protected with a password. Please enter the password to view the transfer details and download the file.
+                                        </Typography>
+                                    </Box>
+                                    <TextField
+                                        label="Password"
+                                        name="password"
+                                        type={showPassword ? "text" : "password"}
+                                        variant="outlined"
+                                        fullWidth
+                                        required
 
-                                    slotProps={{
-                                        input: {
-                                            endAdornment: (
-                                                < InputAdornment position="end" >
-                                                    <IconButton
-                                                        aria-label={
-                                                            showPassword ? 'hide the password' : 'display the password'
-                                                        }
-                                                        onClick={handleTogglePassword}
-                                                    >
-                                                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                                                    </IconButton>
-                                                </InputAdornment>
-                                            )
-                                        }
-                                    }}
-                                />
-                                <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>
-                                    Unlock Transfer
-                                </Button>
-                            </Box>
-                        }
-                    </Box>
-                </ Paper>
-            </Box>
-        } />
+                                        slotProps={{
+                                            input: {
+                                                endAdornment: (
+                                                    < InputAdornment position="end" >
+                                                        <IconButton
+                                                            aria-label={
+                                                                showPassword ? 'hide the password' : 'display the password'
+                                                            }
+                                                            onClick={handleTogglePassword}
+                                                        >
+                                                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                )
+                                            }
+                                        }}
+                                    />
+                                    <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>
+                                        Unlock Transfer
+                                    </Button>
+                                </Box>
+                            }
+                        </Box>
+                    </ Paper>
+                </Box>
+            } />
     );
 }
