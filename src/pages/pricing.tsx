@@ -40,7 +40,9 @@ export default function PricingPage() {
                 await cancelSubscriptionAPI();
                 updateRole("user");
                 success("You've been switched to the free plan.");
-                navigate("/account?subscription=success");
+                setTimeout(() => {
+                    navigate("/account?subscription=success");
+                }, 1000);
                 return;
             }
 

@@ -190,7 +190,9 @@ export default function AccountPage() {
             success("Subscription activated! Your plan has been updated.");
             searchParams.delete("subscription");
             setSearchParams(searchParams, { replace: true });
-            // account info was already fetched above; re-fetch to pick up new role
+
+            // Refetch account info to update the plan
+            fetchAccountInfo();
         }
     }, []);
 
