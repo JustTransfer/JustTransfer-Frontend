@@ -17,7 +17,7 @@ import type { PricingProps } from "../components/Pricing";
 export default function PricingPage() {
 
     const navigate = useNavigate();
-    const { role } = useAuth();
+    const { role, updateRole } = useAuth();
     const { error, success } = useNotification();
     const [searchParams, setSearchParams] = useSearchParams();
 
@@ -38,6 +38,7 @@ export default function PricingPage() {
         try {
             if (plan === "user") {
                 await cancelSubscriptionAPI();
+                updateRole("user");
                 success("You've been switched to the free plan.");
                 navigate("/account?subscription=success");
                 return;
