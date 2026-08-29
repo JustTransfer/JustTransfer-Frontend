@@ -101,6 +101,7 @@ export default function AccountPage() {
     const [email, setEmail] = useState("");
     const [role, setRole] = useState("");
     const [numberTransfers, setNumberTransfers] = useState(0);
+    const [currentPeriodEnd, setCurrentPeriodEnd] = useState<string | null>(null);
 
     const [dialogMode, setDialogMode] = useState<Mode | null>(null);
     const [loading, setLoading] = useState(false);
@@ -176,6 +177,7 @@ export default function AccountPage() {
             setEmail(accountInfo.email);
             setRole(accountInfo.role);
             setNumberTransfers(accountInfo.number_transfers);
+            setCurrentPeriodEnd(accountInfo.current_period_end ?? null);
         } catch (e) {
             error("Failed to fetch account info: " + (e instanceof Error ? e.message : "Unknown error"));
         }
@@ -248,6 +250,18 @@ export default function AccountPage() {
                                         label={role === "premium" ? "Premium Plan" : "Free Plan"}
                                         color={role === "premium" ? "primary" : "default"}
                                     />
+                                    {role === "premium" && currentPeriodEnd && (
+                                        <Chip
+                                            label={`Ends ${new Date(currentPeriodEnd).toLocaleDateString(undefined, {
+                                                year: "numeric",
+                                                month: "short",
+                                                day: "numeric",
+                                            })}`}
+                                            size="small"
+                                            variant="outlined"
+                                            sx={{ borderColor: "warning.main", color: "warning.dark" }}
+                                        />
+                                    )}
                                     <Button
                                         size="small"
                                         variant="contained"

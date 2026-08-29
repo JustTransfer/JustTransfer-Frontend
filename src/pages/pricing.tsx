@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 
 import Box from "@mui/material/Box";
@@ -10,16 +10,31 @@ import Pricing from "../components/Pricing";
 
 import { useAuth } from "../hooks/useAuth";
 import { useNotification } from "../hooks/useNotificationContext";
-import { createSubscriptionCheckoutAPI, cancelSubscriptionAPI } from "../handlers/api";
+import { createSubscriptionCheckoutAPI, cancelSubscriptionAPI, getAccountInfoAPI } from "../handlers/api";
 import type { PricingProps } from "../components/Pricing";
 
 
 export default function PricingPage() {
 
     const navigate = useNavigate();
-    const { role, updateRole } = useAuth();
+    const { role } = useAuth();
     const { error, success } = useNotification();
     const [searchParams, setSearchParams] = useSearchParams();
+    const [cancelling, setCancelling] = useState(false);
+    const [currentPeriodEnd, setCurrentPeriodEnd] = useState<string | null>(null);
+
+    async function fetchPeriodEnd() {
+        try {
+            const accountInfo = await getAccountInfoAPI();
+            setCurrentPeriodEnd(accountInfo.current_period_end ?? null);
+        } catch {
+            // Non-critical: pricing page still works without this
+        }
+    }
+
+    useEffect(() => {
+        fetchPeriodEnd();
+    }, []);
 
     useEffect(() => {
         const status = searchParams.get("subscription");
@@ -37,12 +52,26 @@ export default function PricingPage() {
     async function handleSelectPlan(plan: "user" | "premium") {
         try {
             if (plan === "user") {
+                setCancelling(true);
                 await cancelSubscriptionAPI();
-                updateRole("user");
-                success("You've been switched to the free plan.");
-                setTimeout(() => {
-                    navigate("/account?subscription=success");
-                }, 1000);
+
+                const accountInfo = await getAccountInfoAPI();
+                const periodEnd = accountInfo.current_period_end ?? null;
+                setCurrentPeriodEnd(periodEnd);
+
+                const formatted = periodEnd
+                    ? new Date(periodEnd).toLocaleDateString(undefined, {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                    })
+                    : null;
+
+                success(
+                    formatted
+                        ? `Your subscription is set to cancel. You'll keep Premium access until ${formatted}.`
+                        : "Your subscription is set to cancel at the end of the billing period."
+                );
                 return;
             }
 
@@ -50,6 +79,8 @@ export default function PricingPage() {
             window.location.href = checkoutUrl; // Stripe Checkout Session URL
         } catch (e) {
             error(e instanceof Error ? e.message : "Failed to update subscription");
+        } finally {
+            setCancelling(false);
         }
     }
 
@@ -60,6 +91,7 @@ export default function PricingPage() {
                 : role === "premium" ? "premium"
                     : role === "user" ? "user"
                         : undefined,
+        currentPeriodEnd,
         onSelectPlan: handleSelectPlan,
     };
 
@@ -72,6 +104,7 @@ export default function PricingPage() {
                             size="small"
                             variant="contained"
                             onClick={() => navigate("/account")}
+                            disabled={cancelling}
                             sx={{
                                 mt: { xs: 4, md: 0 },
                             }}

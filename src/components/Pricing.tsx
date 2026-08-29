@@ -14,12 +14,13 @@ export type Plan = "user" | "premium";
 export type PricingProps = {
     isLoggedIn: boolean;
     currentPlan?: Plan;
+    currentPeriodEnd?: string | null;
     onSelectPlan?: (plan: Plan) => void;
     headingId?: string;
 };
 
 
-export default function Pricing({ isLoggedIn, currentPlan, onSelectPlan, headingId }: PricingProps) {
+export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onSelectPlan, headingId }: PricingProps) {
 
     const navigate = useNavigate();
     const { config } = useServerConfig();
@@ -89,6 +90,17 @@ export default function Pricing({ isLoggedIn, currentPlan, onSelectPlan, heading
 
     const isCurrentPlan = (plan: Plan) => currentPlan === plan;
 
+    // Only meaningful while still on premium
+    const isCancelling = currentPlan === "premium" && !!currentPeriodEnd;
+
+    const formattedPeriodEnd = currentPeriodEnd
+        ? new Date(currentPeriodEnd).toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        })
+        : null;
+
     const currentPlanChipSx = {
         alignSelf: "center",
         px: 1,
@@ -97,6 +109,16 @@ export default function Pricing({ isLoggedIn, currentPlan, onSelectPlan, heading
         backgroundColor: "#fff1f8",
         border: "1px solid #e7bfd7",
         color: "#7a4a66",
+    };
+
+    const cancellingChipSx = {
+        alignSelf: "center",
+        px: 1,
+        fontWeight: 600,
+        letterSpacing: "0.02em",
+        backgroundColor: "#fff4e5",
+        border: "1px solid #f0c987",
+        color: "#8a5a00",
     };
 
     // Logged-out users to register page, logged-in users to checkout for selected plan
@@ -193,12 +215,15 @@ export default function Pricing({ isLoggedIn, currentPlan, onSelectPlan, heading
                             <Typography variant="body2">Files available for {renderLimitValue(connectedLimits.maxLifetime)} days</Typography>
                             <Typography variant="body2">{renderLimitValue(connectedLimits.maxDownloads)} downloads per transfer</Typography>
                         </Box>
+                        {isCancelling && (
+                            <Chip label={`Starts ${formattedPeriodEnd}`} size="small" sx={cancellingChipSx} />
+                        )}
                         {isCurrentPlan("user") && (
                             <Chip label="Current plan" size="small" sx={currentPlanChipSx} />
                         )}
                     </Box>
                     {
-                        !isCurrentPlan("user") && (
+                        !isCurrentPlan("user") && !isCancelling && (
                             <Button
                                 variant="contained"
                                 fullWidth
@@ -208,6 +233,13 @@ export default function Pricing({ isLoggedIn, currentPlan, onSelectPlan, heading
                             >
                                 {planButtonLabel("user")}
                             </Button>
+                        )
+                    }
+                    {
+                        isCancelling && (
+                            <Typography variant="caption" sx={{ mt: "auto", pt: 1, color: "text.secondary" }}>
+                                You'll move to this plan automatically.
+                            </Typography>
                         )
                     }
                 </Box>
@@ -230,6 +262,9 @@ export default function Pricing({ isLoggedIn, currentPlan, onSelectPlan, heading
                             <Typography variant="body2">Files available for {renderLimitValue(premiumLimits.maxLifetime)} days</Typography>
                             <Typography variant="body2">{renderLimitValue(premiumLimits.maxDownloads)} downloads per transfer</Typography>
                         </Box>
+                        {isCancelling && (
+                            <Chip label={`Ends ${formattedPeriodEnd}`} size="small" sx={cancellingChipSx} />
+                        )}
                         {isCurrentPlan("premium") && (
                             <Chip label="Current plan" size="small" sx={currentPlanChipSx} />
                         )}
