@@ -246,20 +246,25 @@ export default function AccountPage() {
                                 </Typography>
 
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
-                                    <Chip
-                                        label={role === "premium" ? "Premium Plan" : "Free Plan"}
-                                        color={role === "premium" ? "primary" : "default"}
-                                    />
-                                    {role === "premium" && currentPeriodEnd && (
+                                    {role === "premium" && currentPeriodEnd ? (
                                         <Chip
-                                            label={`Ends ${new Date(currentPeriodEnd).toLocaleDateString(undefined, {
+                                            label={`Premium Plan · Ends ${new Date(currentPeriodEnd).toLocaleDateString(undefined, {
                                                 year: "numeric",
                                                 month: "short",
                                                 day: "numeric",
                                             })}`}
-                                            size="small"
-                                            variant="outlined"
-                                            sx={{ borderColor: "warning.main", color: "warning.dark" }}
+                                            sx={{
+                                                fontWeight: 600,
+                                                letterSpacing: "0.02em",
+                                                backgroundColor: "#fff4e5",
+                                                border: "1px solid #f0c987",
+                                                color: "#8a5a00",
+                                            }}
+                                        />
+                                    ) : (
+                                        <Chip
+                                            label={role === "premium" ? "Premium Plan" : "Free Plan"}
+                                            color={role === "premium" ? "primary" : "default"}
                                         />
                                     )}
                                     <Button
