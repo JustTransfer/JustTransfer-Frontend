@@ -199,6 +199,8 @@ If you cancel your Premium subscription before the end of your current billing p
 
 Refunds under this Article 7.8 are limited to the unused portion of the current billing period following a voluntary cancellation under Article 7.5. They do not apply where your subscription was cancelled or your account was suspended or terminated for cause under Article 16.4, nor to prior, already-completed billing periods. Except as set out in this Article 7.8 or as required by mandatory Swiss law, payments for Paid Services are otherwise non-refundable.
 
+Deleting your account under Article 16.5 automatically cancels any active Premium subscription, and the unused remainder of the then-current billing period is forfeited upon deletion; the refund process described in this Article 7.8 does not apply to a cancellation triggered by account deletion.
+
 ### 7.9 Changes to Plans and Pricing
 
 We may modify the features, limits, or pricing of any plan at any time. Material changes to the pricing or features of your then-current paid plan will, where required by applicable law, be notified to you in advance and will apply from your next billing period; continued use of the Service after such changes become effective constitutes acceptance of the updated terms for that plan.
@@ -352,7 +354,7 @@ We may suspend or terminate your access to the Service immediately if you violat
 
 ### 16.5
 
-Deleting your account while a Premium subscription is active does not automatically cancel that subscription with Stripe. You should cancel your subscription through your account settings, as described in Article 7.5, before deleting your account, to avoid continued billing.
+Deleting your account automatically cancels any active Premium subscription effective immediately, rather than at the end of the current billing period. Any unused portion of your then-current billing period is forfeited upon deletion and is not eligible for a refund under Article 7.8, except as required by mandatory Swiss law. If you wish to receive a refund for the unused period before deleting your account, you must request it under Article 7.8 prior to completing account deletion.
 
 ---
 
