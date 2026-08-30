@@ -7,37 +7,41 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 type FaqItem = {
     question: string;
-    answer: string;
+    answer: React.ReactNode;
 };
 
 const faqItems = [
     {
-        question: "Is JustTransfer free to use?",
-        answer: "Yes. You can send encrypted file transfers as a guest with no account required. Creating a free account unlocks extra features like managing transfers after sending and notifying recipients by email.",
-    },
-    {
-        question: "Do I need to create an account to send a file?",
-        answer: "No. Guest transfers work without an account — just upload your file, set a password, and share the link. An account is only needed if you want to manage transfers later or email recipients directly.",
+        question: "Do I need an account to send a file?",
+        answer: "No. Guest transfers work without an account — just upload your file, set a password, and share the link. Creating a free account unlocks extra features like managing transfers after sending, emailing recipients directly, and higher limits with a Premium plan.",
     },
     {
         question: "How is my data encrypted?",
-        answer: "Files are encrypted end-to-end using a password you choose. Encryption happens before your file leaves your device, so JustTransfer never has access to your unencrypted data.",
+        answer: "Files and filenames are encrypted on your device before they ever leave it, using a password you choose. Because encryption happens client-side, JustTransfer never has access to your unencrypted files — we couldn't read them even if asked to.",
     },
     {
         question: "Where is JustTransfer based, and where is my data stored?",
-        answer: "JustTransfer is based in Switzerland, a country known for strong data protection laws. This gives your transfers an extra layer of legal and jurisdictional privacy.",
+        answer: "JustTransfer is based in Switzerland and your files are stored exclusively on Swiss infrastructure, governed by Swiss data protection law. The only exception is billing information for Premium subscriptions, which is handled by our payment processor, Stripe — full details are in our Privacy Policy.",
     },
     {
-        question: "Is JustTransfer open source?",
-        answer: "Yes. JustTransfer is fully open source, so anyone can inspect, audit, or contribute to the code. You can find the repository on GitHub.",
-    },
-    {
-        question: "Can I self-host JustTransfer?",
-        answer: "Yes. Since JustTransfer is open source, you can deploy your own instance and control your infrastructure and file size limits entirely.",
+        question: "What happens if I cancel my Premium plan?",
+        answer: "You keep full Premium access until the end of your current billing period, then your account automatically reverts to the free plan.",
     },
     {
         question: "What happens to my files after they expire?",
-        answer: "Files are automatically and permanently deleted once they reach their expiry date or download limit, whichever comes first.",
+        answer: "Files are automatically and permanently deleted once they reach their expiry date or download limit, whichever comes first — there's no recovering them afterward, so keep your own backup of anything important.",
+    },
+    {
+        question: "Is JustTransfer open source?",
+        answer: (
+            <>
+                Yes. The full source is public on{" "}
+                <a href="https://github.com/JustTransfer/" target="_blank" rel="noopener noreferrer">
+                    GitHub
+                </a>
+                , so anyone can inspect, audit, or contribute to it — and if you'd rather run your own instance, you're free to self-host it and control your own infrastructure and limits.
+            </>
+        ),
     },
 ];
 
