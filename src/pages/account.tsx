@@ -152,7 +152,9 @@ export default function AccountPage() {
 
     async function handleDeleteAccount(role: string) {
         try {
-            await cancelSubscriptionAPI();
+            if (role === "premium") {
+                await cancelSubscriptionAPI();
+            }
 
             const result = await deleteAccountAPI(email);
 
