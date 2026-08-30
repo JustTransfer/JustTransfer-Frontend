@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last Updated:** 19.08.2026
+**Last Updated:** 30.08.2026
 
 ---
 
@@ -45,6 +45,7 @@ This Privacy Policy applies to:
 - our website;
 - user accounts;
 - Transfers;
+- Premium subscriptions and billing;
 - customer support;
 - all related services provided by JustTransfer.
 
@@ -56,7 +57,7 @@ JustTransfer has been designed according to the following principles:
 
 - end-to-end encryption by default;
 - minimum collection of personal data;
-- storage exclusively within Switzerland;
+- storage exclusively within Switzerland, except where use of a payment processor necessarily requires limited billing data to be processed abroad (see Section 8);
 - no sale of personal data;
 - no advertising based on customer data;
 - no access to encrypted file contents.
@@ -147,6 +148,24 @@ Analytics infrastructure is hosted exclusively within Switzerland, consistent wi
 
 ---
 
+## 5.7 Payment and Billing Information (Premium Subscriptions)
+
+If you subscribe to a paid plan, we use **Stripe, Inc.** ("Stripe") to process your payment and manage your subscription.
+
+Card numbers, expiry dates, CVC codes, and other full payment credentials are entered directly into Stripe's own systems and are **never transmitted to, or stored on, JustTransfer's servers**. We have no access to your full payment card details at any point.
+
+To operate and manage your subscription, we process the following data received from Stripe:
+
+- your email address, used to associate your subscription with your account;
+- a Stripe customer identifier and subscription identifier;
+- your subscription plan and status (e.g. active, cancelled, past due);
+- the date your current billing period ends, including when a cancellation is scheduled to take effect;
+- limited billing event metadata (e.g. that a checkout session completed, or a subscription was cancelled or renewed) necessary to keep your account's plan limits accurate.
+
+We do not receive or store your card number, CVC, or full billing address from Stripe.
+
+---
+
 # 6. How We Use Your Personal Data
 
 We process personal data only where necessary to:
@@ -157,9 +176,10 @@ We process personal data only where necessary to:
 - notify a recipient by email when a sender chooses to specify one;
 - associate a received transfer with a recipient's account, and save the transfer password to that account, where applicable;
 - allow account holders to view, manage, and delete their own transfers, including viewing the transfer link and password, changing the transfer password, and updating the download limit or lifetime;
+- process Premium subscription payments and manage billing through our payment processor, Stripe, and enforce the resulting plan limits on your account;
 - maintain system security;
 - detect abuse and fraud;
-- comply with legal obligations;
+- comply with legal obligations, including accounting and tax record-keeping obligations;
 - respond to customer support requests;
 - improve the reliability and availability of the Service;
 - understand aggregate website usage through privacy-friendly, cookieless analytics.
@@ -192,13 +212,19 @@ Accordingly, we cannot:
 
 If you lose the credentials required to decrypt a file, and no password has been saved to an account you control, recovery is technically impossible.
 
+Encryption keys are entirely separate from, and never shared with, our payment processor. Stripe has no access to your files, filenames, or saved transfer passwords under any circumstances.
+
 ---
 
 # 8. Storage Location
 
-All customer data and encrypted files are hosted exclusively within Switzerland.
+All customer data and encrypted files that we host ourselves are hosted exclusively within Switzerland.
 
-If, in exceptional circumstances, personal data must be transferred outside Switzerland, appropriate safeguards required under applicable law will be implemented.
+**Exception — payment processing.** Where you subscribe to a paid plan, the billing and subscription data described in Section 5.7 is processed by Stripe, whose infrastructure may be located outside Switzerland, including in the European Union and the United States. This processing is necessary to provide the subscription itself and cannot be avoided while using a payment processor.
+
+Stripe is a PCI DSS Level 1 certified payment processor and maintains its own security and compliance program independent of JustTransfer. Where payment data is transferred outside Switzerland, appropriate safeguards required under the FADP are relied upon, such as standard contractual clauses or an applicable adequacy framework (e.g. the Swiss–U.S. Data Privacy Framework, where relevant to Stripe's processing).
+
+If, in any other exceptional circumstances, personal data must be transferred outside Switzerland, appropriate safeguards required under applicable law will likewise be implemented.
 
 ---
 
@@ -213,6 +239,10 @@ If you delete your account, all data stored under that account, including any en
 ## Transfers
 
 Encrypted files and associated operational metadata, including any recipient email address, are automatically deleted after the selected retention period expires, unless deleted earlier by the user, for abuse prevention, or where required by law. Any encrypted saved password linked to a deleted transfer becomes permanently unusable once the transfer itself is deleted.
+
+## Billing Records
+
+Subscription and billing metadata (such as subscription status, invoices, and payment confirmations) is retained for as long as necessary to manage your subscription, and thereafter for the periods required by Swiss accounting and tax law, currently up to 10 years, even if your account is later deleted.
 
 ## Security Logs
 
@@ -230,6 +260,7 @@ We do not sell or rent personal data.
 
 We may disclose personal data only where necessary:
 
+- to our payment processor, Stripe, to the extent necessary to process a Premium subscription payment and manage billing (see Section 5.7 and Section 11);
 - to comply with legally binding requests issued by competent Swiss authorities;
 - to protect the security or integrity of the Service;
 - where disclosure is required by applicable law.
@@ -240,11 +271,15 @@ Because file contents, and any saved transfer passwords, are protected by end-to
 
 # 11. Service Providers
 
-We may use carefully selected service providers to assist with operating the Service, including hosting or technical infrastructure.
+We may use carefully selected service providers to assist with operating the Service, including hosting, technical infrastructure, and payment processing.
 
 Such providers process personal data only on our behalf, under appropriate contractual obligations, and only to the extent necessary to provide their services.
 
-We select service providers that provide appropriate safeguards for personal data. Where feasible, infrastructure is located within Switzerland.
+We currently use:
+
+- **Stripe, Inc.**, for the processing of Premium subscription payments and billing management. Stripe acts as an independent controller for the payment data it processes in accordance with its own privacy policy, available at [https://stripe.com/privacy](https://stripe.com/privacy).
+
+We select service providers that provide appropriate safeguards for personal data. Where feasible, infrastructure is located within Switzerland; where it is not, as with payment processing, we rely on the safeguards described in Section 8.
 
 ---
 
@@ -256,6 +291,7 @@ We implement appropriate technical and organizational measures designed to prote
 - end-to-end encryption of files and filenames;
 - secure password hashing for account passwords;
 - end-to-end encryption of saved transfer passwords, stored in a form that does not reveal to us which account is associated with which transfer;
+- reliance on a PCI DSS Level 1 certified payment processor so that full card details never touch our own systems;
 - access controls;
 - logging and monitoring;
 - regular security updates;
@@ -271,6 +307,8 @@ We use only cookies and similar technologies necessary for authentication, secur
 
 Our analytics tool (Umami, see Section 5.6) does not use cookies or any client-side storage.
 
+Our payment processor, Stripe, may set its own cookies or similar technologies when you are redirected to its checkout page to complete a subscription purchase. These are governed by Stripe's own privacy and cookie policies, not by JustTransfer.
+
 ---
 
 # 14. Your Rights
@@ -285,6 +323,8 @@ Subject to the Swiss Federal Act on Data Protection (FADP / LPD), you may have t
 - withdraw consent where processing is based on consent.
 
 Because encrypted file contents, and any saved transfer passwords, are inaccessible to us, we may be unable to provide readable copies of files or saved passwords protected by end-to-end encryption.
+
+Requests relating to payment data processed directly by Stripe (such as your stored card details) may need to be directed to Stripe in addition to, or instead of, JustTransfer, since Stripe acts as an independent controller for that data.
 
 Requests may be submitted using the contact information provided below.
 

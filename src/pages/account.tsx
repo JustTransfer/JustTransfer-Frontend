@@ -25,7 +25,7 @@ import { useServerConfig } from "../hooks/useServerConfig";
 import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
 import { changePassword, generateNewKeys, getSavedTransfers } from "../handlers/crypto";
-import { getAccountInfoAPI, deleteAccountAPI } from "../handlers/api";
+import { getAccountInfoAPI, deleteAccountAPI, cancelSubscriptionAPI } from "../handlers/api";
 import { formatSize } from "../handlers/utils";
 import AccountActionDialog from "../components/AccountActionDialog";
 import type { Mode } from "../components/AccountActionDialog";
@@ -101,6 +101,7 @@ export default function AccountPage() {
     const [email, setEmail] = useState("");
     const [role, setRole] = useState("");
     const [numberTransfers, setNumberTransfers] = useState(0);
+    const [currentPeriodEnd, setCurrentPeriodEnd] = useState<string | null>(null);
 
     const [dialogMode, setDialogMode] = useState<Mode | null>(null);
     const [loading, setLoading] = useState(false);
@@ -149,8 +150,11 @@ export default function AccountPage() {
         }
     }
 
-    async function handleDeleteAccount() {
+    async function handleDeleteAccount(role: string) {
         try {
+            if (role === "premium") {
+                await cancelSubscriptionAPI();
+            }
 
             const result = await deleteAccountAPI(email);
 
@@ -176,6 +180,7 @@ export default function AccountPage() {
             setEmail(accountInfo.email);
             setRole(accountInfo.role);
             setNumberTransfers(accountInfo.number_transfers);
+            setCurrentPeriodEnd(accountInfo.current_period_end ?? null);
         } catch (e) {
             error("Failed to fetch account info: " + (e instanceof Error ? e.message : "Unknown error"));
         }
@@ -244,10 +249,27 @@ export default function AccountPage() {
                                 </Typography>
 
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
-                                    <Chip
-                                        label={role === "premium" ? "Premium Plan" : "Free Plan"}
-                                        color={role === "premium" ? "primary" : "default"}
-                                    />
+                                    {role === "premium" && currentPeriodEnd ? (
+                                        <Chip
+                                            label={`Premium Plan · Ends ${new Date(currentPeriodEnd).toLocaleDateString(undefined, {
+                                                year: "numeric",
+                                                month: "short",
+                                                day: "numeric",
+                                            })}`}
+                                            sx={{
+                                                fontWeight: 600,
+                                                letterSpacing: "0.02em",
+                                                backgroundColor: "#fff4e5",
+                                                border: "1px solid #f0c987",
+                                                color: "#8a5a00",
+                                            }}
+                                        />
+                                    ) : (
+                                        <Chip
+                                            label={role === "premium" ? "Premium Plan" : "Free Plan"}
+                                            color={role === "premium" ? "primary" : "default"}
+                                        />
+                                    )}
                                     <Button
                                         size="small"
                                         variant="contained"
@@ -412,6 +434,9 @@ export default function AccountPage() {
                                     <Typography component="li" variant="body2">
                                         <b>Saved transfers</b> in your account will be removed.
                                     </Typography>
+                                    <Typography component="li" variant="body2">
+                                        <b>Subscription</b> will be canceled and any remaining Premium time will be forfeited.
+                                    </Typography>
                                 </Box>
                                 <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
                                     None of this can be recovered afterward.
@@ -445,7 +470,7 @@ export default function AccountPage() {
                                 }
 
                                 if (dialogMode === "deleteAccount") {
-                                    await handleDeleteAccount();
+                                    await handleDeleteAccount(role);
                                 }
 
                                 if (dialogMode === "rotateKeys") {

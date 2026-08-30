@@ -140,7 +140,7 @@ export default function AccountActionDialog({
 
                     {isDelete && (
                         <Alert severity="warning" sx={{ mb: 3 }}>
-                            This action is irreversible. Signed transfers will be permanently deleted. Unsigned transfers will remain on the server until they expire, but you'll lose access to them.
+                            This action is irreversible. Signed transfers will be permanently deleted. Unsigned transfers will remain on the server until they expire, but you'll lose access to them. Your subscription will be canceled and any remaining Premium time will be forfeited.
                         </Alert>
                     )}
 
