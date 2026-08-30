@@ -25,7 +25,7 @@ import { useServerConfig } from "../hooks/useServerConfig";
 import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
 import { changePassword, generateNewKeys, getSavedTransfers } from "../handlers/crypto";
-import { getAccountInfoAPI, deleteAccountAPI } from "../handlers/api";
+import { getAccountInfoAPI, deleteAccountAPI, cancelSubscriptionAPI } from "../handlers/api";
 import { formatSize } from "../handlers/utils";
 import AccountActionDialog from "../components/AccountActionDialog";
 import type { Mode } from "../components/AccountActionDialog";
@@ -150,8 +150,9 @@ export default function AccountPage() {
         }
     }
 
-    async function handleDeleteAccount() {
+    async function handleDeleteAccount(role: string) {
         try {
+            await cancelSubscriptionAPI();
 
             const result = await deleteAccountAPI(email);
 
@@ -431,6 +432,9 @@ export default function AccountPage() {
                                     <Typography component="li" variant="body2">
                                         <b>Saved transfers</b> in your account will be removed.
                                     </Typography>
+                                    <Typography component="li" variant="body2">
+                                        <b>Subscription</b> will be canceled and any remaining Premium time will be forfeited.
+                                    </Typography>
                                 </Box>
                                 <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
                                     None of this can be recovered afterward.
@@ -464,7 +468,7 @@ export default function AccountPage() {
                                 }
 
                                 if (dialogMode === "deleteAccount") {
-                                    await handleDeleteAccount();
+                                    await handleDeleteAccount(role);
                                 }
 
                                 if (dialogMode === "rotateKeys") {
