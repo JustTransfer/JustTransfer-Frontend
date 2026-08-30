@@ -1,6 +1,6 @@
 # Terms of Service
 
-**Last Updated:** 10.08.2026
+**Last Updated:** 30.08.2026
 
 ## Article 1 - Purpose and Acceptance
 
@@ -28,7 +28,7 @@ We may amend these Terms from time to time. Material changes will become effecti
 
 ### 2.1
 
-The Service provides secure end-to-end encrypted file transfers hosted exclusively within Switzerland.
+The Service provides secure end-to-end encrypted file transfers hosted exclusively within Switzerland, except that billing and subscription data for Paid Services is processed by our payment processor as described in Article 7 and in our Privacy Policy.
 
 All transfers are link-based:
 
@@ -49,7 +49,7 @@ Features include:
 - encrypted filenames;
 - encrypted file contents;
 - HTTPS/TLS encrypted communications;
-- storage exclusively within Switzerland.
+- storage exclusively within Switzerland, subject to Article 2.1.
 
 Current technical limitations, including maximum file size, download limits and storage duration, are published on the Service website and may change without prior notice.
 
@@ -165,9 +165,47 @@ The Company may suspend accounts involved in abuse, fraud or unlawful activity.
 
 # Article 7 - Paid Services
 
-### 7.1
+### 7.1 Plans
 
-If paid subscriptions or premium services are offered, additional pricing, billing, renewal and cancellation terms may apply and will form part of these Terms.
+The Service is offered under different plans (including at least a free plan and a Premium plan), each subject to the technical limitations, pricing and features published on the Service website (currently accessible via `/api/config` and the pricing page), which may change from time to time as described in Article 7.9.
+
+### 7.2 Payment Processor
+
+Payments for Paid Services are processed by **Stripe, Inc.** ("Stripe"), an independent third-party payment processor. When you subscribe, you will be redirected to a Stripe-hosted checkout page to enter your payment details. The Company does not collect, transmit, or store your full card number, CVC, or other complete payment credentials; these are handled exclusively by Stripe in accordance with Stripe's own terms and privacy policy, available at [https://stripe.com/legal](https://stripe.com/legal) and [https://stripe.com/privacy](https://stripe.com/privacy). Use of Stripe's checkout service may also be subject to your acceptance of Stripe's own terms.
+
+### 7.3 Billing and Renewal
+
+Premium subscriptions are billed on a recurring monthly basis. By subscribing, you authorize the Company, through Stripe, to charge your chosen payment method automatically at the start of each billing period until your subscription is cancelled in accordance with Article 7.5.
+
+### 7.4 Prices and Taxes
+
+Prices for Paid Services are published on the Service website and are subject to change as described in Article 7.9. Where applicable, prices may be subject to Swiss value-added tax (VAT/MWST) or other taxes, which will be indicated at checkout or on your billing statement in accordance with applicable law.
+
+### 7.5 Cancellation
+
+You may cancel your Premium subscription at any time through your account settings. Cancellation takes effect at the end of your current billing period (the "period end"): you retain full access to Premium features until the period end, after which your account automatically reverts to the free plan and its associated limits. If you wish to receive a refund for the unused portion of your then-current billing period following cancellation, you must submit a request by email in accordance with Article 7.8; refunds are not issued automatically or through the Service interface.
+
+### 7.6 Effect of Downgrade
+
+If your account reverts to the free plan, whether due to cancellation, a failed renewal payment, or otherwise, any transfers, saved data, or usage exceeding the free plan's limits may be affected, including but not limited to becoming inaccessible or subject to earlier deletion in accordance with the free plan's retention limits. You are responsible for downloading or securing any content you wish to retain before a downgrade takes effect.
+
+### 7.7 Failed or Declined Payments
+
+If a renewal payment fails or is declined, Stripe may retry the charge in accordance with its standard retry logic. If payment is not successfully collected, your subscription may be cancelled and your account downgraded to the free plan as described in Article 7.6.
+
+### 7.8 Refunds
+
+If you cancel your Premium subscription before the end of your current billing period, you may request a refund for the unused, remaining portion of that period. Such requests must be submitted by email to [info@justtransfer.ch](mailto:info@justtransfer.ch) from the email address associated with your account; refunds cannot be requested or processed automatically through the Service interface, by phone, or by any other channel. We will process eligible refund requests to the original payment method via Stripe within a reasonable time after verifying the request.
+
+Refunds under this Article 7.8 are limited to the unused portion of the current billing period following a voluntary cancellation under Article 7.5. They do not apply where your subscription was cancelled or your account was suspended or terminated for cause under Article 16.4, nor to prior, already-completed billing periods. Except as set out in this Article 7.8 or as required by mandatory Swiss law, payments for Paid Services are otherwise non-refundable.
+
+### 7.9 Changes to Plans and Pricing
+
+We may modify the features, limits, or pricing of any plan at any time. Material changes to the pricing or features of your then-current paid plan will, where required by applicable law, be notified to you in advance and will apply from your next billing period; continued use of the Service after such changes become effective constitutes acceptance of the updated terms for that plan.
+
+### 7.10 Billing Records
+
+Billing and subscription records are retained by the Company for the periods required under Swiss accounting and tax law, currently up to ten years, even following account deletion, as further described in our Privacy Policy.
 
 ---
 
@@ -261,7 +299,7 @@ Users are solely responsible for maintaining backups of important files.
 
 ### 14.1
 
-To the extent permitted by applicable law, the Company's aggregate liability arising from use of the Service shall not exceed **CHF 100** for free accounts unless mandatory law provides otherwise. Different liability limits may apply under separate agreements governing paid subscriptions.
+To the extent permitted by applicable law, the Company's aggregate liability arising from use of the Service shall not exceed **CHF 100** for free accounts, or the total amount paid by the User to the Company in the twelve (12) months preceding the event giving rise to the claim for Paid Services, unless mandatory law provides otherwise.
 
 ### 14.2
 
@@ -274,7 +312,8 @@ The Company shall not be liable for:
 - consequential damages;
 - business interruption;
 - loss of profits;
-- loss of goodwill.
+- loss of goodwill;
+- acts, omissions, or service interruptions of the Company's payment processor.
 
 ### 14.3
 
@@ -301,7 +340,7 @@ You may terminate your account at any time by deleting it through the Service or
 
 ### 16.2
 
-Termination does not affect any rights or obligations arising before the effective date of termination.
+Termination does not affect any rights or obligations arising before the effective date of termination, including any outstanding payment obligations for Paid Services already rendered.
 
 ### 16.3
 
@@ -309,7 +348,11 @@ Following account termination, we may retain certain personal data where require
 
 ### 16.4
 
-We may suspend or terminate your access to the Service immediately if you violate these Terms or if necessary to protect the security, integrity or availability of the Service.
+We may suspend or terminate your access to the Service immediately if you violate these Terms or if necessary to protect the security, integrity or availability of the Service. If you hold an active Premium subscription at the time of such suspension or termination for cause, no refund will be due for the remainder of the then-current billing period, except as required by mandatory Swiss law.
+
+### 16.5
+
+Deleting your account while a Premium subscription is active does not automatically cancel that subscription with Stripe. You should cancel your subscription through your account settings, as described in Article 7.5, before deleting your account, to avoid continued billing.
 
 ---
 
@@ -319,9 +362,9 @@ The Company shall not be liable for delays or failures caused by events beyond i
 
 ---
 
-# Article 18 - Termination
+# Article 18 - Suspension and Termination for Cause
 
-We reserve the right to suspend or terminate access to the Service for violations of these Terms or to protect the integrity of the Service.
+We reserve the right to suspend or terminate access to the Service for violations of these Terms or to protect the integrity of the Service, in accordance with Article 16.4.
 
 ---
 
