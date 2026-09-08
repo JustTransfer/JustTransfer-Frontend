@@ -37,7 +37,7 @@ const footerMinLinkWidth = "220px";
 const footerMinResourceWidth = "200px";
 const footerMinLegalWidth = "200px";
 
-const defaultTheme = createTheme({
+export const defaultTheme = createTheme({
     palette: {
         primary: {
             light: "#E906E5",
