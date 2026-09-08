@@ -5,6 +5,7 @@ const DB_VERSION = 1;
 const STORE_NAME = "raw-keys";
 const SESSION_META_KEY = "jt-session-meta";
 
+// IndexedDB wrapper functions
 function openDB(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
         const req = indexedDB.open(DB_NAME, DB_VERSION);
@@ -46,19 +47,11 @@ async function idbClear(): Promise<void> {
     });
 }
 
-/**
- * Imports base64-encoded raw key bytes (from libsodium) into WebCrypto as an
- * *extractable* CryptoKey and stores it in IndexedDB. HMAC/SHA-256 is used
- * purely as a storage container algorithm — it accepts arbitrary-length raw
- * key material (unlike AES-GCM, which requires 128/192/256-bit keys), and we
- * never actually sign/verify with it. It's only ever exported back to raw
- * bytes for libsodium to use.
- */
+// Stores a raw key (base64-encoded, url-safe) in IndexedDB as a CryptoKey.
 export async function storeRawKey(id: string, base64Value: string): Promise<void> {
     const bytes = Base64.toUint8Array(base64Value);
     const cryptoKey = await crypto.subtle.importKey(
-        "raw",
-        // bytes,
+        "raw", // bytes,
         bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer,
         { name: "HMAC", hash: "SHA-256" },
         true, // extractable
@@ -67,10 +60,7 @@ export async function storeRawKey(id: string, base64Value: string): Promise<void
     await idbSet(id, cryptoKey);
 }
 
-/**
- * Retrieves a previously stored key and exports it back to raw bytes
- * (base64-encoded, url-safe) for use with libsodium.
- */
+// Retrieves a raw key from IndexedDB as a base64-encoded string.
 export async function getRawKeyAsBase64(id: string): Promise<string | null> {
     const cryptoKey = await idbGet(id);
     if (!cryptoKey) return null;
@@ -83,12 +73,14 @@ export async function getRawKeyAsBase64(id: string): Promise<string | null> {
     return Base64.fromUint8Array(new Uint8Array(raw), true);
 }
 
+// Persists session metadata in localStorage.
 export function saveSessionMeta<T>(meta: T): void {
-    sessionStorage.setItem(SESSION_META_KEY, JSON.stringify(meta));
+    localStorage.setItem(SESSION_META_KEY, JSON.stringify(meta));
 }
 
+// Loads session metadata from localStorage.
 export function loadSessionMeta<T>(): T | null {
-    const raw = sessionStorage.getItem(SESSION_META_KEY);
+    const raw = localStorage.getItem(SESSION_META_KEY);
     if (!raw) return null;
     try {
         return JSON.parse(raw) as T;
@@ -97,7 +89,8 @@ export function loadSessionMeta<T>(): T | null {
     }
 }
 
+// Clears all session-related data from localStorage and IndexedDB.
 export async function clearAllKeyStorage(): Promise<void> {
-    sessionStorage.removeItem(SESSION_META_KEY);
+    localStorage.removeItem(SESSION_META_KEY);
     await idbClear();
 }

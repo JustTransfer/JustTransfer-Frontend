@@ -28,7 +28,7 @@ type updateKeysData = {
     keys: Key[];
 }
 
-// Non-sensitive metadata kept in sessionStorage. Private key material and
+// Non-sensitive metadata kept in localStorage. Private key material and
 // the export key are stripped out and stored separately in IndexedDB.
 type SessionMeta = {
     email: string;
@@ -46,7 +46,7 @@ type AuthContextType = {
     role: string | null;
     exportKey: string | null;
     keys: Key[] | null;
-    isHydrating: boolean;
+    isLoading: boolean;
     login: (data: LoginData) => Promise<void>;
     updateKeys: (data: updateKeysData) => Promise<void>;
     updateRole: (role: string) => void;
@@ -64,12 +64,12 @@ export const AuthProvider = ({ children }: any) => {
     const [exportKey, setExportKey] = useState<string | null>(null);
     const [keys, setKeys] = useState<Key[] | null>(null);
 
-    const [isHydrating, setIsHydrating] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
 
     const navigate = useNavigate();
 
     // Persist the export key and every private key as raw, extractable
-    // CryptoKeys in IndexedDB; everything else goes to sessionStorage.
+    // CryptoKeys in IndexedDB; everything else goes to localStorage.
     const persistSession = async (nextEmail: string, nextRole: string, nextExportKey: string, nextKeys: Key[]) => {
         try {
             await storeRawKey(EXPORT_KEY_ID, nextExportKey);
@@ -93,20 +93,20 @@ export const AuthProvider = ({ children }: any) => {
         }
     };
 
-    // Rehydrate from IndexedDB + sessionStorage on mount (page refresh)
+    // Rehydrate from IndexedDB + localStorage on mount (page refresh)
     useEffect(() => {
         (async () => {
             try {
                 const meta = loadSessionMeta<SessionMeta>();
                 if (!meta) {
-                    setIsHydrating(false);
+                    setIsLoading(false);
                     return;
                 }
 
                 const restoredExportKey = await getRawKeyAsBase64(EXPORT_KEY_ID);
                 if (!restoredExportKey) {
                     await clearAllKeyStorage();
-                    setIsHydrating(false);
+                    setIsLoading(false);
                     return;
                 }
 
@@ -118,7 +118,7 @@ export const AuthProvider = ({ children }: any) => {
                     if (!enc_private_key || !sign_private_key) {
                         // Partial/corrupted state — bail out rather than proceed with holes
                         await clearAllKeyStorage();
-                        setIsHydrating(false);
+                        setIsLoading(false);
                         return;
                     }
 
@@ -133,7 +133,7 @@ export const AuthProvider = ({ children }: any) => {
                 console.error("Failed to restore session key material:", e);
                 await clearAllKeyStorage();
             } finally {
-                setIsHydrating(false);
+                setIsLoading(false);
             }
         })();
     }, []);
@@ -196,14 +196,14 @@ export const AuthProvider = ({ children }: any) => {
             role,
             exportKey,
             keys,
-            isHydrating,
+            isLoading,
             login,
             updateKeys,
             updateRole,
             getLatestKeys,
             logout,
         }),
-        [email, role, exportKey, keys, isHydrating]
+        [email, role, exportKey, keys, isLoading]
     );
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
