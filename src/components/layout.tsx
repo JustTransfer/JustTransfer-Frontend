@@ -251,7 +251,7 @@ export default function Layout({ content }: { content: React.ReactNode }) {
     };
 
     const mobileMenuItems = isLoggedIn ? [
-        { label: "New Transfer", icon: <SendIcon />, path: "/new-transfer" },
+        { label: "New Transfer", icon: <SendIcon />, path: "/" }, // todo check menu name
         { label: "Active Transfers", icon: <CloudUploadIcon />, path: "/transfers" },
         { label: "Account", icon: <AccountCircleIcon />, path: "/account" },
         { label: "Logout", icon: <LogoutIcon />, path: "/logout" },
@@ -299,7 +299,7 @@ export default function Layout({ content }: { content: React.ReactNode }) {
                             marginTop: logoMarginTop,
                         }}
                         onClick={
-                            () => navigate(isLoggedIn ? "/new-transfer" : "/")
+                            () => navigate("/")
                         }
                     />
 
@@ -448,10 +448,10 @@ export default function Layout({ content }: { content: React.ReactNode }) {
                                         startIcon={<SendIcon />}
                                         fullWidth
                                         size="large"
-                                        onClick={() => navigate("/new-transfer")}
-                                        sx={menuButtonStyle("/new-transfer")}
+                                        onClick={() => navigate("/")}
+                                        sx={menuButtonStyle("/")}
                                     >
-                                        New Transfer
+                                        Home/New Transfer
                                     </Button>
                                     <Button
                                         startIcon={<CloudUploadIcon />}

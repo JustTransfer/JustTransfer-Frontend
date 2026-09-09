@@ -146,7 +146,7 @@ export const AuthProvider = ({ children }: any) => {
 
         await persistSession(data.email, data.role, data.exportKey, data.keys);
 
-        navigate("/new-transfer");
+        navigate("/");
     };
 
     const updateKeys = async (data: updateKeysData) => {

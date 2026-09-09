@@ -1,4 +1,5 @@
 import { useNavigate, Link as RouterLink } from "react-router";
+import { useState, useEffect } from "react";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -17,6 +18,7 @@ import { sendMessageLink } from "../handlers/crypto_link";
 import Pricing from "../components/Pricing";
 import Faq from "../components/Faq";
 import CompetitorComparison from "../components/CompetitorComparison";
+import { useAuth } from "../hooks/useAuth";
 
 import FileTransferForm from "../components/FileTransferForm";
 
@@ -35,9 +37,27 @@ const organizationJsonLd = {
 export default function HomePage() {
     const navigate = useNavigate();
     const { config } = useServerConfig();
+    const { role, exportKey, getLatestKeys } = useAuth();
+
+    const [keys, setKeys] = useState<any>(null);
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
     const maxWidthPage = 1400;
     const sectionPaddingX = { xs: 2, md: 4 };
+
+    useEffect(() => {
+        const fetchKeys = async () => {
+            try {
+                const latestKeys = await getLatestKeys();
+                setKeys(latestKeys);
+                setIsLoggedIn(!!exportKey);
+            } catch (err) {
+                console.error("Failed to fetch latest keys:", err);
+            }
+        };
+
+        fetchKeys();
+    }, [getLatestKeys]);
 
     return (
         <Layout
@@ -159,10 +179,10 @@ export default function HomePage() {
                                 {config ? (
                                     <FileTransferForm
                                         type="link"
-                                        maxFileSize={config.max_file_size_link}
+                                        maxFileSize={config.max_file_size_link} // todo use config for account transfer as well
                                         maxDownloads={config.max_downloads_link}
                                         maxLifetime={config.max_lifetime_link}
-                                        onSubmit={async (data, onProgress) => {
+                                        onSubmit={async (data: any, onProgress: any) => {
                                             const result = await sendMessageLink(
                                                 data.file.name,
                                                 data.file,

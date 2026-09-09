@@ -16,7 +16,6 @@ import ResetPasswordPage from './pages/resetPassword';
 import LoginPage from './pages/login';
 import Logout from './pages/logout';
 
-import NewTransfer from './pages/new-transfer';
 import SavedTransfers from './pages/savedTransfer';
 import TransferDetails from './pages/transferDetails';
 import AccountPage from './pages/account';
@@ -72,11 +71,11 @@ function App() {
               </ProtectedRoute>}
             />
 
-            <Route path="/new-transfer" element={
+            {/*<Route path="/new-transfer" element={
               <ProtectedRoute>
                 <NewTransfer />
               </ProtectedRoute>}
-            />
+            />*/}
 
             <Route path="*" element={<Error />} />
           </Routes>
