@@ -30,6 +30,7 @@ export const errorSamePassword = "New password cannot be the same as the current
 export const errorWeakPassword = "Password is too weak. Please choose a stronger password.";
 export const errorPageNotFound = "Page not found.";
 export const errorInvalidResetLink = "Invalid password reset link.";
+export const errorTransferAlreadySaved = "This transfer has already been saved to your account.";
 
 // API Errors
 export const errorTooManyRequests = "Too many requests. Please try again later.";

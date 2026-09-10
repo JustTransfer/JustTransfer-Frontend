@@ -368,6 +368,14 @@ async function addSavedTransfer(transfer_id: string, transfer_password: string, 
 
     const sodium = await getSodium();
 
+    // Check if the transfer is already saved
+    const savedTransfers = await getSavedTransfers(exportKey);
+    const isAlreadySaved = savedTransfers.some((transfer: any) => transfer.transfer_id === transfer_id);
+
+    if (isAlreadySaved) {
+        throw new Error(errors.errorTransferAlreadySaved);
+    }
+
     const exportKeyDecoded = Base64.toUint8Array(exportKey);
 
     // Encrypt the transfer_id
