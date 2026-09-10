@@ -168,6 +168,7 @@ export default function SavedTransfer() {
     const [messages, setMessages] = useState<Array<any>>([]);
     const [downloadProgress, setDownloadProgress] = useState<Record<string, number>>({});
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
 
     const [openDialog, setOpenDialog] = useState(false);
     const [messageToDelete, setMessageToDelete] = useState<any>(null);
@@ -331,6 +332,7 @@ export default function SavedTransfer() {
         }
 
         setLoading(false);
+        setRefreshing(false);
     }
 
     useEffect(() => {
@@ -372,8 +374,21 @@ export default function SavedTransfer() {
                                     {!compactInbox && "Add Transfer"}
                                 </Button>
 
-                                <IconButton aria-label="refresh" color="primary" size={compactInbox ? "medium" : "large"} onClick={getMessagesLocal}>
-                                    <RefreshIcon />
+                                <IconButton
+                                    aria-label="refresh"
+                                    color="primary"
+                                    size={compactInbox ? "medium" : "large"}
+                                    onClick={() => {
+                                        setRefreshing(true);
+                                        getMessagesLocal();
+                                    }}
+                                    disabled={refreshing}
+                                >
+                                    {refreshing ? (
+                                        <CircularProgress size={compactInbox ? 20 : 24} />
+                                    ) : (
+                                        <RefreshIcon />
+                                    )}
                                 </IconButton>
                             </Box>
                         </Box>
