@@ -71,12 +71,6 @@ function App() {
               </ProtectedRoute>}
             />
 
-            {/*<Route path="/new-transfer" element={
-              <ProtectedRoute>
-                <NewTransfer />
-              </ProtectedRoute>}
-            />*/}
-
             <Route path="*" element={<Error />} />
           </Routes>
         </AuthProvider>

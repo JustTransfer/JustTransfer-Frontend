@@ -16,7 +16,7 @@ At runtime, the app:
 ## Main Flows
 
 - Anonymous transfers are created from the home page and retrieved through `/link-transfer/:id`
-- Authenticated users can create managed transfers from `/new-transfer`
+- Authenticated users can create managed transfers from `/`
 - Saved transfers are listed at `/transfers`, with details and management actions at `/transfers/:id`
 - Account flows include register, verify email, login, logout, account settings, pricing, and password reset
 
@@ -52,7 +52,6 @@ Public routes:
 
 Protected routes:
 
-- `/new-transfer`
 - `/transfers`
 - `/transfers/:id`
 - `/account`
