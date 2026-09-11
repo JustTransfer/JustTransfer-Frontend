@@ -110,7 +110,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                         <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: "bold" }}>
                             Ressources
                         </Typography>
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 1 }}>
                             <Link
                                 href="https://github.com/JustTransfer/"
                                 target="_blank"
@@ -137,7 +137,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                         <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: "bold" }}>
                             Legal
                         </Typography>
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 1 }}>
                             <Link component={RouterLink} to="/terms" color="inherit" underline="hover">
                                 Terms of Service
                             </Link>
@@ -152,7 +152,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                         <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: "bold" }}>
                             Contact
                         </Typography>
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 1 }}>
                             <Link
                                 href={`mailto:${emailAddress}`}
                                 color="inherit"
