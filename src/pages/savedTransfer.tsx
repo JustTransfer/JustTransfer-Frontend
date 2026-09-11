@@ -164,7 +164,7 @@ export default function SavedTransfer() {
 
     const { exportKey } = useAuth();
 
-    const { success, error, info } = useNotification();
+    const { success, error, info, warning } = useNotification();
     const [messages, setMessages] = useState<Array<any>>([]);
     const [downloadProgress, setDownloadProgress] = useState<Record<string, number>>({});
     const [loading, setLoading] = useState(true);
@@ -312,9 +312,15 @@ export default function SavedTransfer() {
                             auth_key: msg.auth_key,
                             password: msg.password,
                         });
-                    } else {
+                    } else if (e instanceof Error && e.message === errors.errorTooManyRequests) {
+                        // Break the loop and show a warning message if too many requests are made
+                        warning(errors.errorTooManyRequests);
+                        break;
+                    } else if (e instanceof Error && e.message === errors.errorLoginFailed) {
                         info("Deleting saved transfer " + msg.transfer_id);
                         await deleteSavedTransferAPI(msg.id);
+                    } else {
+                        error("Failed to load transfer " + msg.transfer_id + ": " + (e instanceof Error ? e.message : errors.errorUnknown));
                     }
                 }
             }
