@@ -96,10 +96,8 @@ export default function AccountPage() {
 
     const { config } = useServerConfig();
     const { success, error } = useNotification();
-    const { updateKeys, keys, exportKey } = useAuth();
+    const { updateKeys, updateRole, keys, exportKey, role, email } = useAuth();
 
-    const [email, setEmail] = useState("");
-    const [role, setRole] = useState("");
     const [numberTransfers, setNumberTransfers] = useState(0);
     const [currentPeriodEnd, setCurrentPeriodEnd] = useState<string | null>(null);
 
@@ -110,7 +108,7 @@ export default function AccountPage() {
     async function handleRotateKeys(currentPassword: string) {
         try {
 
-            const result = await generateNewKeys(email, currentPassword, exportKey!);
+            const result = await generateNewKeys(email!, currentPassword, exportKey!);
 
             if (!result.success) {
                 throw new Error(result.message || errors.errorRotateKeys);
@@ -132,7 +130,7 @@ export default function AccountPage() {
         try {
 
             const saved_transfers = await getSavedTransfers(exportKey!);
-            const result = await changePassword(email, currentPassword, newPassword, keys!, saved_transfers);
+            const result = await changePassword(email!, currentPassword, newPassword, keys!, saved_transfers);
 
             if (!result.success) {
                 throw new Error(result.message || errors.errorChangePassword);
@@ -156,7 +154,7 @@ export default function AccountPage() {
                 await cancelSubscriptionAPI();
             }
 
-            const result = await deleteAccountAPI(email);
+            const result = await deleteAccountAPI(email!);
 
             if (result !== 204) {
                 throw new Error(errors.errorDeleteAccount);
@@ -177,8 +175,7 @@ export default function AccountPage() {
     async function fetchAccountInfo() {
         try {
             const accountInfo = await getAccountInfoAPI();
-            setEmail(accountInfo.email);
-            setRole(accountInfo.role);
+            updateRole(accountInfo.role);
             setNumberTransfers(accountInfo.number_transfers);
             setCurrentPeriodEnd(accountInfo.current_period_end ?? null);
         } catch (e) {
@@ -471,7 +468,7 @@ export default function AccountPage() {
                                 }
 
                                 if (dialogMode === "deleteAccount") {
-                                    await handleDeleteAccount(role);
+                                    await handleDeleteAccount(role!);
                                 }
 
                                 if (dialogMode === "rotateKeys") {
