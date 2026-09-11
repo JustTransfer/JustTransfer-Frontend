@@ -35,6 +35,7 @@ export const errorTransferAlreadySaved = "This transfer has already been saved t
 // API Errors
 export const errorTooManyRequests = "Too many requests. Please try again later.";
 export const errorAPIRequestFailed = "API request failed. Please try again later.";
+export const errorUnauthorized = "Unauthorized access. Please log in to continue.";
 
 // Link Transfer Errors
 export const errorMaxLinkTransfersReached = "The server has reached the maximum number of link transfer. Please try again later or register for an account.";

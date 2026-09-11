@@ -3,6 +3,8 @@ import { useNavigate } from "react-router";
 
 import * as errors from "../messages/errors";
 import { storeRawKey, getRawKeyAsBase64, saveSessionMeta, loadSessionMeta, clearAllKeyStorage } from "./keyStorage";
+import { getAccountInfoAPI } from "../handlers/api";
+import { useNotification } from "./useNotificationContext";
 
 type Key = {
     created_at: string;
@@ -58,6 +60,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: any) => {
 
+    const navigate = useNavigate();
+    const { error } = useNotification();
+
     const [email, setEmail] = useState<string | null>(null);
     const [role, setRole] = useState<string | null>(null);
 
@@ -65,8 +70,6 @@ export const AuthProvider = ({ children }: any) => {
     const [keys, setKeys] = useState<Key[] | null>(null);
 
     const [isLoading, setIsLoading] = useState(true);
-
-    const navigate = useNavigate();
 
     // Persist the export key and every private key as raw, extractable
     // CryptoKeys in IndexedDB; everything else goes to localStorage.
@@ -123,6 +126,16 @@ export const AuthProvider = ({ children }: any) => {
                     }
 
                     restoredKeys.push({ ...publicMeta, enc_private_key, sign_private_key });
+                }
+
+                // Confirm that the session is still valid by making a simple API call. If it fails, clear the session.
+                try {
+                    await getAccountInfoAPI();
+                } catch (e) {
+                    error(errors.errorUnauthorized);
+                    // Navigate to logout page to clear session
+                    navigate("/logout", { replace: true });
+                    return;
                 }
 
                 setEmail(meta.email);
