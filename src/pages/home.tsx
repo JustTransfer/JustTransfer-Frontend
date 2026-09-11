@@ -20,6 +20,7 @@ import Pricing from "../components/Pricing";
 import Faq from "../components/Faq";
 import CompetitorComparison from "../components/CompetitorComparison";
 import { useAuth } from "../hooks/useAuth";
+import { trackEvent, AnalyticsEvent } from "../handlers/analytics";
 
 import FileTransferForm from "../components/FileTransferForm";
 
@@ -204,6 +205,12 @@ export default function HomePage() {
 
                                                 await addSavedTransfer(result.id, result.password, exportKey!, result.auth_key);
 
+                                                trackEvent(AnalyticsEvent.TRANSFER_CREATED, {
+                                                    type: "account",
+                                                    signed: data.isSigned,
+                                                    has_recipient_email: !!data.receiver_email,
+                                                });
+
                                                 return result.link;
                                             }}
                                         />
@@ -226,6 +233,11 @@ export default function HomePage() {
                                                     data.password,
                                                     onProgress
                                                 );
+
+                                                trackEvent(AnalyticsEvent.TRANSFER_CREATED, {
+                                                    type: "guest",
+                                                });
+
                                                 return result.link;
                                             }}
                                         />

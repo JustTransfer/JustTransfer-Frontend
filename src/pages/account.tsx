@@ -29,6 +29,7 @@ import { getAccountInfoAPI, deleteAccountAPI, cancelSubscriptionAPI } from "../h
 import { formatSize } from "../handlers/utils";
 import AccountActionDialog from "../components/AccountActionDialog";
 import type { Mode } from "../components/AccountActionDialog";
+import { trackEvent, AnalyticsEvent } from "../handlers/analytics";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
@@ -160,6 +161,7 @@ export default function AccountPage() {
                 throw new Error(errors.errorDeleteAccount);
             }
 
+            trackEvent(AnalyticsEvent.ACCOUNT_DELETED, { had_premium: role === "premium" });
             success(strings.msgAccountDeleted);
 
             // wait 1 second to show success message before logging out
@@ -190,6 +192,8 @@ export default function AccountPage() {
     useEffect(() => {
         if (searchParams.get("subscription") === "success") {
             success("Subscription activated! Your plan has been updated.");
+            trackEvent(AnalyticsEvent.SUBSCRIPTION_ACTIVATED);
+
             searchParams.delete("subscription");
             setSearchParams(searchParams, { replace: true });
 
