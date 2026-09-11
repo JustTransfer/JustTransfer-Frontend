@@ -17,9 +17,9 @@ import HomeIcon from '@mui/icons-material/Home';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import Button from '@mui/material/Button';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import FolderIcon from '@mui/icons-material/Folder';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
-import SendIcon from '@mui/icons-material/Send';
 import Container from "@mui/material/Container";
 import Link from '@mui/material/Link';
 
@@ -251,8 +251,8 @@ export default function Layout({ content }: { content: React.ReactNode }) {
     };
 
     const mobileMenuItems = isLoggedIn ? [
-        { label: "New Transfer", icon: <SendIcon />, path: "/" }, // todo check menu name
-        { label: "Active Transfers", icon: <CloudUploadIcon />, path: "/transfers" },
+        { label: "New Transfer", icon: <CloudUploadIcon />, path: "/" },
+        { label: "My Transfers", icon: <FolderIcon />, path: "/transfers" },
         { label: "Account", icon: <AccountCircleIcon />, path: "/account" },
         { label: "Logout", icon: <LogoutIcon />, path: "/logout" },
     ] : [
@@ -445,22 +445,22 @@ export default function Layout({ content }: { content: React.ReactNode }) {
                                     justifyContent: "space-between",
                                 }}>
                                     <Button
-                                        startIcon={<SendIcon />}
+                                        startIcon={<CloudUploadIcon />}
                                         fullWidth
                                         size="large"
                                         onClick={() => navigate("/")}
                                         sx={menuButtonStyle("/")}
                                     >
-                                        Home/New Transfer
+                                        New Transfer
                                     </Button>
                                     <Button
-                                        startIcon={<CloudUploadIcon />}
+                                        startIcon={<FolderIcon />}
                                         fullWidth
                                         size="large"
                                         onClick={() => navigate("/transfers")}
                                         sx={menuButtonStyle("/transfers")}
                                     >
-                                        Active Transfers
+                                        My Transfers
                                     </Button>
                                 </Box>
 

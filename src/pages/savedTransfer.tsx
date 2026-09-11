@@ -362,7 +362,7 @@ export default function SavedTransfer() {
                     <Box sx={contentCardSx}>
                         <Box sx={headerCardSx}>
                             <Typography variant={compactInbox ? "h6" : "h5"} sx={{ fontWeight: 700, color: "#2b0f1f" }}>
-                                Active Transfers
+                                My Transfers
                             </Typography>
 
                             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
