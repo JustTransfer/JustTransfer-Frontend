@@ -244,11 +244,11 @@ export default function AccountPage() {
                         <Stack spacing={3}>
 
                             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                <Typography variant="h5">
-                                    Plan Overview
-                                </Typography>
-
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+                                    <Typography variant="h5">
+                                        Plan Overview
+                                    </Typography>
+
                                     {role === "premium" && currentPeriodEnd ? (
                                         <Chip
                                             label={`Premium Plan · Ends ${new Date(currentPeriodEnd).toLocaleDateString(undefined, {
@@ -270,14 +270,15 @@ export default function AccountPage() {
                                             color={role === "premium" ? "primary" : "default"}
                                         />
                                     )}
-                                    <Button
-                                        size="small"
-                                        variant="contained"
-                                        onClick={() => navigate("/pricing")}
-                                    >
-                                        View Plans
-                                    </Button>
                                 </Box>
+
+                                <Button
+                                    size="small"
+                                    variant="contained"
+                                    onClick={() => navigate("/pricing")}
+                                >
+                                    View Plans
+                                </Button>
                             </Box>
 
                             {!config ? (
