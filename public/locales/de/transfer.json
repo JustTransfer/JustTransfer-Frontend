@@ -90,5 +90,21 @@
   "saveToMyTransfers": "In meinen Übertragungen speichern",
   "protectedTitle": "Geschützte Link-Übertragung",
   "protectedDescription": "Diese Übertragung ist durch ein Passwort geschützt. Geben Sie es ein, um die Übertragungsdetails anzuzeigen und die Datei herunterzuladen.",
-  "unlock": "Übertragung entsperren"
+  "unlock": "Übertragung entsperren",
+  "loadFailed": "Übertragung konnte nicht geladen werden: {{error}}",
+  "updateFailed": "Übertragung konnte nicht aktualisiert werden: {{error}}",
+  "passwordUpdateFailed": "Passwort konnte nicht aktualisiert werden: {{error}}",
+  "actionFailed": "Ein Fehler ist aufgetreten: {{error}}",
+  "transferInfoLabel": "Übertragungsinfo",
+  "downloadsRemaining_one": "{{count}} Download verbleibend",
+  "downloadsRemaining_other": "{{count}} Downloads verbleibend",
+  "invalidLink": "Ungültiger Übertragungslink",
+  "invalidUrl": "Ungültige Übertragungs-URL",
+  "passwordMissing": "Passwort fehlt",
+  "addFailed": "Übertragung konnte nicht hinzugefügt werden: {{error}}",
+  "deletingSavedTransfer": "Gespeicherte Übertragung {{id}} wird gelöscht",
+  "loadTransferFailed": "Übertragung {{id}} konnte nicht geladen werden: {{error}}",
+  "loadMessagesFailed": "Nachrichten konnten nicht geladen werden: {{error}}",
+  "tamperedError": "Diese Übertragung wurde manipuliert und kann nicht aufgerufen werden.",
+  "limitReachedError": "Diese Übertragung hat ihr Download-Limit erreicht."
 }

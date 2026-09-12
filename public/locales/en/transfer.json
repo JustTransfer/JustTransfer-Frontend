@@ -60,6 +60,7 @@
   "updateFailed": "Failed to update transfer: {{error}}",
   "passwordUpdateFailed": "Failed to update password: {{error}}",
   "actionFailed": "An error occurred: {{error}}",
+  "transferInfoLabel": "Transfer info",
   "downloadsRemaining": "{{count}} downloads remaining",
   "downloadsRemaining_one": "{{count}} download remaining",
   "downloadsRemaining_other": "{{count}} downloads remaining",

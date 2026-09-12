@@ -17,5 +17,6 @@
   "btnLogout": "Esci",
   "btnSendFile": "Invia file",
   "btnDownloadFile": "Scarica file",
-  "btnBackToHome": "Torna alla home"
+  "btnBackToHome": "Torna alla home",
+  "refresh": "Aggiorna"
 }

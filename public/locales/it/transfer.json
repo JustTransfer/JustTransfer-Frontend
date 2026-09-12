@@ -90,5 +90,21 @@
   "saveToMyTransfers": "Salva nei miei trasferimenti",
   "protectedTitle": "Trasferimento tramite link protetto",
   "protectedDescription": "Questo trasferimento è protetto da una password. Inseriscila per visualizzare i dettagli e scaricare il file.",
-  "unlock": "Sblocca trasferimento"
+  "unlock": "Sblocca trasferimento",
+  "loadFailed": "Impossibile caricare il trasferimento: {{error}}",
+  "updateFailed": "Impossibile aggiornare il trasferimento: {{error}}",
+  "passwordUpdateFailed": "Impossibile aggiornare la password: {{error}}",
+  "actionFailed": "Si è verificato un errore: {{error}}",
+  "transferInfoLabel": "Informazioni sul trasferimento",
+  "downloadsRemaining_one": "{{count}} download rimanente",
+  "downloadsRemaining_other": "{{count}} download rimanenti",
+  "invalidLink": "Link di trasferimento non valido",
+  "invalidUrl": "URL di trasferimento non valido",
+  "passwordMissing": "Password mancante",
+  "addFailed": "Impossibile aggiungere il trasferimento: {{error}}",
+  "deletingSavedTransfer": "Eliminazione del trasferimento salvato {{id}}",
+  "loadTransferFailed": "Impossibile caricare il trasferimento {{id}}: {{error}}",
+  "loadMessagesFailed": "Impossibile caricare i messaggi: {{error}}",
+  "tamperedError": "Questo trasferimento è stato manomesso e non può essere visualizzato.",
+  "limitReachedError": "Questo trasferimento ha raggiunto il limite di download."
 }

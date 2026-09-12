@@ -17,5 +17,6 @@
   "btnLogout": "Abmelden",
   "btnSendFile": "Datei senden",
   "btnDownloadFile": "Datei herunterladen",
-  "btnBackToHome": "Zurück zur Startseite"
+  "btnBackToHome": "Zurück zur Startseite",
+  "refresh": "Aktualisieren"
 }

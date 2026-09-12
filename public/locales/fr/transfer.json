@@ -90,5 +90,21 @@
   "saveToMyTransfers": "Enregistrer dans mes transferts",
   "protectedTitle": "Transfert par lien protégé",
   "protectedDescription": "Ce transfert est protégé par un mot de passe. Saisissez-le pour voir les détails du transfert et télécharger le fichier.",
-  "unlock": "Déverrouiller le transfert"
+  "unlock": "Déverrouiller le transfert",
+  "loadFailed": "Échec du chargement du transfert : {{error}}",
+  "updateFailed": "Échec de la mise à jour du transfert : {{error}}",
+  "passwordUpdateFailed": "Échec de la mise à jour du mot de passe : {{error}}",
+  "actionFailed": "Une erreur s'est produite : {{error}}",
+  "transferInfoLabel": "Infos sur le transfert",
+  "downloadsRemaining_one": "{{count}} téléchargement restant",
+  "downloadsRemaining_other": "{{count}} téléchargements restants",
+  "invalidLink": "Lien de transfert invalide",
+  "invalidUrl": "URL de transfert invalide",
+  "passwordMissing": "Le mot de passe est manquant",
+  "addFailed": "Échec de l'ajout du transfert : {{error}}",
+  "deletingSavedTransfer": "Suppression du transfert enregistré {{id}}",
+  "loadTransferFailed": "Échec du chargement du transfert {{id}} : {{error}}",
+  "loadMessagesFailed": "Échec du chargement des messages : {{error}}",
+  "tamperedError": "Ce transfert a été altéré et ne peut pas être consulté.",
+  "limitReachedError": "Ce transfert a atteint sa limite de téléchargement."
 }

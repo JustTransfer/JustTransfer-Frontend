@@ -17,5 +17,6 @@
   "btnLogout": "Déconnexion",
   "btnSendFile": "Envoyer le fichier",
   "btnDownloadFile": "Télécharger le fichier",
-  "btnBackToHome": "Retour à l'accueil"
+  "btnBackToHome": "Retour à l'accueil",
+  "refresh": "Actualiser"
 }
