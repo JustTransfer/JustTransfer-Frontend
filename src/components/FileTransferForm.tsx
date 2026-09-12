@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { Link as RouterLink } from "react-router";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -583,6 +584,18 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 ) : (
                     <Button type="submit" variant="contained" fullWidth>Get a Link</Button>
                 )}
+
+                {
+                    type === "link" ? (
+                        <Typography variant="body2" sx={{ color: "#7a6474", mt: -2, textAlign: "center" }}>
+                            Want to notify a recipient by email or manage this transfer later?
+                            <br />
+                            <RouterLink to="/register">Create an account</RouterLink> or <RouterLink to="/login">log in</RouterLink>.
+                        </Typography>
+                    ) : (
+                        null
+                    )
+                }
             </Box >
 
             {/* Dialog with link pop up */}

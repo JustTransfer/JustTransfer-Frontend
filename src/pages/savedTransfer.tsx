@@ -164,10 +164,11 @@ export default function SavedTransfer() {
 
     const { exportKey } = useAuth();
 
-    const { success, error, info } = useNotification();
+    const { success, error, info, warning } = useNotification();
     const [messages, setMessages] = useState<Array<any>>([]);
     const [downloadProgress, setDownloadProgress] = useState<Record<string, number>>({});
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
 
     const [openDialog, setOpenDialog] = useState(false);
     const [messageToDelete, setMessageToDelete] = useState<any>(null);
@@ -311,9 +312,15 @@ export default function SavedTransfer() {
                             auth_key: msg.auth_key,
                             password: msg.password,
                         });
-                    } else {
+                    } else if (e instanceof Error && e.message === errors.errorTooManyRequests) {
+                        // Break the loop and show a warning message if too many requests are made
+                        warning(errors.errorTooManyRequests);
+                        break;
+                    } else if (e instanceof Error && e.message === errors.errorLoginFailed) {
                         info("Deleting saved transfer " + msg.transfer_id);
                         await deleteSavedTransferAPI(msg.id);
+                    } else {
+                        error("Failed to load transfer " + msg.transfer_id + ": " + (e instanceof Error ? e.message : errors.errorUnknown));
                     }
                 }
             }
@@ -331,6 +338,7 @@ export default function SavedTransfer() {
         }
 
         setLoading(false);
+        setRefreshing(false);
     }
 
     useEffect(() => {
@@ -354,7 +362,7 @@ export default function SavedTransfer() {
                     <Box sx={contentCardSx}>
                         <Box sx={headerCardSx}>
                             <Typography variant={compactInbox ? "h6" : "h5"} sx={{ fontWeight: 700, color: "#2b0f1f" }}>
-                                Active Transfers
+                                My Transfers
                             </Typography>
 
                             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -372,8 +380,21 @@ export default function SavedTransfer() {
                                     {!compactInbox && "Add Transfer"}
                                 </Button>
 
-                                <IconButton aria-label="refresh" color="primary" size={compactInbox ? "medium" : "large"} onClick={getMessagesLocal}>
-                                    <RefreshIcon />
+                                <IconButton
+                                    aria-label="refresh"
+                                    color="primary"
+                                    size={compactInbox ? "medium" : "large"}
+                                    onClick={() => {
+                                        setRefreshing(true);
+                                        getMessagesLocal();
+                                    }}
+                                    disabled={refreshing}
+                                >
+                                    {refreshing ? (
+                                        <CircularProgress size={compactInbox ? 20 : 24} />
+                                    ) : (
+                                        <RefreshIcon />
+                                    )}
                                 </IconButton>
                             </Box>
                         </Box>

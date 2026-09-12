@@ -17,6 +17,7 @@ import Layout from "../components/layout";
 import { register } from "../handlers/crypto";
 import PasswordStrength from "../components/passwordStrength";
 import AcceptTermsService from "../components/acceptTermsService";
+import { trackEvent, AnalyticsEvent } from "../handlers/analytics";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
@@ -94,6 +95,7 @@ export default function CreateAccountPage() {
             const result = await register(data.email as string, data.password as string);
 
             if (result.success) {
+                trackEvent(AnalyticsEvent.SIGNUP);
                 success(strings.msgAccountCreated);
 
                 setTimeout(() => {

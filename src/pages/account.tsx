@@ -29,6 +29,7 @@ import { getAccountInfoAPI, deleteAccountAPI, cancelSubscriptionAPI } from "../h
 import { formatSize } from "../handlers/utils";
 import AccountActionDialog from "../components/AccountActionDialog";
 import type { Mode } from "../components/AccountActionDialog";
+import { trackEvent, AnalyticsEvent } from "../handlers/analytics";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
@@ -96,10 +97,8 @@ export default function AccountPage() {
 
     const { config } = useServerConfig();
     const { success, error } = useNotification();
-    const { updateKeys, keys, exportKey } = useAuth();
+    const { updateKeys, updateRole, keys, exportKey, role, email } = useAuth();
 
-    const [email, setEmail] = useState("");
-    const [role, setRole] = useState("");
     const [numberTransfers, setNumberTransfers] = useState(0);
     const [currentPeriodEnd, setCurrentPeriodEnd] = useState<string | null>(null);
 
@@ -110,7 +109,7 @@ export default function AccountPage() {
     async function handleRotateKeys(currentPassword: string) {
         try {
 
-            const result = await generateNewKeys(email, currentPassword, exportKey!);
+            const result = await generateNewKeys(email!, currentPassword, exportKey!);
 
             if (!result.success) {
                 throw new Error(result.message || errors.errorRotateKeys);
@@ -132,7 +131,7 @@ export default function AccountPage() {
         try {
 
             const saved_transfers = await getSavedTransfers(exportKey!);
-            const result = await changePassword(email, currentPassword, newPassword, keys!, saved_transfers);
+            const result = await changePassword(email!, currentPassword, newPassword, keys!, saved_transfers);
 
             if (!result.success) {
                 throw new Error(result.message || errors.errorChangePassword);
@@ -156,12 +155,13 @@ export default function AccountPage() {
                 await cancelSubscriptionAPI();
             }
 
-            const result = await deleteAccountAPI(email);
+            const result = await deleteAccountAPI(email!);
 
             if (result !== 204) {
                 throw new Error(errors.errorDeleteAccount);
             }
 
+            trackEvent(AnalyticsEvent.ACCOUNT_DELETED, { had_premium: role === "premium" });
             success(strings.msgAccountDeleted);
 
             // wait 1 second to show success message before logging out
@@ -177,8 +177,7 @@ export default function AccountPage() {
     async function fetchAccountInfo() {
         try {
             const accountInfo = await getAccountInfoAPI();
-            setEmail(accountInfo.email);
-            setRole(accountInfo.role);
+            updateRole(accountInfo.role);
             setNumberTransfers(accountInfo.number_transfers);
             setCurrentPeriodEnd(accountInfo.current_period_end ?? null);
         } catch (e) {
@@ -193,6 +192,8 @@ export default function AccountPage() {
     useEffect(() => {
         if (searchParams.get("subscription") === "success") {
             success("Subscription activated! Your plan has been updated.");
+            trackEvent(AnalyticsEvent.SUBSCRIPTION_ACTIVATED);
+
             searchParams.delete("subscription");
             setSearchParams(searchParams, { replace: true });
 
@@ -244,11 +245,11 @@ export default function AccountPage() {
                         <Stack spacing={3}>
 
                             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                <Typography variant="h5">
-                                    Plan Overview
-                                </Typography>
-
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+                                    <Typography variant="h5">
+                                        Plan Overview
+                                    </Typography>
+
                                     {role === "premium" && currentPeriodEnd ? (
                                         <Chip
                                             label={`Premium Plan · Ends ${new Date(currentPeriodEnd).toLocaleDateString(undefined, {
@@ -270,14 +271,15 @@ export default function AccountPage() {
                                             color={role === "premium" ? "primary" : "default"}
                                         />
                                     )}
-                                    <Button
-                                        size="small"
-                                        variant="contained"
-                                        onClick={() => navigate("/pricing")}
-                                    >
-                                        View Plans
-                                    </Button>
                                 </Box>
+
+                                <Button
+                                    size="small"
+                                    variant="contained"
+                                    onClick={() => navigate("/pricing")}
+                                >
+                                    View Plans
+                                </Button>
                             </Box>
 
                             {!config ? (
@@ -470,7 +472,7 @@ export default function AccountPage() {
                                 }
 
                                 if (dialogMode === "deleteAccount") {
-                                    await handleDeleteAccount(role);
+                                    await handleDeleteAccount(role!);
                                 }
 
                                 if (dialogMode === "rotateKeys") {

@@ -12,6 +12,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useNotification } from "../hooks/useNotificationContext";
 import { createSubscriptionCheckoutAPI, cancelSubscriptionAPI, getAccountInfoAPI } from "../handlers/api";
 import type { PricingProps } from "../components/Pricing";
+import { trackEvent, AnalyticsEvent } from "../handlers/analytics";
 
 
 export default function PricingPage() {
@@ -52,6 +53,8 @@ export default function PricingPage() {
     async function handleSelectPlan(plan: "user" | "premium") {
         try {
             if (plan === "user") {
+                trackEvent(AnalyticsEvent.SUBSCRIPTION_CANCEL_STARTED);
+
                 setCancelling(true);
                 await cancelSubscriptionAPI();
 
@@ -74,6 +77,8 @@ export default function PricingPage() {
                 );
                 return;
             }
+
+            trackEvent(AnalyticsEvent.SUBSCRIPTION_CHECKOUT_STARTED, { plan });
 
             const checkoutUrl = await createSubscriptionCheckoutAPI(plan);
             window.location.href = checkoutUrl; // Stripe Checkout Session URL

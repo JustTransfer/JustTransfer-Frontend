@@ -1,4 +1,5 @@
-import { useNavigate, Link as RouterLink } from "react-router";
+import { useNavigate } from "react-router";
+import { useState, useEffect } from "react";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -13,10 +14,13 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
 import { useServerConfig } from "../hooks/useServerConfig";
 import Layout from "../components/layout";
+import { addSavedTransfer } from "../handlers/crypto";
 import { sendMessageLink } from "../handlers/crypto_link";
 import Pricing from "../components/Pricing";
 import Faq from "../components/Faq";
 import CompetitorComparison from "../components/CompetitorComparison";
+import { useAuth } from "../hooks/useAuth";
+import { trackEvent, AnalyticsEvent, bucketFileSize } from "../handlers/analytics";
 
 import FileTransferForm from "../components/FileTransferForm";
 
@@ -35,9 +39,31 @@ const organizationJsonLd = {
 export default function HomePage() {
     const navigate = useNavigate();
     const { config } = useServerConfig();
+    const { role, exportKey, getLatestKeys } = useAuth();
+
+    const [keys, setKeys] = useState<any>(null);
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
     const maxWidthPage = 1400;
     const sectionPaddingX = { xs: 2, md: 4 };
+
+    const maxFileSize = role === "premium" ? config?.max_file_size_connected_premium! : config?.max_file_size_connected!;
+    const maxDownloads = role === "premium" ? config?.max_downloads_connected_premium! : config?.max_downloads_connected!;
+    const maxLifetime = role === "premium" ? config?.max_lifetime_connected_premium! : config?.max_lifetime_connected!;
+
+    useEffect(() => {
+        const fetchKeys = async () => {
+            try {
+                const latestKeys = await getLatestKeys();
+                setKeys(latestKeys);
+                setIsLoggedIn(!!exportKey);
+            } catch (err) {
+                console.error("Failed to fetch latest keys:", err);
+            }
+        };
+
+        fetchKeys();
+    }, [getLatestKeys]);
 
     return (
         <Layout
@@ -157,26 +183,67 @@ export default function HomePage() {
                                 }}
                             >
                                 {config ? (
-                                    <FileTransferForm
-                                        type="link"
-                                        maxFileSize={config.max_file_size_link}
-                                        maxDownloads={config.max_downloads_link}
-                                        maxLifetime={config.max_lifetime_link}
-                                        onSubmit={async (data, onProgress) => {
-                                            const result = await sendMessageLink(
-                                                data.file.name,
-                                                data.file,
-                                                data.lifetime,
-                                                data.maxDownloads,
-                                                false,
-                                                undefined,
-                                                undefined,
-                                                data.password,
-                                                onProgress
-                                            );
-                                            return result.link;
-                                        }}
-                                    />
+                                    isLoggedIn ? (
+                                        <FileTransferForm
+                                            type="connected"
+                                            maxFileSize={maxFileSize}
+                                            maxDownloads={maxDownloads}
+                                            maxLifetime={maxLifetime}
+                                            onSubmit={async (data, onProgress) => {
+                                                const result = await sendMessageLink(
+                                                    data.file.name,
+                                                    data.file,
+                                                    data.lifetime,
+                                                    data.maxDownloads,
+                                                    data.isSigned,
+                                                    keys.id,
+                                                    keys.sign_private_key,
+                                                    data.password,
+                                                    onProgress,
+                                                    data.receiver_email
+                                                );
+
+                                                await addSavedTransfer(result.id, result.password, exportKey!, result.auth_key);
+
+                                                trackEvent(AnalyticsEvent.TRANSFER_CREATED, {
+                                                    type: "account",
+                                                    signed: data.isSigned,
+                                                    file_size: bucketFileSize(data.file.size),
+                                                    has_recipient_email: !!data.receiver_email,
+                                                });
+
+                                                return result.link;
+                                            }}
+                                        />
+
+                                    ) : (
+                                        <FileTransferForm
+                                            type="link"
+                                            maxFileSize={config.max_file_size_link}
+                                            maxDownloads={config.max_downloads_link}
+                                            maxLifetime={config.max_lifetime_link}
+                                            onSubmit={async (data: any, onProgress: any) => {
+                                                const result = await sendMessageLink(
+                                                    data.file.name,
+                                                    data.file,
+                                                    data.lifetime,
+                                                    data.maxDownloads,
+                                                    false,
+                                                    undefined,
+                                                    undefined,
+                                                    data.password,
+                                                    onProgress
+                                                );
+
+                                                trackEvent(AnalyticsEvent.TRANSFER_CREATED, {
+                                                    type: "guest",
+                                                    file_size: bucketFileSize(data.file.size),
+                                                });
+
+                                                return result.link;
+                                            }}
+                                        />
+                                    )
                                 ) : (
                                     <Box
                                         sx={{
@@ -190,11 +257,6 @@ export default function HomePage() {
                                         <CircularProgress />
                                     </Box>
                                 )}
-                                <Typography variant="body2" sx={{ color: "#7a6474", mt: 0, textAlign: "center" }}>
-                                    Want to notify a recipient by email or manage this transfer later?
-                                    <br />
-                                    <RouterLink to="/register">Create an account</RouterLink> or <RouterLink to="/login">log in</RouterLink>.
-                                </Typography>
                             </Box>
                         </Box>
                     </Box>

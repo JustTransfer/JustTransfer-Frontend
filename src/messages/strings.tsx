@@ -6,6 +6,7 @@ export const msgPasswordChanged = "Password changed successfully.";
 export const msgEmailVerified = "Email verified successfully.";
 export const msgPasswordRequested = "Password reset requested. Please check your email.";
 export const msgPasswordReset = "Password reset successfully.";
+export const msgTransferSaved = "Transfer saved to your account successfully.";
 
 // Upload messages
 export const msgFileUploaded = "File uploaded successfully.";

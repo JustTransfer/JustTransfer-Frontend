@@ -7,21 +7,26 @@ import TextField from "@mui/material/TextField";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
+import Divider from "@mui/material/Divider";
+import Tooltip from "@mui/material/Tooltip";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import CircularProgress from "@mui/material/CircularProgress";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import DownloadIcon from '@mui/icons-material/Download';
+import SaveIcon from '@mui/icons-material/Save';
 import LockIcon from '@mui/icons-material/Lock';
 import DescriptionIcon from '@mui/icons-material/Description';
 
 import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
 import { getOneLinkMessageMetadata, getOneLinkMessage } from "../handlers/crypto_link";
+import { addSavedTransfer } from "../handlers/crypto";
 import { formatSize, relativeExpire, formatCreated, genericDownloadFile } from "../handlers/utils";
 import LinearProgressWithLabel from "../components/LinearProgressWithLabel";
 import { useSpeedMeter } from "../handlers/useSpeedMeter";
+import { useAuth } from "../hooks/useAuth";
 
 import * as errors from "../messages/errors";
 import * as strings from "../messages/strings";
@@ -48,10 +53,13 @@ export default function LinkTransfer() {
         textAlign: "left",
     };
 
+    const { exportKey } = useAuth();
+
     const { success, error } = useNotification();
     const { id } = useParams();
 
     const [showPassword, setShowPassword] = useState(false);
+    const [password, setPassword] = useState("");
     const handleTogglePassword = () => {
         setShowPassword(prev => !prev);
     };
@@ -92,6 +100,7 @@ export default function LinkTransfer() {
         const password = formData.get("password");
 
         await getMessageMetadata(password as string);
+        setPassword(password as string);
     }
 
     async function downloadFile() {
@@ -117,11 +126,24 @@ export default function LinkTransfer() {
                 },
             });
         } catch (e) {
-            error("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
+            error(e instanceof Error ? e.message : errors.errorUnknown);
         } finally {
             setIsDownloading(false);
             setDownloadProgress(0);
         }
+    }
+
+    async function saveTransferToAccount(id: string, password: string, exportKey: string) {
+
+        console.log("Saving transfer to account:", { id, password, exportKey });
+        try {
+            await addSavedTransfer(id, password, exportKey, undefined);
+        } catch (e) {
+            error(e instanceof Error ? e.message : errors.errorUnknown);
+            return;
+        }
+
+        success(strings.msgTransferSaved);
     }
 
     useEffect(() => {
@@ -137,6 +159,7 @@ export default function LinkTransfer() {
 
         const loadMetadata = async () => {
             await getMessageMetadata(passwordFromFragment);
+            setPassword(passwordFromFragment);
             setIsLoading(false);
         };
 
@@ -292,14 +315,37 @@ export default function LinkTransfer() {
                                     ) : isDownloading ? (
                                         <LinearProgressWithLabel value={downloadProgress} speed={speed} />
                                     ) :
-                                        <Button
-                                            variant="contained"
-                                            startIcon={<DownloadIcon />}
-                                            onClick={downloadFile}
-                                            fullWidth
-                                        >
-                                            Download File
-                                        </Button>
+                                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, width: "100%" }}>
+                                            <Button
+                                                variant="contained"
+                                                startIcon={<DownloadIcon />}
+                                                onClick={downloadFile}
+                                                fullWidth
+                                            >
+                                                Download File
+                                            </Button>
+
+                                            <Divider sx={{ my: 0.5 }} />
+
+                                            <Tooltip
+                                                title={exportKey ? "" : "Log in to save this transfer to your account"}
+                                                disableHoverListener={!!exportKey}
+                                            >
+                                                <span>
+                                                    <Button
+                                                        variant="outlined"
+                                                        color="primary"
+                                                        startIcon={<SaveIcon />}
+                                                        disabled={!exportKey}
+                                                        onClick={() => exportKey && saveTransferToAccount(id!, password, exportKey)}
+
+                                                        fullWidth
+                                                    >
+                                                        Save to My Transfers
+                                                    </Button>
+                                                </span>
+                                            </Tooltip>
+                                        </Box>
                                     }
                                 </Box>
                             ) :

@@ -30,10 +30,12 @@ export const errorSamePassword = "New password cannot be the same as the current
 export const errorWeakPassword = "Password is too weak. Please choose a stronger password.";
 export const errorPageNotFound = "Page not found.";
 export const errorInvalidResetLink = "Invalid password reset link.";
+export const errorTransferAlreadySaved = "This transfer has already been saved to your account.";
 
 // API Errors
 export const errorTooManyRequests = "Too many requests. Please try again later.";
 export const errorAPIRequestFailed = "API request failed. Please try again later.";
+export const errorUnauthorized = "Unauthorized access. Please log in to continue.";
 
 // Link Transfer Errors
 export const errorMaxLinkTransfersReached = "The server has reached the maximum number of link transfer. Please try again later or register for an account.";

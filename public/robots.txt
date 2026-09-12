@@ -1,7 +1,6 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Disallow: /link-transfer/
-Disallow: /new-transfer
 Disallow: /transfers
 Disallow: /account
 Disallow: /logout
