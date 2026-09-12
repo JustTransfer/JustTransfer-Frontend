@@ -1,14 +1,14 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-
-import * as strings from "../messages/strings";
-import * as errors from "../messages/errors";
+import { useTranslation } from "react-i18next";
 
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import Layout from "../components/layout";
 
 export default function Error() {
+    const { t } = useTranslation(["auth", "errors", "common"]);
+
     return (
         <Layout
             content={
@@ -33,13 +33,13 @@ export default function Error() {
                     >
                         <ErrorOutlineOutlinedIcon style={{ fontSize: 72, color: "#d32f2f" }} />
                         <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 700, color: "#2b0f1f" }}>
-                            Oops!<br />{errors.errorPageNotFound}
+                            {t("auth:oops")}<br />{t("errors:errorPageNotFound")}
                         </Typography>
                         <Typography variant="body1" sx={{ color: "#6e5a69", mb: 3 }}>
-                            The page you are looking for is not available.
+                            {t("auth:pageUnavailable")}
                         </Typography>
                         <Button variant="contained" href="/">
-                            {strings.btnBackToHome}
+                            {t("common:btnBackToHome")}
                         </Button>
                     </Box>
                 </ Box>

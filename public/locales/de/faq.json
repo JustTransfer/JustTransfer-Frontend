@@ -1,0 +1,16 @@
+{
+  "title": "Häufig gestellte Fragen",
+  "subtitle": "Alles, was Sie über das Senden von Dateien mit JustTransfer wissen müssen.",
+  "q1": "Benötige ich ein Konto, um eine Datei zu senden?",
+  "a1": "Nein. Gastübertragungen funktionieren ohne Konto: Laden Sie Ihre Datei hoch, legen Sie ein Passwort fest und teilen Sie den Link. Ein kostenloses Konto bietet zusätzliche Funktionen wie die Verwaltung von Übertragungen und den direkten E-Mail-Versand.",
+  "q2": "Wie werden meine Daten verschlüsselt?",
+  "a2": "Dateien und Dateinamen werden auf Ihrem Gerät mit einem selbst gewählten Passwort verschlüsselt, bevor sie es verlassen. Durch die clientseitige Verschlüsselung hat JustTransfer keinen Zugriff auf unverschlüsselte Dateien.",
+  "q3": "Wo hat JustTransfer seinen Sitz und wo werden meine Daten gespeichert?",
+  "a3": "JustTransfer hat seinen Sitz in der Schweiz. Ihre Dateien werden ausschließlich auf Schweizer Infrastruktur nach Schweizer Datenschutzrecht gespeichert. Premium-Zahlungsdaten werden von Stripe verarbeitet.",
+  "q4": "Was passiert, wenn ich mein Premium-Abo kündige?",
+  "a4": "Sie behalten den Premium-Zugriff bis zum Ende des aktuellen Abrechnungszeitraums. Danach wechselt Ihr Konto automatisch zum kostenlosen Tarif.",
+  "q5": "Was passiert mit meinen Dateien nach dem Ablauf?",
+  "a5": "Dateien werden beim Erreichen des Ablaufdatums oder des Download-Limits automatisch und dauerhaft gelöscht, je nachdem, was zuerst eintritt.",
+  "q6": "Ist JustTransfer Open Source?",
+  "a6": "Ja. Der vollständige Quellcode ist auf GitHub öffentlich. Jeder kann ihn prüfen, auditieren oder erweitern, und Sie können eine eigene Instanz betreiben."
+}

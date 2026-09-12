@@ -49,11 +49,11 @@ import { frontendUrl } from "../handlers/config";
 import PasswordStrength from "../components/passwordStrength";
 import LinearProgressWithLabel from "../components/LinearProgressWithLabel";
 import { useSpeedMeter } from "../handlers/useSpeedMeter";
+import { useTranslation } from "react-i18next";
 
-import * as errors from "../messages/errors";
-import * as strings from "../messages/strings";
 
 export default function TransferDetails() {
+    const { t } = useTranslation(["transfer", "common", "errors", "auth"]);
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const theme = useTheme();
@@ -149,7 +149,7 @@ export default function TransferDetails() {
             setMaxDownloads(msg.messageData.max_downloads);
             setLifetimeDays(msg.messageData.lifetime ?? 0);
         } catch (e) {
-            error("Failed to load transfer: " + (e instanceof Error ? e.message : errors.errorUnknown));
+            error(t("transfer:loadFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
             setNotFound(true);
         } finally {
             setLoading(false);
@@ -180,9 +180,9 @@ export default function TransferDetails() {
     async function handleCopyLink() {
         try {
             await navigator.clipboard.writeText(link);
-            success("Link copied to clipboard!");
+            success(t("transfer:copyLink"));
         } catch (e) {
-            error("Failed to copy link");
+            error(t("transfer:copyLinkFailed"));
         }
     }
 
@@ -190,9 +190,9 @@ export default function TransferDetails() {
         if (!message?.password) return;
         try {
             await navigator.clipboard.writeText(message.password);
-            success("Password copied to clipboard!");
+            success(t("transfer:copyPassword"));
         } catch (e) {
-            error("Failed to copy password");
+            error(t("transfer:copyPasswordFailed"));
         }
     }
 
@@ -224,7 +224,7 @@ export default function TransferDetails() {
         try {
             const { nonce_filename, cfilename, mac, signature_metadata, signature } = await updateMessageLink(message.messageData.id, message.auth_key, message.AegisKey, message.MacKey, message.messageData.filename, maxDownloads, lifetimeDays, message.messageData.hash_file, message.messageData.file_id, message.messageData.chunk_size, message.messageData.creation_time, message.messageData.file_size, message.messageData.is_signed, keys.sign_private_key, keys.id);
 
-            success("Transfer updated successfully!");
+            success(t("transfer:updated"));
 
             setMessage((prev: any) => ({
                 ...prev,
@@ -241,7 +241,7 @@ export default function TransferDetails() {
                 },
             }));
         } catch (e) {
-            error("Failed to update transfer: " + (e instanceof Error ? e.message : errors.errorUnknown));
+            error(t("transfer:updateFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
         } finally {
             setSaving(false);
         }
@@ -254,7 +254,7 @@ export default function TransferDetails() {
 
         if (isUsingManualPassword) {
             if (!isNewPasswordStrong) {
-                error(errors.errorWeakPassword);
+                error(t("errors:errorWeakPassword"));
                 setErrorWeakNewPassword(true);
                 hasError = true;
             } else {
@@ -262,7 +262,7 @@ export default function TransferDetails() {
             }
 
             if (newPassword !== confirmNewPassword) {
-                error(errors.errorPasswordMismatch);
+                error(t("errors:errorPasswordMismatch"));
                 setErrorNewPasswordMismatch(true);
                 hasError = true;
             } else {
@@ -289,7 +289,7 @@ export default function TransferDetails() {
                 auth_key
             );
 
-            success("Password updated successfully!");
+            success(t("transfer:passwordUpdated"));
 
             setMessage((prev: any) => ({
                 ...prev,
@@ -302,7 +302,7 @@ export default function TransferDetails() {
             setIsNewPasswordStrong(false);
             setShowNewPassword(false);
         } catch (e) {
-            error("Failed to update password: " + (e instanceof Error ? e.message : errors.errorUnknown));
+            error(t("transfer:passwordUpdateFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
         } finally {
             setChangingPassword(false);
         }
@@ -323,7 +323,7 @@ export default function TransferDetails() {
                     updateProgress(percent);
                 },
                 onSuccess: () => {
-                    success(strings.msgFileDownloaded);
+                    success(t("common:msgFileDownloaded"));
                     setMessage((prev: any) => ({
                         ...prev,
                         messageData: {
@@ -334,7 +334,7 @@ export default function TransferDetails() {
                 },
             });
         } catch (e) {
-            error("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
+            error(t("transfer:actionFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
         } finally {
             setDownloadProgress(undefined);
         }
@@ -345,10 +345,10 @@ export default function TransferDetails() {
 
         try {
             await deleteLinkMessageAPI(message.messageData.id, message.auth_key);
-            success(strings.msgMessageDeleted);
+            success(t("common:msgMessageDeleted"));
             navigate("/transfers");
         } catch (e) {
-            error("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
+            error(t("transfer:actionFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
         }
     }
 
@@ -374,11 +374,11 @@ export default function TransferDetails() {
                     ) : notFound || !message ? (
                         <Box sx={contentCardSx}>
                             <Typography variant="h6" sx={{ textAlign: "center", color: "#2b0f1f" }}>
-                                Transfer not found
+                                {t("transfer:notFound")}
                             </Typography>
                             <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
                                 <Button variant="contained" onClick={() => navigate("/transfers")}>
-                                    Back to transfers
+                                    {t("transfer:backToTransfers")}
                                 </Button>
                             </Box>
                         </Box>
@@ -387,16 +387,16 @@ export default function TransferDetails() {
                             {/* Header */}
                             <Box sx={headerCardSx}>
                                 <Stack direction="row" spacing={1} sx={{ alignItems: "center", minWidth: 0 }}>
-                                    <IconButton onClick={() => navigate("/transfers")} aria-label="back">
+                                    <IconButton onClick={() => navigate("/transfers")} aria-label={t("transfer:backToTransfers")}>
                                         <ArrowBackIcon />
                                     </IconButton>
                                     <Typography variant={compact ? "h6" : "h5"} sx={{ fontWeight: 700, color: "#2b0f1f" }}>
-                                        Transfer Details
+                                        {t("transfer:details")}
                                     </Typography>
                                 </Stack>
 
                                 {message.auth_key && (
-                                    <IconButton color="primary" onClick={() => setOpenDeleteDialog(true)} aria-label="delete transfer">
+                                    <IconButton color="primary" onClick={() => setOpenDeleteDialog(true)} aria-label={t("transfer:delete")}>
                                         <DeleteIcon />
                                     </IconButton>
                                 )}
@@ -414,7 +414,7 @@ export default function TransferDetails() {
                                             <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
                                                 <PersonIcon sx={{ fontSize: 14, opacity: 0.7 }} />
                                                 <Typography variant="caption" color="text.secondary">
-                                                    From <b>{message.messageData.sender}</b> • Sent {formatCreated(message.messageData.creation_time)}
+                                                    {t("transfer:from")} <b>{message.messageData.sender}</b> • {t("transfer:sent")} {formatCreated(message.messageData.creation_time)}
                                                 </Typography>
                                             </Stack>
                                         </Stack>
@@ -429,7 +429,7 @@ export default function TransferDetails() {
                                         />
                                         <Chip
                                             size="small"
-                                            label={`${downloadsLeft} downloads remaining`}
+                                            label={t("transfer:downloadsRemaining", { count: downloadsLeft })}
                                             color={downloadsLeft <= 1 ? "warning" : "default"}
                                             variant={downloadsLeft <= 1 ? "filled" : "outlined"}
                                         />
@@ -443,7 +443,7 @@ export default function TransferDetails() {
                                 {/* Left column: Share */}
                                 <Stack spacing={2.5} sx={{ flex: 1, minWidth: 0 }}>
                                     <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#2b0f1f" }}>
-                                        Share
+                                        {t("transfer:share")}
                                     </Typography>
 
                                     <Stack spacing={3} sx={{ alignItems: "center" }}>
@@ -453,7 +453,7 @@ export default function TransferDetails() {
 
                                         <TextField
                                             fullWidth
-                                            label="Transfer link"
+                                            label={t("transfer:transferLink")}
                                             value={link}
                                             slotProps={{
                                                 input: {
@@ -496,14 +496,14 @@ export default function TransferDetails() {
                                                     }
                                                     label={
                                                         <Typography variant="body2" sx={{ fontWeight: 600, color: "#2b0f1f" }}>
-                                                            Include password in link
+                                                            {t("transfer:includePassword")}
                                                         </Typography>
                                                     }
                                                 />
 
                                                 <TextField
                                                     fullWidth
-                                                    label="Password"
+                                                    label={t("auth:password")}
                                                     type={showPassword ? "text" : "password"}
                                                     value={message.password}
                                                     slotProps={{
@@ -540,7 +540,7 @@ export default function TransferDetails() {
                                                 onClick={handleDownload}
                                                 disabled={downloadsLeft <= 0}
                                             >
-                                                Download
+                                                {t("transfer:download")}
                                             </Button>
                                         )}
                                     </Stack>
@@ -555,20 +555,20 @@ export default function TransferDetails() {
                                 {/* Right column: Manage */}
                                 <Stack spacing={2.5} sx={{ flex: 1, minWidth: 0 }}>
                                     <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#2b0f1f" }}>
-                                        Manage
+                                        {t("transfer:manage")}
                                     </Typography>
 
                                     {message.auth_key ? (
                                         <Stack spacing={3}>
                                             <Box sx={{ ...panelSx, backgroundColor: "#ffffff" }}>
                                                 <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
-                                                    Transfer settings
+                                                    {t("transfer:settings")}
                                                 </Typography>
 
                                                 <Stack spacing={2}>
                                                     <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                                                         <TextField
-                                                            label="Max Downloads"
+                                                            label={t("transfer:maxDownloads")}
                                                             name="maxDownloads"
                                                             type="number"
                                                             slotProps={{ htmlInput: { min: 1, max: maxDownloadsAccount } }}
@@ -583,15 +583,15 @@ export default function TransferDetails() {
                                                             error={maxDownloadsInvalid}
                                                             helperText={
                                                                 maxDownloadsInvalid
-                                                                    ? `Must be between 1 and ${maxDownloadsAccount}`
+                                                                    ? t("transfer:between", { max: maxDownloadsAccount })
                                                                     : maxDownloadsAccount
-                                                                        ? `Max allowed: ${maxDownloadsAccount}`
+                                                                        ? t("transfer:maxAllowed", { value: maxDownloadsAccount })
                                                                         : undefined
                                                             }
                                                         />
 
                                                         <TextField
-                                                            label="Lifetime"
+                                                            label={t("transfer:lifetime")}
                                                             name="lifetime"
                                                             type="number"
                                                             slotProps={{ htmlInput: { min: 1, max: maxLifetimeAccount } }}
@@ -606,9 +606,9 @@ export default function TransferDetails() {
                                                             error={lifetimeInvalid}
                                                             helperText={
                                                                 lifetimeInvalid
-                                                                    ? `Must be between 1 and ${maxLifetimeAccount} days`
+                                                                    ? t("transfer:betweenDays", { max: maxLifetimeAccount })
                                                                     : maxLifetimeAccount
-                                                                        ? `Max allowed: ${maxLifetimeAccount} days`
+                                                                        ? t("transfer:maxDays", { value: maxLifetimeAccount })
                                                                         : undefined
                                                             }
                                                         />
@@ -621,14 +621,14 @@ export default function TransferDetails() {
                                                         onClick={handleSave}
                                                         disabled={saving || !settingsChanged || maxDownloadsInvalid || lifetimeInvalid}
                                                     >
-                                                        Save changes
+                                                        {t("transfer:saveChanges")}
                                                     </Button>
                                                 </Stack>
                                             </Box>
 
                                             <Box sx={{ ...panelSx, backgroundColor: "#ffffff" }}>
                                                 <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
-                                                    Change password
+                                                    {t("transfer:changePassword")}
                                                 </Typography>
 
                                                 <Stack spacing={2}>
@@ -651,23 +651,23 @@ export default function TransferDetails() {
                                                             },
                                                         }}
                                                     >
-                                                        <ToggleButton value="auto" aria-label="Auto-generate password" sx={{ textAlign: "left", alignItems: "flex-start" }}>
+                                                        <ToggleButton value="auto" aria-label={t("transfer:auto")} sx={{ textAlign: "left", alignItems: "flex-start" }}>
                                                             <Box sx={{ width: "100%" }}>
                                                                 <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                                                                    Auto-generate
+                                                                    {t("transfer:auto")}
                                                                 </Typography>
                                                                 <Typography variant="caption" color="text.secondary">
-                                                                    Replaces the shared link's password
+                                                                    {t("transfer:replacePassword")}
                                                                 </Typography>
                                                             </Box>
                                                         </ToggleButton>
-                                                        <ToggleButton value="manual" aria-label="Set password manually" sx={{ textAlign: "left", alignItems: "flex-start" }}>
+                                                        <ToggleButton value="manual" aria-label={t("transfer:manual")} sx={{ textAlign: "left", alignItems: "flex-start" }}>
                                                             <Box sx={{ width: "100%" }}>
                                                                 <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                                                                    Set manually
+                                                                    {t("transfer:manual")}
                                                                 </Typography>
                                                                 <Typography variant="caption" color="text.secondary">
-                                                                    Choose your own password
+                                                                    {t("transfer:manualDescription")}
                                                                 </Typography>
                                                             </Box>
                                                         </ToggleButton>
@@ -676,7 +676,7 @@ export default function TransferDetails() {
                                                     <Collapse in={isUsingManualPassword} unmountOnExit>
                                                         <Stack spacing={2}>
                                                             <TextField
-                                                                label="New password"
+                                                                label={t("auth:newPassword")}
                                                                 name="newPassword"
                                                                 type={showNewPassword ? "text" : "password"}
                                                                 variant="outlined"
@@ -685,13 +685,13 @@ export default function TransferDetails() {
                                                                 value={newPassword}
                                                                 onChange={(e) => setNewPassword(e.target.value)}
                                                                 error={errorWeakNewPassword}
-                                                                helperText={errorWeakNewPassword ? errors.errorWeakPassword : ""}
+                                                                helperText={errorWeakNewPassword ? t("errors:errorWeakPassword") : ""}
                                                                 slotProps={{
                                                                     input: {
                                                                         endAdornment: (
                                                                             <InputAdornment position="end">
                                                                                 <IconButton
-                                                                                    aria-label={showNewPassword ? "Hide password" : "Show password"}
+                                                                                    aria-label={showNewPassword ? t("auth:hidePassword") : t("auth:showPassword")}
                                                                                     onClick={() => setShowNewPassword((p) => !p)}
                                                                                 >
                                                                                     {showNewPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
@@ -705,7 +705,7 @@ export default function TransferDetails() {
                                                             <PasswordStrength password={newPassword} onStrengthChange={setIsNewPasswordStrong} />
 
                                                             <TextField
-                                                                label="Confirm new password"
+                                                                label={t("auth:confirmNewPassword")}
                                                                 name="confirmNewPassword"
                                                                 type="password"
                                                                 variant="outlined"
@@ -714,7 +714,7 @@ export default function TransferDetails() {
                                                                 value={confirmNewPassword}
                                                                 onChange={(e) => setConfirmNewPassword(e.target.value)}
                                                                 error={errorNewPasswordMismatch}
-                                                                helperText={errorNewPasswordMismatch ? errors.errorPasswordMismatch : ""}
+                                                                helperText={errorNewPasswordMismatch ? t("errors:errorPasswordMismatch") : ""}
                                                             />
                                                         </Stack>
                                                     </Collapse>
@@ -726,14 +726,14 @@ export default function TransferDetails() {
                                                         onClick={handleChangePassword}
                                                         disabled={changingPassword || (isUsingManualPassword && (!newPassword || !confirmNewPassword))}
                                                     >
-                                                        Update password
+                                                        {t("transfer:updatePassword")}
                                                     </Button>
                                                 </Stack>
                                             </Box>
                                         </Stack>
                                     ) : (
                                         <Typography variant="body2" color="text.secondary">
-                                            You don't have owner access to manage this transfer's settings.
+                                            {t("transfer:noOwnerAccess")}
                                         </Typography>
                                     )}
                                 </Stack>
@@ -767,17 +767,17 @@ export default function TransferDetails() {
                                 </Box>
                                 <Stack spacing={0.75}>
                                     <Typography variant="h6" sx={{ fontWeight: 700, color: "#2b0f1f" }}>
-                                        Delete this transfer?
+                                        {t("transfer:deleteTransferQuestion")}
                                     </Typography>
                                     <Typography variant="body2" color="text.secondary">
-                                        This action can't be undone. The transfer will be permanently removed.
+                                        {t("transfer:deleteTransferDescription")}
                                     </Typography>
                                 </Stack>
                             </Stack>
                         </DialogContent>
                         <DialogActions sx={{ px: 3.5, pb: 3.5, pt: 1, gap: 1.5 }}>
                             <Button fullWidth variant="outlined" onClick={() => setOpenDeleteDialog(false)} sx={{ borderRadius: 2, borderColor: "#f1e7ee", color: "#2b0f1f" }}>
-                                Cancel
+                                {t("transfer:cancel")}
                             </Button>
                             <Button
                                 fullWidth
@@ -788,7 +788,7 @@ export default function TransferDetails() {
                                 sx={{ borderRadius: 2 }}
                                 autoFocus
                             >
-                                Delete
+                                {t("transfer:delete")}
                             </Button>
                         </DialogActions>
                     </Dialog>

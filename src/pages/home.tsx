@@ -21,6 +21,7 @@ import Faq from "../components/Faq";
 import CompetitorComparison from "../components/CompetitorComparison";
 import { useAuth } from "../hooks/useAuth";
 import { trackEvent, AnalyticsEvent, bucketFileSize } from "../handlers/analytics";
+import { useTranslation } from "react-i18next";
 
 import FileTransferForm from "../components/FileTransferForm";
 
@@ -37,6 +38,7 @@ const organizationJsonLd = {
 };
 
 export default function HomePage() {
+    const { t } = useTranslation("home");
     const navigate = useNavigate();
     const { config } = useServerConfig();
     const { role, exportKey, getLatestKeys } = useAuth();
@@ -132,12 +134,12 @@ export default function HomePage() {
                                         fontWeight: 700,
                                     }}
                                 >
-                                    Send large files securely
+                                    {t("heroTitle")}
                                     <br />
-                                    - <Box component="span" sx={{ color: "primary.main" }}> no compromises.</Box>
+                                    - <Box component="span" sx={{ color: "primary.main" }}> {t("heroAccent")}</Box>
                                 </Typography>
                                 <Typography variant="body1" sx={{ color: "#5a4454", maxWidth: 520 }}>
-                                    End-to-end encrypted transfers with simple links. Based in Switzerland, your privacy is our priority.
+                                    {t("heroSubtitle")}
                                 </Typography>
 
                                 {/* Feature highlights */}
@@ -147,9 +149,9 @@ export default function HomePage() {
                                     flexWrap: "wrap"
                                 }}>
                                     {[
-                                        { icon: <LockOutlinedIcon sx={{ fontSize: 18 }} />, label: "End-to-end encryption" },
-                                        { icon: <NoAccountsIcon sx={{ fontSize: 18 }} />, label: "No account needed" },
-                                        { icon: <Box component="span" sx={{ fontSize: 16, lineHeight: 1 }}>🇨🇭</Box>, label: "Based in Switzerland" },
+                                        { icon: <LockOutlinedIcon sx={{ fontSize: 18 }} />, label: t("encryption") },
+                                        { icon: <NoAccountsIcon sx={{ fontSize: 18 }} />, label: t("noAccountNeeded") },
+                                        { icon: <Box component="span" sx={{ fontSize: 16, lineHeight: 1 }}>🇨🇭</Box>, label: t("basedSwitzerland") },
                                     ].map((item) => (
                                         <Box
                                             key={item.label}
@@ -280,10 +282,10 @@ export default function HomePage() {
                     >
                         <Box sx={{ maxWidth: maxWidthPage, mx: "auto", textAlign: "center", mb: 6 }}>
                             <Typography id="how-it-works-heading" variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
-                                How a secure transfer works
+                                {t("howTitle")}
                             </Typography>
                             <Typography variant="body1" sx={{ color: "#7a6474", fontSize: "1.05rem" }}>
-                                Upload, share a link, and download with your password.
+                                {t("howSubtitle")}
                             </Typography>
                         </Box>
                         <Box sx={{ maxWidth: maxWidthPage, mx: "auto", display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" }, gap: 3.5 }}>
@@ -292,10 +294,10 @@ export default function HomePage() {
                                     <Box sx={{ width: 46, height: 46, borderRadius: "50%", backgroundColor: "#fbe3f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                         <UploadIcon color="primary" sx={{ fontSize: 24 }} />
                                     </Box>
-                                    <Typography variant="h6" component="h3" sx={{ fontWeight: 700 }}>1. Upload</Typography>
+                                    <Typography variant="h6" component="h3" sx={{ fontWeight: 700 }}>{t("upload")}</Typography>
                                 </Box>
                                 <Typography variant="body1" color="text.secondary" sx={{ fontSize: "1.02rem" }}>
-                                    Select a file and add a password for encryption.
+                                    {t("uploadText")}
                                 </Typography>
                             </Box>
                             <Box sx={{ p: 4, borderRadius: 4, border: "1px solid #f1e7ee", backgroundColor: "#ffffff" }}>
@@ -303,10 +305,10 @@ export default function HomePage() {
                                     <Box sx={{ width: 46, height: 46, borderRadius: "50%", backgroundColor: "#fbe3f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                         <LinkIcon color="primary" sx={{ fontSize: 24 }} />
                                     </Box>
-                                    <Typography variant="h6" component="h3" sx={{ fontWeight: 700 }}>2. Share</Typography>
+                                    <Typography variant="h6" component="h3" sx={{ fontWeight: 700 }}>{t("share")}</Typography>
                                 </Box>
                                 <Typography variant="body1" color="text.secondary" sx={{ fontSize: "1.02rem" }}>
-                                    Share the link yourself, or, if you're signed in, let us email it to your recipient directly.
+                                    {t("shareText")}
                                 </Typography>
                             </Box>
                             <Box sx={{ p: 4, borderRadius: 4, border: "1px solid #f1e7ee", backgroundColor: "#ffffff" }}>
@@ -314,10 +316,10 @@ export default function HomePage() {
                                     <Box sx={{ width: 46, height: 46, borderRadius: "50%", backgroundColor: "#fbe3f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                         <DownloadIcon color="primary" sx={{ fontSize: 24 }} />
                                     </Box>
-                                    <Typography variant="h6" component="h3" sx={{ fontWeight: 700 }}>3. Download</Typography>
+                                    <Typography variant="h6" component="h3" sx={{ fontWeight: 700 }}>{t("download")}</Typography>
                                 </Box>
                                 <Typography variant="body1" color="text.secondary" sx={{ fontSize: "1.02rem" }}>
-                                    Recipients unlock the file using your password.
+                                    {t("downloadText")}
                                 </Typography>
                             </Box>
                         </Box>
@@ -375,15 +377,15 @@ export default function HomePage() {
                         >
                             <Box>
                                 <Typography id="privacy-heading" variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1.5, color: "#2b0f1f" }}>
-                                    Built-in privacy protections
+                                    {t("privacyTitle")}
                                 </Typography>
                                 <Typography variant="body1" sx={{ color: "#6f5164", mb: 3 }}>
-                                    End-to-end encryption, anonymous sharing, and automatic expiry keep your data private from upload to download.
+                                    {t("privacyText")}
                                 </Typography>
                                 <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", mb: 3 }}>
-                                    <Chip label="No tracking" size="small" sx={{ backgroundColor: "#fff", border: "1px solid #ebc7dc" }} />
-                                    <Chip label="Client-side encryption" size="small" sx={{ backgroundColor: "#fff", border: "1px solid #ebc7dc" }} />
-                                    <Chip label="Expiry controls" size="small" sx={{ backgroundColor: "#fff", border: "1px solid #ebc7dc" }} />
+                                    <Chip label={t("noTracking")} size="small" sx={{ backgroundColor: "#fff", border: "1px solid #ebc7dc" }} />
+                                    <Chip label={t("clientEncryption")} size="small" sx={{ backgroundColor: "#fff", border: "1px solid #ebc7dc" }} />
+                                    <Chip label={t("expiryControls")} size="small" sx={{ backgroundColor: "#fff", border: "1px solid #ebc7dc" }} />
                                 </Box>
                                 <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
                                     <Button
@@ -392,14 +394,14 @@ export default function HomePage() {
                                         target="_blank"
                                         rel="noreferrer"
                                     >
-                                        Read the whitepaper
+                                        {t("readWhitepaper")}
                                     </Button>
                                     <Button
                                         variant="outlined"
                                         href="https://github.com/JustTransfer/"
                                         target="_blank"
                                     >
-                                        View on GitHub
+                                        {t("viewGithub")}
                                     </Button>
                                 </Box>
                             </Box>
@@ -422,20 +424,20 @@ export default function HomePage() {
                                 >
                                     {[
                                         {
-                                            title: "End-to-end encryption",
-                                            body: "Files are encrypted on your device before upload.",
+                                            title: t("encryption"),
+                                            body: t("uploadText"),
                                         },
                                         {
-                                            title: "No account required",
-                                            body: "Share anonymously with a simple link.",
+                                            title: t("noAccountNeeded"),
+                                            body: t("guestText"),
                                         },
                                         {
-                                            title: "Auto-deletion",
-                                            body: "Links expire after your chosen lifetime or download limit.",
+                                            title: t("autoDeletion"),
+                                            body: t("autoDeletionText"),
                                         },
                                         {
-                                            title: "Open source",
-                                            body: "Our code is public and auditable.",
+                                            title: t("openSource"),
+                                            body: t("openSourceText"),
                                         },
                                     ].map((item) => (
                                         <Box
@@ -497,84 +499,84 @@ export default function HomePage() {
                         }}
                     >
                         <Typography id="guest-vs-account-heading" variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1, textAlign: "center" }}>
-                            Send as a guest, or unlock more with an account
+                            {t("guestTitle")}
                         </Typography>
                         <Typography
                             variant="body1"
                             sx={{ color: "#7a6474", mb: 5, textAlign: "center", maxWidth: 520, mx: "auto" }}
                         >
-                            Every transfer is a secure link. An account just gives you more control over it.
+                            {t("guestSubtitle")}
                         </Typography>
                         <Box sx={{ maxWidth: maxWidthPage, mx: "auto", display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)" }, gap: 3 }}>
                             <Box sx={{ p: 3.5, borderRadius: 4, border: "1px solid #e3c3d6", background: "linear-gradient(135deg, #ffffff 0%, #ffeef7 100%)", boxShadow: "0 18px 48px rgba(83, 24, 60, 0.16)" }}>
                                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
                                     <Typography variant="subtitle1" component="h3" sx={{ fontWeight: 700, color: "primary.main" }}>
-                                        Guest transfer
+                                        {t("guestTransfer")}
                                     </Typography>
-                                    <Chip label="No account" size="small" sx={{ backgroundColor: "#fff", border: "1px solid #e9cddd" }} />
+                                    <Chip label={t("noAccount")} size="small" sx={{ backgroundColor: "#fff", border: "1px solid #e9cddd" }} />
                                 </Box>
                                 <Typography variant="body2" sx={{ color: "#6e5a69", mb: 2, maxWidth: { xs: "100%", sm: 360 } }}>
-                                    Upload a file, set a password, and get a shareable link in seconds.
+                                    {t("guestText")}
                                 </Typography>
                                 <Box sx={{ display: "grid", gap: 1.25, mb: 2.5, maxWidth: { xs: "100%", sm: 360 } }}>
                                     <Box>
                                         <Typography variant="caption" sx={{ textTransform: "uppercase", letterSpacing: "0.08em", color: "#9a7f8f" }}>
-                                            Included
+                                            {t("included")}
                                         </Typography>
                                         <Box component="ul" sx={{ color: "#5f4b58", m: 0, pl: 2, display: "grid", gap: 0.6 }}>
-                                            <Typography component="li" variant="body2">End-to-end encryption with a password</Typography>
-                                            <Typography component="li" variant="body2">Flexible expiry and download limits</Typography>
-                                            <Typography component="li" variant="body2">Fully anonymous, no sign-up</Typography>
+                                            <Typography component="li" variant="body2">{t("guestFeatures.0")}</Typography>
+                                            <Typography component="li" variant="body2">{t("guestFeatures.1")}</Typography>
+                                            <Typography component="li" variant="body2">{t("guestFeatures.2")}</Typography>
                                         </Box>
                                     </Box>
                                     <Box>
                                         <Typography variant="caption" sx={{ textTransform: "uppercase", letterSpacing: "0.08em", color: "#9a7f8f" }}>
-                                            Best for
+                                            {t("bestFor")}
                                         </Typography>
                                         <Box component="ul" sx={{ color: "#5f4b58", m: 0, pl: 2, display: "grid", gap: 0.6 }}>
-                                            <Typography component="li" variant="body2">One-off, quick shares</Typography>
-                                            <Typography component="li" variant="body2">Anonymous senders</Typography>
+                                            <Typography component="li" variant="body2">{t("guestBest.0")}</Typography>
+                                            <Typography component="li" variant="body2">{t("guestBest.1")}</Typography>
                                         </Box>
                                     </Box>
                                 </Box>
                                 <Button size="small" variant="contained" href="#transfer-form">
-                                    Start a transfer
+                                    {t("startTransfer")}
                                 </Button>
                             </Box>
                             <Box sx={{ p: 3.5, borderRadius: 4, border: "1px solid #cf9fbe", background: "linear-gradient(135deg, #ffe2f2 0%, #ffffff 100%)", boxShadow: "0 22px 60px rgba(83, 24, 60, 0.2)" }}>
                                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
                                     <Typography variant="subtitle1" component="h3" sx={{ fontWeight: 700, color: "primary.main" }}>
-                                        Account transfer
+                                        {t("accountTransfer")}
                                     </Typography>
-                                    <Chip label="Account" size="small" sx={{ backgroundColor: "#fff", border: "1px solid #e9cddd" }} />
+                                    <Chip label={t("account")} size="small" sx={{ backgroundColor: "#fff", border: "1px solid #e9cddd" }} />
                                 </Box>
                                 <Typography variant="body2" sx={{ color: "#6e5a69", mb: 2, maxWidth: { xs: "100%", sm: 360 } }}>
-                                    Everything in a guest transfer, plus full control after you hit send.
+                                    {t("accountText")}
                                 </Typography>
                                 <Box sx={{ display: "grid", gap: 1.25, mb: 2.5, maxWidth: { xs: "100%", sm: 360 } }}>
                                     <Box>
                                         <Typography variant="caption" sx={{ textTransform: "uppercase", letterSpacing: "0.08em", color: "#9a7f8f" }}>
-                                            Included
+                                            {t("included")}
                                         </Typography>
                                         <Box component="ul" sx={{ color: "#5f4b58", m: 0, pl: 2, display: "grid", gap: 0.6 }}>
-                                            <Typography component="li" variant="body2">Notify a recipient by email</Typography>
-                                            <Typography component="li" variant="body2">View or change the password anytime</Typography>
-                                            <Typography component="li" variant="body2">Update download limit and expiry</Typography>
-                                            <Typography component="li" variant="body2">Delete a transfer early</Typography>
+                                            <Typography component="li" variant="body2">{t("accountFeatures.0")}</Typography>
+                                            <Typography component="li" variant="body2">{t("accountFeatures.1")}</Typography>
+                                            <Typography component="li" variant="body2">{t("accountFeatures.2")}</Typography>
+                                            <Typography component="li" variant="body2">{t("accountFeatures.3")}</Typography>
                                         </Box>
                                     </Box>
                                     <Box>
                                         <Typography variant="caption" sx={{ textTransform: "uppercase", letterSpacing: "0.08em", color: "#9a7f8f" }}>
-                                            Best for
+                                            {t("bestFor")}
                                         </Typography>
                                         <Box component="ul" sx={{ color: "#5f4b58", m: 0, pl: 2, display: "grid", gap: 0.6 }}>
-                                            <Typography component="li" variant="body2">Recurring or managed sharing</Typography>
-                                            <Typography component="li" variant="body2">Sending to known recipients</Typography>
+                                            <Typography component="li" variant="body2">{t("accountBest.0")}</Typography>
+                                            <Typography component="li" variant="body2">{t("accountBest.1")}</Typography>
                                         </Box>
                                     </Box>
                                 </Box>
                                 <Button size="small" variant="outlined" onClick={() => navigate("/register")}>
-                                    Create a free account
+                                    {t("createFreeAccount")}
                                 </Button>
                             </Box>
                         </Box>
@@ -622,17 +624,17 @@ export default function HomePage() {
                             }}
                         >
                             <Typography id="cta-heading" variant="h5" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
-                                Ready to transfer?
+                                {t("ctaTitle")}
                             </Typography>
                             <Typography variant="body1" sx={{ opacity: 0.9, mb: 3 }}>
-                                Send a secure link in seconds and create an account to manage your transfers and notify recipients by email.
+                                {t("ctaText")}
                             </Typography>
                             <Box sx={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>
                                 <Button variant="contained" color="secondary" href="#transfer-form">
-                                    Get started
+                                    {t("getStarted")}
                                 </Button>
                                 <Button variant="outlined" sx={{ color: "#fff", borderColor: "rgba(255,255,255,0.5)" }} onClick={() => navigate("/register")}>
-                                    Create account
+                                    {t("createAccount")}
                                 </Button>
                             </Box>
                         </Box>

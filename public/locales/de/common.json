@@ -1,0 +1,21 @@
+{
+  "msgAccountCreated": "Konto erfolgreich erstellt.",
+  "msgLoginSuccessful": "Erfolgreich angemeldet.",
+  "msgAccountDeleted": "Konto erfolgreich gelöscht.",
+  "msgPasswordChanged": "Passwort erfolgreich geändert.",
+  "msgEmailVerified": "E-Mail erfolgreich bestätigt.",
+  "msgPasswordRequested": "Passwort-Zurücksetzung angefordert. Bitte überprüfen Sie Ihre E-Mails.",
+  "msgPasswordReset": "Passwort erfolgreich zurückgesetzt.",
+  "msgTransferSaved": "Übertragung erfolgreich in Ihrem Konto gespeichert.",
+  "msgFileUploaded": "Datei erfolgreich hochgeladen.",
+  "msgFileDownloaded": "Datei erfolgreich heruntergeladen.",
+  "msgFileInfoDecrypted": "Dateiinformationen erfolgreich entschlüsselt.",
+  "msgLinkCopied": "Link in die Zwischenablage kopiert.",
+  "msgMessageDeleted": "Nachricht erfolgreich gelöscht.",
+  "btnCreateAccount": "Konto erstellen",
+  "btnLogin": "Anmelden",
+  "btnLogout": "Abmelden",
+  "btnSendFile": "Datei senden",
+  "btnDownloadFile": "Datei herunterladen",
+  "btnBackToHome": "Zurück zur Startseite"
+}

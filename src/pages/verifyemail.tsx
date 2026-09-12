@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from 'react-router';
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -8,10 +9,9 @@ import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
 import { verifyEmailAPI } from "../handlers/api";
 
-import * as errors from "../messages/errors";
-import * as strings from "../messages/strings";
-
 export default function VerifyEmailPage() {
+
+    const { t } = useTranslation(["auth", "common", "errors"]);
 
     const cardSx = {
         width: "100%",
@@ -37,14 +37,14 @@ export default function VerifyEmailPage() {
             verifyEmailAPI(id)
                 .then(() => {
                     setState("success");
-                    success(strings.msgEmailVerified);
+                    success(t("common:msgEmailVerified"));
                     setTimeout(() => {
                         navigate("/login");
                     }, 2000);
                 })
                 .catch((err) => {
                     setState("error");
-                    error(err.message || errors.errorEmailVerificationFailed);
+                    error(err.message || t("errors:errorEmailVerificationFailed"));
                     setTimeout(() => {
                         navigate("/");
                     }, 2000);
@@ -67,14 +67,14 @@ export default function VerifyEmailPage() {
                 >
                     <Box sx={cardSx}>
                         <Typography variant="h4" sx={{ fontWeight: 700, mb: 2, color: "#2b0f1f" }}>
-                            {state === "verifying" && "Verifying your email"}
-                            {state === "success" && "Email verified"}
-                            {state === "error" && "Verification failed"}
+                            {state === "verifying" && t("auth:verifyTitle")}
+                            {state === "success" && t("auth:verifiedTitle")}
+                            {state === "error" && t("auth:verifyFailedTitle")}
                         </Typography>
                         <Typography variant="body1" sx={{ color: "#6e5a69" }}>
-                            {state === "verifying" && "Hang tight while we confirm your email address."}
-                            {state === "success" && "You are all set. Redirecting you to login now."}
-                            {state === "error" && "We could not verify your email. Redirecting to home."}
+                            {state === "verifying" && t("auth:verifySubtitle")}
+                            {state === "success" && t("auth:verifiedSubtitle")}
+                            {state === "error" && t("auth:verifyFailedSubtitle")}
                         </Typography>
                     </Box>
                 </ Box>
@@ -91,10 +91,10 @@ export default function VerifyEmailPage() {
                 >
                     <Box sx={cardSx}>
                         <Typography variant="h4" sx={{ fontWeight: 700, mb: 2, color: "#2b0f1f" }}>
-                            Check your email
+                            {t("auth:checkEmailTitle")}
                         </Typography>
                         <Typography variant="body1" sx={{ color: "#6e5a69", lineHeight: 1.6 }}>
-                            A verification link has been sent to your inbox. Please click the link to verify your account.
+                            {t("auth:checkEmailSubtitle")}
                         </Typography>
                     </Box>
                 </ Box>

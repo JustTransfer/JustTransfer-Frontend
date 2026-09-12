@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -21,6 +22,8 @@ export type PricingProps = {
 
 
 export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onSelectPlan, headingId }: PricingProps) {
+
+    const { t } = useTranslation("pricing");
 
     const navigate = useNavigate();
     const { config } = useServerConfig();
@@ -132,9 +135,9 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
 
     const planButtonLabel = (plan: Plan) => {
         if (!isLoggedIn) {
-            return "Get Started";
+            return t("getStarted");
         }
-        return plan === "user" ? "Switch to Free" : "Upgrade to Premium";
+        return plan === "user" ? t("switchFree") : t("upgradePremium");
     };
 
     return (
@@ -153,10 +156,10 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
         >
             <Box sx={{ textAlign: "center", mb: 4 }}>
                 <Typography id={headingId} variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
-                    Plans and pricing
+                    {t("pageTitle")}
                 </Typography>
                 <Typography variant="body2" sx={{ color: "#7a6474" }}>
-                    Free link transfers today. Upgrade anytime for more storage and longer retention.
+                    {t("pageSubtitle")}
                 </Typography>
             </Box>
             <Box
@@ -176,23 +179,23 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
                 >
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flexGrow: 1 }}>
                         <Typography variant="h6" component="h3" sx={{ fontWeight: 600 }}>
-                            Link Transfer
+                            {t("linkTransfer")}
                         </Typography>
                         <Box sx={priceRowSx}>
                             <Typography variant="h4" sx={{ color: "primary.main", fontWeight: 700 }}>
-                                Free
+                                {t("free")}
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: 120 }}>
-                            <Typography variant="body2">Maximum file size: {renderLimitValue(linkLimits.maxFileSize, formatSize)}</Typography>
-                            <Typography variant="body2">Files available for {renderLimitValue(linkLimits.maxLifetime)} days</Typography>
-                            <Typography variant="body2">{renderLimitValue(linkLimits.maxDownloads)} downloads per transfer</Typography>
+                            <Typography variant="body2">{t("maximumFileSize", { value: renderLimitValue(linkLimits.maxFileSize, formatSize) })}</Typography>
+                            <Typography variant="body2">{t("availableDays", { value: renderLimitValue(linkLimits.maxLifetime) })}</Typography>
+                            <Typography variant="body2">{t("downloads", { value: renderLimitValue(linkLimits.maxDownloads) })}</Typography>
                         </Box>
                     </Box>
                     {
                         !isLoggedIn && (
                             <Button variant="outlined" fullWidth size="small" onClick={() => navigate("/register")} sx={{ mt: "auto" }}>
-                                Get Started
+                                {t("getStarted")}
                             </Button>
                         )
                     }
@@ -203,23 +206,23 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
                 >
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flexGrow: 1 }}>
                         <Typography variant="h6" component="h3" sx={{ fontWeight: 600 }}>
-                            Free Account
+                            {t("freeAccount")}
                         </Typography>
                         <Box sx={priceRowSx}>
                             <Typography variant="h4" sx={{ color: "primary.main", fontWeight: 700 }}>
-                                {connectedLimits.price ? `${renderLimitValue(connectedLimits.price)} CHF / month` : "Free"}
+                                {connectedLimits.price ? `${renderLimitValue(connectedLimits.price)} ${t("perMonth")}` : t("free")}
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: 120 }}>
-                            <Typography variant="body2">Maximum file size: {renderLimitValue(connectedLimits.maxFileSize, formatSize)}</Typography>
-                            <Typography variant="body2">Files available for {renderLimitValue(connectedLimits.maxLifetime)} days</Typography>
-                            <Typography variant="body2">{renderLimitValue(connectedLimits.maxDownloads)} downloads per transfer</Typography>
+                            <Typography variant="body2">{t("maximumFileSize", { value: renderLimitValue(connectedLimits.maxFileSize, formatSize) })}</Typography>
+                            <Typography variant="body2">{t("availableDays", { value: renderLimitValue(connectedLimits.maxLifetime) })}</Typography>
+                            <Typography variant="body2">{t("downloads", { value: renderLimitValue(connectedLimits.maxDownloads) })}</Typography>
                         </Box>
                         {isCancelling && (
-                            <Chip label={`Starts ${formattedPeriodEnd}`} size="small" sx={cancellingChipSx} />
+                            <Chip label={t("starts", { date: formattedPeriodEnd })} size="small" sx={cancellingChipSx} />
                         )}
                         {isCurrentPlan("user") && (
-                            <Chip label="Current plan" size="small" sx={currentPlanChipSx} />
+                            <Chip label={t("currentPlan")} size="small" sx={currentPlanChipSx} />
                         )}
                     </Box>
                     {
@@ -238,7 +241,7 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
                     {
                         isCancelling && (
                             <Typography variant="caption" sx={{ mt: "auto", pt: 1, color: "text.secondary" }}>
-                                You'll move to this plan automatically.
+                                {t("moveAutomatically")}
                             </Typography>
                         )
                     }
@@ -247,26 +250,26 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
                 <Box
                     sx={highlightedTileSx}
                 >
-                    <Chip label="RECOMMENDED" size="small" sx={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", backgroundColor: "primary.main", color: "white" }} />
+                    <Chip label={t("recommended")} size="small" sx={{ position: "absolute", top: -12, left: "50%", transform: "translateX(-50%)", backgroundColor: "primary.main", color: "white" }} />
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flexGrow: 1 }}>
                         <Typography variant="h6" component="h3" sx={{ fontWeight: 600 }}>
-                            Premium Account
+                            {t("premiumAccount")}
                         </Typography>
                         <Box sx={priceRowSx}>
                             <Typography variant="h4" sx={{ color: "primary.main", fontWeight: 700 }}>
-                                {renderLimitValue(premiumLimits.price)} CHF / month
+                                {renderLimitValue(premiumLimits.price)} {t("perMonth")}
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: 120 }}>
-                            <Typography variant="body2">Maximum file size: {renderLimitValue(premiumLimits.maxFileSize, formatSize)}</Typography>
-                            <Typography variant="body2">Files available for {renderLimitValue(premiumLimits.maxLifetime)} days</Typography>
-                            <Typography variant="body2">{renderLimitValue(premiumLimits.maxDownloads)} downloads per transfer</Typography>
+                            <Typography variant="body2">{t("maximumFileSize", { value: renderLimitValue(premiumLimits.maxFileSize, formatSize) })}</Typography>
+                            <Typography variant="body2">{t("availableDays", { value: renderLimitValue(premiumLimits.maxLifetime) })}</Typography>
+                            <Typography variant="body2">{t("downloads", { value: renderLimitValue(premiumLimits.maxDownloads) })}</Typography>
                         </Box>
                         {isCancelling && (
-                            <Chip label={`Ends ${formattedPeriodEnd}`} size="small" sx={cancellingChipSx} />
+                            <Chip label={t("ends", { date: formattedPeriodEnd })} size="small" sx={cancellingChipSx} />
                         )}
                         {isCurrentPlan("premium") && (
-                            <Chip label="Current plan" size="small" sx={currentPlanChipSx} />
+                            <Chip label={t("currentPlan")} size="small" sx={currentPlanChipSx} />
                         )}
                     </Box>
                     {
@@ -289,19 +292,19 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
                 >
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flexGrow: 1 }}>
                         <Typography variant="h6" component="h3" sx={{ fontWeight: 600 }}>
-                            Enterprise
+                            {t("enterprise")}
                         </Typography>
                         <Box sx={priceRowSx}>
-                            <Chip label="Launching soon" size="small" color="primary" />
+                            <Chip label={t("launchingSoon")} size="small" color="primary" />
                         </Box>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: 120 }}>
-                            <Typography variant="body2">Dedicated priority support</Typography>
-                            <Typography variant="body2">Flexible custom transfer limits</Typography>
-                            <Typography variant="body2">Optional dedicated infrastructure</Typography>
+                            <Typography variant="body2">{t("prioritySupport")}</Typography>
+                            <Typography variant="body2">{t("customLimits")}</Typography>
+                            <Typography variant="body2">{t("dedicatedInfrastructure")}</Typography>
                         </Box>
                     </Box>
                     <Button variant="outlined" fullWidth size="small" href={`mailto:${emailAddress}`} sx={{ mt: "auto" }}>
-                        Contact Sales
+                        {t("contactSales")}
                     </Button>
                 </Box>
             </Box>

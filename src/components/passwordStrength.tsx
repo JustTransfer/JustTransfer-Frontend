@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import { useTranslation } from "react-i18next";
 
 interface PasswordStrengthProps {
     password: string;
@@ -8,6 +9,7 @@ interface PasswordStrengthProps {
 }
 
 const PasswordStrength: React.FC<PasswordStrengthProps> = ({ password, onStrengthChange }) => {
+    const { t } = useTranslation("auth");
     const [score, setScore] = useState(0);
 
     // Strong password if >= 2 (Fair or better)
@@ -27,7 +29,7 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ password, onStrengt
         })();
     }, [password, onStrengthChange]);
 
-    const scoreLabels = ["Very Weak", "Weak", "Fair", "Good", "Strong"];
+    const scoreLabels = ["veryWeak", "weak", "fair", "good", "strong"];
     const colors = ["orange", "yellowgreen", "green", "green"];
 
     return (
@@ -55,7 +57,7 @@ const PasswordStrength: React.FC<PasswordStrengthProps> = ({ password, onStrengt
             </Box>
 
             <Typography variant="caption" sx={{ color: 'text.primary', textAlign: 'left' }}>
-                {"Password strength: " + scoreLabels[score]}
+                {t("strength", { level: t(`strengthLevels.${scoreLabels[score]}`) })}
             </Typography>
         </Box>
     );

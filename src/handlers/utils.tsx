@@ -1,5 +1,6 @@
 // @ts-ignore
 import streamSaver from 'streamsaver';
+import i18n from "../i18n";
 
 const DAY = 86400000; // milliseconds in a day
 
@@ -172,19 +173,21 @@ export function expireColor(msg: any) {
 
 export function relativeExpire(msg: any, short = false) {
   const { expire, dayDiff, expired } = getExpiration(msg);
+  const translate = i18n.t.bind(i18n);
+  const locale = i18n.language || undefined;
 
-  if (expired) return "Expired";
+  if (expired) return translate("transfer:expired");
 
-  const time = expire.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const time = expire.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
 
   if (dayDiff === 0)
-    return short ? `Today at ${time}` : `Expires today at ${time}`;
+    return translate(short ? "transfer:expiresTodayShort" : "transfer:expiresToday", { time });
 
   if (dayDiff === 1)
-    return short ? `Tomorrow at ${time}` : `Expires tomorrow at ${time}`;
+    return translate(short ? "transfer:expiresTomorrowShort" : "transfer:expiresTomorrow", { time });
 
-  // return `Expires ${expire.toLocaleDateString()} at ${time}`;
-  return short ? `${expire.toLocaleDateString()} at ${time}` : `Expires on ${expire.toLocaleDateString()} at ${time}`;
+  const date = expire.toLocaleDateString(locale);
+  return translate(short ? "transfer:expiresDateShort" : "transfer:expiresDate", { date, time });
 }
 
 export function parseTransferLink(fullLink: string): { transferId: string; password: string } {

@@ -8,6 +8,7 @@ import { postLinkMessageLoginStartAPI, postLinkMessageLoginEndAPI, getLinkMessag
 import * as errors from "../messages/errors";
 import { frontendUrl } from "./config";
 import { linkTransferGeneratedPasswordLen } from "./config";
+import i18n from "../i18n";
 
 
 ///
@@ -55,7 +56,7 @@ async function getOneLinkMessageMetadata(password: string, message_id: string) {
     const sodium = await getSodium();
 
     // Check the signature if not empty
-    let sender = "Unknown";
+    let sender = i18n.t("transfer:unknown");
     if (is_signed) {
         const signature_metadata_decoded = Base64.toUint8Array(signature_metadata);
         const sender_pub_key_decoded = Base64.toUint8Array(sender_pub_key);

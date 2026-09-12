@@ -23,6 +23,7 @@ import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import { useAuth } from "../hooks/useAuth";
 import { useServerConfig } from "../hooks/useServerConfig";
 import { useNotification } from "../hooks/useNotificationContext";
+import { useTranslation } from "react-i18next";
 import Layout from "../components/layout";
 import { changePassword, generateNewKeys, getSavedTransfers } from "../handlers/crypto";
 import { getAccountInfoAPI, deleteAccountAPI, cancelSubscriptionAPI } from "../handlers/api";
@@ -31,8 +32,6 @@ import AccountActionDialog from "../components/AccountActionDialog";
 import type { Mode } from "../components/AccountActionDialog";
 import { trackEvent, AnalyticsEvent } from "../handlers/analytics";
 
-import * as errors from "../messages/errors";
-import * as strings from "../messages/strings";
 
 function PlanLimitCard({
     icon,
@@ -76,6 +75,7 @@ function PlanLimitCard({
 }
 
 export default function AccountPage() {
+    const { t } = useTranslation(["account", "common", "errors"]);
 
     const pageSx = {
         width: "100%",
@@ -112,7 +112,7 @@ export default function AccountPage() {
             const result = await generateNewKeys(email!, currentPassword, exportKey!);
 
             if (!result.success) {
-                throw new Error(result.message || errors.errorRotateKeys);
+                throw new Error(result.message || t("errors:errorRotateKeys"));
             }
 
             updateKeys({
@@ -123,7 +123,7 @@ export default function AccountPage() {
             success(result.message);
 
         } catch (e) {
-            error(e instanceof Error ? e.message : errors.errorRotateKeys);
+            error(e instanceof Error ? e.message : t("errors:errorRotateKeys"));
         }
     }
 
@@ -134,7 +134,7 @@ export default function AccountPage() {
             const result = await changePassword(email!, currentPassword, newPassword, keys!, saved_transfers);
 
             if (!result.success) {
-                throw new Error(result.message || errors.errorChangePassword);
+                throw new Error(result.message || t("errors:errorChangePassword"));
             }
 
             updateKeys({
@@ -145,7 +145,7 @@ export default function AccountPage() {
             success(result.message);
 
         } catch (e) {
-            error(e instanceof Error ? e.message : errors.errorChangePassword);
+            error(e instanceof Error ? e.message : t("errors:errorChangePassword"));
         }
     }
 
@@ -158,11 +158,11 @@ export default function AccountPage() {
             const result = await deleteAccountAPI(email!);
 
             if (result !== 204) {
-                throw new Error(errors.errorDeleteAccount);
+                throw new Error(t("errors:errorDeleteAccount"));
             }
 
             trackEvent(AnalyticsEvent.ACCOUNT_DELETED, { had_premium: role === "premium" });
-            success(strings.msgAccountDeleted);
+            success(t("common:msgAccountDeleted"));
 
             // wait 1 second to show success message before logging out
             await new Promise(resolve => setTimeout(resolve, 2000));
@@ -170,7 +170,7 @@ export default function AccountPage() {
             navigate("/logout", { replace: true });
 
         } catch (e) {
-            error(e instanceof Error ? e.message : errors.errorDeleteAccount);
+            error(e instanceof Error ? e.message : t("errors:errorDeleteAccount"));
         }
     }
 
@@ -181,7 +181,7 @@ export default function AccountPage() {
             setNumberTransfers(accountInfo.number_transfers);
             setCurrentPeriodEnd(accountInfo.current_period_end ?? null);
         } catch (e) {
-            error("Failed to fetch account info: " + (e instanceof Error ? e.message : "Unknown error"));
+            error(t("account:fetchFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
         }
     }
 
@@ -191,7 +191,7 @@ export default function AccountPage() {
 
     useEffect(() => {
         if (searchParams.get("subscription") === "success") {
-            success("Subscription activated! Your plan has been updated.");
+            success(t("account:subscriptionActivated"));
             trackEvent(AnalyticsEvent.SUBSCRIPTION_ACTIVATED);
 
             searchParams.delete("subscription");
@@ -234,7 +234,7 @@ export default function AccountPage() {
                                         <Typography variant="h6">{email}</Typography>
                                     </>
                                     : (
-                                        <Typography variant="h6">Loading...</Typography>
+                                        <Typography variant="h6">{t("account:loading")}</Typography>
                                     )
                                 }
                             </Box>
@@ -247,15 +247,17 @@ export default function AccountPage() {
                             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
                                     <Typography variant="h5">
-                                        Plan Overview
+                                        {t("account:planOverview")}
                                     </Typography>
 
                                     {role === "premium" && currentPeriodEnd ? (
                                         <Chip
-                                            label={`Premium Plan · Ends ${new Date(currentPeriodEnd).toLocaleDateString(undefined, {
-                                                year: "numeric",
-                                                month: "short",
-                                                day: "numeric",
+                                            label={`${t("account:premiumPlan")} · ${t("account:ends", {
+                                                date: new Date(currentPeriodEnd).toLocaleDateString(undefined, {
+                                                    year: "numeric",
+                                                    month: "short",
+                                                    day: "numeric",
+                                                })
                                             })}`}
                                             sx={{
                                                 fontWeight: 600,
@@ -267,7 +269,7 @@ export default function AccountPage() {
                                         />
                                     ) : (
                                         <Chip
-                                            label={role === "premium" ? "Premium Plan" : "Free Plan"}
+                                            label={role === "premium" ? t("account:premiumPlan") : t("account:freePlan")}
                                             color={role === "premium" ? "primary" : "default"}
                                         />
                                     )}
@@ -278,13 +280,13 @@ export default function AccountPage() {
                                     variant="contained"
                                     onClick={() => navigate("/pricing")}
                                 >
-                                    View Plans
+                                    {t("account:viewPlans")}
                                 </Button>
                             </Box>
 
                             {!config ? (
                                 <Typography variant="body2">
-                                    Loading plan limits...
+                                    {t("account:loadingLimits")}
                                 </Typography>
                             ) : (
 
@@ -298,42 +300,42 @@ export default function AccountPage() {
 
                                     <PlanLimitCard
                                         icon={<SyncAltIcon color="primary" fontSize="large" />}
-                                        title="Monthly Transfers"
+                                        title={t("account:monthlyTransfers")}
                                         value={`${numberTransfers} / ${role === "premium" ? config.max_transfer_month_connected_premium : config.max_transfer_month_connected}`}
                                         progress={(numberTransfers / (role === "premium" ? config.max_transfer_month_connected_premium : config.max_transfer_month_connected)) * 100}
                                     />
 
                                     <PlanLimitCard
                                         icon={<ScheduleIcon color="primary" fontSize="large" />}
-                                        title="Maximum Lifetime"
+                                        title={t("account:maximumLifetime")}
                                         value={
                                             role === "premium"
                                                 ? config.max_lifetime_connected_premium
                                                 : config.max_lifetime_connected
                                         }
-                                        unit="Days"
+                                        unit={t("account:days")}
                                     />
 
                                     <PlanLimitCard
                                         icon={<StorageIcon color="primary" fontSize="large" />}
-                                        title="Max File Size"
+                                        title={t("account:maxFileSize")}
                                         value={
                                             role === "premium"
                                                 ? formatSize(config.max_file_size_connected_premium)
                                                 : formatSize(config.max_file_size_connected)
                                         }
-                                        unit="per transfer"
+                                        unit={t("account:perTransfer")}
                                     />
 
                                     <PlanLimitCard
                                         icon={<DownloadIcon color="primary" fontSize="large" />}
-                                        title="Downloads"
+                                        title={t("account:downloads")}
                                         value={
                                             role === "premium"
                                                 ? config.max_downloads_connected_premium
                                                 : config.max_downloads_connected
                                         }
-                                        unit="per transfer"
+                                        unit={t("account:perTransfer")}
                                     />
                                 </Box>
 
@@ -353,10 +355,10 @@ export default function AccountPage() {
                         >
                             <Box>
                                 <Typography variant="h5">
-                                    Rotate Keys
+                                    {t("account:rotateKeys")}
                                 </Typography>
                                 <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
-                                    Generate new encryption and signing keys.
+                                    {t("account:rotateKeysDescription")}
                                 </Typography>
                             </Box>
                             <Button
@@ -366,7 +368,7 @@ export default function AccountPage() {
                                 startIcon={<RefreshIcon />}
                                 onClick={() => setDialogMode("rotateKeys")}
                             >
-                                Rotate Keys
+                                {t("account:rotateKeys")}
                             </Button>
                         </Box>
 
@@ -383,10 +385,10 @@ export default function AccountPage() {
                         >
                             <Box>
                                 <Typography variant="h5">
-                                    Change Password
+                                    {t("account:changePassword")}
                                 </Typography>
                                 <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
-                                    Update your account password.
+                                    {t("account:changePasswordDescription")}
                                 </Typography>
                             </Box>
                             <Button
@@ -396,7 +398,7 @@ export default function AccountPage() {
                                 startIcon={<DialpadIcon />}
                                 onClick={() => setDialogMode("changePassword")}
                             >
-                                Change Password
+                                {t("account:changePassword")}
                             </Button>
                         </Box>
 
@@ -413,10 +415,10 @@ export default function AccountPage() {
                         >
                             <Box>
                                 <Typography variant="h5" color="error">
-                                    Delete Account
+                                    {t("account:deleteAccount")}
                                 </Typography>
                                 <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
-                                    Deleting your account is permanent and cannot be undone.
+                                    {t("account:deleteDescription")}
                                 </Typography>
                                 <Box
                                     component="ul"
@@ -428,20 +430,20 @@ export default function AccountPage() {
                                     }}
                                 >
                                     <Typography component="li" variant="body2">
-                                        <b>Signed transfers</b>, including their files, will be permanently deleted.
+                                        {t("account:signedTransfers")}
                                     </Typography>
                                     <Typography component="li" variant="body2">
-                                        <b>Unsigned transfers</b> will remain on the server until they expire naturally, but you'll lose all access to them once your account is gone.
+                                        {t("account:unsignedTransfers")}
                                     </Typography>
                                     <Typography component="li" variant="body2">
-                                        <b>Saved transfers</b> in your account will be removed.
+                                        {t("account:savedTransfers")}
                                     </Typography>
                                     <Typography component="li" variant="body2">
-                                        <b>Subscription</b> will be canceled and any remaining Premium time will be forfeited.
+                                        {t("account:subscription")}
                                     </Typography>
                                 </Box>
                                 <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
-                                    None of this can be recovered afterward.
+                                    {t("account:notRecoverable")}
                                 </Typography>
                             </Box>
                             <Button
@@ -452,7 +454,7 @@ export default function AccountPage() {
                                 startIcon={<DeleteIcon />}
                                 onClick={() => setDialogMode("deleteAccount")}
                             >
-                                Delete Account
+                                {t("account:deleteAccount")}
                             </Button>
                         </Box>
 

@@ -3,15 +3,16 @@ import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import { useTranslation } from "react-i18next";
 
 import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
 import { requestResetPasswordAPI } from "../handlers/api";
 
-import * as errors from "../messages/errors";
-import * as strings from "../messages/strings";
 
 export default function ResetPasswordRequestPage() {
+
+    const { t } = useTranslation(["auth", "errors", "common"]);
 
     const cardSx = {
         width: "100%",
@@ -36,10 +37,10 @@ export default function ResetPasswordRequestPage() {
 
         try {
             await requestResetPasswordAPI(data.email as string);
-            success(strings.msgPasswordRequested);
+            success(t("common:msgPasswordRequested"));
 
         } catch (e) {
-            error(e instanceof Error ? e.message : errors.errorPasswordResetRequestFailed);
+            error(e instanceof Error ? e.message : t("errors:errorPasswordResetRequestFailed"));
         }
     }
 
@@ -59,17 +60,17 @@ export default function ResetPasswordRequestPage() {
                 >
                     <Paper elevation={0} sx={cardSx}>
                         <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold", color: "#2b0f1f" }}>
-                            Reset Password
+                            {t("auth:resetTitle")}
                         </Typography>
 
                         <Typography variant="body1" sx={{ mb: 3, color: "#6e5a69" }}>
-                            Enter your email address below and we'll send you a link to reset your password.
+                            {t("auth:resetRequestDescription")}
                         </Typography>
 
                         <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }} onSubmit={handleSubmit}>
-                            <TextField label="Email" name="email" type="email" variant="outlined" fullWidth required />
+                            <TextField label={t("auth:email")} name="email" type="email" variant="outlined" fullWidth required />
                             <Button type="submit" variant="contained" sx={{ mt: 2 }}>
-                                Send Reset Password Email
+                                {t("auth:sendResetEmail")}
                             </Button>
                         </Box>
                     </Paper>

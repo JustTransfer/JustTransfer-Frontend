@@ -1,0 +1,13 @@
+{
+  "title": "Connexion",
+  "subtitle": "Connectez-vous pour accéder à vos transferts chiffrés.",
+  "emailLabel": "E-mail",
+  "passwordLabel": "Mot de passe",
+  "showPassword": "afficher le mot de passe",
+  "hidePassword": "masquer le mot de passe",
+  "submit": "Connexion",
+  "noAccount": "Vous n'avez pas de compte ?",
+  "createOne": "Créez-en un",
+  "forgotPassword": "Mot de passe oublié ?",
+  "resetIt": "Réinitialisez-le"
+}

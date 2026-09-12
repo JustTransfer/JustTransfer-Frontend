@@ -18,11 +18,11 @@ import { register } from "../handlers/crypto";
 import PasswordStrength from "../components/passwordStrength";
 import AcceptTermsService from "../components/acceptTermsService";
 import { trackEvent, AnalyticsEvent } from "../handlers/analytics";
-
-import * as errors from "../messages/errors";
-import * as strings from "../messages/strings";
+import { useTranslation } from "react-i18next";
 
 export default function CreateAccountPage() {
+
+    const { t } = useTranslation(["auth", "errors", "common"]);
 
     const cardSx = {
         width: "100%",
@@ -64,13 +64,13 @@ export default function CreateAccountPage() {
         let hasError = false;
 
         if (!acceptedTerms) {
-            error(errors.errorTermsServicesNotAccepted);
+            error(t("errors:errorTermsServicesNotAccepted"));
             hasError = true;
         }
 
         if (!isStrong) {
             setErrorWeakPassword(true);
-            error(errors.errorWeakPassword);
+            error(t("errors:errorWeakPassword"));
             hasError = true;
         } else {
             setErrorWeakPassword(false);
@@ -78,7 +78,7 @@ export default function CreateAccountPage() {
 
         if (data.password !== data.confirmPassword) {
             setErrorPasswordMismatch(true);
-            error(errors.errorPasswordMismatch);
+            error(t("errors:errorPasswordMismatch"));
             hasError = true;
         } else {
             setErrorPasswordMismatch(false);
@@ -96,17 +96,17 @@ export default function CreateAccountPage() {
 
             if (result.success) {
                 trackEvent(AnalyticsEvent.SIGNUP);
-                success(strings.msgAccountCreated);
+                success(t("common:msgAccountCreated"));
 
                 setTimeout(() => {
                     navigate("/verify-email");
                 }, 1000);
 
             } else {
-                throw new Error(errors.errorRegistrationFailed);
+                throw new Error(t("errors:errorRegistrationFailed"));
             }
         } catch (e) {
-            error(e instanceof Error ? e.message : errors.errorRegistrationFailed);
+            error(e instanceof Error ? e.message : t("errors:errorRegistrationFailed"));
         }
     }
 
@@ -127,16 +127,16 @@ export default function CreateAccountPage() {
                     <Paper elevation={0} sx={cardSx}>
 
                         <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1 }}>
-                            Create Account
+                            {t("auth:registerTitle")}
                         </Typography>
 
                         <Typography variant="subtitle1" sx={{ color: "#7a6474" }}>
-                            Join now to securely share your files!
+                            {t("auth:registerSubtitle")}
                         </Typography>
 
                         <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 4 }} onSubmit={handleSubmit}>
                             <TextField
-                                label="Email"
+                                label={t("auth:email")}
                                 name="email"
                                 type="email"
                                 variant="outlined"
@@ -144,7 +144,7 @@ export default function CreateAccountPage() {
                                 required
                             />
                             <TextField
-                                label="Password"
+                                label={t("auth:password")}
                                 name="password"
                                 type={showPassword ? "text" : "password"}
                                 variant="outlined"
@@ -152,14 +152,14 @@ export default function CreateAccountPage() {
                                 required
                                 onChange={(e) => setPassword(e.target.value)}
                                 error={errorWeakPassword}
-                                helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
+                                helperText={errorWeakPassword ? t("errors:errorWeakPassword") : ""}
                                 slotProps={{
                                     input: {
                                         endAdornment: (
                                             < InputAdornment position="end" >
                                                 <IconButton
                                                     aria-label={
-                                                        showPassword ? 'hide the password' : 'display the password'
+                                                        showPassword ? t("auth:hidePassword") : t("auth:showPassword")
                                                     }
                                                     onClick={handleTogglePassword}
                                                 >
@@ -174,14 +174,14 @@ export default function CreateAccountPage() {
                             <PasswordStrength password={password} onStrengthChange={setIsStrong} />
 
                             <TextField
-                                label="Confirm Password"
+                                label={t("auth:confirmPassword")}
                                 name="confirmPassword"
                                 type="password"
                                 variant="outlined"
                                 fullWidth
                                 required
                                 error={errorPasswordMismatch}
-                                helperText={errorPasswordMismatch ? errors.errorPasswordMismatch : ""}
+                                helperText={errorPasswordMismatch ? t("errors:errorPasswordMismatch") : ""}
                             />
 
                             <AcceptTermsService
@@ -193,13 +193,13 @@ export default function CreateAccountPage() {
                                 type="submit"
                                 variant="contained"
                             >
-                                Create Account
+                                {t("auth:createAccount")}
                             </Button>
                         </Box>
                     </Paper>
 
                     <Typography variant="body2" sx={{ color: "#6e5a69" }}>
-                        Already have an account?
+                        {t("auth:alreadyAccount")}
                         <Link
                             component="button"
                             variant="body2"
@@ -207,7 +207,7 @@ export default function CreateAccountPage() {
                             underline="hover"
                             sx={{ ml: 1, verticalAlign: "baseline" }}
                         >
-                            Log in
+                            {t("auth:login")}
                         </Link>
                     </Typography>
                 </Box>
