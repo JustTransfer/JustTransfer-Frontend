@@ -14,3 +14,17 @@ export const AnalyticsEvent = {
     SUBSCRIPTION_CANCEL_STARTED: "subscription_cancel_started",
     ACCOUNT_DELETED: "account_deleted",
 } as const;
+
+const FILE_SIZE_BUCKETS: { maxBytes: number; label: string }[] = [
+    { maxBytes: 1_000_000, label: "<1MB" },
+    { maxBytes: 10_000_000, label: "1-10MB" },
+    { maxBytes: 100_000_000, label: "10-100MB" },
+    { maxBytes: 1_000_000_000, label: "100MB-1GB" },
+    { maxBytes: 10_000_000_000, label: "1-10GB" },
+    { maxBytes: Infinity, label: "10GB+" },
+];
+
+export function bucketFileSize(bytes: number): string {
+    const match = FILE_SIZE_BUCKETS.find(b => bytes < b.maxBytes);
+    return match ? match.label : "unknown";
+}

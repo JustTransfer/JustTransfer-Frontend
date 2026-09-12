@@ -20,7 +20,7 @@ import Pricing from "../components/Pricing";
 import Faq from "../components/Faq";
 import CompetitorComparison from "../components/CompetitorComparison";
 import { useAuth } from "../hooks/useAuth";
-import { trackEvent, AnalyticsEvent } from "../handlers/analytics";
+import { trackEvent, AnalyticsEvent, bucketFileSize } from "../handlers/analytics";
 
 import FileTransferForm from "../components/FileTransferForm";
 
@@ -208,6 +208,7 @@ export default function HomePage() {
                                                 trackEvent(AnalyticsEvent.TRANSFER_CREATED, {
                                                     type: "account",
                                                     signed: data.isSigned,
+                                                    file_size: bucketFileSize(data.file.size),
                                                     has_recipient_email: !!data.receiver_email,
                                                 });
 
@@ -236,6 +237,7 @@ export default function HomePage() {
 
                                                 trackEvent(AnalyticsEvent.TRANSFER_CREATED, {
                                                     type: "guest",
+                                                    file_size: bucketFileSize(data.file.size),
                                                 });
 
                                                 return result.link;
