@@ -21,7 +21,8 @@ const FILE_SIZE_BUCKETS: { maxBytes: number; label: string }[] = [
     { maxBytes: 100_000_000, label: "10-100MB" },
     { maxBytes: 1_000_000_000, label: "100MB-1GB" },
     { maxBytes: 10_000_000_000, label: "1-10GB" },
-    { maxBytes: Infinity, label: "10GB+" },
+    { maxBytes: 50_000_000_000, label: "10-50GB" },
+    { maxBytes: Infinity, label: "50GB+" },
 ];
 
 export function bucketFileSize(bytes: number): string {

@@ -11,6 +11,7 @@ import IconButton from "@mui/material/IconButton";
 import Alert from "@mui/material/Alert";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { useTranslation } from "react-i18next";
 
 
 import { useNotification } from "../hooks/useNotificationContext";
@@ -18,10 +19,10 @@ import Layout from "../components/layout";
 import PasswordStrength from "../components/passwordStrength";
 import { resetPassword } from "../handlers/crypto";
 
-import * as errors from "../messages/errors";
-import * as strings from "../messages/strings";
 
 export default function ResetPasswordPage() {
+
+    const { t } = useTranslation(["auth", "errors", "common"]);
 
     const cardSx = {
         width: "100%",
@@ -64,7 +65,7 @@ export default function ResetPasswordPage() {
 
         // check if id and username are set
         if (!id || !decodedUsername) {
-            error(errors.errorInvalidResetLink);
+            error(t("errors:errorInvalidResetLink"));
             setTimeout(() => {
                 navigate("/");
             }, 2000);
@@ -84,7 +85,7 @@ export default function ResetPasswordPage() {
 
         if (!isStrong) {
             setErrorWeakPassword(true);
-            error(errors.errorWeakPassword);
+            error(t("errors:errorWeakPassword"));
             hasError = true;
         } else {
             setErrorWeakPassword(false);
@@ -92,7 +93,7 @@ export default function ResetPasswordPage() {
 
         if (data.password !== data.confirmPassword) {
             setErrorPasswordMismatch(true);
-            error(errors.errorPasswordMismatch);
+            error(t("errors:errorPasswordMismatch"));
             hasError = true;
         } else {
             setErrorPasswordMismatch(false);
@@ -109,17 +110,17 @@ export default function ResetPasswordPage() {
             const result = await resetPassword(username as string, data.password as string, id as string);
 
             if (result.success) {
-                success(strings.msgPasswordReset);
+                success(t("common:msgPasswordReset"));
 
                 setTimeout(() => {
                     navigate("/login");
                 }, 1000);
 
             } else {
-                throw new Error(errors.errorPasswordResetFailed);
+                throw new Error(t("errors:errorPasswordResetFailed"));
             }
         } catch (e) {
-            error(e instanceof Error ? e.message : errors.errorPasswordResetFailed);
+            error(e instanceof Error ? e.message : t("errors:errorPasswordResetFailed"));
         }
     }
 
@@ -139,21 +140,21 @@ export default function ResetPasswordPage() {
                 >
                     <Paper elevation={0} sx={cardSx}>
                         <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold", color: "#2b0f1f" }}>
-                            Reset Password
+                            {t("auth:resetTitle")}
                         </Typography>
 
                         <Typography variant="body1" sx={{ mb: 3, color: "#6e5a69" }}>
-                            Enter a new password for account with username <strong>{username}</strong>. This action is irreversible!
+                            {t("auth:resetDescription", { username })}
                         </Typography>
 
                         <Alert severity="warning" sx={{ mb: 3, borderRadius: 2 }}>
-                            Resetting your password will delete your saved transfers. The transfers themselves are not deleted, but you'll need to re-enter their password to access them again.
+                            {t("auth:resetWarning")}
                         </Alert>
 
                         <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }} onSubmit={handleSubmit}>
 
                             <TextField
-                                label="New Password"
+                                label={t("auth:newPassword")}
                                 name="password"
                                 type={showPassword ? "text" : "password"}
                                 variant="outlined"
@@ -161,14 +162,14 @@ export default function ResetPasswordPage() {
                                 required
                                 onChange={(e) => setPassword(e.target.value)}
                                 error={errorWeakPassword}
-                                helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
+                                helperText={errorWeakPassword ? t("errors:errorWeakPassword") : ""}
                                 slotProps={{
                                     input: {
                                         endAdornment: (
                                             < InputAdornment position="end" >
                                                 <IconButton
                                                     aria-label={
-                                                        showPassword ? 'hide the password' : 'display the password'
+                                                        showPassword ? t("auth:hidePassword") : t("auth:showPassword")
                                                     }
                                                     onClick={handleTogglePassword}
                                                 >
@@ -183,20 +184,20 @@ export default function ResetPasswordPage() {
                             <PasswordStrength password={password} onStrengthChange={setIsStrong} />
 
                             <TextField
-                                label="Confirm New Password"
+                                label={t("auth:confirmNewPassword")}
                                 name="confirmPassword"
                                 type="password"
                                 variant="outlined"
                                 fullWidth
                                 required
                                 error={errorPasswordMismatch}
-                                helperText={errorPasswordMismatch ? errors.errorPasswordMismatch : ""}
+                                helperText={errorPasswordMismatch ? t("errors:errorPasswordMismatch") : ""}
                             />
                             <Button
                                 type="submit"
                                 variant="contained"
                             >
-                                Reset Password
+                                {t("auth:reset")}
                             </Button>
                         </Box>
                     </Paper>

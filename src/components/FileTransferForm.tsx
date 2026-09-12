@@ -34,6 +34,7 @@ import { formatSize, parseTransferLink } from "../handlers/utils";
 import TransferQrDialog from "./TransferQrDialog";
 import LinearProgressWithLabel from "./LinearProgressWithLabel";
 import { useSpeedMeter } from "../handlers/useSpeedMeter";
+import { useTranslation } from "react-i18next";
 
 
 type CommonProps = {
@@ -73,6 +74,7 @@ type FileTransferFormProps =
 export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxLifetime, onSubmit }: FileTransferFormProps) {
 
     const { success, error } = useNotification();
+    const { t } = useTranslation(["transfer", "errors", "auth"]);
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [isDragging, setIsDragging] = useState(false);
@@ -124,7 +126,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
 
     const processFile = (file: File) => {
         if (maxFileSize && file.size > maxFileSize) {
-            error(`File too large. Max: ${formatSize(maxFileSize)}`);
+            error(t("transfer:fileTooLarge", { size: formatSize(maxFileSize) }));
             return;
         }
         setSelectedFile(file);
@@ -182,7 +184,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (!selectedFile) {
-            error("No file selected");
+            error(t("transfer:noFile"));
             return;
         }
         const form = event.currentTarget;
@@ -202,14 +204,14 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
         let hasError = false;
 
         if (type === "link" && !acceptedTerms) {
-            error(errors.errorTermsServicesNotAccepted);
+            error(t("errors:errorTermsServicesNotAccepted"));
             hasError = true;
         }
 
         // Validate password fields if using password
         if (isUsingPassword) {
             if (!isStrong) {
-                error(errors.errorWeakPassword);
+                error(t("errors:errorWeakPassword"));
                 setErrorWeakPassword(true);
                 hasError = true;
             } else {
@@ -217,7 +219,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             }
 
             if (password !== confirm) {
-                error(errors.errorPasswordMismatch);
+                error(t("errors:errorPasswordMismatch"));
                 setErrorPassword(true);
                 hasError = true;
             } else {
@@ -251,7 +253,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             );
             setLink(result!);
             setOpenDialog(true);
-            success("File uploaded successfully!");
+            success(t("transfer:fileUploaded"));
 
         } catch (e: any) {
             if (e.message === errors.errorUserNotFound) {
@@ -260,7 +262,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 setErrorReceiver(false);
             }
 
-            error(e.message || "Unknown error");
+            error(e.message || t("errors:errorUnknown"));
 
             // Only reset sending state and progress
             setIsSending(false);
@@ -290,7 +292,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 <input
                     type="file"
                     ref={fileInputRef}
-                    aria-label="Select a file to upload"
+                    aria-label={t("transfer:selectFile")}
                     style={{ display: "none" }}
                     onChange={handleFileChange}
                 />
@@ -326,7 +328,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                                 {`${selectedFile.name} (${formatSize(selectedFile.size)})`}
                             </Typography>
                             <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.78rem", sm: "0.875rem" } }}>
-                                Click to change file
+                                {t("transfer:changeFile")}
                             </Typography>
                         </>
 
@@ -334,17 +336,17 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                         <>
                             <AddBoxIcon sx={{ fontSize: { xs: 56, sm: 80 }, color: "primary.main" }} />
                             <Typography variant="subtitle1" sx={{ fontWeight: "bold", fontSize: { xs: "1rem", sm: "1.1rem" } }}>
-                                Click to add a file
+                                {t("transfer:addFile")}
                             </Typography>
                             <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.78rem", sm: "0.875rem" } }}>
-                                Up to {formatSize(maxFileSize)} allowed
+                                {t("transfer:allowed", { size: formatSize(maxFileSize) })}
                             </Typography>
                         </>
                     )}
                 </Box>
 
                 <TextField
-                    label="Recipient email"
+                    label={t("transfer:recipient")}
                     name="receiver"
                     type="email"
                     fullWidth
@@ -352,8 +354,8 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                     error={errorReceiver}
                     helperText={
                         type === "connected"
-                            ? "Optional. If provided, the recipient will receive an email notification."
-                            : "Only available for registered users."
+                            ? t("transfer:recipientOptional")
+                            : t("transfer:registeredOnly")
                     }
                 />
 
@@ -372,7 +374,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                         textAlign: "left",
                     }}>
                         <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-                            Password choice
+                            {t("transfer:passwordChoice")}
                         </Typography>
                         <ToggleButtonGroup
                             exclusive
@@ -393,23 +395,23 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                                 },
                             }}
                         >
-                            <ToggleButton value="auto" aria-label="Use generated password" sx={{ textAlign: "left", alignItems: "flex-start" }}>
+                            <ToggleButton value="auto" aria-label={t("transfer:useGeneratedPassword")} sx={{ textAlign: "left", alignItems: "flex-start" }}>
                                 <Box sx={{ width: "100%" }}>
                                     <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                                        Auto-generate
+                                        {t("transfer:auto")}
                                     </Typography>
                                     <Typography variant="caption" color="text.secondary">
-                                        Automatically added to the link
+                                        {t("transfer:autoDescription")}
                                     </Typography>
                                 </Box>
                             </ToggleButton>
-                            <ToggleButton value="manual" aria-label="Set password manually" sx={{ textAlign: "left", alignItems: "flex-start" }}>
+                            <ToggleButton value="manual" aria-label={t("transfer:setPasswordManually")} sx={{ textAlign: "left", alignItems: "flex-start" }}>
                                 <Box sx={{ width: "100%" }}>
                                     <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                                        Set manually
+                                        {t("transfer:manual")}
                                     </Typography>
                                     <Typography variant="caption" color="text.secondary">
-                                        Choose your own password
+                                        {t("transfer:manualDescription")}
                                     </Typography>
                                 </Box>
                             </ToggleButton>
@@ -418,16 +420,16 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
 
                     <Collapse in={isUsingPassword} unmountOnExit>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                            <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
+                            <TextField label={t("auth:password")} name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
                                 onChange={(e) => setPassword(e.target.value)}
                                 error={errorWeakPassword}
-                                helperText={errorWeakPassword ? errors.errorWeakPassword : ""}
+                                helperText={errorWeakPassword ? t("errors:errorWeakPassword") : ""}
                                 slotProps={{
                                     input: {
                                         endAdornment: (
                                             <InputAdornment position="end">
                                                 <IconButton
-                                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                                    aria-label={showPassword ? t("auth:hidePassword") : t("auth:showPassword")}
                                                     onClick={handleTogglePassword}
                                                 >
                                                     {showPassword ? <VisibilityOff /> : <Visibility />}
@@ -440,9 +442,9 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
 
                             <PasswordStrength password={password} onStrengthChange={setIsStrong} />
 
-                            <TextField label="Confirm Password" name="confirmPassword" type="password" variant="outlined" fullWidth required
+                            <TextField label={t("auth:confirmPassword")} name="confirmPassword" type="password" variant="outlined" fullWidth required
                                 error={errorPassword}
-                                helperText={errorPassword ? errors.errorPasswordMismatch : ""}
+                                helperText={errorPassword ? t("errors:errorPasswordMismatch") : ""}
                             />
                         </Box>
                     </Collapse>
@@ -463,7 +465,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 >
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                         <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                            Transfer settings
+                            {t("transfer:settings")}
                         </Typography>
                     </AccordionSummary>
 
@@ -482,7 +484,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                             }}
                         >
                             <TextField
-                                label="Max Downloads"
+                                label={t("transfer:maxDownloads")}
                                 name="maxDownloads"
                                 type="number"
                                 slotProps={{
@@ -494,13 +496,13 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                                 defaultValue={maxDownloads}
                                 helperText={
                                     maxDownloads
-                                        ? `Max allowed: ${maxDownloads}`
+                                        ? t("transfer:maxAllowed", { value: maxDownloads })
                                         : undefined
                                 }
                             />
 
                             <TextField
-                                label="Lifetime"
+                                label={t("transfer:lifetime")}
                                 name="lifetime"
                                 type="number"
                                 slotProps={{
@@ -512,7 +514,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                                 defaultValue={maxLifetime}
                                 helperText={
                                     maxLifetime
-                                        ? `Max allowed: ${maxLifetime} days`
+                                        ? t("transfer:maxDays", { value: maxLifetime })
                                         : undefined
                                 }
                             />
@@ -529,7 +531,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                             }}
                         >
                             <Tooltip
-                                title={canSign ? "" : "Sign in to your account to sign transfers"}
+                                title={canSign ? "" : t("transfer:signIn")}
                                 disableHoverListener={canSign}
                             >
                                 <span style={{ display: "inline-flex" }}>
@@ -551,12 +553,12 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                                         label={
                                             <Box>
                                                 <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                                                    Sign this transfer
+                                                    {t("transfer:sign")}
                                                 </Typography>
                                                 <Typography variant="caption" color="text.secondary">
                                                     {canSign
-                                                        ? "Cryptographically sign this transfer with your account key"
-                                                        : "Available when connected to an account"}
+                                                        ? t("transfer:signDescription")
+                                                        : t("transfer:accountOnly")}
                                                 </Typography>
                                             </Box>
                                         }
@@ -582,15 +584,15 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 {isSending ? (
                     <LinearProgressWithLabel value={progress} speed={speed} />
                 ) : (
-                    <Button type="submit" variant="contained" fullWidth>Get a Link</Button>
+                    <Button type="submit" variant="contained" fullWidth>{t("transfer:getLink")}</Button>
                 )}
 
                 {
                     type === "link" ? (
                         <Typography variant="body2" sx={{ color: "#7a6474", mt: -2, textAlign: "center" }}>
-                            Want to notify a recipient by email or manage this transfer later?
+                            {t("transfer:notifyPrompt")}
                             <br />
-                            <RouterLink to="/register">Create an account</RouterLink> or <RouterLink to="/login">log in</RouterLink>.
+                            <RouterLink to="/register">{t("transfer:createAccount")}</RouterLink> {t("auth:and")} <RouterLink to="/login">{t("transfer:login")}</RouterLink>.
                         </Typography>
                     ) : (
                         null
@@ -602,7 +604,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             <TransferQrDialog
                 open={openDialog}
                 onClose={handleCloseDialog}
-                title="Link ready!"
+                title={t("transfer:linkReady")}
                 {...parseTransferLink(link)}
             />
 
@@ -624,17 +626,17 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                         </Box>
                         <Box>
                             <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                                Your email will be visible
+                                {t("transfer:emailVisible")}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                                Signing proves this transfer came from you, but your email address will be visible to anyone with access to it.
+                                {t("transfer:signWarning")}
                             </Typography>
                         </Box>
                     </Box>
                 </DialogContent>
                 <DialogActions sx={{ px: 3.5, pb: 3.5, pt: 1, gap: 1.5 }}>
                     <Button fullWidth variant="outlined" onClick={() => setOpenSignWarning(false)}>
-                        Cancel
+                        {t("transfer:cancel")}
                     </Button>
                     <Button
                         fullWidth
@@ -643,7 +645,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                         onClick={() => { setIsSigned(true); setOpenSignWarning(false); }}
                         autoFocus
                     >
-                        Continue
+                        {t("transfer:continue")}
                     </Button>
                 </DialogActions>
             </Dialog>

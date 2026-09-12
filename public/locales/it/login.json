@@ -1,0 +1,13 @@
+{
+  "title": "Accedi",
+  "subtitle": "Accedi per gestire i tuoi trasferimenti crittografati.",
+  "emailLabel": "E-mail",
+  "passwordLabel": "Password",
+  "showPassword": "mostra la password",
+  "hidePassword": "nascondi la password",
+  "submit": "Accedi",
+  "noAccount": "Non hai un account?",
+  "createOne": "Creane uno",
+  "forgotPassword": "Password dimenticata?",
+  "resetIt": "Reimpostala"
+}

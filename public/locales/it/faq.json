@@ -1,0 +1,16 @@
+{
+  "title": "Domande frequenti",
+  "subtitle": "Tutto ciò che devi sapere sull'invio di file con JustTransfer.",
+  "q1": "Serve un account per inviare un file?",
+  "a1": "No. I trasferimenti ospite funzionano senza account: carica il file, imposta una password e condividi il link. Un account gratuito offre funzioni aggiuntive come la gestione dei trasferimenti e l'invio diretto ai destinatari.",
+  "q2": "Come vengono crittografati i miei dati?",
+  "a2": "File e nomi dei file vengono crittografati sul tuo dispositivo prima di lasciarlo, usando una password scelta da te. Con la crittografia lato client, JustTransfer non ha accesso ai file non crittografati.",
+  "q3": "Dove ha sede JustTransfer e dove vengono archiviati i miei dati?",
+  "a3": "JustTransfer ha sede in Svizzera e i tuoi file sono archiviati esclusivamente su infrastrutture svizzere, secondo la legge svizzera sulla protezione dei dati. I dati di pagamento Premium sono gestiti da Stripe.",
+  "q4": "Cosa succede se annullo il piano Premium?",
+  "a4": "Mantieni l'accesso Premium fino alla fine del periodo di fatturazione attuale, poi l'account torna automaticamente al piano gratuito.",
+  "q5": "Cosa succede ai file dopo la scadenza?",
+  "a5": "I file vengono eliminati automaticamente e definitivamente alla scadenza o al raggiungimento del limite di download, a seconda di quale evento si verifica prima.",
+  "q6": "JustTransfer è open source?",
+  "a6": "Sì. Il codice sorgente completo è pubblico su GitHub: chiunque può esaminarlo, verificarlo o contribuirvi, e puoi ospitare una tua istanza."
+}

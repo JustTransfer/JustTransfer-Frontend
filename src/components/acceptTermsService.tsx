@@ -1,4 +1,5 @@
 import { Link as RouterLink } from "react-router";
+import { useTranslation } from "react-i18next";
 
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -14,6 +15,8 @@ export default function AcceptTermsService({
     accepted,
     onChange,
 }: AcceptTermsServiceProps) {
+    const { t } = useTranslation(["auth", "footer"]);
+
     return (
         <FormControlLabel
             sx={{
@@ -50,23 +53,23 @@ export default function AcceptTermsService({
                         lineHeight: 1.5,
                     }}
                 >
-                    I agree to the{" "}
+                    {t("auth:agreeToTerms")} {" "}
                     <Link
                         component={RouterLink}
                         to="/terms"
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        Terms of Service
+                        {t("footer:termsOfService")}
                     </Link>{" "}
-                    and{" "}
+                    {" "}{t("auth:and")} {" "}
                     <Link
                         component={RouterLink}
                         to="/privacy-policy"
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        Privacy Policy
+                        {t("footer:privacyPolicy")}
                     </Link>
                 </Typography>
             }

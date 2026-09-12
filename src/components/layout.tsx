@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link as RouterLink } from "react-router";
 import { useLocation } from "react-router";
+import { useTranslation } from "react-i18next";
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -25,6 +26,7 @@ import Link from '@mui/material/Link';
 
 import { useAuth } from "../hooks/useAuth";
 import { emailAddress } from "../handlers/config";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const headerHeight = "65px";
 const logoMarginTop = '-10px';
@@ -73,6 +75,8 @@ export const defaultTheme = createTheme({
 
 function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
 
+    const { t } = useTranslation("footer");
+
     return (
         <Box
             sx={{
@@ -98,17 +102,17 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     {/* About */}
                     <Box sx={{ minWidth: { xs: "100%", sm: footerMinAboutWidth }, flex: 1 }}>
                         <Typography variant="h6" gutterBottom sx={{ fontWeight: "bold" }}>
-                            JustTransfer
+                            {t("aboutTitle")}
                         </Typography>
                         <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                            JustTransfer is a secure, open-source file transfer service designed for large files. We use end-to-end encryption to ensure your files are protected at all times.
+                            {t("aboutText")}
                         </Typography>
                     </Box>
 
                     {/* Resources */}
                     <Box sx={{ minWidth: { xs: "100%", sm: footerMinResourceWidth } }}>
                         <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: "bold" }}>
-                            Ressources
+                            {t("resourcesTitle")}
                         </Typography>
                         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 1 }}>
                             <Link
@@ -118,7 +122,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                                 color="inherit"
                                 underline="hover"
                             >
-                                GitHub
+                                {t("github")}
                             </Link>
                             <Link
                                 href="https://justtransfer.github.io/"
@@ -127,7 +131,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                                 color="inherit"
                                 underline="hover"
                             >
-                                Whitepaper
+                                {t("whitepaper")}
                             </Link>
                         </Box>
                     </Box>
@@ -135,14 +139,14 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     {/* Legal */}
                     <Box sx={{ minWidth: { xs: "100%", sm: footerMinLegalWidth } }}>
                         <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: "bold" }}>
-                            Legal
+                            {t("legalTitle")}
                         </Typography>
                         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 1 }}>
                             <Link component={RouterLink} to="/terms" color="inherit" underline="hover">
-                                Terms of Service
+                                {t("termsOfService")}
                             </Link>
                             <Link component={RouterLink} to="/privacy-policy" color="inherit" underline="hover">
-                                Privacy Policy
+                                {t("privacyPolicy")}
                             </Link>
                         </Box>
                     </Box>
@@ -150,7 +154,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     {/* Contact */}
                     <Box sx={{ minWidth: { xs: "100%", sm: footerMinLinkWidth } }}>
                         <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: "bold" }}>
-                            Contact
+                            {t("contactTitle")}
                         </Typography>
                         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 1 }}>
                             <Link
@@ -179,7 +183,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     align="center"
                     sx={{ opacity: 0.7, mb: 1 }}
                 >
-                    We use{' '}
+                    {t("analyticsNoticePrefix")}{' '}
                     <Link
                         href="https://umami.is"
                         target="_blank"
@@ -187,14 +191,13 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                         color="inherit"
                         underline="hover"
                     >
-                        Umami
+                        {t("analyticsToolName")}
                     </Link>
-                    , a privacy-friendly, cookieless analytics tool. No personal data is
-                    collected, sold, or shared. See our{' '}
+                    {t("analyticsNoticeSuffix")}{' '}
                     <Link component={RouterLink} to="/privacy-policy" color="inherit" underline="hover">
-                        Privacy Policy
+                        {t("privacyPolicy")}
                     </Link>
-                    {' '}for details.
+                    {' '}{t("analyticsNoticeEnd")}
                 </Typography>
 
                 <Typography
@@ -202,7 +205,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     align="center"
                     sx={{ opacity: 0.7, mb: 1 }}
                 >
-                    JustTransfer is currently in beta — expect occasional bugs, and thanks for helping us test.
+                    {t("betaNotice")}
                 </Typography>
 
                 {/* Bottom */}
@@ -211,7 +214,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     align="center"
                     sx={{ opacity: 0.6 }}
                 >
-                    © {new Date().getFullYear()} JustTransfer — Open Source & Secure File Transfer
+                    © {new Date().getFullYear()} JustTransfer — {t("copyright")}
                 </Typography>
             </Container>
         </Box>
@@ -219,6 +222,8 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
 }
 
 export default function Layout({ content }: { content: React.ReactNode }) {
+
+    const { t } = useTranslation("nav");
 
     const navigate = useNavigate();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -251,14 +256,14 @@ export default function Layout({ content }: { content: React.ReactNode }) {
     };
 
     const mobileMenuItems = isLoggedIn ? [
-        { label: "New Transfer", icon: <CloudUploadIcon />, path: "/" },
-        { label: "My Transfers", icon: <FolderIcon />, path: "/transfers" },
-        { label: "Account", icon: <AccountCircleIcon />, path: "/account" },
-        { label: "Logout", icon: <LogoutIcon />, path: "/logout" },
+        { label: t("newTransfer"), icon: <CloudUploadIcon />, path: "/" },
+        { label: t("myTransfers"), icon: <FolderIcon />, path: "/transfers" },
+        { label: t("account"), icon: <AccountCircleIcon />, path: "/account" },
+        { label: t("logout"), icon: <LogoutIcon />, path: "/logout" },
     ] : [
-        { label: "Home", icon: <HomeIcon />, path: "/" },
-        { label: "Create account", icon: <PersonAddIcon />, path: "/register" },
-        { label: "Log in", icon: <AccountCircleIcon />, path: "/login" },
+        { label: t("home"), icon: <HomeIcon />, path: "/" },
+        { label: t("createAccount"), icon: <PersonAddIcon />, path: "/register" },
+        { label: t("login"), icon: <AccountCircleIcon />, path: "/login" },
     ];
 
     return (
@@ -309,6 +314,7 @@ export default function Layout({ content }: { content: React.ReactNode }) {
                         display: { xs: "none", md: "flex" },
                         gap: 4,
                     }}>
+                        <LanguageSwitcher />
                         {!isLoggedIn && (
                             <>
                                 <Button color="secondary" variant="text" onClick={() => navigate("/login")}
@@ -320,10 +326,10 @@ export default function Layout({ content }: { content: React.ReactNode }) {
                                         },
                                     }}
                                 >
-                                    Log in
+                                    {t("login")}
                                 </Button>
                                 <Button color="primary" variant="contained" onClick={() => navigate("/register")}>
-                                    Create account
+                                    {t("createAccount")}
                                 </Button>
                             </>
                         )}
@@ -331,7 +337,7 @@ export default function Layout({ content }: { content: React.ReactNode }) {
 
                     {/* Mobile menu button */}
                     <IconButton
-                        aria-label="Open navigation menu"
+                        aria-label={t("openMenu")}
                         onClick={() => setMobileMenuOpen(true)}
                         sx={{
                             ml: "auto",
@@ -380,9 +386,12 @@ export default function Layout({ content }: { content: React.ReactNode }) {
                                     alt="Logo"
                                     sx={{ width: "150px", height: "auto" }}
                                 />
-                                <IconButton aria-label="Close navigation menu" onClick={closeMobileMenu}>
-                                    <CloseIcon />
-                                </IconButton>
+                                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                    <LanguageSwitcher />
+                                    <IconButton aria-label={t("closeMenu")} onClick={closeMobileMenu}>
+                                        <CloseIcon />
+                                    </IconButton>
+                                </Box>
                             </Box>
 
                             <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, flex: 1 }}>
@@ -451,7 +460,7 @@ export default function Layout({ content }: { content: React.ReactNode }) {
                                         onClick={() => navigate("/")}
                                         sx={menuButtonStyle("/")}
                                     >
-                                        New Transfer
+                                        {t("newTransfer")}
                                     </Button>
                                     <Button
                                         startIcon={<FolderIcon />}
@@ -460,7 +469,7 @@ export default function Layout({ content }: { content: React.ReactNode }) {
                                         onClick={() => navigate("/transfers")}
                                         sx={menuButtonStyle("/transfers")}
                                     >
-                                        My Transfers
+                                        {t("myTransfers")}
                                     </Button>
                                 </Box>
 
@@ -481,7 +490,7 @@ export default function Layout({ content }: { content: React.ReactNode }) {
                                         onClick={() => navigate("/account")}
                                         sx={menuButtonStyle("/account")}
                                     >
-                                        Account
+                                        {t("account")}
                                     </Button>
 
                                     <Button
@@ -493,7 +502,7 @@ export default function Layout({ content }: { content: React.ReactNode }) {
                                         }}
                                         sx={menuButtonStyle("/logout")}
                                     >
-                                        Logout
+                                        {t("logout")}
                                     </Button>
                                 </Box>
                             </Box>

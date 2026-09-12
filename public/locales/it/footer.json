@@ -1,0 +1,17 @@
+{
+  "aboutTitle": "JustTransfer",
+  "aboutText": "JustTransfer è un servizio di trasferimento file sicuro e open source, progettato per i file di grandi dimensioni. Utilizziamo la crittografia end-to-end per proteggere sempre i tuoi file.",
+  "resourcesTitle": "Risorse",
+  "github": "GitHub",
+  "whitepaper": "Whitepaper",
+  "legalTitle": "Note legali",
+  "termsOfService": "Termini di servizio",
+  "privacyPolicy": "Informativa sulla privacy",
+  "contactTitle": "Contatti",
+  "analyticsNoticePrefix": "Utilizziamo",
+  "analyticsToolName": "Umami",
+  "analyticsNoticeSuffix": ", uno strumento di analisi rispettoso della privacy e senza cookie. Nessun dato personale viene raccolto, venduto o condiviso. Consulta la nostra",
+  "analyticsNoticeEnd": "per maggiori dettagli.",
+  "betaNotice": "JustTransfer è attualmente in versione beta: potresti riscontrare occasionali bug. Grazie per aiutarci a testarlo.",
+  "copyright": "Trasferimento file open source e sicuro"
+}

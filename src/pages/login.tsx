@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -18,10 +19,10 @@ import { useAuth } from "../hooks/useAuth";
 import Layout from "../components/layout";
 import { loginProcess } from "../handlers/crypto";
 
-import * as errors from "../messages/errors";
-import * as strings from "../messages/strings";
-
 export default function LoginPage() {
+
+    // "login" is this page's own namespace; "common"/"errors" are the shared ones.
+    const { t } = useTranslation(["login", "common", "errors"]);
 
     const cardSx = {
         width: "100%",
@@ -63,7 +64,7 @@ export default function LoginPage() {
 
             if (result.success) {
 
-                success(strings.msgLoginSuccessful);
+                success(t("common:msgLoginSuccessful"));
 
                 login({
                     email: result.email!,
@@ -76,7 +77,7 @@ export default function LoginPage() {
                 throw new Error(result.message);
             }
         } catch (e) {
-            error(e instanceof Error ? e.message : errors.errorLoginFailed);
+            error(e instanceof Error ? e.message : t("errors:errorLoginFailed"));
         }
     }
 
@@ -98,23 +99,23 @@ export default function LoginPage() {
                     <Paper elevation={0} sx={cardSx}>
 
                         <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1 }}>
-                            Login
+                            {t("login:title")}
                         </Typography>
 
                         <Typography variant="subtitle1" sx={{ color: "#7a6474" }}>
-                            Log in to access your encrypted transfers.
+                            {t("login:subtitle")}
                         </Typography>
 
                         <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 4 }} onSubmit={handleSubmit}>
-                            <TextField label="Email" name="email" type="text" variant="outlined" fullWidth required />
-                            <TextField label="Password" name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
+                            <TextField label={t("login:emailLabel")} name="email" type="text" variant="outlined" fullWidth required />
+                            <TextField label={t("login:passwordLabel")} name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
                                 slotProps={{
                                     input: {
                                         endAdornment: (
                                             < InputAdornment position="end" >
                                                 <IconButton
                                                     aria-label={
-                                                        showPassword ? 'hide the password' : 'display the password'
+                                                        showPassword ? t("login:hidePassword") : t("login:showPassword")
                                                     }
                                                     onClick={handleTogglePassword}
                                                 >
@@ -126,13 +127,13 @@ export default function LoginPage() {
                                 }}
                             />
                             <Button type="submit" variant="contained" sx={{ mt: 2 }}>
-                                Login
+                                {t("login:submit")}
                             </Button>
                         </Box>
                     </Paper>
 
                     <Typography variant="body2" sx={{ color: "#6e5a69" }}>
-                        You don't have an account?
+                        {t("login:noAccount")}
 
                         <Link
                             component="button"
@@ -141,12 +142,12 @@ export default function LoginPage() {
                             underline="hover"
                             sx={{ ml: 1, verticalAlign: "baseline" }}
                         >
-                            Create one
+                            {t("login:createOne")}
                         </Link>
 
                     </Typography>
                     <Typography variant="body2" sx={{ color: "#6e5a69" }}>
-                        Forgot your password?
+                        {t("login:forgotPassword")}
                         <Link
                             component="button"
                             variant="body2"
@@ -154,7 +155,7 @@ export default function LoginPage() {
                             underline="hover"
                             sx={{ ml: 1, verticalAlign: "baseline" }}
                         >
-                            Reset it
+                            {t("login:resetIt")}
                         </Link>
                     </Typography>
                 </Box>

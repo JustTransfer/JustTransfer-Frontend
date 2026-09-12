@@ -13,9 +13,12 @@ import { useNotification } from "../hooks/useNotificationContext";
 import { createSubscriptionCheckoutAPI, cancelSubscriptionAPI, getAccountInfoAPI } from "../handlers/api";
 import type { PricingProps } from "../components/Pricing";
 import { trackEvent, AnalyticsEvent } from "../handlers/analytics";
+import { useTranslation } from "react-i18next";
 
 
 export default function PricingPage() {
+
+    const { t } = useTranslation("pricing");
 
     const navigate = useNavigate();
     const { role } = useAuth();
@@ -40,9 +43,9 @@ export default function PricingPage() {
     useEffect(() => {
         const status = searchParams.get("subscription");
         if (status === "failed") {
-            error("Your payment could not be processed. Please try again.");
+            error(t("paymentFailed"));
         } else if (status === "cancelled") {
-            error("Checkout was cancelled.");
+            error(t("checkoutCancelled"));
         }
         if (status) {
             searchParams.delete("subscription");
@@ -72,8 +75,8 @@ export default function PricingPage() {
 
                 success(
                     formatted
-                        ? `Your subscription is set to cancel. You'll keep Premium access until ${formatted}.`
-                        : "Your subscription is set to cancel at the end of the billing period."
+                        ? t("cancelScheduled", { date: formatted })
+                        : t("cancelAtPeriodEnd")
                 );
                 return;
             }
@@ -83,7 +86,7 @@ export default function PricingPage() {
             const checkoutUrl = await createSubscriptionCheckoutAPI(plan);
             window.location.href = checkoutUrl; // Stripe Checkout Session URL
         } catch (e) {
-            error(e instanceof Error ? e.message : "Failed to update subscription");
+            error(e instanceof Error ? e.message : t("updateFailed"));
         } finally {
             setCancelling(false);
         }
@@ -115,7 +118,7 @@ export default function PricingPage() {
                             }}
                         >
                             <ArrowBackIcon sx={{ mr: 1 }} />
-                            Account
+                            {t("account")}
                         </Button>
                     </Box>
 

@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
+import i18n from "../i18n";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -43,9 +45,6 @@ import { deleteLinkMessageAPI } from "../handlers/api_link";
 import { deleteSavedTransferAPI } from "../handlers/api";
 import { formatSize, formatCreated, relativeExpire, expireColor, genericDownloadFile } from "../handlers/utils";
 
-import * as errors from "../messages/errors";
-import * as strings from "../messages/strings";
-
 type Props = {
     msg: any;
     progress?: number;
@@ -56,6 +55,8 @@ type Props = {
 };
 
 function DownloadSection({ msg, progress, onDownload, onDelete, onInfo, compact = false }: Props) {
+
+    const { t } = useTranslation("transfer");
 
     const tampered = msg.messageData.signatureValid === false;
     const downloadsLeft = tampered ? 0 : msg.messageData.max_downloads - msg.messageData.number_downloads;
@@ -82,10 +83,11 @@ function DownloadSection({ msg, progress, onDownload, onDelete, onInfo, compact 
             disabled={!canDownload}
             sx={{ flex: 1 }}
         >
-            Download
+            {t("download")}
         </Button>
     ) : (
-        <IconButton color="primary" onClick={onDownload} disabled={!canDownload} aria-label="download">
+        <IconButton color="primary" onClick={onDownload} disabled={!canDownload} aria-label={t("download")}>
+
             <DownloadIcon fontSize={iconSize} />
         </IconButton>
     );
@@ -102,11 +104,11 @@ function DownloadSection({ msg, progress, onDownload, onDelete, onInfo, compact 
         >
             {downloadControl}
 
-            <IconButton onClick={onInfo} disabled={!canInfo} size={iconSize} aria-label="transfer info">
+            <IconButton onClick={onInfo} disabled={!canInfo} size={iconSize} aria-label={t("details")}>
                 <InfoOutlinedIcon fontSize={iconSize} />
             </IconButton>
 
-            <IconButton color="primary" onClick={onDelete} disabled={!canDelete} size={iconSize} aria-label="delete message">
+            <IconButton color="primary" onClick={onDelete} disabled={!canDelete} size={iconSize} aria-label={t("delete")}>
                 <DeleteIcon fontSize={iconSize} />
             </IconButton>
         </Stack>
@@ -120,7 +122,7 @@ function parseTransferInput(input: string, password: string) {
         const transferId = url.pathname.split("/").filter(Boolean).pop();
 
         if (!transferId) {
-            throw new Error("Invalid transfer link");
+            throw new Error(i18n.t("transfer:invalidLink"));
         }
 
         // Password from fragment (#password)
@@ -132,12 +134,13 @@ function parseTransferInput(input: string, password: string) {
         };
 
     } catch {
-        throw new Error("Invalid transfer URL");
+        throw new Error(i18n.t("transfer:invalidUrl"));
     }
 }
 
 export default function SavedTransfer() {
 
+    const { t } = useTranslation(["transfer", "common", "errors"]);
     const navigate = useNavigate();
     const theme = useTheme();
     const compactInbox = useMediaQuery(theme.breakpoints.down("sm"));
@@ -188,7 +191,7 @@ export default function SavedTransfer() {
             );
 
             if (!password) {
-                throw new Error("Password is missing");
+                throw new Error(t("transfer:passwordMissing"));
             }
 
             await addSavedTransfer(
@@ -197,7 +200,7 @@ export default function SavedTransfer() {
                 exportKey!
             );
 
-            success("Transfer added successfully!");
+            success(t("common:msgTransferSaved"));
 
             setTransferInput("");
             setPasswordInput("");
@@ -206,10 +209,7 @@ export default function SavedTransfer() {
             getMessagesLocal();
 
         } catch (e) {
-            error(
-                "Failed to add transfer: " +
-                (e instanceof Error ? e.message : errors.errorUnknown)
-            );
+            error(t("transfer:addFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
         } finally {
             setAddingTransfer(false);
         }
@@ -230,9 +230,9 @@ export default function SavedTransfer() {
             await deleteLinkMessageAPI(id, authKey);
 
             setMessages(prev => prev.filter(msg => msg.messageData.id !== id));
-            success(strings.msgMessageDeleted);
+            success(t("common:msgMessageDeleted"));
         } catch (e) {
-            error("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
+            error(t("transfer:actionFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
         }
     }
 
@@ -250,7 +250,7 @@ export default function SavedTransfer() {
                         [message.messageData.id]: percent,
                     })),
                 onSuccess: () => {
-                    success(strings.msgFileDownloaded);
+                    success(t("common:msgFileDownloaded"));
 
                     setMessages(prev =>
                         prev.map(m =>
@@ -268,7 +268,7 @@ export default function SavedTransfer() {
                 },
             });
         } catch (e) {
-            error("An error occurred: " + (e instanceof Error ? e.message : errors.errorUnknown));
+            error(t("transfer:actionFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
         } finally {
             setDownloadProgress(prev => {
                 const { [message.messageData.id]: _, ...rest } = prev;
@@ -294,7 +294,7 @@ export default function SavedTransfer() {
                         password: msg.password,
                     });
                 } catch (e) {
-                    if (e instanceof Error && e.message === errors.errorFailureMACVerification) {
+                    if (e instanceof Error && e.message === t("errors:errorFailureMACVerification")) {
                         tmpMessagesData.push({
                             messageData: {
                                 id: msg.transfer_id,
@@ -303,7 +303,7 @@ export default function SavedTransfer() {
                             auth_key: msg.auth_key,
                             password: msg.password,
                         });
-                    } else if (e instanceof Error && e.message === errors.errorFailureSignatureVerification) {
+                    } else if (e instanceof Error && e.message === t("errors:errorFailureSignatureVerification")) {
                         tmpMessagesData.push({
                             messageData: {
                                 id: msg.transfer_id,
@@ -312,15 +312,15 @@ export default function SavedTransfer() {
                             auth_key: msg.auth_key,
                             password: msg.password,
                         });
-                    } else if (e instanceof Error && e.message === errors.errorTooManyRequests) {
+                    } else if (e instanceof Error && e.message === t("errors:errorTooManyRequests")) {
                         // Break the loop and show a warning message if too many requests are made
-                        warning(errors.errorTooManyRequests);
+                        warning(t("errors:errorTooManyRequests"));
                         break;
-                    } else if (e instanceof Error && e.message === errors.errorLoginFailed) {
-                        info("Deleting saved transfer " + msg.transfer_id);
+                    } else if (e instanceof Error && e.message === t("errors:errorLoginFailed")) {
+                        info(t("transfer:deletingSavedTransfer", { id: msg.transfer_id }));
                         await deleteSavedTransferAPI(msg.id);
                     } else {
-                        error("Failed to load transfer " + msg.transfer_id + ": " + (e instanceof Error ? e.message : errors.errorUnknown));
+                        error(t("transfer:loadTransferFailed", { id: msg.transfer_id, error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
                     }
                 }
             }
@@ -334,7 +334,7 @@ export default function SavedTransfer() {
 
             setMessages(tmpMessagesData);
         } catch (e) {
-            error("Failed to load messages: " + (e instanceof Error ? e.message : errors.errorUnknown));
+            error(t("transfer:loadMessagesFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
         }
 
         setLoading(false);
@@ -362,7 +362,7 @@ export default function SavedTransfer() {
                     <Box sx={contentCardSx}>
                         <Box sx={headerCardSx}>
                             <Typography variant={compactInbox ? "h6" : "h5"} sx={{ fontWeight: 700, color: "#2b0f1f" }}>
-                                My Transfers
+                                {t("nav:myTransfers")}
                             </Typography>
 
                             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -377,11 +377,11 @@ export default function SavedTransfer() {
                                     }}
                                 >
                                     <AddIcon />
-                                    {!compactInbox && "Add Transfer"}
+                                    {!compactInbox && t("transfer:addTransfer")}
                                 </Button>
 
                                 <IconButton
-                                    aria-label="refresh"
+                                    aria-label={t("common:refresh")}
                                     color="primary"
                                     size={compactInbox ? "medium" : "large"}
                                     onClick={() => {
@@ -413,9 +413,9 @@ export default function SavedTransfer() {
                                                     if (!tampered && msg.messageData.max_downloads - msg.messageData.number_downloads > 0) {
                                                         navigate(`/transfers/${msg.messageData.id}`);
                                                     } else if (tampered) {
-                                                        error("This transfer has been tampered with and cannot be accessed.");
+                                                        error(t("transfer:tamperedError"));
                                                     } else {
-                                                        error("This transfer has reached its download limit.");
+                                                        error(t("transfer:limitReachedError"));
                                                     }
                                                 }}
                                                 sx={{
@@ -449,21 +449,21 @@ export default function SavedTransfer() {
                                                             <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ alignItems: { xs: "flex-start", sm: "center" }, minWidth: 0 }}>
                                                                 <PersonIcon sx={{ fontSize: 16, opacity: 0.7 }} />
                                                                 <Typography variant="caption" color="text.secondary" sx={{ minWidth: 0, overflowWrap: "anywhere", lineHeight: 1.4 }}>
-                                                                    From <b>{msg.messageData.sender}</b> • Sended{" "}
-                                                                    {tampered ? "Unknown" : formatCreated(msg.messageData.creation_time)}
+                                                                    {t("from")} <b>{msg.messageData.sender}</b> • {t("sent")} {" "}
+                                                                    {tampered ? t("unknown") : formatCreated(msg.messageData.creation_time)}
                                                                 </Typography>
                                                             </Stack>
 
                                                             <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ alignItems: { xs: "flex-start", sm: "center" }, minWidth: 0 }}>
                                                                 <Typography sx={{ fontWeight: 600, overflowWrap: "anywhere", fontSize: compactInbox ? "0.98rem" : undefined, lineHeight: 1.35 }}>
-                                                                    {tampered ? "Unknown file" : msg.messageData.filename}
+                                                                    {tampered ? t("unknownFile") : msg.messageData.filename}
                                                                 </Typography>
-                                                                <Chip label={tampered ? "Unknown size" : formatSize(msg.messageData.file_size)} size="small" />
+                                                                <Chip label={tampered ? t("unknownSize") : formatSize(msg.messageData.file_size)} size="small" />
                                                             </Stack>
 
                                                             <Stack direction={compactInbox ? "column" : "row"} spacing={1} sx={{ mt: 0, alignItems: "flex-start", flexWrap: "wrap", rowGap: 1 }}>
                                                                 {tampered ? (
-                                                                    <Chip size="small" color="error" label="Tampered" />
+                                                                    <Chip size="small" color="error" label={t("tampered")} />
                                                                 ) : (
                                                                     <>
                                                                         <Chip
@@ -475,7 +475,7 @@ export default function SavedTransfer() {
                                                                         <Chip
                                                                             size="small"
                                                                             variant={(msg.messageData.max_downloads - msg.messageData.number_downloads) <= 1 ? "filled" : "outlined"}
-                                                                            label={`${msg.messageData.max_downloads - msg.messageData.number_downloads} downloads remaining`}
+                                                                            label={t("downloadsRemaining", { count: msg.messageData.max_downloads - msg.messageData.number_downloads })}
                                                                             color={(msg.messageData.max_downloads - msg.messageData.number_downloads) <= 1 ? "warning" : "default"}
                                                                         />
                                                                     </>
@@ -507,9 +507,9 @@ export default function SavedTransfer() {
                                     :
                                     <Box color="text.secondary" sx={{ mt: 4, textAlign: "center" }}>
                                         <InboxIcon sx={{ fontSize: 64, opacity: 0.4 }} />
-                                        <Typography variant="h6">No transfers yet</Typography>
+                                        <Typography variant="h6">{t("transfer:noTransfers")}</Typography>
                                         <Typography variant="body2">
-                                            Create or add a transfer to manage your transfers here.
+                                            {t("transfer:manageTransfers")}
                                         </Typography>
                                     </Box>
 
@@ -525,7 +525,7 @@ export default function SavedTransfer() {
                         maxWidth="sm"
                     >
                         <DialogTitle>
-                            Add Transfer
+                            {t("transfer:addTransfer")}
                             <IconButton
                                 onClick={() => setOpenAddDialog(false)}
                                 sx={{ float: "right" }}
@@ -537,13 +537,13 @@ export default function SavedTransfer() {
                         <DialogContent>
 
                             <DialogContentText sx={{ mb: 3 }}>
-                                Paste a transfer link. Password can either be included after <b>#</b> in the URL or entered separately.
+                                {t("transfer:addDescription")}
                             </DialogContentText>
 
 
                             <TextField
                                 fullWidth
-                                label="Transfer link"
+                                label={t("transfer:transferLink")}
                                 placeholder="https://localhost/link-transfer/id#password"
                                 value={transferInput}
                                 onChange={(e) => setTransferInput(e.target.value)}
@@ -563,8 +563,8 @@ export default function SavedTransfer() {
 
                             <TextField
                                 fullWidth
-                                label="Password (optional)"
-                                placeholder="Only needed if not in URL fragment"
+                                label={t("transfer:optionalPassword")}
+                                placeholder={t("transfer:passwordPlaceholder")}
                                 value={passwordInput}
                                 onChange={(e) => setPasswordInput(e.target.value)}
                                 margin="normal"
@@ -587,7 +587,7 @@ export default function SavedTransfer() {
                                 onClick={() => setOpenAddDialog(false)}
                                 disabled={addingTransfer}
                             >
-                                Cancel
+                                {t("transfer:cancel")}
                             </Button>
 
                             <Button
@@ -598,7 +598,7 @@ export default function SavedTransfer() {
                                 {addingTransfer ? (
                                     <CircularProgress size={22} />
                                 ) : (
-                                    "Add Transfer"
+                                    t("transfer:addTransfer")
                                 )}
                             </Button>
                         </DialogActions>
@@ -641,10 +641,10 @@ export default function SavedTransfer() {
 
                                 <Stack spacing={0.75}>
                                     <Typography id="alert-dialog-title" variant="h6" sx={{ fontWeight: 700, color: "#2b0f1f" }}>
-                                        Delete this transfer?
+                                        {t("transfer:deleteTransferQuestion")}
                                     </Typography>
                                     <Typography id="alert-dialog-description" variant="body2" color="text.secondary">
-                                        This action can't be undone. The transfer will be permanently removed.
+                                        {t("transfer:deleteTransferDescription")}
                                     </Typography>
                                 </Stack>
 
@@ -667,7 +667,7 @@ export default function SavedTransfer() {
                                             variant="body2"
                                             sx={{ fontWeight: 600, overflowWrap: "anywhere", textAlign: "left", lineHeight: 1.3 }}
                                         >
-                                            {messageToDelete.messageData.filename || "Unknown file"}
+                                            {messageToDelete.messageData.filename || t("transfer:unknownFile")}
                                         </Typography>
                                     </Box>
                                 )}
@@ -681,7 +681,7 @@ export default function SavedTransfer() {
                                 onClick={handleCloseDialog}
                                 sx={{ borderRadius: 2, borderColor: "#f1e7ee", color: "#2b0f1f" }}
                             >
-                                Cancel
+                                {t("transfer:cancel")}
                             </Button>
                             <Button
                                 fullWidth
@@ -695,7 +695,7 @@ export default function SavedTransfer() {
                                 sx={{ borderRadius: 2 }}
                                 autoFocus
                             >
-                                Delete
+                                {t("transfer:delete")}
                             </Button>
                         </DialogActions>
                     </Dialog>
