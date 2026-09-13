@@ -52,18 +52,25 @@ export default function HomePage() {
     const maxLifetime = role === "premium" ? config?.max_lifetime_connected_premium! : config?.max_lifetime_connected!;
 
     useEffect(() => {
+        setIsLoggedIn(!!exportKey);
+
+        if (!exportKey) {
+            setKeys(null);
+            return;
+        }
+
         const fetchKeys = async () => {
             try {
                 const latestKeys = await getLatestKeys();
                 setKeys(latestKeys);
-                setIsLoggedIn(!!exportKey);
             } catch (err) {
                 console.error("Failed to fetch latest keys:", err);
             }
         };
 
         fetchKeys();
-    }, [getLatestKeys]);
+
+    }, [exportKey, getLatestKeys]);
 
     return (
         <Layout
