@@ -54,6 +54,11 @@ export default function HomePage() {
     useEffect(() => {
         setIsLoggedIn(!!exportKey);
 
+        if (!exportKey) {
+            setKeys(null);
+            return;
+        }
+
         const fetchKeys = async () => {
             try {
                 const latestKeys = await getLatestKeys();
@@ -63,10 +68,9 @@ export default function HomePage() {
             }
         };
 
-        if (exportKey) {
-            fetchKeys();
-        }
-    }, [getLatestKeys]);
+        fetchKeys();
+
+    }, [exportKey, getLatestKeys]);
 
     return (
         <Layout
