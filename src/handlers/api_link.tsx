@@ -1,6 +1,6 @@
 import { apiUrl, MAX_NETWORK_RETRIES, NETWORK_RETRY_DELAY } from "./config";
 import { apiFetch } from "./api";
-import * as errors from "../messages/errors";
+import i18n from "../i18n";
 
 
 async function postLinkMessageLoginStartAPI(id: string, client_login_start: string) {
@@ -93,7 +93,7 @@ async function sendLinkMessageAPI(id: string, client_registration_finish: string
         }),
     },
         {
-            507: new Error(errors.errorMaxLinkTransfersReached),
+            507: new Error(i18n.t("errors:errorMaxLinkTransfersReached")),
         },
     );
 
@@ -297,7 +297,7 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
                     );
 
                     const ret = await decrypt(fullChunk);
-                    if (ret < 0) throw new Error(errors.errorFailureDecryption);
+                    if (ret < 0) throw new Error(i18n.t("errors:errorFailureDecryption"));
 
                     offset += chunkSizeWithTag;
                     received += chunkSizeWithTag;
@@ -315,7 +315,7 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
         } catch (err) {
 
             // If the error is a decryption failure, we should not retry, as it indicates a problem with the data or keys.
-            if (err instanceof Error && err.message === errors.errorFailureDecryption) {
+            if (err instanceof Error && err.message === i18n.t("errors:errorFailureDecryption")) {
                 throw err;
             }
 
@@ -330,7 +330,7 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
     // Process any remaining bytes as the final chunk
     if (chunk.length > 0) {
         const ret = await decrypt(chunk);
-        if (ret < 0) throw new Error(errors.errorFailureDecryption);
+        if (ret < 0) throw new Error(i18n.t("errors:errorFailureDecryption"));
     }
 
     onProgress?.(100);

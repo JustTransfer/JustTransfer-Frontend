@@ -27,7 +27,6 @@ import DialogActions from "@mui/material/DialogActions";
 import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
 
 import { useNotification } from "../hooks/useNotificationContext";
-import * as errors from "../messages/errors";
 import PasswordStrength from "./passwordStrength";
 import AcceptTermsService from "./acceptTermsService";
 import { formatSize, parseTransferLink } from "../handlers/utils";
@@ -256,7 +255,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             success(t("transfer:fileUploaded"));
 
         } catch (e: any) {
-            if (e.message === errors.errorUserNotFound) {
+            if (e.message === t("errors:errorUserNotFound")) {
                 setErrorReceiver(true);
             } else {
                 setErrorReceiver(false);

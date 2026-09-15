@@ -4,7 +4,7 @@ import { getSodium, getOpaque } from "./utils";
 
 import { registerStartAPI, registerEndAPI, registerUpdateAPI, endPasswordResetAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, getSavedTransfersAPI, addSavedTransferAPI, deleteSavedTransferAPI } from "./api";
 
-import * as errors from "../messages/errors";
+import i18n from "../i18n";
 
 async function generateAndEncryptKeys(exportKeyDecoded: Uint8Array) {
 
@@ -169,7 +169,7 @@ async function changePassword(email: string, password: string, newPassword: stri
     const response = await loginProcess(email, password);
 
     if (!response.success) {
-        throw Error(errors.errorWrongPassword);
+        throw Error(i18n.t("errors:errorWrongPassword"));
     }
 
     const opaque = await getOpaque();
@@ -259,7 +259,7 @@ async function generateNewKeys(email: string, password: string, exportKey: strin
     // Login to verify password and refresh session
     const response = await loginProcess(email, password);
     if (!response.success) {
-        throw Error(errors.errorWrongPassword);
+        throw Error(i18n.t("errors:errorWrongPassword"));
     }
 
     // Decode export key from base64
@@ -373,7 +373,7 @@ async function addSavedTransfer(transfer_id: string, transfer_password: string, 
     const isAlreadySaved = savedTransfers.some((transfer: any) => transfer.transfer_id === transfer_id);
 
     if (isAlreadySaved) {
-        throw new Error(errors.errorTransferAlreadySaved);
+        throw new Error(i18n.t("errors:errorTransferAlreadySaved"));
     }
 
     const exportKeyDecoded = Base64.toUint8Array(exportKey);

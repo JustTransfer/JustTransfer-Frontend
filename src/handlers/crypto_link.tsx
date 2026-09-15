@@ -5,10 +5,9 @@ import { getSodium, getOpaque } from "./utils";
 import { uploadFileToS3, downloadFileFromS3, updateLinkMessageAPI, updatePasswordLinkMessageStartAPI, updatePasswordLinkMessageEndAPI } from "./api_link";
 import { postLinkMessageLoginStartAPI, postLinkMessageLoginEndAPI, getLinkMessageMetadataAPI, getLinkMessageAPI, sendLinkMessageStartAPI, sendLinkMessageAPI, finishUploadFileToS3Link } from "./api_link";
 
-import * as errors from "../messages/errors";
+import i18n from "../i18n";
 import { frontendUrl } from "./config";
 import { linkTransferGeneratedPasswordLen } from "./config";
-import i18n from "../i18n";
 
 
 ///
@@ -33,7 +32,7 @@ async function getOneLinkMessageMetadata(password: string, message_id: string) {
     });
 
     if (!loginResult) {
-        throw new Error(errors.errorLoginFailed);
+        throw new Error(i18n.t("errors:errorLoginFailed"));
     }
 
     const { exportKey, serverStaticPublicKey: _serverStaticPublicKey, finishLoginRequest, sessionKey: _sessionKey } = loginResult;
@@ -68,7 +67,7 @@ async function getOneLinkMessageMetadata(password: string, message_id: string) {
 
         if (!isValidSignature) {
             console.error("Signature verification failed for message metadata");
-            throw new Error(errors.errorFailureSignatureVerification);
+            throw new Error(i18n.t("errors:errorFailureSignatureVerification"));
         }
 
         sender = sender_email;
@@ -79,7 +78,7 @@ async function getOneLinkMessageMetadata(password: string, message_id: string) {
     const MacKey = sodium.crypto_aead_aegis256_decrypt(null, Base64.toUint8Array(c_mac_key), null, Base64.toUint8Array(nonce_mac_key), exportKeyDecoded);
 
     if (!AegisKey || !MacKey) {
-        throw new Error(errors.errorKeyDerivationFailed);
+        throw new Error(i18n.t("errors:errorKeyDerivationFailed"));
     }
 
     // Decrypt the filename and check auth data
@@ -99,7 +98,7 @@ async function getOneLinkMessageMetadata(password: string, message_id: string) {
         filename = new TextDecoder().decode(filenameBytes);
     } catch (e) {
         console.error("Decryption of filename failed:", e);
-        throw new Error(errors.errorFailureMACVerification);
+        throw new Error(i18n.t("errors:errorFailureMACVerification"));
     }
 
     return {
@@ -195,7 +194,7 @@ async function getOneLinkMessage(AegisKeyEncoded: string, MacKeyEncoded: string,
     // Finalize the global MAC and check it against the MAC sent by the sender
     const calc_mac = sodium.crypto_auth_hmacsha512256_final(mac_state);
     if (!sodium.memcmp(message.mac, calc_mac)) {
-        throw new Error(errors.errorFailureMACVerification);
+        throw new Error(i18n.t("errors:errorFailureMACVerification"));
     }
 
     // Finish and verify the signature over metadata + file hash
@@ -207,7 +206,7 @@ async function getOneLinkMessage(AegisKeyEncoded: string, MacKeyEncoded: string,
 
         const isValidSignature = sodium.crypto_sign_final_verify(sign_state, signature_decoded, sender_pub_key_decoded);
         if (!isValidSignature) {
-            throw new Error(errors.errorFailureSignatureVerification);
+            throw new Error(i18n.t("errors:errorFailureSignatureVerification"));
         }
 
         console.log("Signature verified successfully!");
@@ -246,7 +245,7 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
     const chunkSize = response.chunk_size
 
     if (!chunkSize || chunkSize <= 0) {
-        throw new Error(errors.errorAPIRequestFailed);
+        throw new Error(i18n.t("errors:errorAPIRequestFailed"));
     }
 
     const { exportKey, serverStaticPublicKey: _serverStaticPublicKey, registrationRecord } = opaque.client.finishRegistration({
@@ -256,7 +255,7 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
     });
 
     if (!exportKey || exportKey.length < 64) {
-        throw new Error(errors.errorKeyDerivationFailed);
+        throw new Error(i18n.t("errors:errorKeyDerivationFailed"));
     }
 
     // Decode the export key
@@ -307,7 +306,7 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
     const message_file_id = response2.message_file_id;
 
     if (uploadUrls.length !== Math.ceil(file.size / chunkSize)) {
-        throw new Error(errors.errorAPIRequestFailed);
+        throw new Error(i18n.t("errors:errorAPIRequestFailed"));
     }
 
     // Init the global MAC
@@ -522,7 +521,7 @@ async function updateLinkPassword(id: string, auth_key: string, AegisKey_b64: st
     });
 
     if (!exportKey || exportKey.length < 64) {
-        throw new Error(errors.errorKeyDerivationFailed);
+        throw new Error(i18n.t("errors:errorKeyDerivationFailed"));
     }
 
     // Decode the export key

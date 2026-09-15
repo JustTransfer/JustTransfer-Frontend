@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 
-import * as errors from "../messages/errors";
+import i18n from "../i18n";
 import { storeRawKey, getRawKeyAsBase64, saveSessionMeta, loadSessionMeta, clearAllKeyStorage } from "./keyStorage";
 import { getAccountInfoAPI } from "../handlers/api";
 import { useNotification } from "./useNotificationContext";
@@ -132,7 +132,7 @@ export const AuthProvider = ({ children }: any) => {
                 try {
                     await getAccountInfoAPI();
                 } catch (e) {
-                    error(errors.errorUnauthorized);
+                    error(i18n.t("errors:errorUnauthorized"));
                     // Navigate to logout page to clear session
                     navigate("/logout", { replace: true });
                     return;
@@ -184,9 +184,9 @@ export const AuthProvider = ({ children }: any) => {
         const validKeys = keys?.filter(key => key.is_active && !key.revoked_at);
 
         if (!validKeys || validKeys.length === 0) {
-            throw new Error(errors.errorNoValidKeys);
+            throw new Error(i18n.t("errors:errorNoValidKeys"));
         } else if (validKeys && validKeys.length > 1) {
-            throw new Error(errors.errorMultipleValidKeys);
+            throw new Error(i18n.t("errors:errorMultipleValidKeys"));
         }
 
         return validKeys[0];
