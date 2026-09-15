@@ -5,9 +5,6 @@ import HttpBackend from "i18next-http-backend";
 
 export const supportedLanguages = ["en", "fr", "de", "it"] as const;
 
-// Namespaces are just files under public/locales/{{lng}}/{{ns}}.json.
-// "common" and "errors" mirror the old messages/strings.tsx and messages/errors.tsx.
-// Add one namespace per page/feature as you migrate it (e.g. "login", "nav", "footer").
 export const namespaces = [
   "common",
   "errors",
@@ -22,7 +19,7 @@ export const namespaces = [
   "account",
 ] as const;
 
-i18n
+export const i18nInitPromise = i18n
   .use(HttpBackend) // loads JSON files from /public/locales via HTTP, so nothing is bundled for languages a visitor never uses
   .use(LanguageDetector) // detects the language from localStorage, then navigator.language, then <html lang>
   .use(initReactI18next)
@@ -33,7 +30,6 @@ i18n
     defaultNS: "common",
 
     backend: {
-      // Vite serves everything under /public at the site root
       loadPath: "/locales/{{lng}}/{{ns}}.json",
     },
 
@@ -48,7 +44,7 @@ i18n
     },
 
     react: {
-      useSuspense: true,
+      useSuspense: false,
     },
   });
 
