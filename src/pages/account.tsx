@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 import { useSearchParams } from "react-router";
 
 import Box from "@mui/material/Box";
@@ -21,6 +20,7 @@ import DialpadIcon from "@mui/icons-material/Dialpad";
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
 
 import { useAuth } from "../hooks/useAuth";
+import { useLangNavigate } from "../hooks/useLangNavigate";
 import { useServerConfig } from "../hooks/useServerConfig";
 import { useNotification } from "../hooks/useNotificationContext";
 import { useTranslation } from "react-i18next";
@@ -93,7 +93,7 @@ export default function AccountPage() {
         p: { xs: 2.5, md: 4 },
     };
 
-    const navigate = useNavigate();
+    const navigate = useLangNavigate();
 
     const { config } = useServerConfig();
     const { success, error } = useNotification();

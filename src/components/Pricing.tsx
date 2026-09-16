@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 
 import Box from "@mui/material/Box";
@@ -7,6 +6,7 @@ import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
 
 import { useServerConfig } from "../hooks/useServerConfig";
+import { useLangNavigate } from "../hooks/useLangNavigate";
 import { formatSize } from "../handlers/utils";
 import { emailAddress } from "../handlers/config";
 
@@ -25,7 +25,7 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
 
     const { t } = useTranslation("pricing");
 
-    const navigate = useNavigate();
+    const navigate = useLangNavigate();
     const { config } = useServerConfig();
 
     const isLoadingLimits = !config;

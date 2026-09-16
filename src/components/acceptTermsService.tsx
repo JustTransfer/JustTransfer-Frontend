@@ -6,6 +6,8 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 
+import { useLangPath } from "../hooks/useLangNavigate";
+
 interface AcceptTermsServiceProps {
     accepted: boolean;
     onChange: (accepted: boolean) => void;
@@ -15,7 +17,9 @@ export default function AcceptTermsService({
     accepted,
     onChange,
 }: AcceptTermsServiceProps) {
+
     const { t } = useTranslation(["auth", "footer"]);
+    const langPath = useLangPath();
 
     return (
         <FormControlLabel
@@ -56,7 +60,7 @@ export default function AcceptTermsService({
                     {t("auth:agreeToTerms")} {" "}
                     <Link
                         component={RouterLink}
-                        to="/terms"
+                        to={langPath("/terms")}
                         target="_blank"
                         rel="noopener noreferrer"
                     >
@@ -65,13 +69,13 @@ export default function AcceptTermsService({
                     {" "}{t("auth:and")} {" "}
                     <Link
                         component={RouterLink}
-                        to="/privacy-policy"
+                        to={langPath("/privacy-policy")}
                         target="_blank"
                         rel="noopener noreferrer"
                     >
                         {t("footer:privacyPolicy")}
                     </Link>
-                </Typography>
+                </Typography >
             }
         />
     );

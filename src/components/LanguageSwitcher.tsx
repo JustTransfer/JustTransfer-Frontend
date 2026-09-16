@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
@@ -8,6 +9,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import LanguageIcon from "@mui/icons-material/Language";
 import { supportedLanguages } from "../i18n";
 
+
 const languageLabels: Record<(typeof supportedLanguages)[number], string> = {
     en: "English",
     fr: "Français",
@@ -16,9 +18,9 @@ const languageLabels: Record<(typeof supportedLanguages)[number], string> = {
 };
 
 export default function LanguageSwitcher() {
+    const navigate = useNavigate();
     const { i18n, t } = useTranslation("nav");
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [changing, setChanging] = useState(false);
     const open = Boolean(anchorEl);
 
     // i18next may resolve to a region-specific code (e.g. "en-US");
@@ -30,15 +32,10 @@ export default function LanguageSwitcher() {
     const handleOpen = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
     const handleClose = () => setAnchorEl(null);
 
-    const handleSelect = async (lng: (typeof supportedLanguages)[number]) => {
+    const handleSelect = (lng: (typeof supportedLanguages)[number]) => {
         handleClose();
-        if (lng === currentLang) return;
-        setChanging(true);
-        try {
-            await i18n.changeLanguage(lng);
-        } finally {
-            setChanging(false);
-        }
+        const rest = location.pathname.replace(/^\/[a-z]{2}/, "");
+        navigate(`/${lng}${rest}`);
     };
 
     return (
@@ -47,7 +44,6 @@ export default function LanguageSwitcher() {
                 onClick={handleOpen}
                 startIcon={<LanguageIcon sx={{ fontSize: 18 }} />}
                 size="small"
-                disabled={changing}
                 aria-label={t("languageLabel")}
                 aria-haspopup="menu"
                 aria-expanded={open}

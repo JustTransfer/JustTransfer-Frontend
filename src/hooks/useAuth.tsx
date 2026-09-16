@@ -1,10 +1,10 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router";
 
 import i18n from "../i18n";
 import { storeRawKey, getRawKeyAsBase64, saveSessionMeta, loadSessionMeta, clearAllKeyStorage } from "./keyStorage";
 import { getAccountInfoAPI } from "../handlers/api";
 import { useNotification } from "./useNotificationContext";
+import { useLangNavigate } from "./useLangNavigate";
 
 type Key = {
     created_at: string;
@@ -60,7 +60,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: any) => {
 
-    const navigate = useNavigate();
+    const navigate = useLangNavigate();
     const { error } = useNotification();
 
     const [email, setEmail] = useState<string | null>(null);

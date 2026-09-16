@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link as RouterLink } from "react-router";
+import { Link as RouterLink } from "react-router";
 import { useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 
@@ -27,6 +27,7 @@ import Link from '@mui/material/Link';
 import { useAuth } from "../hooks/useAuth";
 import { emailAddress } from "../handlers/config";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { useLangNavigate, useLangPath } from "../hooks/useLangNavigate";
 
 const headerHeight = "65px";
 const logoMarginTop = '-10px';
@@ -76,6 +77,7 @@ export const defaultTheme = createTheme({
 function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
 
     const { t } = useTranslation("footer");
+    const langPath = useLangPath();
 
     return (
         <Box
@@ -142,10 +144,10 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                             {t("legalTitle")}
                         </Typography>
                         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 1 }}>
-                            <Link component={RouterLink} to="/terms" color="inherit" underline="hover">
+                            <Link component={RouterLink} to={langPath("/terms")} color="inherit" underline="hover">
                                 {t("termsOfService")}
                             </Link>
-                            <Link component={RouterLink} to="/privacy-policy" color="inherit" underline="hover">
+                            <Link component={RouterLink} to={langPath("/privacy-policy")} color="inherit" underline="hover">
                                 {t("privacyPolicy")}
                             </Link>
                         </Box>
@@ -178,23 +180,13 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     }}
                 />
 
-                <Typography
-                    variant="body2"
-                    align="center"
-                    sx={{ opacity: 0.7, mb: 1 }}
-                >
+                <Typography variant="body2" align="center" sx={{ opacity: 0.7, mb: 1 }}>
                     {t("analyticsNoticePrefix")}{' '}
-                    <Link
-                        href="https://umami.is"
-                        target="_blank"
-                        rel="noreferrer"
-                        color="inherit"
-                        underline="hover"
-                    >
+                    <Link href="https://umami.is" target="_blank" rel="noreferrer" color="inherit" underline="hover">
                         {t("analyticsToolName")}
                     </Link>
                     {t("analyticsNoticeSuffix")}{' '}
-                    <Link component={RouterLink} to="/privacy-policy" color="inherit" underline="hover">
+                    <Link component={RouterLink} to={langPath("/privacy-policy")} color="inherit" underline="hover">
                         {t("privacyPolicy")}
                     </Link>
                     {' '}{t("analyticsNoticeEnd")}
@@ -225,12 +217,13 @@ export default function Layout({ content }: { content: React.ReactNode }) {
 
     const { t } = useTranslation("nav");
 
-    const navigate = useNavigate();
+    const navigate = useLangNavigate();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const location = useLocation();
 
-    const isActive = (path: string) => location.pathname === path;
+    const langPath = useLangPath();
+    const isActive = (path: string) => location.pathname === langPath(path);
 
     const { email } = useAuth();
     const isLoggedIn = !!email;

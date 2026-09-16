@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router';
+import { useParams } from 'react-router';
 import { useEffect, useState } from "react";
 
 import Box from "@mui/material/Box";
@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 
 
 import { useNotification } from "../hooks/useNotificationContext";
+import { useLangNavigate } from "../hooks/useLangNavigate";
 import Layout from "../components/layout";
 import PasswordStrength from "../components/passwordStrength";
 import { resetPassword } from "../handlers/crypto";
@@ -38,7 +39,7 @@ export default function ResetPasswordPage() {
     const { id } = useParams();
 
     const { success, error } = useNotification();
-    const navigate = useNavigate();
+    const navigate = useLangNavigate();
 
     const [username, setUsername] = useState("");
 

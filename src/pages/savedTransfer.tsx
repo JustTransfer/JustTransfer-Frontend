@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import i18n from "../i18n";
 
@@ -38,6 +37,7 @@ import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 
 import { useNotification } from "../hooks/useNotificationContext";
 import { useAuth } from "../hooks/useAuth";
+import { useLangNavigate } from "../hooks/useLangNavigate";
 import Layout from "../components/layout";
 import { getOneLinkMessageMetadata, getOneLinkMessage } from "../handlers/crypto_link";
 import { getSavedTransfers, addSavedTransfer } from "../handlers/crypto";
@@ -141,7 +141,7 @@ function parseTransferInput(input: string, password: string) {
 export default function SavedTransfer() {
 
     const { t } = useTranslation(["transfer", "common", "errors"]);
-    const navigate = useNavigate();
+    const navigate = useLangNavigate();
     const theme = useTheme();
     const compactInbox = useMediaQuery(theme.breakpoints.down("sm"));
 

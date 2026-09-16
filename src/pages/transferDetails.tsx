@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams } from "react-router";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -40,6 +40,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { useNotification } from "../hooks/useNotificationContext";
 import { useServerConfig } from "../hooks/useServerConfig";
 import { useAuth } from "../hooks/useAuth";
+import { useLangNavigate } from "../hooks/useLangNavigate";
 import Layout from "../components/layout";
 import { getOneLinkMessageMetadata, getOneLinkMessage, updateMessageLink, updateLinkPassword } from "../handlers/crypto_link";
 import { getSavedTransfers, addSavedTransfer } from "../handlers/crypto";
@@ -55,7 +56,7 @@ import { useTranslation } from "react-i18next";
 export default function TransferDetails() {
     const { t } = useTranslation(["transfer", "common", "errors", "auth"]);
     const { id } = useParams<{ id: string }>();
-    const navigate = useNavigate();
+    const navigate = useLangNavigate();
     const theme = useTheme();
     const compact = useMediaQuery(theme.breakpoints.down("sm"));
     const stackedLayout = useMediaQuery(theme.breakpoints.down("md"));

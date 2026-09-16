@@ -1,12 +1,12 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router"
 
 import { useAuth } from "../hooks/useAuth";
+import { useLangNavigate } from "../hooks/useLangNavigate";
 import { logoutProcess } from "../handlers/crypto";
 
 export default function Logout() {
     const { logout } = useAuth();
-    const navigate = useNavigate();
+    const navigate = useLangNavigate();
 
     useEffect(() => {
         const doLogout = async () => {

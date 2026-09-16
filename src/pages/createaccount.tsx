@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -13,6 +12,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 import { useNotification } from "../hooks/useNotificationContext";
+import { useLangNavigate } from "../hooks/useLangNavigate";
 import Layout from "../components/layout";
 import { register } from "../handlers/crypto";
 import PasswordStrength from "../components/passwordStrength";
@@ -37,7 +37,7 @@ export default function CreateAccountPage() {
 
     const { success, error } = useNotification();
 
-    const navigate = useNavigate();
+    const navigate = useLangNavigate();
 
     const [errorPasswordMismatch, setErrorPasswordMismatch] = useState(false);
     const [errorWeakPassword, setErrorWeakPassword] = useState(false);

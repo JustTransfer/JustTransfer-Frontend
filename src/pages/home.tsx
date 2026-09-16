@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router";
 import { useState, useEffect } from "react";
 
 import Box from "@mui/material/Box";
@@ -13,6 +12,7 @@ import NoAccountsIcon from '@mui/icons-material/NoAccounts';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
 import { useServerConfig } from "../hooks/useServerConfig";
+import { useLangNavigate } from "../hooks/useLangNavigate";
 import Layout from "../components/layout";
 import { addSavedTransfer } from "../handlers/crypto";
 import { sendMessageLink } from "../handlers/crypto_link";
@@ -39,7 +39,7 @@ const organizationJsonLd = {
 
 export default function HomePage() {
     const { t } = useTranslation("home");
-    const navigate = useNavigate();
+    const navigate = useLangNavigate();
     const { config } = useServerConfig();
     const { role, exportKey, getLatestKeys } = useAuth();
 

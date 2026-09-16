@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 
 import Box from "@mui/material/Box";
@@ -16,6 +15,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 import { useNotification } from "../hooks/useNotificationContext";
 import { useAuth } from "../hooks/useAuth";
+import { useLangNavigate } from "../hooks/useLangNavigate";
 import Layout from "../components/layout";
 import { loginProcess } from "../handlers/crypto";
 
@@ -36,7 +36,7 @@ export default function LoginPage() {
     };
 
     const { success, error } = useNotification();
-    const navigate = useNavigate();
+    const navigate = useLangNavigate();
     const { login } = useAuth();
 
     const [showPassword, setShowPassword] = useState(false);

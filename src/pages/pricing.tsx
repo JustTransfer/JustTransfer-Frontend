@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { useSearchParams } from "react-router";
 
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -10,6 +10,7 @@ import Pricing from "../components/Pricing";
 
 import { useAuth } from "../hooks/useAuth";
 import { useNotification } from "../hooks/useNotificationContext";
+import { useLangNavigate } from "../hooks/useLangNavigate";
 import { createSubscriptionCheckoutAPI, cancelSubscriptionAPI, getAccountInfoAPI } from "../handlers/api";
 import type { PricingProps } from "../components/Pricing";
 import { trackEvent, AnalyticsEvent } from "../handlers/analytics";
@@ -20,7 +21,7 @@ export default function PricingPage() {
 
     const { t } = useTranslation("pricing");
 
-    const navigate = useNavigate();
+    const navigate = useLangNavigate();
     const { role } = useAuth();
     const { error, success } = useNotification();
     const [searchParams, setSearchParams] = useSearchParams();

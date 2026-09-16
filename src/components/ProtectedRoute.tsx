@@ -5,11 +5,13 @@ import Box from '@mui/material/Box';
 import CircularProgress from "@mui/material/CircularProgress";
 
 import { useAuth } from "../hooks/useAuth";
+import { useLangPath } from "../hooks/useLangNavigate";
 import { defaultTheme } from "./layout";
 
 export const ProtectedRoute = ({ children }: { children: any }) => {
 
     const { email, isLoading } = useAuth();
+    const langPath = useLangPath();
 
     if (isLoading) {
         return (
@@ -27,7 +29,7 @@ export const ProtectedRoute = ({ children }: { children: any }) => {
     }
 
     if (!email) {
-        return <Navigate to="/login" />;
+        return <Navigate to={langPath("/login")} />;
     }
     return children;
 };

@@ -27,6 +27,7 @@ import DialogActions from "@mui/material/DialogActions";
 import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
 
 import { useNotification } from "../hooks/useNotificationContext";
+import { useLangPath } from "../hooks/useLangNavigate";
 import PasswordStrength from "./passwordStrength";
 import AcceptTermsService from "./acceptTermsService";
 import { formatSize, parseTransferLink } from "../handlers/utils";
@@ -74,6 +75,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
 
     const { success, error } = useNotification();
     const { t } = useTranslation(["transfer", "errors", "auth"]);
+    const langPath = useLangPath();
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [isDragging, setIsDragging] = useState(false);
@@ -591,7 +593,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                         <Typography variant="body2" sx={{ color: "#7a6474", mt: -2, textAlign: "center" }}>
                             {t("transfer:notifyPrompt")}
                             <br />
-                            <RouterLink to="/register">{t("transfer:createAccount")}</RouterLink> {t("auth:and")} <RouterLink to="/login">{t("transfer:login")}</RouterLink>.
+                            <RouterLink to={langPath("/register")}>{t("transfer:createAccount")}</RouterLink> {t("auth:and")} <RouterLink to={langPath("/login")}>{t("transfer:login")}</RouterLink>.
                         </Typography>
                     ) : (
                         null
