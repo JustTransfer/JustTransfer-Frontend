@@ -15,7 +15,6 @@
   "downloadText": "Les destinataires déverrouillent le fichier avec votre mot de passe.",
   "privacyTitle": "Protection intégrée de la vie privée",
   "privacyText": "Le chiffrement de bout en bout, le partage anonyme et l'expiration automatique protègent vos données.",
-  "noTracking": "Aucun suivi",
   "clientEncryption": "Chiffrement côté client",
   "expiryControls": "Contrôle de l'expiration",
   "readWhitepaper": "Lire le livre blanc",
@@ -44,7 +43,7 @@
     "Notifier un destinataire par e-mail",
     "Voir ou modifier le mot de passe à tout moment",
     "Modifier la limite de téléchargements et l'expiration",
-    "Supprimer un transfert plus tôt"
+    "Supprimer un transfert avant son expiration"
   ],
   "accountBest": [
     "Partage récurrent ou géré",
