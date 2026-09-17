@@ -401,17 +401,26 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                                     <Typography variant="body2" sx={{ fontWeight: 700 }}>
                                         {t("transfer:auto")}
                                     </Typography>
-                                    <Typography variant="caption" color="text.secondary">
+                                    <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                        sx={{ display: "block", lineHeight: 1.8 }}
+                                    >
                                         {t("transfer:autoDescription")}
                                     </Typography>
                                 </Box>
                             </ToggleButton>
+
                             <ToggleButton value="manual" aria-label={t("transfer:setPasswordManually")} sx={{ textAlign: "left", alignItems: "flex-start" }}>
                                 <Box sx={{ width: "100%" }}>
                                     <Typography variant="body2" sx={{ fontWeight: 700 }}>
                                         {t("transfer:manual")}
                                     </Typography>
-                                    <Typography variant="caption" color="text.secondary">
+                                    <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                        sx={{ display: "block", lineHeight: 1.8 }}
+                                    >
                                         {t("transfer:manualDescription")}
                                     </Typography>
                                 </Box>
