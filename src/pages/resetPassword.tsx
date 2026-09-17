@@ -41,7 +41,7 @@ export default function ResetPasswordPage() {
     const { success, error } = useNotification();
     const navigate = useLangNavigate();
 
-    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
 
     const [errorPasswordMismatch, setErrorPasswordMismatch] = useState(false);
     const [errorWeakPassword, setErrorWeakPassword] = useState(false);
@@ -54,18 +54,18 @@ export default function ResetPasswordPage() {
         setShowPassword(prev => !prev);
     };
 
-    // Get username from fragment identifier if present
+    // Get email from fragment identifier if present
     useEffect(() => {
         const hash = window.location.hash;
-        let decodedUsername = "";
+        let decodedEmail = "";
 
         if (hash) {
-            decodedUsername = decodeURIComponent(hash.substring(1));
-            setUsername(decodedUsername);
+            decodedEmail = decodeURIComponent(hash.substring(1));
+            setEmail(decodedEmail);
         }
 
-        // check if id and username are set
-        if (!id || !decodedUsername) {
+        // check if id and email are set
+        if (!id || !decodedEmail) {
             error(t("errors:errorInvalidResetLink"));
             setTimeout(() => {
                 navigate("/");
@@ -108,7 +108,7 @@ export default function ResetPasswordPage() {
         setErrorPasswordMismatch(false);
 
         try {
-            const result = await resetPassword(username as string, data.password as string, id as string);
+            const result = await resetPassword(email as string, data.password as string, id as string);
 
             if (result.success) {
                 success(t("common:msgPasswordReset"));
@@ -145,7 +145,7 @@ export default function ResetPasswordPage() {
                         </Typography>
 
                         <Typography variant="body1" sx={{ mb: 3, color: "#6e5a69" }}>
-                            {t("auth:resetDescription", { username })}
+                            {t("auth:resetDescription", { email })}
                         </Typography>
 
                         <Alert severity="warning" sx={{ mb: 3, borderRadius: 2 }}>
