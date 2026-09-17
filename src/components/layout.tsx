@@ -206,7 +206,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     align="center"
                     sx={{ opacity: 0.6 }}
                 >
-                    © {new Date().getFullYear()} JustTransfer — {t("copyright")}
+                    © {new Date().getFullYear()} JustTransfer
                 </Typography>
             </Container>
         </Box>
