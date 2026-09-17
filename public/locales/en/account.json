@@ -28,13 +28,13 @@
   "dialogChangeTitle": "Change Password",
   "dialogDeleteTitle": "Delete Account",
   "dialogRotateTitle": "Rotate Keys",
+  "currentPassword": "Current Password",
+  "cancel": "Cancel",
   "dialogChangeDescription": "Enter your current password and choose a new one.",
   "dialogDeleteDescription": "Enter your current password to permanently delete your account.",
   "dialogRotateDescription": "Enter your current password to generate new encryption and signing keys.",
   "dialogWarning": "This action is irreversible. Signed transfers will be permanently deleted. Unsigned transfers will remain on the server until they expire, but you'll lose access to them. Your subscription will be canceled and any remaining Premium time will be forfeited.",
-  "currentPassword": "Current Password",
   "updatePassword": "Update Password",
   "deleteButton": "Delete Account",
-  "cancel": "Cancel",
   "rotateButton": "Rotate Keys"
 }
