@@ -23,7 +23,7 @@ export type PricingProps = {
 
 export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onSelectPlan, headingId }: PricingProps) {
 
-    const { t } = useTranslation("pricing");
+    const { t } = useTranslation(["pricing", "auth"]);
 
     const navigate = useLangNavigate();
     const { config } = useServerConfig();
@@ -134,8 +134,10 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
     };
 
     const planButtonLabel = (plan: Plan) => {
+
+        // todo return t("createAccount") for free account and premium account
         if (!isLoggedIn) {
-            return t("getStarted");
+            return t("auth:createAccount");
         }
         return plan === "user" ? t("switchFree") : t("upgradePremium");
     };
