@@ -23,7 +23,7 @@ import TransferDetails from './pages/transferDetails';
 import AccountPage from './pages/account';
 import PricingPage from './pages/pricing';
 import Error from './pages/error';
-import { supportedLanguages } from './i18n';
+import { isSupportedLang, resolvePreferredLang, withLangPrefix } from "./hooks/useLangRedirect";
 
 import './App.css';
 
@@ -33,26 +33,22 @@ function LangLayout() {
   const location = useLocation();
 
   useEffect(() => {
-    if (lng && supportedLanguages.includes(lng as any) && i18n.language !== lng) {
+    if (isSupportedLang(lng) && i18n.language !== lng) {
       i18n.changeLanguage(lng);
     }
   }, [lng, i18n]);
 
-  if (!lng || !supportedLanguages.includes(lng as any)) {
-    const detected = supportedLanguages.includes(i18n.language as any)
-      ? i18n.language
-      : "en";
-
-    const looksLikeLangCode = lng && /^[a-z]{2}$/i.test(lng);
-    const rest = looksLikeLangCode
-      ? location.pathname.replace(new RegExp(`^/${lng}`), "")
-      : location.pathname;
-
-    const target = `/${detected}${rest === "/" ? "" : rest}${location.search}${location.hash}`;
-    return <Navigate to={target} replace />;
+  if (!isSupportedLang(lng)) {
+    return <Navigate to={withLangPrefix(resolvePreferredLang(i18n.language), location)} replace />;
   }
 
   return <Outlet />;
+}
+
+function RootRedirect() {
+  const { i18n } = useTranslation();
+  const location = useLocation();
+  return <Navigate to={withLangPrefix(resolvePreferredLang(i18n.language), location)} replace />;
 }
 
 function App() {
@@ -106,7 +102,7 @@ function App() {
               <Route path="*" element={<Error />} />
             </Route>
 
-            <Route path="/" element={<Navigate to={`/en`} replace />} />
+            <Route path="/" element={<RootRedirect />} />
           </Routes>
         </AuthProvider>
       </ServerConfigProvider>
