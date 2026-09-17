@@ -390,9 +390,9 @@ export default function HomePage() {
                                     {t("privacyText")}
                                 </Typography>
                                 <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", mb: 3 }}>
-                                    <Chip label={t("noTracking")} size="small" sx={{ backgroundColor: "#fff", border: "1px solid #ebc7dc" }} />
                                     <Chip label={t("clientEncryption")} size="small" sx={{ backgroundColor: "#fff", border: "1px solid #ebc7dc" }} />
                                     <Chip label={t("expiryControls")} size="small" sx={{ backgroundColor: "#fff", border: "1px solid #ebc7dc" }} />
+                                    <Chip label={t("openSource")} size="small" sx={{ backgroundColor: "#fff", border: "1px solid #ebc7dc" }} />
                                 </Box>
                                 <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
                                     <Button

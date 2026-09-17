@@ -40,7 +40,7 @@
   "signWarning": "La signature prouve que ce transfert vient de vous, mais votre adresse e-mail sera visible par toute personne y ayant accès.",
   "cancel": "Annuler",
   "continue": "Continuer",
-  "transferLink": "Lien de transfert",
+  "transferLink": "Lien du transfert",
   "includePassword": "Inclure le mot de passe dans le lien",
   "close": "Fermer",
   "copyLink": "Lien copié !",
