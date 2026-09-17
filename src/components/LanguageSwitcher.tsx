@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import ListItemText from "@mui/material/ListItemText";
 import CheckIcon from "@mui/icons-material/Check";
 import LanguageIcon from "@mui/icons-material/Language";
+import Chip from "@mui/material/Chip";
+
 import { supportedLanguages } from "../i18n";
 
 
@@ -15,6 +18,11 @@ const languageLabels: Record<(typeof supportedLanguages)[number], string> = {
     fr: "Français",
     de: "Deutsch",
     it: "Italiano",
+};
+
+const betaLanguages: Partial<Record<(typeof supportedLanguages)[number], boolean>> = {
+    de: true,
+    it: true,
 };
 
 export default function LanguageSwitcher() {
@@ -39,7 +47,11 @@ export default function LanguageSwitcher() {
     };
 
     return (
-        <>
+        <Box
+            sx={{
+                mt: 0.6
+            }}
+        >
             <Button
                 onClick={handleOpen}
                 startIcon={<LanguageIcon sx={{ fontSize: 18 }} />}
@@ -58,20 +70,45 @@ export default function LanguageSwitcher() {
                 {languageLabels[currentLang]}
             </Button>
 
-            <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+            <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+            >
                 {supportedLanguages.map((lng) => (
                     <MenuItem
                         key={lng}
                         selected={lng === currentLang}
                         onClick={() => handleSelect(lng)}
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: 1,
+                        }}
                     >
                         <ListItemText>{languageLabels[lng]}</ListItemText>
+                        {betaLanguages[lng] && (
+                            <Chip
+                                label="Beta"
+                                size="small"
+                                variant="outlined"
+                                color="warning"
+                                sx={{
+                                    height: 18,
+                                    fontSize: "0.65rem",
+                                    fontWeight: 600,
+                                    ml: 1,
+                                    mr: lng === currentLang ? 0 : 4,
+                                }}
+                            />
+                        )}
                         {lng === currentLang && (
-                            <CheckIcon sx={{ fontSize: 18, ml: 2, color: "primary.main" }} />
+                            <CheckIcon sx={{ fontSize: 18, ml: 1, color: "primary.main" }} />
                         )}
                     </MenuItem>
                 ))}
             </Menu>
-        </>
+        </Box>
     );
 }
