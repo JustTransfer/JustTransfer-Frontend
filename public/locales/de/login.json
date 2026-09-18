@@ -1,0 +1,13 @@
+{
+  "title": "Anmelden",
+  "subtitle": "Melden Sie sich an, um auf Ihre verschlüsselten Übertragungen zuzugreifen.",
+  "emailLabel": "E-Mail",
+  "passwordLabel": "Passwort",
+  "showPassword": "Passwort anzeigen",
+  "hidePassword": "Passwort verbergen",
+  "submit": "Anmelden",
+  "noAccount": "Sie haben noch kein Konto?",
+  "createOne": "Jetzt erstellen",
+  "forgotPassword": "Passwort vergessen?",
+  "resetIt": "Zurücksetzen"
+}

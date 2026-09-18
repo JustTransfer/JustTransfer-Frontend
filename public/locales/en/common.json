@@ -1,0 +1,22 @@
+{
+  "msgAccountCreated": "Account created successfully.",
+  "msgLoginSuccessful": "Logged in successfully.",
+  "msgAccountDeleted": "Account deleted successfully.",
+  "msgPasswordChanged": "Password changed successfully.",
+  "msgEmailVerified": "Email verified successfully.",
+  "msgPasswordRequested": "Password reset requested. Please check your email.",
+  "msgPasswordReset": "Password reset successfully.",
+  "msgTransferSaved": "Transfer saved to your account successfully.",
+  "msgFileUploaded": "File uploaded successfully.",
+  "msgFileDownloaded": "File downloaded successfully.",
+  "msgFileInfoDecrypted": "File information decrypted successfully.",
+  "msgLinkCopied": "Link copied to clipboard.",
+  "msgMessageDeleted": "Message deleted successfully.",
+  "btnCreateAccount": "Create Account",
+  "btnLogin": "Login",
+  "btnLogout": "Logout",
+  "btnSendFile": "Send File",
+  "btnDownloadFile": "Download File",
+  "btnBackToHome": "Back to Home",
+  "refresh": "Refresh"
+}

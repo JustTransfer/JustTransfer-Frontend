@@ -4,48 +4,19 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { useTranslation } from "react-i18next";
 
 type FaqItem = {
     question: string;
     answer: React.ReactNode;
 };
 
-const faqItems = [
-    {
-        question: "Do I need an account to send a file?",
-        answer: "No. Guest transfers work without an account — just upload your file, set a password, and share the link. Creating a free account unlocks extra features like managing transfers after sending, emailing recipients directly, and higher limits with a Premium plan.",
-    },
-    {
-        question: "How is my data encrypted?",
-        answer: "Files and filenames are encrypted on your device before they ever leave it, using a password you choose. Because encryption happens client-side, JustTransfer never has access to your unencrypted files — we couldn't read them even if asked to.",
-    },
-    {
-        question: "Where is JustTransfer based, and where is my data stored?",
-        answer: "JustTransfer is based in Switzerland and your files are stored exclusively on Swiss infrastructure, governed by Swiss data protection law. The only exception is billing information for Premium subscriptions, which is handled by our payment processor, Stripe — full details are in our Privacy Policy.",
-    },
-    {
-        question: "What happens if I cancel my Premium plan?",
-        answer: "You keep full Premium access until the end of your current billing period, then your account automatically reverts to the free plan.",
-    },
-    {
-        question: "What happens to my files after they expire?",
-        answer: "Files are automatically and permanently deleted once they reach their expiry date or download limit, whichever comes first — there's no recovering them afterward, so keep your own backup of anything important.",
-    },
-    {
-        question: "Is JustTransfer open source?",
-        answer: (
-            <>
-                Yes. The full source is public on{" "}
-                <a href="https://github.com/JustTransfer/" target="_blank" rel="noopener noreferrer">
-                    GitHub
-                </a>
-                , so anyone can inspect, audit, or contribute to it — and if you'd rather run your own instance, you're free to self-host it and control your own infrastructure and limits.
-            </>
-        ),
-    },
-];
-
 export default function Faq({ headingId }: { headingId?: string }) {
+    const { t } = useTranslation("faq");
+    const faqItems: FaqItem[] = Array.from({ length: 6 }, (_, index) => ({
+        question: t(`q${index + 1}`),
+        answer: t(`a${index + 1}`),
+    }));
     const jsonLd = {
         "@context": "https://schema.org",
         "@type": "FAQPage",
@@ -117,10 +88,10 @@ export default function Faq({ headingId }: { headingId?: string }) {
 
             <Box sx={{ maxWidth: 1400, mx: "auto", textAlign: "center", mb: 6 }}>
                 <Typography id={headingId} variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
-                    Frequently asked questions
+                    {t("title")}
                 </Typography>
                 <Typography variant="body1" sx={{ color: "#7a6474", fontSize: "1.05rem" }}>
-                    Everything you need to know about sending files with JustTransfer.
+                    {t("subtitle")}
                 </Typography>
             </Box>
 

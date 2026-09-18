@@ -19,6 +19,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import { useTranslation } from "react-i18next";
 
 import { QRCodeSVG } from "qrcode.react";
 
@@ -40,11 +41,13 @@ export default function TransferQrDialog({
     onClose,
     transferId,
     password,
-    title = "Transfer link",
+    title,
     filename,
 }: Props) {
 
     const { success, error } = useNotification();
+    const { t } = useTranslation(["transfer", "auth"]);
+    const dialogTitle = title ?? t("transfer:transferLink");
 
     const [includePasswordInLink, setIncludePasswordInLink] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
@@ -64,9 +67,9 @@ export default function TransferQrDialog({
     const handleCopyLink = async () => {
         try {
             await navigator.clipboard.writeText(link);
-            success("Link copied to clipboard!");
+            success(t("transfer:copyLink"));
         } catch (e) {
-            error("Failed to copy link");
+            error(t("transfer:copyLinkFailed"));
         }
     };
 
@@ -74,9 +77,9 @@ export default function TransferQrDialog({
         if (!password) return;
         try {
             await navigator.clipboard.writeText(password);
-            success("Password copied to clipboard!");
+            success(t("transfer:copyPassword"));
         } catch (e) {
-            error("Failed to copy password");
+            error(t("transfer:copyPasswordFailed"));
         }
     };
 
@@ -97,7 +100,7 @@ export default function TransferQrDialog({
             }}
         >
             <DialogTitle sx={{ pr: 6, fontWeight: 700, color: "#2b0f1f" }}>
-                {title}
+                {dialogTitle}
                 <IconButton
                     onClick={onClose}
                     sx={{ position: "absolute", right: 8, top: 8 }}
@@ -127,7 +130,7 @@ export default function TransferQrDialog({
 
                     <TextField
                         fullWidth
-                        label="Transfer link"
+                        label={t("transfer:transferLink")}
                         value={link}
                         slotProps={{
                             input: {
@@ -170,14 +173,14 @@ export default function TransferQrDialog({
                                 }
                                 label={
                                     <Typography variant="body2" sx={{ fontWeight: 600, color: "#2b0f1f" }}>
-                                        Include password in link
+                                        {t("transfer:includePassword")}
                                     </Typography>
                                 }
                             />
 
                             <TextField
                                 fullWidth
-                                label="Password"
+                                label={t("auth:password")}
                                 type={showPassword ? "text" : "password"}
                                 value={password}
                                 slotProps={{
@@ -208,7 +211,7 @@ export default function TransferQrDialog({
 
             <DialogActions sx={{ px: 3, pb: 3, flexWrap: "wrap", gap: 1 }}>
                 <Button onClick={onClose} fullWidth variant="outlined" sx={{ borderRadius: 2 }}>
-                    Close
+                    {t("transfer:close")}
                 </Button>
             </DialogActions>
         </Dialog>

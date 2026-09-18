@@ -1,9 +1,12 @@
 import { Link as RouterLink } from "react-router";
+import { useTranslation } from "react-i18next";
 
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
+
+import { useLangPath } from "../hooks/useLangNavigate";
 
 interface AcceptTermsServiceProps {
     accepted: boolean;
@@ -14,6 +17,10 @@ export default function AcceptTermsService({
     accepted,
     onChange,
 }: AcceptTermsServiceProps) {
+
+    const { t } = useTranslation(["auth", "footer"]);
+    const langPath = useLangPath();
+
     return (
         <FormControlLabel
             sx={{
@@ -50,25 +57,25 @@ export default function AcceptTermsService({
                         lineHeight: 1.5,
                     }}
                 >
-                    I agree to the{" "}
+                    {t("auth:agreeToTerms")} {" "}
                     <Link
                         component={RouterLink}
-                        to="/terms"
+                        to={langPath("/terms")}
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        Terms of Service
+                        {t("footer:termsOfService")}
                     </Link>{" "}
-                    and{" "}
+                    {" "}{t("auth:and")} {" "}
                     <Link
                         component={RouterLink}
-                        to="/privacy-policy"
+                        to={langPath("/privacy-policy")}
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        Privacy Policy
+                        {t("footer:privacyPolicy")}
                     </Link>
-                </Typography>
+                </Typography >
             }
         />
     );

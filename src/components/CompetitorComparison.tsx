@@ -11,14 +11,15 @@ import CancelIcon from "@mui/icons-material/Cancel";
 
 import { useServerConfig } from "../hooks/useServerConfig";
 import { formatSize } from "../handlers/utils";
+import { useTranslation } from "react-i18next";
 
 
 const columns = ["JustTransfer", "WeTransfer", "SwissTransfer", "Blip"];
 
-function getRows(maxFileSizeLabel: string, expirationDays: string, maxDownloads: string) {
+function getRows(maxFileSizeLabel: string, expirationDays: string, maxDownloads: string, t: any) {
     return [
         {
-            feature: "Max file size (free)",
+            feature: t("maxSize"),
             values: [`${maxFileSizeLabel}*`,
                 "100 GB",
                 "50 GB",
@@ -26,45 +27,45 @@ function getRows(maxFileSizeLabel: string, expirationDays: string, maxDownloads:
             ],
         },
         {
-            feature: "End-to-end encryption",
+            feature: t("encryption"),
             values: [true, false, false, true],
         },
         {
-            feature: "Email required to send",
-            values: ["No", "No", "Yes", "Yes"],
+            feature: t("email"),
+            values: [t("no"), t("no"), t("yes"), t("yes")],
         },
         {
-            feature: "Open source",
-            values: [true, false, "Mobile apps only", false],
+            feature: t("openSource"),
+            values: [true, false, t("mobile"), false],
         },
         {
-            feature: "Link expiration (free)",
+            feature: t("expiration"),
             values: [
-                `Choose 1-${expirationDays} days*`,
-                "Choose 1-7 days",
-                "Choose 1-30 days",
-                "Instant download only (P2P)",
+                t("chooseDays", { value: expirationDays }),
+                t("chooseProviderDays", { value: 7 }),
+                t("chooseProviderDays", { value: 30 }),
+                t("instant"),
             ],
         },
         {
-            feature: "Download limit (free)",
+            feature: t("downloadLimit"),
             values: [
-                `Choose 1-${maxDownloads} downloads*`,
-                "No limit",
-                "Choose 1-250 downloads",
-                "1 download (P2P)",
+                t("chooseDownloads", { value: maxDownloads }),
+                t("noLimit"),
+                t("chooseProviderDownloads"),
+                t("oneDownload"),
             ],
         },
         {
-            feature: "Works without an app",
+            feature: t("withoutApp"),
             values: [true, true, true, false],
         },
         {
-            feature: "Recipient doesn't need to be online",
+            feature: t("offline"),
             values: [true, true, true, false],
         },
         {
-            feature: "Send to multiple recipients at once",
+            feature: t("multiple"),
             values: [true, true, true, false],
         },
     ];
@@ -92,13 +93,14 @@ export type CompetitorComparisonProps = {
 export default function CompetitorComparison({ headingId }: CompetitorComparisonProps) {
 
     const { config } = useServerConfig();
+    const { t } = useTranslation("comparison");
 
     const maxFileSizeLabel = config?.max_file_size_link != null
         ? formatSize(config.max_file_size_link)
         : "...";
     const expiration_days = String(config?.max_lifetime_link ?? "...");
     const max_downloads = String(config?.max_downloads_link ?? "...");
-    const rows = getRows(maxFileSizeLabel, expiration_days, max_downloads);
+    const rows = getRows(maxFileSizeLabel, expiration_days, max_downloads, t);
 
     return (
         <Box
@@ -116,10 +118,10 @@ export default function CompetitorComparison({ headingId }: CompetitorComparison
         >
             <Box sx={{ maxWidth: 1400, mx: "auto", textAlign: "center", mb: 5 }}>
                 <Typography id={headingId} variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
-                    How JustTransfer compares
+                    {t("title")}
                 </Typography>
                 <Typography variant="body1" sx={{ color: "#7a6474", fontSize: "1.05rem" }}>
-                    See how we stack up against other popular file-sharing services.
+                    {t("subtitle")}
                 </Typography>
             </Box>
 
@@ -143,7 +145,7 @@ export default function CompetitorComparison({ headingId }: CompetitorComparison
                                     minWidth: 160,
                                 }}
                             >
-                                Feature
+                                {t("feature")}
                             </TableCell>
                             {columns.map((col) => {
                                 const isJustTransfer = col === "JustTransfer";
@@ -202,10 +204,10 @@ export default function CompetitorComparison({ headingId }: CompetitorComparison
 
             <Box sx={{ mt: 3, textAlign: "center" }}>
                 <Typography variant="caption" sx={{ display: "block", color: "#9a7f8f" }}>
-                    * Reflects justtransfer.ch's current default limits for free, accountless transfers. Self-hosted instances can configure these independently.
+                    {t("footnote1")}
                 </Typography>
                 <Typography variant="caption" sx={{ display: "block", color: "#9a7f8f", mt: 0.5 }}>
-                    Comparison based on each provider's publicly available free-tier information as of August 2026. Third-party features and pricing may change, check each provider's site for current details.
+                    {t("footnote2")}
                 </Typography>
             </Box>
         </Box>

@@ -1,0 +1,114 @@
+import { useState } from "react";
+import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import ListItemText from "@mui/material/ListItemText";
+import CheckIcon from "@mui/icons-material/Check";
+import LanguageIcon from "@mui/icons-material/Language";
+import Chip from "@mui/material/Chip";
+
+import { supportedLanguages } from "../i18n";
+
+
+const languageLabels: Record<(typeof supportedLanguages)[number], string> = {
+    en: "English",
+    fr: "Français",
+    de: "Deutsch",
+    it: "Italiano",
+};
+
+const betaLanguages: Partial<Record<(typeof supportedLanguages)[number], boolean>> = {
+    de: true,
+    it: true,
+};
+
+export default function LanguageSwitcher() {
+    const navigate = useNavigate();
+    const { i18n, t } = useTranslation("nav");
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const open = Boolean(anchorEl);
+
+    // i18next may resolve to a region-specific code (e.g. "en-US");
+    // fall back to the base language so we always have a matching entry.
+    const currentLang = supportedLanguages.includes(i18n.language as (typeof supportedLanguages)[number])
+        ? (i18n.language as (typeof supportedLanguages)[number])
+        : ((i18n.language?.split("-")[0] ?? "en") as (typeof supportedLanguages)[number]);
+
+    const handleOpen = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
+    const handleClose = () => setAnchorEl(null);
+
+    const handleSelect = (lng: (typeof supportedLanguages)[number]) => {
+        handleClose();
+        const rest = location.pathname.replace(/^\/[a-z]{2}/, "");
+        navigate(`/${lng}${rest}`);
+    };
+
+    return (
+        <Box
+            sx={{
+                mt: 0.6
+            }}
+        >
+            <Button
+                onClick={handleOpen}
+                startIcon={<LanguageIcon sx={{ fontSize: 18 }} />}
+                size="small"
+                aria-label={t("languageLabel")}
+                aria-haspopup="menu"
+                aria-expanded={open}
+                sx={{
+                    textTransform: "none",
+                    color: "#000",
+                    fontSize: "0.9rem",
+                    minWidth: "auto",
+                    px: 1,
+                }}
+            >
+                {languageLabels[currentLang]}
+            </Button>
+
+            <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+            >
+                {supportedLanguages.map((lng) => (
+                    <MenuItem
+                        key={lng}
+                        selected={lng === currentLang}
+                        onClick={() => handleSelect(lng)}
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: 1,
+                        }}
+                    >
+                        <ListItemText>{languageLabels[lng]}</ListItemText>
+                        {betaLanguages[lng] && (
+                            <Chip
+                                label="Beta"
+                                size="small"
+                                variant="outlined"
+                                color="warning"
+                                sx={{
+                                    height: 18,
+                                    fontSize: "0.65rem",
+                                    fontWeight: 600,
+                                    ml: 1,
+                                    mr: lng === currentLang ? 0 : 4,
+                                }}
+                            />
+                        )}
+                        {lng === currentLang && (
+                            <CheckIcon sx={{ fontSize: 18, ml: 1, color: "primary.main" }} />
+                        )}
+                    </MenuItem>
+                ))}
+            </Menu>
+        </Box>
+    );
+}

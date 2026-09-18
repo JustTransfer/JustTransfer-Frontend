@@ -1,0 +1,13 @@
+{
+  "title": "Login",
+  "subtitle": "Log in to access your encrypted transfers.",
+  "emailLabel": "Email",
+  "passwordLabel": "Password",
+  "showPassword": "display the password",
+  "hidePassword": "hide the password",
+  "submit": "Login",
+  "noAccount": "You don't have an account?",
+  "createOne": "Create one",
+  "forgotPassword": "Forgot your password?",
+  "resetIt": "Reset it"
+}

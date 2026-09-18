@@ -20,6 +20,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import DescriptionIcon from '@mui/icons-material/Description';
 
 import { useNotification } from "../hooks/useNotificationContext";
+import { useTranslation } from "react-i18next";
 import Layout from "../components/layout";
 import { getOneLinkMessageMetadata, getOneLinkMessage } from "../handlers/crypto_link";
 import { addSavedTransfer } from "../handlers/crypto";
@@ -28,10 +29,10 @@ import LinearProgressWithLabel from "../components/LinearProgressWithLabel";
 import { useSpeedMeter } from "../handlers/useSpeedMeter";
 import { useAuth } from "../hooks/useAuth";
 
-import * as errors from "../messages/errors";
-import * as strings from "../messages/strings";
+
 
 export default function LinkTransfer() {
+    const { t } = useTranslation(["common", "errors", "transfer", "auth"]);
 
     const cardSx = {
         width: "100%",
@@ -85,10 +86,10 @@ export default function LinkTransfer() {
             setMacKeyEncoded(result.MacKey);
             setMessageData(result.messageData);
 
-            success(strings.msgFileInfoDecrypted);
+            success(t("common:msgFileInfoDecrypted"));
 
         } catch (e: any) {
-            error(e.message || "Unknown error");
+            error(e.message || t("errors:errorUnknown"));
             return;
         }
     }
@@ -118,7 +119,7 @@ export default function LinkTransfer() {
                     updateProgress(percent);
                 },
                 onSuccess: () => {
-                    success(strings.msgFileDownloaded);
+                    success(t("common:msgFileDownloaded"));
                     setMessageData((prev: any) => ({
                         ...prev,
                         number_downloads: prev.number_downloads + 1,
@@ -126,7 +127,7 @@ export default function LinkTransfer() {
                 },
             });
         } catch (e) {
-            error(e instanceof Error ? e.message : errors.errorUnknown);
+            error(e instanceof Error ? e.message : t("errors:errorUnknown"));
         } finally {
             setIsDownloading(false);
             setDownloadProgress(0);
@@ -139,11 +140,11 @@ export default function LinkTransfer() {
         try {
             await addSavedTransfer(id, password, exportKey, undefined);
         } catch (e) {
-            error(e instanceof Error ? e.message : errors.errorUnknown);
+            error(e instanceof Error ? e.message : t("errors:errorUnknown"));
             return;
         }
 
-        success(strings.msgTransferSaved);
+        success(t("common:msgTransferSaved"));
     }
 
     useEffect(() => {
@@ -248,11 +249,11 @@ export default function LinkTransfer() {
                                         </Typography>
 
                                         <Typography variant="body2" sx={{ color: '#6e5a69' }}>
-                                            From <b>{messageData.sender}</b>
+                                            {t("transfer:from")} <b>{messageData.sender}</b>
                                         </Typography>
 
                                         <Typography variant="body1" sx={{ color: '#6e5a69' }}>
-                                            Transfer ready for decryption and download.
+                                            {t("transfer:readyForDownload")}
                                         </Typography>
                                     </Box>
 
@@ -271,7 +272,7 @@ export default function LinkTransfer() {
                                         <Box
                                             sx={statTileSx}
                                         >
-                                            <Typography variant="caption" color="text.secondary">Size</Typography>
+                                            <Typography variant="caption" color="text.secondary">{t("transfer:size")}</Typography>
                                             <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
                                                 {formatSize(messageData.file_size)}
                                             </Typography>
@@ -281,7 +282,7 @@ export default function LinkTransfer() {
                                         <Box
                                             sx={statTileSx}
                                         >
-                                            <Typography variant="caption" color="text.secondary">Downloads</Typography>
+                                            <Typography variant="caption" color="text.secondary">{t("transfer:downloads")}</Typography>
                                             <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
                                                 {messageData.number_downloads}/{messageData.max_downloads === 0 ? "∞" : messageData.max_downloads}
                                             </Typography>
@@ -291,7 +292,7 @@ export default function LinkTransfer() {
                                         <Box
                                             sx={statTileSx}
                                         >
-                                            <Typography variant="caption" color="text.secondary">Created</Typography>
+                                            <Typography variant="caption" color="text.secondary">{t("transfer:created")}</Typography>
                                             <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
                                                 {formatCreated(messageData.creation_time)}
                                             </Typography>
@@ -303,7 +304,7 @@ export default function LinkTransfer() {
                                         >
                                             {/* left align the label*/}
                                             <Typography variant="caption" color="text.secondary">
-                                                Expires
+                                                {t("transfer:expires")}
                                             </Typography>
                                             <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
                                                 {relativeExpire(messageData, true)}
@@ -311,7 +312,7 @@ export default function LinkTransfer() {
                                         </Box>
                                     </Box>
                                     {limitReached ? (
-                                        <Chip label="Limit reached" />
+                                        <Chip label={t("transfer:limitReached")} />
                                     ) : isDownloading ? (
                                         <LinearProgressWithLabel value={downloadProgress} speed={speed} />
                                     ) :
@@ -322,13 +323,13 @@ export default function LinkTransfer() {
                                                 onClick={downloadFile}
                                                 fullWidth
                                             >
-                                                Download File
+                                                {t("transfer:downloadFile")}
                                             </Button>
 
                                             <Divider sx={{ my: 0.5 }} />
 
                                             <Tooltip
-                                                title={exportKey ? "" : "Log in to save this transfer to your account"}
+                                                title={exportKey ? "" : t("transfer:loginToSave")}
                                                 disableHoverListener={!!exportKey}
                                             >
                                                 <span>
@@ -341,7 +342,7 @@ export default function LinkTransfer() {
 
                                                         fullWidth
                                                     >
-                                                        Save to My Transfers
+                                                        {t("transfer:saveToMyTransfers")}
                                                     </Button>
                                                 </span>
                                             </Tooltip>
@@ -367,14 +368,14 @@ export default function LinkTransfer() {
                                         width: "100%",
                                     }}>
                                         <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                                            Protected Link Transfer
+                                            {t("transfer:protectedTitle")}
                                         </Typography>
                                         <Typography variant="body1" sx={{ color: '#6e5a69', mb: 4 }}>
-                                            This transfer is protected with a password. Please enter the password to view the transfer details and download the file.
+                                            {t("transfer:protectedDescription")}
                                         </Typography>
                                     </Box>
                                     <TextField
-                                        label="Password"
+                                        label={t("auth:password")}
                                         name="password"
                                         type={showPassword ? "text" : "password"}
                                         variant="outlined"
@@ -387,7 +388,7 @@ export default function LinkTransfer() {
                                                     < InputAdornment position="end" >
                                                         <IconButton
                                                             aria-label={
-                                                                showPassword ? 'hide the password' : 'display the password'
+                                                                showPassword ? t("auth:hidePassword") : t("auth:showPassword")
                                                             }
                                                             onClick={handleTogglePassword}
                                                         >
@@ -399,7 +400,7 @@ export default function LinkTransfer() {
                                         }}
                                     />
                                     <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>
-                                        Unlock Transfer
+                                        {t("transfer:unlock")}
                                     </Button>
                                 </Box>
                             }

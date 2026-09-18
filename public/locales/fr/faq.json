@@ -1,0 +1,16 @@
+{
+  "title": "Questions fréquentes",
+  "subtitle": "Tout ce que vous devez savoir sur l'envoi de fichiers avec JustTransfer.",
+  "q1": "Ai-je besoin d'un compte pour envoyer un fichier ?",
+  "a1": "Non. Les transferts invités fonctionnent sans compte : téléversez votre fichier, définissez un mot de passe et partagez le lien. Un compte gratuit offre des fonctions supplémentaires, comme la gestion des transferts et l'envoi direct aux destinataires.",
+  "q2": "Comment mes données sont-elles chiffrées ?",
+  "a2": "Les fichiers et leurs noms sont chiffrés sur votre appareil avant de le quitter, avec le mot de passe de votre choix. Le chiffrement côté client signifie que JustTransfer n'a jamais accès à vos fichiers non chiffrés.",
+  "q3": "Où JustTransfer est-il basé et où mes données sont-elles stockées ?",
+  "a3": "JustTransfer est basé en Suisse et vos fichiers sont stockés exclusivement sur une infrastructure suisse, régie par le droit suisse de la protection des données. Les informations de paiement Premium sont traitées par Stripe.",
+  "q4": "Que se passe-t-il si j'annule mon forfait Premium ?",
+  "a4": "Vous conservez l'accès Premium jusqu'à la fin de votre période de facturation actuelle, puis votre compte revient automatiquement au forfait gratuit.",
+  "q5": "Que deviennent mes fichiers après leur expiration ?",
+  "a5": "Les fichiers sont automatiquement et définitivement supprimés à leur date d'expiration ou après leur limite de téléchargements, selon la première échéance.",
+  "q6": "JustTransfer est-il open source ?",
+  "a6": "Oui. Le code source complet est public sur GitHub. Chacun peut l'inspecter, l'auditer ou y contribuer, et vous pouvez héberger votre propre instance."
+}

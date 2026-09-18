@@ -14,10 +14,10 @@ import IconButton from "@mui/material/IconButton";
 import Alert from "@mui/material/Alert";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { useTranslation } from "react-i18next";
 
 import PasswordStrength from "../components/passwordStrength";
 
-import * as errors from "../messages/errors";
 
 export type Mode = "changePassword" | "deleteAccount" | "rotateKeys";
 
@@ -39,6 +39,7 @@ export default function AccountActionDialog({
     onClose,
     onSubmit
 }: AccountActionDialogProps) {
+    const { t } = useTranslation(["account", "auth", "errors"]);
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmNewPassword, setConfirmNewPassword] = useState("");
@@ -73,22 +74,22 @@ export default function AccountActionDialog({
     const isDelete = mode === "deleteAccount";
 
     const title = isChangePassword
-        ? "Change Password"
+        ? t("account:dialogChangeTitle")
         : isDelete
-            ? "Delete Account"
-            : "Rotate Keys";
+            ? t("account:dialogDeleteTitle")
+            : t("account:dialogRotateTitle");
 
     const description = isChangePassword
-        ? "Enter your current password and choose a new one."
+        ? t("account:dialogChangeDescription")
         : isDelete
-            ? "Enter your current password to permanently delete your account."
-            : "Enter your current password to generate new encryption and signing keys.";
+            ? t("account:dialogDeleteDescription")
+            : t("account:dialogRotateDescription");
 
     const buttonLabel = isChangePassword
-        ? "Update Password"
+        ? t("account:updatePassword")
         : isDelete
-            ? "Delete Account"
-            : "Rotate Keys";
+            ? t("account:deleteButton")
+            : t("account:rotateButton");
 
     const buttonColor = isDelete ? "error" : "primary";
 
@@ -140,12 +141,12 @@ export default function AccountActionDialog({
 
                     {isDelete && (
                         <Alert severity="warning" sx={{ mb: 3 }}>
-                            This action is irreversible. Signed transfers will be permanently deleted. Unsigned transfers will remain on the server until they expire, but you'll lose access to them. Your subscription will be canceled and any remaining Premium time will be forfeited.
+                            {t("account:dialogWarning")}
                         </Alert>
                     )}
 
                     <TextField
-                        label="Current Password"
+                        label={t("account:currentPassword")}
                         type={showPassword1 ? "text" : "password"}
                         fullWidth
                         value={currentPassword}
@@ -156,7 +157,7 @@ export default function AccountActionDialog({
                                     < InputAdornment position="end" >
                                         <IconButton
                                             aria-label={
-                                                showPassword1 ? 'hide the password' : 'display the password'
+                                                showPassword1 ? t("auth:hidePassword") : t("auth:showPassword")
                                             }
                                             onClick={handleTogglePassword1}
                                         >
@@ -171,20 +172,20 @@ export default function AccountActionDialog({
                     {isChangePassword && (
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                             <TextField
-                                label="New Password"
+                                label={t("auth:newPassword")}
                                 type={showPassword2 ? "text" : "password"}
                                 fullWidth
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
                                 error={errorWeakPassword || errorSamePassword}
-                                helperText={errorWeakPassword ? errors.errorWeakPassword : errorSamePassword ? errors.errorSamePassword : ""}
+                                helperText={errorWeakPassword ? t("errors:errorWeakPassword") : errorSamePassword ? t("errors:errorSamePassword") : ""}
                                 slotProps={{
                                     input: {
                                         endAdornment: (
                                             < InputAdornment position="end" >
                                                 <IconButton
                                                     aria-label={
-                                                        showPassword2 ? 'hide the password' : 'display the password'
+                                                        showPassword2 ? t("auth:hidePassword") : t("auth:showPassword")
                                                     }
                                                     onClick={handleTogglePassword2}
                                                 >
@@ -199,13 +200,13 @@ export default function AccountActionDialog({
                             <PasswordStrength password={newPassword} onStrengthChange={setIsStrong} />
 
                             <TextField
-                                label="Confirm New Password"
+                                label={t("auth:confirmNewPassword")}
                                 type="password"
                                 fullWidth
                                 value={confirmNewPassword}
                                 onChange={(e) => setConfirmNewPassword(e.target.value)}
                                 error={errorPasswordMismatch}
-                                helperText={errorPasswordMismatch ? errors.errorPasswordMismatch : ""}
+                                helperText={errorPasswordMismatch ? t("errors:errorPasswordMismatch") : ""}
                             />
                         </Box>
                     )}
@@ -214,7 +215,7 @@ export default function AccountActionDialog({
 
             <DialogActions sx={{ px: 3, pb: 2 }}>
                 <Button onClick={onClose} disabled={loading}>
-                    Cancel
+                    {t("account:cancel")}
                 </Button>
 
                 <Button

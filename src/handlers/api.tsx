@@ -1,5 +1,5 @@
 import { apiUrl } from "./config";
-import * as errors from "../messages/errors";
+import i18n from "../i18n";
 
 async function apiFetch(input: RequestInfo, init?: RequestInit, specificErrors: Record<number, Error> = {}) {
     const response = await fetch(input, init);
@@ -9,7 +9,7 @@ async function apiFetch(input: RequestInfo, init?: RequestInit, specificErrors: 
     }
 
     if (response.status === 429) {
-        throw new Error(errors.errorTooManyRequests);
+        throw new Error(i18n.t("errors:errorTooManyRequests"));
     }
 
     if (!response.ok) {
@@ -54,7 +54,7 @@ async function registerEndAPI(email: string, client_registration_finish: string,
         }),
     },
         {
-            507: new Error(errors.errorMaxUserAccountsReached),
+            507: new Error(i18n.t("errors:errorMaxUserAccountsReached")),
         },
     );
 
@@ -85,7 +85,7 @@ async function registerUpdateAPI(client_registration_finish: string, keys: KeyPa
         }),
     },
         {
-            401: new Error(errors.errorChangePassword),
+            401: new Error(i18n.t("errors:errorChangePassword")),
         },
     );
 
@@ -141,7 +141,7 @@ async function loginEndAPI(email: string, client_login_finish_result: string) {
         }),
     },
         {
-            403: new Error(errors.errorMailNotVerified),
+            403: new Error(i18n.t("errors:errorMailNotVerified")),
         }
     );
 
@@ -241,7 +241,7 @@ async function getPublicKeyAPI(pub_key_id: string) {
         },
     },
         {
-            404: new Error(errors.errorPublicKeyNotFound),
+            404: new Error(i18n.t("errors:errorPublicKeyNotFound")),
         }
     );
 
@@ -257,7 +257,7 @@ async function getPublicKeyEmailAPI(email: string) {
         },
     },
         {
-            404: new Error(errors.errorUserNotFound),
+            404: new Error(i18n.t("errors:errorUserNotFound")),
         }
     );
 

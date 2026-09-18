@@ -1,0 +1,22 @@
+{
+  "msgAccountCreated": "Compte créé avec succès.",
+  "msgLoginSuccessful": "Connexion réussie.",
+  "msgAccountDeleted": "Compte supprimé avec succès.",
+  "msgPasswordChanged": "Mot de passe modifié avec succès.",
+  "msgEmailVerified": "E-mail vérifié avec succès.",
+  "msgPasswordRequested": "Réinitialisation du mot de passe demandée. Veuillez vérifier votre e-mail.",
+  "msgPasswordReset": "Mot de passe réinitialisé avec succès.",
+  "msgTransferSaved": "Transfert enregistré avec succès dans votre compte.",
+  "msgFileUploaded": "Fichier téléversé avec succès.",
+  "msgFileDownloaded": "Fichier téléchargé avec succès.",
+  "msgFileInfoDecrypted": "Informations du fichier déchiffrées avec succès.",
+  "msgLinkCopied": "Lien copié dans le presse-papiers.",
+  "msgMessageDeleted": "Message supprimé avec succès.",
+  "btnCreateAccount": "Créer un compte",
+  "btnLogin": "Connexion",
+  "btnLogout": "Déconnexion",
+  "btnSendFile": "Envoyer le fichier",
+  "btnDownloadFile": "Télécharger le fichier",
+  "btnBackToHome": "Retour à l'accueil",
+  "refresh": "Actualiser"
+}
