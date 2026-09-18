@@ -10,7 +10,7 @@
   "contactTitle": "Contact",
   "analyticsNoticePrefix": "Nous utilisons",
   "analyticsToolName": "Umami",
-  "analyticsNoticeSuffix": ", un outil d'analyse respectueux de la vie privée et sans cookies. Aucune donnée personnelle n'est collectée, vendue ou partagée. Consultez notre",
+  "analyticsNoticeSuffix": ", un outil d'analyse respectueux de la vie privée et sans cookies qui anonymise les données des visiteurs. Aucune donnée n'est vendue ni partagée. Consultez notre",
   "analyticsNoticeEnd": "pour en savoir plus.",
   "betaNotice": "JustTransfer est actuellement en version bêta — attendez-vous à quelques bugs occasionnels, et merci de nous aider à tester."
 }
