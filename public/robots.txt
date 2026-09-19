@@ -1,8 +1,20 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow: /link-transfer/
-Disallow: /transfers
-Disallow: /account
-Disallow: /logout
+Disallow: /en/link-transfer/
+Disallow: /fr/link-transfer/
+Disallow: /de/link-transfer/
+Disallow: /it/link-transfer/
+Disallow: /en/transfers
+Disallow: /fr/transfers
+Disallow: /de/transfers
+Disallow: /it/transfers
+Disallow: /en/account
+Disallow: /fr/account
+Disallow: /de/account
+Disallow: /it/account
+Disallow: /en/logout
+Disallow: /fr/logout
+Disallow: /de/logout
+Disallow: /it/logout
 
 Sitemap: https://justtransfer.ch/sitemap.xml
