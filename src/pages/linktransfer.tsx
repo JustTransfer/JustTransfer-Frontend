@@ -88,8 +88,8 @@ export default function LinkTransfer() {
 
             success(t("common:msgFileInfoDecrypted"));
 
-        } catch (e: any) {
-            error(e.message || t("errors:errorUnknown"));
+        } catch {
+            error(t("errors:errorUnknown"));
             return;
         }
     }
@@ -126,8 +126,8 @@ export default function LinkTransfer() {
                     }));
                 },
             });
-        } catch (e) {
-            error(e instanceof Error ? e.message : t("errors:errorUnknown"));
+        } catch {
+            error(t("errors:errorUnknown"));
         } finally {
             setIsDownloading(false);
             setDownloadProgress(0);
@@ -139,8 +139,8 @@ export default function LinkTransfer() {
         console.log("Saving transfer to account:", { id, password, exportKey });
         try {
             await addSavedTransfer(id, password, exportKey, undefined);
-        } catch (e) {
-            error(e instanceof Error ? e.message : t("errors:errorUnknown"));
+        } catch {
+            error(t("errors:errorUnknown"));
             return;
         }
 

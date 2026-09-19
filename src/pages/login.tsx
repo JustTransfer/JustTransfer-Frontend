@@ -74,10 +74,10 @@ export default function LoginPage() {
                 });
 
             } else {
-                throw new Error(result.message);
+                throw new Error(t("errors:errorLoginFailed"));
             }
         } catch (e) {
-            error(e instanceof Error ? e.message : t("errors:errorLoginFailed"));
+            error(t("errors:errorLoginFailed"));
         }
     }
 

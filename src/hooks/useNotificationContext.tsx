@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
 
+import i18n from "../i18n";
+
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
@@ -89,6 +91,6 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
 export const useNotification = () => {
     const ctx = useContext(NotificationContext);
-    if (!ctx) throw new Error("useNotification must be used inside NotificationProvider");
+    if (!ctx) throw new Error(i18n.t("errors:errorUseNotificationOutsideProvider"));
     return ctx;
 };

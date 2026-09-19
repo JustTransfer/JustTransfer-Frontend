@@ -1,5 +1,7 @@
 import { Base64 } from 'js-base64';
 
+import i18n from "../i18n";
+
 const DB_NAME = "jt-secure-store";
 const DB_VERSION = 1;
 const STORE_NAME = "raw-keys";
@@ -66,7 +68,7 @@ export async function getRawKeyAsBase64(id: string): Promise<string | null> {
     if (!cryptoKey) return null;
 
     if (!cryptoKey.extractable) {
-        throw new Error(`Stored key "${id}" is not extractable; cannot retrieve raw bytes.`);
+        throw new Error(i18n.t("errors:errorStoredKeyNotExtractable", { id }));
     }
 
     const raw = await crypto.subtle.exportKey("raw", cryptoKey);

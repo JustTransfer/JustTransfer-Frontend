@@ -47,11 +47,7 @@ export default function LanguageSwitcher() {
     };
 
     return (
-        <Box
-            sx={{
-                mt: 0.6
-            }}
-        >
+        <Box>
             <Button
                 onClick={handleOpen}
                 startIcon={<LanguageIcon sx={{ fontSize: 18 }} />}

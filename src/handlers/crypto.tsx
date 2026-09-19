@@ -158,7 +158,7 @@ async function register(email: string, password: string) {
     // Return success
     return {
         success: true,
-        message: "Register successful!",
+        message: i18n.t("common:msgAccountCreated"),
         exportKey: Base64.fromUint8Array(exportKeyDecoded, true),
     };
 }
@@ -209,7 +209,7 @@ async function changePassword(email: string, password: string, newPassword: stri
     // Return success
     return {
         success: true,
-        message: "Password change successful!",
+        message: i18n.t("common:msgPasswordChanged"),
         exportKey: Base64.fromUint8Array(exportKeyDecoded, true),
         keys: decryptedKeys,
     };
@@ -250,7 +250,7 @@ async function resetPassword(email: string, password: string, token: string) {
     // Return success
     return {
         success: true,
-        message: "Password reset successful!",
+        message: i18n.t("common:msgPasswordReset"),
     };
 }
 
@@ -275,7 +275,7 @@ async function generateNewKeys(email: string, password: string, exportKey: strin
 
     return {
         success: true,
-        message: "New keys generated successfully!",
+        message: i18n.t("common:msgKeysGenerated"),
         keys: decryptedKeys, // Return all keys including the new one
     };
 }
@@ -300,7 +300,7 @@ async function loginProcess(email: string, password: string) {
     if (!loginResult) {
         return {
             success: false,
-            message: "Login failed. Please check your credentials.",
+            message: i18n.t("errors:errorLoginFailed"),
         };
     }
 
@@ -317,7 +317,7 @@ async function loginProcess(email: string, password: string) {
 
     return {
         success: true,
-        message: "Log in successful!",
+        message: i18n.t("common:msgLoginSuccessful"),
         email,
         role,
         exportKey: Base64.fromUint8Array(exportKeyDecoded, true),

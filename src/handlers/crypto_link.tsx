@@ -106,7 +106,7 @@ async function getOneLinkMessageMetadata(password: string, message_id: string) {
         exportKey,
         AegisKey: Base64.fromUint8Array(AegisKey, true),
         MacKey: Base64.fromUint8Array(MacKey, true),
-        message: "Message metadata retrieved successfully!",
+        message: i18n.t("common:msgFileInfoDecrypted"),
         messageData: {
             id, cfilename, filename, nonce_filename, message_id, file_id, creation_time, hash_file, mac, lifetime, max_downloads, number_downloads, file_size, chunk_size, is_signed, signature_metadata, signature, sender, sender_pub_key, sender_email
         }
@@ -399,7 +399,7 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
 
     return {
         success: true,
-        message: "Message sent successfully!",
+        message: i18n.t("common:msgFileUploaded"),
         id: transferId,
         link: link,
         auth_key: auth_key,
@@ -486,7 +486,7 @@ async function updateMessageLink(id: string, auth_key_b64: string, AegisKey_b64:
         mac: mac,
         signature_metadata: signature_metadata_b64,
         signature: signature_b64,
-        message: "Message updated successfully!",
+        message: i18n.t("common:msgMessageUpdated"),
     }
 }
 
