@@ -391,7 +391,7 @@ export default function Layout({ content }: { content: React.ReactNode }) {
                                         key={item.path}
                                         startIcon={item.icon}
                                         fullWidth
-                                        size="large"
+                                        size="small"
                                         onClick={() => goTo(item.path)}
                                         sx={menuButtonStyle(item.path)}
                                     >
