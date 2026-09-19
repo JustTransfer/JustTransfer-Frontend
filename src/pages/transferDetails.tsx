@@ -149,8 +149,8 @@ export default function TransferDetails() {
             setMessage(msg);
             setMaxDownloads(msg.messageData.max_downloads);
             setLifetimeDays(msg.messageData.lifetime ?? 0);
-        } catch (e) {
-            error(t("transfer:loadFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
+        } catch {
+            error(t("transfer:loadFailed", { error: t("errors:errorUnknown") }));
             setNotFound(true);
         } finally {
             setLoading(false);
@@ -241,8 +241,8 @@ export default function TransferDetails() {
                     signature: signature ?? prev.messageData.signature,
                 },
             }));
-        } catch (e) {
-            error(t("transfer:updateFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
+        } catch {
+            error(t("transfer:updateFailed", { error: t("errors:errorUnknown") }));
         } finally {
             setSaving(false);
         }
@@ -302,8 +302,8 @@ export default function TransferDetails() {
             setConfirmNewPassword("");
             setIsNewPasswordStrong(false);
             setShowNewPassword(false);
-        } catch (e) {
-            error(t("transfer:passwordUpdateFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
+        } catch {
+            error(t("transfer:passwordUpdateFailed", { error: t("errors:errorUnknown") }));
         } finally {
             setChangingPassword(false);
         }
@@ -334,8 +334,8 @@ export default function TransferDetails() {
                     }));
                 },
             });
-        } catch (e) {
-            error(t("transfer:actionFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
+        } catch {
+            error(t("transfer:actionFailed", { error: t("errors:errorUnknown") }));
         } finally {
             setDownloadProgress(undefined);
         }
@@ -348,8 +348,8 @@ export default function TransferDetails() {
             await deleteLinkMessageAPI(message.messageData.id, message.auth_key);
             success(t("common:msgMessageDeleted"));
             navigate("/transfers");
-        } catch (e) {
-            error(t("transfer:actionFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
+        } catch {
+            error(t("transfer:actionFailed", { error: t("errors:errorUnknown") }));
         }
     }
 

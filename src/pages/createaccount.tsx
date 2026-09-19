@@ -105,8 +105,8 @@ export default function CreateAccountPage() {
             } else {
                 throw new Error(t("errors:errorRegistrationFailed"));
             }
-        } catch (e) {
-            error(e instanceof Error ? e.message : t("errors:errorRegistrationFailed"));
+        } catch {
+            error(t("errors:errorRegistrationFailed"));
         }
     }
 

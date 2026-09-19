@@ -39,8 +39,8 @@ export default function ResetPasswordRequestPage() {
             await requestResetPasswordAPI(data.email as string);
             success(t("common:msgPasswordRequested"));
 
-        } catch (e) {
-            error(e instanceof Error ? e.message : t("errors:errorPasswordResetRequestFailed"));
+        } catch {
+            error(t("errors:errorPasswordResetRequestFailed"));
         }
     }
 

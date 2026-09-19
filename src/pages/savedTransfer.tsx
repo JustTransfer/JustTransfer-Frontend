@@ -208,8 +208,8 @@ export default function SavedTransfer() {
 
             getMessagesLocal();
 
-        } catch (e) {
-            error(t("transfer:addFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
+        } catch {
+            error(t("transfer:addFailed", { error: t("errors:errorUnknown") }));
         } finally {
             setAddingTransfer(false);
         }
@@ -231,8 +231,8 @@ export default function SavedTransfer() {
 
             setMessages(prev => prev.filter(msg => msg.messageData.id !== id));
             success(t("common:msgMessageDeleted"));
-        } catch (e) {
-            error(t("transfer:actionFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
+        } catch {
+            error(t("transfer:actionFailed", { error: t("errors:errorUnknown") }));
         }
     }
 
@@ -267,8 +267,8 @@ export default function SavedTransfer() {
                     );
                 },
             });
-        } catch (e) {
-            error(t("transfer:actionFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
+        } catch {
+            error(t("transfer:actionFailed", { error: t("errors:errorUnknown") }));
         } finally {
             setDownloadProgress(prev => {
                 const { [message.messageData.id]: _, ...rest } = prev;
@@ -320,7 +320,7 @@ export default function SavedTransfer() {
                         info(t("transfer:deletingSavedTransfer", { id: msg.transfer_id }));
                         await deleteSavedTransferAPI(msg.id);
                     } else {
-                        error(t("transfer:loadTransferFailed", { id: msg.transfer_id, error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
+                        error(t("transfer:loadTransferFailed", { id: msg.transfer_id, error: t("errors:errorUnknown") }));
                     }
                 }
             }
@@ -333,8 +333,8 @@ export default function SavedTransfer() {
             });
 
             setMessages(tmpMessagesData);
-        } catch (e) {
-            error(t("transfer:loadMessagesFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
+        } catch {
+            error(t("transfer:loadMessagesFailed", { error: t("errors:errorUnknown") }));
         }
 
         setLoading(false);

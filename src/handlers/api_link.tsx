@@ -222,7 +222,7 @@ async function uploadFileToS3(url: string, cfile: Uint8Array, onProgress?: (perc
             });
 
             if (!response.ok) {
-                throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+                throw new Error(i18n.t("errors:errorAPIRequestFailed"));
             }
 
             break; // Sucess
@@ -259,8 +259,8 @@ async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (
                     : undefined
             });
 
-            if (!response.ok && response.status !== 206) throw new Error(`Download failed: ${response.status} ${response.statusText}`);
-            if (!response.body) throw new Error("Response body is empty.");
+            if (!response.ok && response.status !== 206) throw new Error(i18n.t("errors:errorAPIRequestFailed"));
+            if (!response.body) throw new Error(i18n.t("errors:errorResponseBodyEmpty"));
 
             if (contentLength === 0) {
                 if (received === 0) {

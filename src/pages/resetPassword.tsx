@@ -120,8 +120,8 @@ export default function ResetPasswordPage() {
             } else {
                 throw new Error(t("errors:errorPasswordResetFailed"));
             }
-        } catch (e) {
-            error(e instanceof Error ? e.message : t("errors:errorPasswordResetFailed"));
+        } catch {
+            error(t("errors:errorPasswordResetFailed"));
         }
     }
 

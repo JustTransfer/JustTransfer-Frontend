@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
+import i18n from "../i18n";
+
 type ServerConfig = {
     result: string;
     max_lifetime_link: number;
@@ -31,7 +33,7 @@ export const ServerConfigProvider = ({ children }: any) => {
         const fetchConfig = async () => {
             try {
                 const res = await fetch("/api/config");
-                if (!res.ok) throw new Error("Failed to load config");
+                if (!res.ok) throw new Error(i18n.t("errors:errorConfigLoadFailed"));
                 const data = await res.json();
                 setConfig(data);
             } catch (e: any) {
@@ -51,7 +53,7 @@ export const ServerConfigProvider = ({ children }: any) => {
 export const useServerConfig = () => {
     const context = useContext(ServerConfigContext);
     if (!context) {
-        throw new Error("useServerConfig must be used within ServerConfigProvider");
+        throw new Error(i18n.t("errors:errorUseServerConfigOutsideProvider"));
     }
     return context;
 };
