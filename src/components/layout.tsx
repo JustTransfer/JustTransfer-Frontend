@@ -30,7 +30,6 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import { useLangNavigate, useLangPath } from "../hooks/useLangNavigate";
 
 const headerHeight = "65px";
-const logoMarginTop = '-10px';
 const logoWidth = "200px";
 
 const leftBarWidth = "250px";
@@ -294,7 +293,6 @@ export default function Layout({ content }: { content: React.ReactNode }) {
                             height: "auto",
                             width: { xs: "140px", md: logoWidth },
                             cursor: "pointer",
-                            marginTop: logoMarginTop,
                         }}
                         onClick={
                             () => navigate("/")
@@ -341,8 +339,8 @@ export default function Layout({ content }: { content: React.ReactNode }) {
                         {isLoggedIn ? (
                             <Avatar
                                 sx={{
-                                    width: 28,
-                                    height: 28,
+                                    width: 32,
+                                    height: 32,
                                     fontSize: "0.85rem",
                                     bgcolor: "#E906E5",
                                     color: "#fff",
@@ -449,7 +447,7 @@ export default function Layout({ content }: { content: React.ReactNode }) {
                                     <Button
                                         startIcon={<CloudUploadIcon />}
                                         fullWidth
-                                        size="large"
+                                        size="small"
                                         onClick={() => navigate("/")}
                                         sx={menuButtonStyle("/")}
                                     >
@@ -458,7 +456,7 @@ export default function Layout({ content }: { content: React.ReactNode }) {
                                     <Button
                                         startIcon={<FolderIcon />}
                                         fullWidth
-                                        size="large"
+                                        size="small"
                                         onClick={() => navigate("/transfers")}
                                         sx={menuButtonStyle("/transfers")}
                                     >
@@ -479,7 +477,7 @@ export default function Layout({ content }: { content: React.ReactNode }) {
                                     <Button
                                         startIcon={<AccountCircleIcon />}
                                         fullWidth
-                                        size="large"
+                                        size="small"
                                         onClick={() => navigate("/account")}
                                         sx={menuButtonStyle("/account")}
                                     >
@@ -489,7 +487,7 @@ export default function Layout({ content }: { content: React.ReactNode }) {
                                     <Button
                                         startIcon={<LogoutIcon />}
                                         fullWidth
-                                        size="large"
+                                        size="small"
                                         onClick={async () => {
                                             navigate("/logout");
                                         }}
