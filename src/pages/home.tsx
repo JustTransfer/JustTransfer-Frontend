@@ -144,8 +144,9 @@ export default function HomePage() {
                                     }}
                                 >
                                     {t("heroTitle")}
-                                    <br />
-                                    - <Box component="span" sx={{ color: "primary.main" }}> {t("heroAccent")}</Box>
+                                    <Box component="span" sx={{ display: "block", color: "primary.main", }}>
+                                        {t("heroAccent")}
+                                    </Box>
                                 </Typography>
                                 <Typography variant="body1" sx={{ color: "#5a4454", maxWidth: 520, mx: { xs: "auto", md: 0 } }}>
                                     {t("heroSubtitle")}
