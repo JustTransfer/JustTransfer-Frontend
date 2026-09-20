@@ -51,14 +51,14 @@ export default function LanguageSwitcher() {
             <Button
                 onClick={handleOpen}
                 startIcon={<LanguageIcon sx={{ fontSize: 18 }} />}
-                size="small"
+                size="medium"
                 aria-label={t("languageLabel")}
                 aria-haspopup="menu"
                 aria-expanded={open}
                 sx={{
                     textTransform: "none",
                     color: "#000",
-                    fontSize: "0.9rem",
+                    fontSize: "1rem",
                     minWidth: "auto",
                     px: 1,
                 }}

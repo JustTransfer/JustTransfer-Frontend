@@ -303,6 +303,7 @@ export default function Layout({ content }: { content: React.ReactNode }) {
                         marginLeft: "auto",
                         marginRight: { xs: 0, md: 4 },
                         display: { xs: "none", md: "flex" },
+                        alignItems: "center",
                         gap: 4,
                     }}>
                         <LanguageSwitcher />
