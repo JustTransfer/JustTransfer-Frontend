@@ -13,7 +13,7 @@ async function apiFetch(input: RequestInfo, init?: RequestInit, specificErrors: 
     }
 
     if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
+        throw new Error(i18n.t("errors:errorAPIRequestFailed"));
     }
 
     return response;

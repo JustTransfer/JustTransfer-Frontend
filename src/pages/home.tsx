@@ -124,6 +124,8 @@ export default function HomePage() {
                                     flexDirection: "column",
                                     mt: { xs: 0, md: 25 },
                                     gap: { xs: 2, md: 3 },
+                                    textAlign: { xs: "center", md: "left" },
+                                    alignItems: { xs: "center", md: "flex-start" },
                                 }}
                             >
                                 <Typography
@@ -142,10 +144,11 @@ export default function HomePage() {
                                     }}
                                 >
                                     {t("heroTitle")}
-                                    <br />
-                                    - <Box component="span" sx={{ color: "primary.main" }}> {t("heroAccent")}</Box>
+                                    <Box component="span" sx={{ display: "block", color: "primary.main", }}>
+                                        {t("heroAccent")}
+                                    </Box>
                                 </Typography>
-                                <Typography variant="body1" sx={{ color: "#5a4454", maxWidth: 520 }}>
+                                <Typography variant="body1" sx={{ color: "#5a4454", maxWidth: 520, mx: { xs: "auto", md: 0 } }}>
                                     {t("heroSubtitle")}
                                 </Typography>
 
@@ -153,7 +156,8 @@ export default function HomePage() {
                                 <Box sx={{
                                     display: { xs: "none", sm: "flex" },
                                     gap: 1.25,
-                                    flexWrap: "wrap"
+                                    flexWrap: "wrap",
+                                    justifyContent: { xs: "center", sm: "flex-start" },
                                 }}>
                                     {[
                                         { icon: <LockOutlinedIcon sx={{ fontSize: 18 }} />, label: t("encryption") },
@@ -166,8 +170,8 @@ export default function HomePage() {
                                                 display: "flex",
                                                 alignItems: "center",
                                                 gap: 0.75,
-                                                px: 1.5,
-                                                py: 0.75,
+                                                px: 1,
+                                                py: 1,
                                                 borderRadius: 2,
                                                 backgroundColor: "#fbe3f0",
                                             }}
@@ -287,7 +291,7 @@ export default function HomePage() {
                             boxShadow: "0 18px 40px rgba(83, 24, 60, 0.08)",
                         }}
                     >
-                        <Box sx={{ maxWidth: maxWidthPage, mx: "auto", textAlign: "center", mb: 6 }}>
+                        <Box sx={{ maxWidth: maxWidthPage, mx: "auto", textAlign: "center", mb: 4 }}>
                             <Typography id="how-it-works-heading" variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
                                 {t("howTitle")}
                             </Typography>
@@ -296,7 +300,7 @@ export default function HomePage() {
                             </Typography>
                         </Box>
                         <Box sx={{ maxWidth: maxWidthPage, mx: "auto", display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" }, gap: 3.5 }}>
-                            <Box sx={{ p: 4, borderRadius: 4, border: "1px solid #f1e7ee", backgroundColor: "#ffffff" }}>
+                            <Box sx={{ p: 3, borderRadius: 4, border: "1px solid #f1e7ee", backgroundColor: "#ffffff" }}>
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2.5 }}>
                                     <Box sx={{ width: 46, height: 46, borderRadius: "50%", backgroundColor: "#fbe3f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                         <UploadIcon color="primary" sx={{ fontSize: 24 }} />
@@ -307,7 +311,7 @@ export default function HomePage() {
                                     {t("uploadText")}
                                 </Typography>
                             </Box>
-                            <Box sx={{ p: 4, borderRadius: 4, border: "1px solid #f1e7ee", backgroundColor: "#ffffff" }}>
+                            <Box sx={{ p: 3, borderRadius: 4, border: "1px solid #f1e7ee", backgroundColor: "#ffffff" }}>
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2.5 }}>
                                     <Box sx={{ width: 46, height: 46, borderRadius: "50%", backgroundColor: "#fbe3f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                         <LinkIcon color="primary" sx={{ fontSize: 24 }} />
@@ -318,7 +322,7 @@ export default function HomePage() {
                                     {t("shareText")}
                                 </Typography>
                             </Box>
-                            <Box sx={{ p: 4, borderRadius: 4, border: "1px solid #f1e7ee", backgroundColor: "#ffffff" }}>
+                            <Box sx={{ p: 3, borderRadius: 4, border: "1px solid #f1e7ee", backgroundColor: "#ffffff" }}>
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2.5 }}>
                                     <Box sx={{ width: 46, height: 46, borderRadius: "50%", backgroundColor: "#fbe3f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                         <DownloadIcon color="primary" sx={{ fontSize: 24 }} />
@@ -510,7 +514,7 @@ export default function HomePage() {
                         </Typography>
                         <Typography
                             variant="body1"
-                            sx={{ color: "#7a6474", mb: 5, textAlign: "center", maxWidth: 520, mx: "auto" }}
+                            sx={{ color: "#7a6474", mb: 4, textAlign: "center", maxWidth: 520, mx: "auto" }}
                         >
                             {t("guestSubtitle")}
                         </Typography>
@@ -646,7 +650,7 @@ export default function HomePage() {
                             </Box>
                         </Box>
                     </Box>
-                </Box>
+                </Box >
             } />
     );
 }

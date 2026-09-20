@@ -257,13 +257,13 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
             success(t("transfer:fileUploaded"));
 
         } catch (e: any) {
-            if (e.message === t("errors:errorUserNotFound")) {
+            if (e?.message === t("errors:errorUserNotFound")) {
                 setErrorReceiver(true);
             } else {
                 setErrorReceiver(false);
             }
 
-            error(e.message || t("errors:errorUnknown"));
+            error(t("errors:errorUnknown"));
 
             // Only reset sending state and progress
             setIsSending(false);

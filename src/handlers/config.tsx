@@ -1,7 +1,9 @@
+import i18n from "../i18n";
+
 function getEnv(name: string): string {
     const value = import.meta.env[name];
     if (value === undefined || value.trim() === "") {
-        throw new Error(`Environment variable ${name} is not set or empty`);
+        throw new Error(i18n.t("errors:errorEnvironmentVariableMissing", { name }));
     }
     return value;
 }

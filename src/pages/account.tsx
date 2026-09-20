@@ -112,7 +112,7 @@ export default function AccountPage() {
             const result = await generateNewKeys(email!, currentPassword, exportKey!);
 
             if (!result.success) {
-                throw new Error(result.message || t("errors:errorRotateKeys"));
+                throw new Error(t("errors:errorRotateKeys"));
             }
 
             updateKeys({
@@ -120,10 +120,10 @@ export default function AccountPage() {
                 keys: result.keys!,
             });
 
-            success(result.message);
+            success(t("common:msgKeysGenerated"));
 
-        } catch (e) {
-            error(e instanceof Error ? e.message : t("errors:errorRotateKeys"));
+        } catch {
+            error(t("errors:errorRotateKeys"));
         }
     }
 
@@ -134,7 +134,7 @@ export default function AccountPage() {
             const result = await changePassword(email!, currentPassword, newPassword, keys!, saved_transfers);
 
             if (!result.success) {
-                throw new Error(result.message || t("errors:errorChangePassword"));
+                throw new Error(t("errors:errorChangePassword"));
             }
 
             updateKeys({
@@ -142,10 +142,10 @@ export default function AccountPage() {
                 keys: result.keys!,
             });
 
-            success(result.message);
+            success(t("common:msgPasswordChanged"));
 
-        } catch (e) {
-            error(e instanceof Error ? e.message : t("errors:errorChangePassword"));
+        } catch {
+            error(t("errors:errorChangePassword"));
         }
     }
 
@@ -169,8 +169,8 @@ export default function AccountPage() {
 
             navigate("/logout", { replace: true });
 
-        } catch (e) {
-            error(e instanceof Error ? e.message : t("errors:errorDeleteAccount"));
+        } catch {
+            error(t("errors:errorDeleteAccount"));
         }
     }
 
@@ -180,8 +180,8 @@ export default function AccountPage() {
             updateRole(accountInfo.role);
             setNumberTransfers(accountInfo.number_transfers);
             setCurrentPeriodEnd(accountInfo.current_period_end ?? null);
-        } catch (e) {
-            error(t("account:fetchFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
+        } catch {
+            error(t("account:fetchFailed", { error: t("errors:errorUnknown") }));
         }
     }
 

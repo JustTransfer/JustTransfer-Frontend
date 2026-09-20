@@ -43,9 +43,9 @@ export default function VerifyEmailPage() {
                         navigate("/login");
                     }, 2000);
                 })
-                .catch((err) => {
+                .catch(() => {
                     setState("error");
-                    error(err.message || t("errors:errorEmailVerificationFailed"));
+                    error(t("errors:errorEmailVerificationFailed"));
                     setTimeout(() => {
                         navigate("/");
                     }, 2000);

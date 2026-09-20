@@ -86,8 +86,8 @@ export default function PricingPage() {
 
             const checkoutUrl = await createSubscriptionCheckoutAPI(plan);
             window.location.href = checkoutUrl; // Stripe Checkout Session URL
-        } catch (e) {
-            error(e instanceof Error ? e.message : t("updateFailed"));
+        } catch {
+            error(t("updateFailed"));
         } finally {
             setCancelling(false);
         }
