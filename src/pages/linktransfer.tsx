@@ -221,7 +221,7 @@ export default function LinkTransfer() {
                     <Paper elevation={0} sx={cardSx}>
                         <Box component="form" sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, width: "100%", minWidth: 0 }} onSubmit={handleSubmit}>
                             {messageData ? (
-                                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, width: "100%", minWidth: 0 }}>
+                                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, width: "100%", minWidth: 0 }}>
 
                                     <Box sx={{
                                         display: "flex",
@@ -265,7 +265,6 @@ export default function LinkTransfer() {
                                             gap: 2,
                                             width: "100%",
                                             minWidth: 0,
-                                            mt: 2,
                                         }}
                                     >
                                         {/* Top-left: Size */}
