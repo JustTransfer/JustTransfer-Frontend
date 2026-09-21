@@ -67,9 +67,9 @@ export default function ResetPasswordRequestPage() {
                             {t("auth:resetRequestDescription")}
                         </Typography>
 
-                        <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }} onSubmit={handleSubmit}>
+                        <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 2 }} onSubmit={handleSubmit}>
                             <TextField label={t("auth:email")} name="email" type="email" variant="outlined" fullWidth required />
-                            <Button type="submit" variant="contained" sx={{ mt: 2 }}>
+                            <Button type="submit" variant="contained" sx={{ mt: 1 }}>
                                 {t("auth:sendResetEmail")}
                             </Button>
                         </Box>
