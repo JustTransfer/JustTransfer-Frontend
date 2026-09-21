@@ -47,7 +47,7 @@ function PlanLimitCard({
     progress?: number;
 }) {
     return (
-        <Card variant="outlined" sx={{ borderRadius: 3, p: 2, width: "100%", height: "100%" }}>
+        <Card variant="outlined" sx={{ borderRadius: 3, p: { xs: 1, md: 2 }, width: "100%", height: "100%" }}>
             <Stack spacing={1} sx={{ height: "100%" }}>
                 <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
                     {icon}
@@ -79,7 +79,7 @@ export default function AccountPage() {
 
     const pageSx = {
         width: "100%",
-        py: { xs: 3, md: 5 },
+        py: { xs: 3, md: 4 },
     };
 
     const contentCardSx = {
@@ -293,7 +293,7 @@ export default function AccountPage() {
                                 <Box
                                     sx={{
                                         display: "grid",
-                                        gap: 3,
+                                        gap: 2,
                                         gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
                                     }}
                                 >
@@ -348,7 +348,7 @@ export default function AccountPage() {
                             sx={{
                                 display: "flex",
                                 flexDirection: { xs: "column", md: "row" },
-                                gap: 2,
+                                gap: 1,
                                 alignItems: { md: "center" },
                                 justifyContent: "space-between",
                             }}
@@ -362,7 +362,7 @@ export default function AccountPage() {
                                 </Typography>
                             </Box>
                             <Button
-                                sx={{ mt: { xs: 2, md: 0 }, alignSelf: { xs: "flex-start", md: "center" }, maxWidth: 200 }}
+                                sx={{ mt: { xs: 1, md: 0 }, alignSelf: { xs: "flex-start", md: "center" }, maxWidth: 200 }}
                                 size="small"
                                 variant="contained"
                                 startIcon={<RefreshIcon />}
@@ -378,7 +378,7 @@ export default function AccountPage() {
                             sx={{
                                 display: "flex",
                                 flexDirection: { xs: "column", md: "row" },
-                                gap: 2,
+                                gap: 1,
                                 alignItems: { md: "center" },
                                 justifyContent: "space-between",
                             }}
@@ -392,7 +392,7 @@ export default function AccountPage() {
                                 </Typography>
                             </Box>
                             <Button
-                                sx={{ mt: { xs: 2, md: 0 }, alignSelf: { xs: "flex-start", md: "center" }, maxWidth: 200 }}
+                                sx={{ mt: { xs: 1, md: 0 }, alignSelf: { xs: "flex-start", md: "center" }, maxWidth: 200 }}
                                 size="small"
                                 variant="contained"
                                 startIcon={<DialpadIcon />}
@@ -408,7 +408,7 @@ export default function AccountPage() {
                             sx={{
                                 display: "flex",
                                 flexDirection: { xs: "column", md: "row" },
-                                gap: 2,
+                                gap: 1,
                                 alignItems: { md: "center" },
                                 justifyContent: "space-between",
                             }}
@@ -447,7 +447,7 @@ export default function AccountPage() {
                                 </Typography>
                             </Box>
                             <Button
-                                sx={{ mt: { xs: 2, md: 0 }, alignSelf: { xs: "flex-start", md: "center" }, maxWidth: 200 }}
+                                sx={{ mt: { xs: 1, md: 0 }, alignSelf: { xs: "flex-start", md: "center" }, maxWidth: 200 }}
                                 size="small"
                                 color="error"
                                 variant="contained"

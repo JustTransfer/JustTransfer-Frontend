@@ -32,7 +32,7 @@ export default function LoginPage() {
         border: "1px solid #f1e7ee",
         boxShadow: "0 18px 40px rgba(83, 24, 60, 0.12)",
         backgroundColor: "#ffffff",
-        p: { xs: 3, md: 5 },
+        p: { xs: 2, md: 3 },
     };
 
     const { success, error } = useNotification();
@@ -91,14 +91,14 @@ export default function LoginPage() {
                         flexDirection: "column",
                         alignItems: "center",
                         justifyContent: "center",
-                        py: { xs: 4, md: 6 },
+                        py: { xs: 3, md: 4 },
                         gap: 2,
                     }}
                 >
 
                     <Paper elevation={0} sx={cardSx}>
 
-                        <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1 }}>
+                        <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1, fontSize: { xs: "1.5rem", md: "2.125rem" } }}>
                             {t("login:title")}
                         </Typography>
 
@@ -106,7 +106,7 @@ export default function LoginPage() {
                             {t("login:subtitle")}
                         </Typography>
 
-                        <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 4 }} onSubmit={handleSubmit}>
+                        <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 3 }} onSubmit={handleSubmit}>
                             <TextField label={t("login:emailLabel")} name="email" type="text" variant="outlined" fullWidth required />
                             <TextField label={t("login:passwordLabel")} name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
                                 slotProps={{

@@ -71,7 +71,7 @@ export default function Faq({ headingId }: { headingId?: string }) {
                 width: "100%",
                 maxWidth: 1400,
                 mx: "auto",
-                py: { xs: 4, md: 6 },
+                py: { xs: 2.5, md: 6 },
                 px: { xs: 2, md: 4 },
                 backgroundColor: "#ffffff",
                 borderRadius: 4,
@@ -86,8 +86,8 @@ export default function Faq({ headingId }: { headingId?: string }) {
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
 
-            <Box sx={{ maxWidth: 1400, mx: "auto", textAlign: "center", mb: 6 }}>
-                <Typography id={headingId} variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
+            <Box sx={{ maxWidth: 1400, mx: "auto", textAlign: "center", mb: { xs: 3, md: 6 } }}>
+                <Typography id={headingId} variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1, fontSize: { xs: "1.5rem", md: "2.125rem" } }}>
                     {t("title")}
                 </Typography>
                 <Typography variant="body1" sx={{ color: "#7a6474", fontSize: "1.05rem" }}>

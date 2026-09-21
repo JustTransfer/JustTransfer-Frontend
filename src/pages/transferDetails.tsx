@@ -102,7 +102,7 @@ export default function TransferDetails() {
         border: "1px solid #f1e7ee",
         boxShadow: "0 18px 40px rgba(83, 24, 60, 0.08)",
         backgroundColor: "#ffffff",
-        p: { xs: 2.5, md: 4, lg: 5 },
+        p: { xs: 2, md: 3, lg: 4 },
     };
 
     const headerCardSx = {
@@ -365,7 +365,7 @@ export default function TransferDetails() {
                     alignItems: "center",
                     flexDirection: "column",
                     gap: 3,
-                    py: { xs: 2.25, md: 5 },
+                    py: { xs: 3, md: 4 },
                     px: { xs: 1.5, sm: 2, md: 3 },
                 }}>
                     {loading ? (

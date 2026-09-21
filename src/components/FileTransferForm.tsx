@@ -273,7 +273,6 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
 
     return (
         <>
-
             < Box
                 component="form"
                 ref={formRef}
@@ -599,7 +598,12 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
 
                 {
                     type === "link" ? (
-                        <Typography variant="body2" sx={{ color: "#7a6474", mt: -2, textAlign: "center" }}>
+                        <Typography variant="body2"
+                            sx={{
+                                color: "#7a6474",
+                                mt: { xs: -1, sm: -2 },
+                                textAlign: "center"
+                            }}>
                             {t("transfer:notifyPrompt")}
                             <br />
                             <RouterLink to={langPath("/register")}>{t("transfer:createAccount")}</RouterLink> {t("auth:and")} <RouterLink to={langPath("/login")}>{t("transfer:login")}</RouterLink>.

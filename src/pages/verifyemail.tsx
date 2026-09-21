@@ -22,7 +22,7 @@ export default function VerifyEmailPage() {
         border: "1px solid #f1e7ee",
         boxShadow: "0 18px 40px rgba(83, 24, 60, 0.12)",
         backgroundColor: "#ffffff",
-        p: { xs: 3, md: 5 },
+        p: { xs: 2, md: 3 },
     };
 
     const { id } = useParams();
@@ -63,7 +63,7 @@ export default function VerifyEmailPage() {
                         flexDirection: "column",
                         alignItems: "center",
                         justifyContent: "center",
-                        py: { xs: 4, md: 6 },
+                        py: { xs: 3, md: 4 },
                     }}
                 >
                     <Box sx={cardSx}>
@@ -87,7 +87,7 @@ export default function VerifyEmailPage() {
                         flexDirection: "column",
                         alignItems: "center",
                         justifyContent: "center",
-                        py: { xs: 4, md: 6 },
+                        py: { xs: 3, md: 4 },
                     }}
                 >
                     <Box sx={cardSx}>

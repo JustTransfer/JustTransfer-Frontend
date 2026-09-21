@@ -148,7 +148,7 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
                 width: "100%",
                 maxWidth: maxWidthPage,
                 mx: "auto",
-                py: { xs: 4, md: 6 },
+                py: { xs: 2.5, md: 6 },
                 px: sectionPaddingX,
                 backgroundColor: "#fff7fb",
                 borderRadius: 4,
@@ -157,7 +157,7 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
             }}
         >
             <Box sx={{ textAlign: "center", mb: 4 }}>
-                <Typography id={headingId} variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
+                <Typography id={headingId} variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1, fontSize: { xs: "1.5rem", md: "2.125rem" } }}>
                     {t("pageTitle")}
                 </Typography>
                 <Typography variant="body2" sx={{ color: "#7a6474" }}>
@@ -310,6 +310,6 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
                     </Button>
                 </Box>
             </Box>
-        </Box>
+        </Box >
     );
 }
