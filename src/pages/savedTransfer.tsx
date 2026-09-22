@@ -461,7 +461,7 @@ export default function SavedTransfer() {
                                                                 <Chip label={tampered ? t("unknownSize") : formatSize(msg.messageData.file_size)} size="small" />
                                                             </Stack>
 
-                                                            <Stack direction={compactInbox ? "column" : "row"} spacing={1} sx={{ mt: 0, alignItems: "flex-start", flexWrap: "wrap", rowGap: 1 }}>
+                                                            <Stack direction="row" spacing={{ xs: 0, sm: 1 }} sx={{ mt: 0, alignItems: "flex-start", flexWrap: "wrap", rowGap: 1, columnGap: 1 }}>
                                                                 {tampered ? (
                                                                     <Chip size="small" color="error" label={t("tampered")} />
                                                                 ) : (
