@@ -54,5 +54,7 @@
   "ctaTitle": "Pronto a trasferire?",
   "ctaText": "Invia un link sicuro in pochi secondi e crea un account per gestire i trasferimenti e notificare i destinatari via e-mail.",
   "getStarted": "Inizia",
-  "createAccount": "Crea account"
+  "createAccount": "Crea account",
+  "ctaSelfHostTitle": "Preferisci ospitarlo tu stesso?",
+  "ctaSelfHostText": "JustTransfer è completamente open source. Avvia la tua istanza e mantieni ogni file su un'infrastruttura che controlli tu."
 }
