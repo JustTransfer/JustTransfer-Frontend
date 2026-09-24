@@ -364,7 +364,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                     flexDirection: "column",
                     width: "100%",
                     textAlign: "left",
-                    gap: 2,
+                    gap: 1,
                     p: { xs: 1.5, sm: 2 },
 
                     borderRadius: 3,
@@ -372,7 +372,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                     borderColor: "divider",
                     backgroundColor: "background.paper",
                 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
                         {t("transfer:passwordChoice")}
                     </Typography>
                     <ToggleButtonGroup
@@ -426,7 +426,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                     </ToggleButtonGroup>
 
                     <Collapse in={isUsingPassword} unmountOnExit>
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 0.2 }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                             <TextField label={t("auth:password")} name="password" type={showPassword ? "text" : "password"} variant="outlined" fullWidth required
                                 onChange={(e) => setPassword(e.target.value)}
                                 error={errorWeakPassword}
