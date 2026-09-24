@@ -663,17 +663,17 @@ export default function HomePage() {
                             }}
                         >
                             <Typography id="cta-heading" variant="h5" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
-                                {t("ctaSelfHostTitle")}
+                                {t("ctaTitle")}
                             </Typography>
                             <Typography variant="body1" sx={{ opacity: 0.9, mb: 3 }}>
-                                {t("ctaSelfHostText")}
+                                {t("ctaText")}
                             </Typography>
                             <Box sx={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>
-                                <Button variant="contained" color="secondary" href="https://justtransfer.github.io/" target="_blank" rel="noreferrer">
-                                    {t("readWhitepaper")}
+                                <Button variant="contained" color="secondary" href="#transfer-form">
+                                    {t("getStarted")}
                                 </Button>
-                                <Button variant="outlined" sx={{ color: "#fff", borderColor: "rgba(255,255,255,0.5)" }} href="https://github.com/JustTransfer/" target="_blank" rel="noreferrer">
-                                    {t("viewGithub")}
+                                <Button variant="outlined" sx={{ color: "#fff", borderColor: "rgba(255,255,255,0.5)" }} onClick={() => navigate("/register")}>
+                                    {t("createAccount")}
                                 </Button>
                             </Box>
                         </Box>
