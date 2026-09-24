@@ -656,7 +656,7 @@ export default function HomePage() {
                             sx={{
                                 maxWidth: maxWidthPage,
                                 mx: "auto",
-                                p: { xs: 2, md: 5 },
+                                p: 1,
                                 borderRadius: 4,
                                 color: "#fff",
                                 textAlign: "center",
