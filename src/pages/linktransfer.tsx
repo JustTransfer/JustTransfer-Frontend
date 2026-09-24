@@ -42,7 +42,7 @@ export default function LinkTransfer() {
         border: "1px solid #f1e7ee",
         boxShadow: "0 18px 40px rgba(83, 24, 60, 0.12)",
         backgroundColor: "#ffffff",
-        p: { xs: 3, md: 5 },
+        p: { xs: 2, md: 3 },
         overflow: "hidden",
     };
 
@@ -214,14 +214,14 @@ export default function LinkTransfer() {
                         justifyContent: "center",
                         flexDirection: "column",
                         gap: 6,
-                        py: { xs: 4, md: 6 },
+                        py: { xs: 3, md: 4 },
                     }}
                 >
 
                     <Paper elevation={0} sx={cardSx}>
                         <Box component="form" sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, width: "100%", minWidth: 0 }} onSubmit={handleSubmit}>
                             {messageData ? (
-                                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, width: "100%", minWidth: 0 }}>
+                                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, width: "100%", minWidth: 0 }}>
 
                                     <Box sx={{
                                         display: "flex",
@@ -265,7 +265,6 @@ export default function LinkTransfer() {
                                             gap: 2,
                                             width: "100%",
                                             minWidth: 0,
-                                            mt: 2,
                                         }}
                                     >
                                         {/* Top-left: Size */}

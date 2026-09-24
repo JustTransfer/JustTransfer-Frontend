@@ -22,7 +22,7 @@ export default function ResetPasswordRequestPage() {
         border: "1px solid #f1e7ee",
         boxShadow: "0 18px 40px rgba(83, 24, 60, 0.12)",
         backgroundColor: "#ffffff",
-        p: { xs: 3, md: 5 },
+        p: { xs: 2, md: 3 },
     };
 
     const { success, error } = useNotification();
@@ -55,11 +55,11 @@ export default function ResetPasswordRequestPage() {
                         flex: 1,
                         alignItems: "center",
                         justifyContent: "center",
-                        py: { xs: 4, md: 6 },
+                        py: { xs: 3, md: 4 },
                     }}
                 >
                     <Paper elevation={0} sx={cardSx}>
-                        <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold", color: "#2b0f1f" }}>
+                        <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold", color: "#2b0f1f", fontSize: { xs: "1.5rem", md: "2.125rem" } }}>
                             {t("auth:resetTitle")}
                         </Typography>
 
@@ -67,9 +67,9 @@ export default function ResetPasswordRequestPage() {
                             {t("auth:resetRequestDescription")}
                         </Typography>
 
-                        <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 3 }} onSubmit={handleSubmit}>
+                        <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 2 }} onSubmit={handleSubmit}>
                             <TextField label={t("auth:email")} name="email" type="email" variant="outlined" fullWidth required />
-                            <Button type="submit" variant="contained" sx={{ mt: 2 }}>
+                            <Button type="submit" variant="contained" sx={{ mt: 1 }}>
                                 {t("auth:sendResetEmail")}
                             </Button>
                         </Box>

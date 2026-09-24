@@ -22,7 +22,7 @@ export default function VerifyEmailPage() {
         border: "1px solid #f1e7ee",
         boxShadow: "0 18px 40px rgba(83, 24, 60, 0.12)",
         backgroundColor: "#ffffff",
-        p: { xs: 3, md: 5 },
+        p: { xs: 2, md: 3 },
     };
 
     const { id } = useParams();
@@ -63,11 +63,11 @@ export default function VerifyEmailPage() {
                         flexDirection: "column",
                         alignItems: "center",
                         justifyContent: "center",
-                        py: { xs: 4, md: 6 },
+                        py: { xs: 3, md: 4 },
                     }}
                 >
                     <Box sx={cardSx}>
-                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 2, color: "#2b0f1f" }}>
+                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 2, color: "#2b0f1f", fontSize: { xs: "1.5rem", md: "2.125rem" } }}>
                             {state === "verifying" && t("auth:verifyTitle")}
                             {state === "success" && t("auth:verifiedTitle")}
                             {state === "error" && t("auth:verifyFailedTitle")}
@@ -87,11 +87,11 @@ export default function VerifyEmailPage() {
                         flexDirection: "column",
                         alignItems: "center",
                         justifyContent: "center",
-                        py: { xs: 4, md: 6 },
+                        py: { xs: 3, md: 4 },
                     }}
                 >
                     <Box sx={cardSx}>
-                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 2, color: "#2b0f1f" }}>
+                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 2, color: "#2b0f1f", fontSize: { xs: "1.5rem", md: "2.125rem" } }}>
                             {t("auth:checkEmailTitle")}
                         </Typography>
                         <Typography variant="body1" sx={{ color: "#6e5a69", lineHeight: 1.6 }}>

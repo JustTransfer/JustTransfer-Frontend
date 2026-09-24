@@ -153,7 +153,7 @@ export default function SavedTransfer() {
         border: "1px solid #f1e7ee",
         boxShadow: "0 18px 40px rgba(83, 24, 60, 0.08)",
         backgroundColor: "#ffffff",
-        p: { xs: 2.5, md: 4 },
+        p: { xs: 2, md: 3 },
     };
 
     const headerCardSx = {
@@ -356,7 +356,7 @@ export default function SavedTransfer() {
                         alignItems: "center",
                         flexDirection: "column",
                         gap: 3,
-                        py: { xs: 2.25, md: 5 },
+                        py: { xs: 3, md: 4 },
                     }}
                 >
                     <Box sx={contentCardSx}>
@@ -461,7 +461,7 @@ export default function SavedTransfer() {
                                                                 <Chip label={tampered ? t("unknownSize") : formatSize(msg.messageData.file_size)} size="small" />
                                                             </Stack>
 
-                                                            <Stack direction={compactInbox ? "column" : "row"} spacing={1} sx={{ mt: 0, alignItems: "flex-start", flexWrap: "wrap", rowGap: 1 }}>
+                                                            <Stack direction="row" spacing={{ xs: 0, sm: 1 }} sx={{ mt: 0, alignItems: "flex-start", flexWrap: "wrap", rowGap: 1, columnGap: 1 }}>
                                                                 {tampered ? (
                                                                     <Chip size="small" color="error" label={t("tampered")} />
                                                                 ) : (

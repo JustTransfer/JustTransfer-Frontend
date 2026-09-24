@@ -4,7 +4,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
-import CircularProgress from "@mui/material/CircularProgress";
+// import CircularProgress from "@mui/material/CircularProgress";
 import UploadIcon from '@mui/icons-material/Upload';
 import LinkIcon from '@mui/icons-material/Link';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -105,8 +105,8 @@ export default function HomePage() {
                             overflow: "hidden",
                             boxShadow: "0 18px 40px rgba(83, 24, 60, 0.12)",
                             px: sectionPaddingX,
-                            pt: 4,
-                            pb: 4,
+                            pt: { xs: 2.5, md: 4 },
+                            pb: { xs: 2.5, md: 4 },
                             background: "radial-gradient(1200px 500px at 15% -10%, #ffa6da 0%, #fff7fb 45%, #ffffff 100%)",
                         }}
                     >
@@ -114,7 +114,7 @@ export default function HomePage() {
                             sx={{
                                 display: "grid",
                                 gridTemplateColumns: { xs: "1fr", md: "1.1fr 0.9fr" },
-                                gap: { xs: 4, md: 6 },
+                                gap: { xs: 2, md: 6 },
                                 alignItems: "start",
                             }}
                         >
@@ -123,7 +123,7 @@ export default function HomePage() {
                                     display: "flex",
                                     flexDirection: "column",
                                     mt: { xs: 0, md: 25 },
-                                    gap: { xs: 2, md: 3 },
+                                    gap: { xs: 1.25, md: 3 },
                                     textAlign: { xs: "center", md: "left" },
                                     alignItems: { xs: "center", md: "flex-start" },
                                 }}
@@ -137,8 +137,9 @@ export default function HomePage() {
                                         lineHeight: { xs: 1, md: 1.2 },
                                         color: "#2b0f1f",
                                         fontSize: {
-                                            xs: "2.5rem",   // ~h5
-                                            sm: "3rem",     // ~h4
+                                            xs: "1.9rem",
+                                            sm: "2.5rem",
+                                            md: "3rem",
                                         },
                                         fontWeight: 700,
                                     }}
@@ -267,7 +268,34 @@ export default function HomePage() {
                                             minHeight: 700,
                                         }}
                                     >
-                                        <CircularProgress />
+                                        {/*<CircularProgress /> todo uncomment*/}
+
+                                        <FileTransferForm
+                                            type="link"
+                                            maxFileSize={1024}
+                                            maxDownloads={1024}
+                                            maxLifetime={1024}
+                                            onSubmit={async (data: any, onProgress: any) => {
+                                                const result = await sendMessageLink(
+                                                    data.file.name,
+                                                    data.file,
+                                                    data.lifetime,
+                                                    data.maxDownloads,
+                                                    false,
+                                                    undefined,
+                                                    undefined,
+                                                    data.password,
+                                                    onProgress
+                                                );
+
+                                                trackEvent(AnalyticsEvent.TRANSFER_CREATED, {
+                                                    type: "guest",
+                                                    file_size: bucketFileSize(data.file.size),
+                                                });
+
+                                                return result.link;
+                                            }}
+                                        />
                                     </Box>
                                 )}
                             </Box>
@@ -283,7 +311,7 @@ export default function HomePage() {
                             width: "100%",
                             maxWidth: maxWidthPage,
                             mx: "auto",
-                            py: { xs: 4, md: 6 },
+                            py: { xs: 2.5, md: 6 },
                             px: sectionPaddingX,
                             backgroundColor: "#ffffff",
                             borderRadius: 4,
@@ -292,15 +320,15 @@ export default function HomePage() {
                         }}
                     >
                         <Box sx={{ maxWidth: maxWidthPage, mx: "auto", textAlign: "center", mb: 4 }}>
-                            <Typography id="how-it-works-heading" variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
+                            <Typography id="how-it-works-heading" variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1, fontSize: { xs: "1.5rem", md: "2.125rem" } }}>
                                 {t("howTitle")}
                             </Typography>
                             <Typography variant="body1" sx={{ color: "#7a6474", fontSize: "1.05rem" }}>
                                 {t("howSubtitle")}
                             </Typography>
                         </Box>
-                        <Box sx={{ maxWidth: maxWidthPage, mx: "auto", display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" }, gap: 3.5 }}>
-                            <Box sx={{ p: 3, borderRadius: 4, border: "1px solid #f1e7ee", backgroundColor: "#ffffff" }}>
+                        <Box sx={{ maxWidth: maxWidthPage, mx: "auto", display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" }, gap: { xs: 2, md: 3.5 } }}>
+                            <Box sx={{ p: 2, borderRadius: 4, border: "1px solid #f1e7ee", backgroundColor: "#ffffff" }}>
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2.5 }}>
                                     <Box sx={{ width: 46, height: 46, borderRadius: "50%", backgroundColor: "#fbe3f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                         <UploadIcon color="primary" sx={{ fontSize: 24 }} />
@@ -311,7 +339,7 @@ export default function HomePage() {
                                     {t("uploadText")}
                                 </Typography>
                             </Box>
-                            <Box sx={{ p: 3, borderRadius: 4, border: "1px solid #f1e7ee", backgroundColor: "#ffffff" }}>
+                            <Box sx={{ p: 2, borderRadius: 4, border: "1px solid #f1e7ee", backgroundColor: "#ffffff" }}>
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2.5 }}>
                                     <Box sx={{ width: 46, height: 46, borderRadius: "50%", backgroundColor: "#fbe3f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                         <LinkIcon color="primary" sx={{ fontSize: 24 }} />
@@ -322,7 +350,7 @@ export default function HomePage() {
                                     {t("shareText")}
                                 </Typography>
                             </Box>
-                            <Box sx={{ p: 3, borderRadius: 4, border: "1px solid #f1e7ee", backgroundColor: "#ffffff" }}>
+                            <Box sx={{ p: 2, borderRadius: 4, border: "1px solid #f1e7ee", backgroundColor: "#ffffff" }}>
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2.5 }}>
                                     <Box sx={{ width: 46, height: 46, borderRadius: "50%", backgroundColor: "#fbe3f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                         <DownloadIcon color="primary" sx={{ fontSize: 24 }} />
@@ -344,7 +372,7 @@ export default function HomePage() {
                             width: "100%",
                             maxWidth: maxWidthPage,
                             mx: "auto",
-                            py: { xs: 4, md: 6 },
+                            py: { xs: 2.5, md: 6 },
                             px: sectionPaddingX,
                             backgroundColor: "#fff7fb",
                             borderRadius: 4,
@@ -382,12 +410,12 @@ export default function HomePage() {
                                 mx: "auto",
                                 display: "grid",
                                 gridTemplateColumns: { xs: "1fr", md: "1.05fr 0.95fr" },
-                                gap: { xs: 4, md: 6 },
+                                gap: { xs: 2.5, md: 6 },
                                 alignItems: "center",
                             }}
                         >
                             <Box>
-                                <Typography id="privacy-heading" variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1.5, color: "#2b0f1f" }}>
+                                <Typography id="privacy-heading" variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1.5, color: "#2b0f1f", fontSize: { xs: "1.5rem", md: "2.125rem" } }}>
                                     {t("privacyTitle")}
                                 </Typography>
                                 <Typography variant="body1" sx={{ color: "#6f5164", mb: 3 }}>
@@ -501,7 +529,7 @@ export default function HomePage() {
                             width: "100%",
                             maxWidth: maxWidthPage,
                             mx: "auto",
-                            py: { xs: 4, md: 6 },
+                            py: { xs: 2.5, md: 6 },
                             px: sectionPaddingX,
                             backgroundColor: "#ffffff",
                             borderRadius: 4,
@@ -509,7 +537,7 @@ export default function HomePage() {
                             boxShadow: "0 18px 40px rgba(83, 24, 60, 0.08)",
                         }}
                     >
-                        <Typography id="guest-vs-account-heading" variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1, textAlign: "center" }}>
+                        <Typography id="guest-vs-account-heading" variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1, textAlign: "center", fontSize: { xs: "1.5rem", md: "2.125rem" } }}>
                             {t("guestTitle")}
                         </Typography>
                         <Typography
@@ -518,7 +546,7 @@ export default function HomePage() {
                         >
                             {t("guestSubtitle")}
                         </Typography>
-                        <Box sx={{ maxWidth: maxWidthPage, mx: "auto", display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)" }, gap: 3 }}>
+                        <Box sx={{ maxWidth: maxWidthPage, mx: "auto", display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)" }, gap: { xs: 2, md: 3.5 } }}>
                             <Box sx={{ p: 3.5, borderRadius: 4, border: "1px solid #e3c3d6", background: "linear-gradient(135deg, #ffffff 0%, #ffeef7 100%)", boxShadow: "0 18px 48px rgba(83, 24, 60, 0.16)" }}>
                                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
                                     <Typography variant="subtitle1" component="h3" sx={{ fontWeight: 700, color: "primary.main" }}>
@@ -616,7 +644,7 @@ export default function HomePage() {
                             width: "100%",
                             maxWidth: maxWidthPage,
                             mx: "auto",
-                            py: 4,
+                            py: { xs: 3, md: 4 },
                             px: sectionPaddingX,
                             background: "linear-gradient(135deg, #3d0b2b 0%, #7b1451 50%, #d02c8b 100%)",
                             borderRadius: 4,
@@ -628,7 +656,7 @@ export default function HomePage() {
                             sx={{
                                 maxWidth: maxWidthPage,
                                 mx: "auto",
-                                p: { xs: 3, md: 5 },
+                                p: 1,
                                 borderRadius: 4,
                                 color: "#fff",
                                 textAlign: "center",

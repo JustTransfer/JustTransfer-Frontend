@@ -273,7 +273,6 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
 
     return (
         <>
-
             < Box
                 component="form"
                 ref={formRef}
@@ -363,70 +362,68 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 <Box sx={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: 2,
                     width: "100%",
-                }}>
-                    <Box sx={{
-                        p: { xs: 1.5, sm: 2 },
-                        borderRadius: 3,
-                        border: "1px solid",
-                        borderColor: "divider",
-                        backgroundColor: "background.paper",
-                        textAlign: "left",
-                    }}>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-                            {t("transfer:passwordChoice")}
-                        </Typography>
-                        <ToggleButtonGroup
-                            exclusive
-                            fullWidth
-                            value={isUsingPassword ? "manual" : "auto"}
-                            onChange={handlePasswordModeChange}
-                            sx={{
-                                display: "grid",
-                                gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-                                gap: 1,
-                                "& .MuiToggleButtonGroup-grouped": {
-                                    border: 0,
-                                    borderRadius: 2,
-                                    textTransform: "none",
-                                    px: { xs: 1, sm: 2 },
-                                    py: { xs: 1, sm: 1.25 },
-                                    width: "100%",
-                                },
-                            }}
-                        >
-                            <ToggleButton value="auto" aria-label={t("transfer:useGeneratedPassword")} sx={{ textAlign: "left", alignItems: "flex-start" }}>
-                                <Box sx={{ width: "100%" }}>
-                                    <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                                        {t("transfer:auto")}
-                                    </Typography>
-                                    <Typography
-                                        variant="caption"
-                                        color="text.secondary"
-                                        sx={{ display: "block", lineHeight: 1.8 }}
-                                    >
-                                        {t("transfer:autoDescription")}
-                                    </Typography>
-                                </Box>
-                            </ToggleButton>
+                    textAlign: "left",
+                    gap: 1,
+                    p: { xs: 1.5, sm: 2 },
 
-                            <ToggleButton value="manual" aria-label={t("transfer:setPasswordManually")} sx={{ textAlign: "left", alignItems: "flex-start" }}>
-                                <Box sx={{ width: "100%" }}>
-                                    <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                                        {t("transfer:manual")}
-                                    </Typography>
-                                    <Typography
-                                        variant="caption"
-                                        color="text.secondary"
-                                        sx={{ display: "block", lineHeight: 1.8 }}
-                                    >
-                                        {t("transfer:manualDescription")}
-                                    </Typography>
-                                </Box>
-                            </ToggleButton>
-                        </ToggleButtonGroup>
-                    </Box>
+                    borderRadius: 3,
+                    border: "1px solid",
+                    borderColor: "divider",
+                    backgroundColor: "background.paper",
+                }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                        {t("transfer:passwordChoice")}
+                    </Typography>
+                    <ToggleButtonGroup
+                        exclusive
+                        fullWidth
+                        value={isUsingPassword ? "manual" : "auto"}
+                        onChange={handlePasswordModeChange}
+                        sx={{
+                            display: "grid",
+                            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                            gap: 1,
+                            "& .MuiToggleButtonGroup-grouped": {
+                                border: 0,
+                                borderRadius: 2,
+                                textTransform: "none",
+                                px: { xs: 1, sm: 2 },
+                                py: { xs: 1, sm: 1.25 },
+                                width: "100%",
+                            },
+                        }}
+                    >
+                        <ToggleButton value="auto" aria-label={t("transfer:useGeneratedPassword")} sx={{ textAlign: "left", alignItems: "flex-start" }}>
+                            <Box sx={{ width: "100%" }}>
+                                <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                                    {t("transfer:auto")}
+                                </Typography>
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{ display: "block", lineHeight: 1.8 }}
+                                >
+                                    {t("transfer:autoDescription")}
+                                </Typography>
+                            </Box>
+                        </ToggleButton>
+
+                        <ToggleButton value="manual" aria-label={t("transfer:setPasswordManually")} sx={{ textAlign: "left", alignItems: "flex-start" }}>
+                            <Box sx={{ width: "100%" }}>
+                                <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                                    {t("transfer:manual")}
+                                </Typography>
+                                <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{ display: "block", lineHeight: 1.8 }}
+                                >
+                                    {t("transfer:manualDescription")}
+                                </Typography>
+                            </Box>
+                        </ToggleButton>
+                    </ToggleButtonGroup>
 
                     <Collapse in={isUsingPassword} unmountOnExit>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -599,7 +596,12 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
 
                 {
                     type === "link" ? (
-                        <Typography variant="body2" sx={{ color: "#7a6474", mt: -2, textAlign: "center" }}>
+                        <Typography variant="body2"
+                            sx={{
+                                color: "#7a6474",
+                                mt: { xs: -1, sm: -2 },
+                                textAlign: "center"
+                            }}>
                             {t("transfer:notifyPrompt")}
                             <br />
                             <RouterLink to={langPath("/register")}>{t("transfer:createAccount")}</RouterLink> {t("auth:and")} <RouterLink to={langPath("/login")}>{t("transfer:login")}</RouterLink>.
