@@ -4,7 +4,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
-// import CircularProgress from "@mui/material/CircularProgress";
+import CircularProgress from "@mui/material/CircularProgress";
 import UploadIcon from '@mui/icons-material/Upload';
 import LinkIcon from '@mui/icons-material/Link';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -268,34 +268,7 @@ export default function HomePage() {
                                             minHeight: 700,
                                         }}
                                     >
-                                        {/*<CircularProgress /> todo uncomment*/}
-
-                                        <FileTransferForm
-                                            type="link"
-                                            maxFileSize={1024}
-                                            maxDownloads={1024}
-                                            maxLifetime={1024}
-                                            onSubmit={async (data: any, onProgress: any) => {
-                                                const result = await sendMessageLink(
-                                                    data.file.name,
-                                                    data.file,
-                                                    data.lifetime,
-                                                    data.maxDownloads,
-                                                    false,
-                                                    undefined,
-                                                    undefined,
-                                                    data.password,
-                                                    onProgress
-                                                );
-
-                                                trackEvent(AnalyticsEvent.TRANSFER_CREATED, {
-                                                    type: "guest",
-                                                    file_size: bucketFileSize(data.file.size),
-                                                });
-
-                                                return result.link;
-                                            }}
-                                        />
+                                        <CircularProgress />
                                     </Box>
                                 )}
                             </Box>
