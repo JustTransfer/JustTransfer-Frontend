@@ -122,8 +122,8 @@ export default function AccountPage() {
 
             success(t("common:msgKeysGenerated"));
 
-        } catch {
-            error(t("errors:errorRotateKeys"));
+        } catch (e) {
+            error(e instanceof Error ? e.message : t("errors:errorRotateKeys"));
         }
     }
 
@@ -144,8 +144,8 @@ export default function AccountPage() {
 
             success(t("common:msgPasswordChanged"));
 
-        } catch {
-            error(t("errors:errorChangePassword"));
+        } catch (e) {
+            error(e instanceof Error ? e.message : t("errors:errorChangePassword"));
         }
     }
 
@@ -169,8 +169,8 @@ export default function AccountPage() {
 
             navigate("/logout", { replace: true });
 
-        } catch {
-            error(t("errors:errorDeleteAccount"));
+        } catch (e) {
+            error(e instanceof Error ? e.message : t("errors:errorDeleteAccount"));
         }
     }
 
@@ -180,8 +180,8 @@ export default function AccountPage() {
             updateRole(accountInfo.role);
             setNumberTransfers(accountInfo.number_transfers);
             setCurrentPeriodEnd(accountInfo.current_period_end ?? null);
-        } catch {
-            error(t("account:fetchFailed", { error: t("errors:errorUnknown") }));
+        } catch (e) {
+            error(t("account:fetchFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
         }
     }
 

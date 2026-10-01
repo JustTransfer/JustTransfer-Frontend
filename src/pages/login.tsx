@@ -66,7 +66,7 @@ export default function LoginPage() {
 
                 success(t("common:msgLoginSuccessful"));
 
-                login({
+                await login({
                     email: result.email!,
                     role: result.role,
                     exportKey: result.exportKey!,
@@ -77,7 +77,7 @@ export default function LoginPage() {
                 throw new Error(t("errors:errorLoginFailed"));
             }
         } catch (e) {
-            error(t("errors:errorLoginFailed"));
+            error(e instanceof Error ? e.message : t("errors:errorLoginFailed"));
         }
     }
 

@@ -263,7 +263,7 @@ export default function FileTransferForm({ type, maxFileSize, maxDownloads, maxL
                 setErrorReceiver(false);
             }
 
-            error(t("errors:errorUnknown"));
+            error(e instanceof Error ? e.message : t("errors:errorUnknown"));
 
             // Only reset sending state and progress
             setIsSending(false);
