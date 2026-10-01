@@ -32,7 +32,7 @@ async function getOneLinkMessageMetadata(password: string, message_id: string) {
     });
 
     if (!loginResult) {
-        throw new Error(i18n.t("errors:errorLoginFailed"));
+        throw new Error(i18n.t("errors:errorWrongPassword"));
     }
 
     const { exportKey, serverStaticPublicKey: _serverStaticPublicKey, finishLoginRequest, sessionKey: _sessionKey } = loginResult;
