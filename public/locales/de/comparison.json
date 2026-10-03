@@ -1,6 +1,7 @@
 {
   "title": "JustTransfer im Vergleich",
   "subtitle": "Sehen Sie, wie wir uns gegen andere beliebte Dateifreigabedienste schlagen.",
+  "compareWith": "Vergleichen mit",
   "feature": "Funktion",
   "encryption": "Ende-zu-Ende-Verschlüsselung",
   "noEmailToSend": "Senden ohne E-Mail-Adresse",

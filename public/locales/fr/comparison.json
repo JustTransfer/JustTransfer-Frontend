@@ -1,6 +1,7 @@
 {
   "title": "Comparaison de JustTransfer",
   "subtitle": "Comparez-nous aux autres services populaires de partage de fichiers.",
+  "compareWith": "Comparer avec",
   "feature": "Fonctionnalité",
   "encryption": "Chiffrement de bout en bout",
   "noEmailToSend": "Envoi sans adresse e-mail",

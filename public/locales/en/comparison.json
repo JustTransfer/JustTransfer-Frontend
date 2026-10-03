@@ -1,6 +1,7 @@
 {
   "title": "How JustTransfer compares",
   "subtitle": "See how we stack up against other popular file-sharing services.",
+  "compareWith": "Compare with",
   "feature": "Feature",
   "encryption": "End-to-end encryption",
   "noEmailToSend": "Send without an email address",
