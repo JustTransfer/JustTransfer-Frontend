@@ -9,52 +9,24 @@ import TableRow from "@mui/material/TableRow";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 
-import { useServerConfig } from "../hooks/useServerConfig";
-import { formatSize } from "../handlers/utils";
 import { useTranslation } from "react-i18next";
 
 
 const columns = ["JustTransfer", "WeTransfer", "SwissTransfer", "Blip"];
 
-function getRows(maxFileSizeLabel: string, expirationDays: string, maxDownloads: string, t: any) {
+function getRows(t: any) {
     return [
-        {
-            feature: t("maxSize"),
-            values: [`${maxFileSizeLabel}*`,
-                "100 GB",
-                "50 GB",
-                "No limit (P2P)"
-            ],
-        },
         {
             feature: t("encryption"),
             values: [true, false, false, true],
         },
         {
-            feature: t("email"),
-            values: [t("no"), t("no"), t("yes"), t("yes")],
+            feature: t("noEmailToSend"),
+            values: [true, true, false, false],
         },
         {
             feature: t("openSource"),
             values: [true, false, t("mobile"), false],
-        },
-        {
-            feature: t("expiration"),
-            values: [
-                t("chooseDays", { value: expirationDays }),
-                t("chooseProviderDays", { value: 7 }),
-                t("chooseProviderDays", { value: 30 }),
-                t("instant"),
-            ],
-        },
-        {
-            feature: t("downloadLimit"),
-            values: [
-                t("chooseDownloads", { value: maxDownloads }),
-                t("noLimit"),
-                t("chooseProviderDownloads"),
-                t("oneDownload"),
-            ],
         },
         {
             feature: t("withoutApp"),
@@ -92,15 +64,8 @@ export type CompetitorComparisonProps = {
 
 export default function CompetitorComparison({ headingId }: CompetitorComparisonProps) {
 
-    const { config } = useServerConfig();
     const { t } = useTranslation("comparison");
-
-    const maxFileSizeLabel = config?.max_file_size_link != null
-        ? formatSize(config.max_file_size_link)
-        : "...";
-    const expiration_days = String(config?.max_lifetime_link ?? "...");
-    const max_downloads = String(config?.max_downloads_link ?? "...");
-    const rows = getRows(maxFileSizeLabel, expiration_days, max_downloads, t);
+    const rows = getRows(t);
 
     return (
         <Box
@@ -202,14 +167,9 @@ export default function CompetitorComparison({ headingId }: CompetitorComparison
                 </Table>
             </TableContainer>
 
-            <Box sx={{ mt: 3, textAlign: "center" }}>
-                <Typography variant="caption" sx={{ display: "block", color: "#9a7f8f" }}>
-                    {t("footnote1")}
-                </Typography>
-                <Typography variant="caption" sx={{ display: "block", color: "#9a7f8f", mt: 0.5 }}>
-                    {t("footnote2")}
-                </Typography>
-            </Box>
+            <Typography variant="caption" sx={{ mt: 3, textAlign: "center", display: "block", color: "#9a7f8f" }}>
+                {t("footnote")}
+            </Typography>
         </Box>
     );
 }
