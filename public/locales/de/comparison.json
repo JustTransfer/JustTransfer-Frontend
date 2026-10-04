@@ -1,13 +1,11 @@
 {
   "title": "JustTransfer im Vergleich",
   "subtitle": "Sehen Sie, wie wir uns gegen andere beliebte Dateifreigabedienste schlagen.",
+  "compareWith": "Vergleichen mit",
   "feature": "Funktion",
-  "maxSize": "Maximale Dateigröße (kostenlos)",
   "encryption": "Ende-zu-Ende-Verschlüsselung",
-  "email": "E-Mail zum Senden erforderlich",
+  "noEmailToSend": "Senden ohne E-Mail-Adresse",
   "openSource": "Open Source",
-  "expiration": "Link-Ablauf (kostenlos)",
-  "downloadLimit": "Download-Limit (kostenlos)",
   "withoutApp": "Funktioniert ohne App",
   "offline": "Empfänger muss nicht online sein",
   "multiple": "Gleichzeitig an mehrere Empfänger senden",
@@ -21,6 +19,5 @@
   "chooseProviderDays": "1 bis {{value}} Tage wählen",
   "chooseProviderDownloads": "1 bis 250 Downloads wählen",
   "oneDownload": "1 Download (P2P)",
-  "footnote1": "* Entspricht den aktuellen Standardlimits von justtransfer.ch für kostenlose Übertragungen ohne Konto. Selbst gehostete Instanzen können diese unabhängig konfigurieren.",
-  "footnote2": "Vergleich anhand öffentlich verfügbarer Informationen zu kostenlosen Angeboten im August 2026. Funktionen und Preise von Drittanbietern können sich ändern."
+  "footnote": "Vergleich auf Basis der öffentlich verfügbaren Informationen der jeweiligen Anbieter, Stand Oktober 2026. Funktionen und Limits können sich ändern. Aktuelle Details finden Sie auf der Website des jeweiligen Anbieters."
 }

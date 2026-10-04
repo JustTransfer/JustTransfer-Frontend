@@ -1,13 +1,11 @@
 {
   "title": "Comparaison de JustTransfer",
   "subtitle": "Comparez-nous aux autres services populaires de partage de fichiers.",
+  "compareWith": "Comparer avec",
   "feature": "Fonctionnalité",
-  "maxSize": "Taille maximale (gratuit)",
   "encryption": "Chiffrement de bout en bout",
-  "email": "E-mail requis pour envoyer",
+  "noEmailToSend": "Envoi sans adresse e-mail",
   "openSource": "Open source",
-  "expiration": "Expiration du lien (gratuit)",
-  "downloadLimit": "Limite de téléchargements (gratuit)",
   "withoutApp": "Fonctionne sans application",
   "offline": "Le destinataire n'a pas besoin d'être en ligne",
   "multiple": "Envoi à plusieurs destinataires à la fois",
@@ -21,6 +19,5 @@
   "chooseProviderDays": "Choisir 1 à {{value}} jours",
   "chooseProviderDownloads": "Choisir 1 à 250 téléchargements",
   "oneDownload": "1 téléchargement (P2P)",
-  "footnote1": "* Reflète les limites par défaut actuelles de justtransfer.ch pour les transferts gratuits sans compte. Les instances auto-hébergées peuvent les configurer indépendamment.",
-  "footnote2": "Comparaison basée sur les informations publiques des offres gratuites en août 2026. Les fonctions et tarifs tiers peuvent changer."
+  "footnote": "Comparaison établie à partir des informations publiques de chaque service en octobre 2026. Les fonctionnalités et les limites peuvent évoluer : consultez le site de chaque service pour obtenir les informations à jour."
 }

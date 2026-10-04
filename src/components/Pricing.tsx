@@ -41,7 +41,7 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
     };
 
     const normalTileSx = {
-        p: 3.5,
+        p: { xs: 2, md: 3 },
         border: "1px solid #dfbcd1",
         borderRadius: 4,
         textAlign: "center",
@@ -148,7 +148,7 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
                 width: "100%",
                 maxWidth: maxWidthPage,
                 mx: "auto",
-                py: { xs: 4, md: 6 },
+                py: { xs: 2.5, md: 6 },
                 px: sectionPaddingX,
                 backgroundColor: "#fff7fb",
                 borderRadius: 4,
@@ -157,7 +157,7 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
             }}
         >
             <Box sx={{ textAlign: "center", mb: 4 }}>
-                <Typography id={headingId} variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1 }}>
+                <Typography id={headingId} variant="h4" component="h2" sx={{ fontWeight: 700, mb: 1, fontSize: { xs: "1.5rem", md: "2.125rem" } }}>
                     {t("pageTitle")}
                 </Typography>
                 <Typography variant="body2" sx={{ color: "#7a6474" }}>
@@ -188,7 +188,7 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
                                 {t("free")}
                             </Typography>
                         </Box>
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: 120 }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: { xs: "auto", md: 100 } }}>
                             <Typography variant="body2">{t("maximumFileSize", { value: renderLimitValue(linkLimits.maxFileSize, formatSize) })}</Typography>
                             <Typography variant="body2">{t("availableDays", { value: renderLimitValue(linkLimits.maxLifetime) })}</Typography>
                             <Typography variant="body2">{t("downloads", { value: renderLimitValue(linkLimits.maxDownloads) })}</Typography>
@@ -196,7 +196,7 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
                     </Box>
                     {
                         !isLoggedIn && (
-                            <Button variant="outlined" fullWidth size="small" onClick={() => navigate("/register")} sx={{ mt: "auto" }}>
+                            <Button variant="outlined" fullWidth size="small" onClick={() => navigate("/register")} sx={{ mt: 2 }}>
                                 {t("getStarted")}
                             </Button>
                         )
@@ -215,7 +215,7 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
                                 {connectedLimits.price ? `${renderLimitValue(connectedLimits.price)} ${t("perMonth")}` : t("free")}
                             </Typography>
                         </Box>
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: 120 }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: { xs: "auto", md: 100 } }}>
                             <Typography variant="body2">{t("maximumFileSize", { value: renderLimitValue(connectedLimits.maxFileSize, formatSize) })}</Typography>
                             <Typography variant="body2">{t("availableDays", { value: renderLimitValue(connectedLimits.maxLifetime) })}</Typography>
                             <Typography variant="body2">{t("downloads", { value: renderLimitValue(connectedLimits.maxDownloads) })}</Typography>
@@ -234,7 +234,7 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
                                 fullWidth
                                 size="small"
                                 onClick={() => handlePlanAction("user")}
-                                sx={{ mt: "auto" }}
+                                sx={{ mt: 2 }}
                             >
                                 {planButtonLabel("user")}
                             </Button>
@@ -242,7 +242,7 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
                     }
                     {
                         isCancelling && (
-                            <Typography variant="caption" sx={{ mt: "auto", pt: 1, color: "text.secondary" }}>
+                            <Typography variant="caption" sx={{ mt: 2, color: "text.secondary" }}>
                                 {t("moveAutomatically")}
                             </Typography>
                         )
@@ -262,7 +262,7 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
                                 {renderLimitValue(premiumLimits.price)} {t("perMonth")}
                             </Typography>
                         </Box>
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: 120 }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: { xs: "auto", md: 100 } }}>
                             <Typography variant="body2">{t("maximumFileSize", { value: renderLimitValue(premiumLimits.maxFileSize, formatSize) })}</Typography>
                             <Typography variant="body2">{t("availableDays", { value: renderLimitValue(premiumLimits.maxLifetime) })}</Typography>
                             <Typography variant="body2">{t("downloads", { value: renderLimitValue(premiumLimits.maxDownloads) })}</Typography>
@@ -281,7 +281,7 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
                                 fullWidth
                                 size="small"
                                 onClick={() => handlePlanAction("premium")}
-                                sx={{ mt: "auto" }}
+                                sx={{ mt: 2 }}
                             >
                                 {planButtonLabel("premium")}
                             </Button>
@@ -299,17 +299,17 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
                         <Box sx={priceRowSx}>
                             <Chip label={t("launchingSoon")} size="small" color="primary" />
                         </Box>
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: 120 }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, minHeight: { xs: "auto", md: 100 } }}>
                             <Typography variant="body2">{t("prioritySupport")}</Typography>
                             <Typography variant="body2">{t("customLimits")}</Typography>
                             <Typography variant="body2">{t("dedicatedInfrastructure")}</Typography>
                         </Box>
                     </Box>
-                    <Button variant="outlined" fullWidth size="small" href={`mailto:${emailAddress}`} sx={{ mt: "auto" }}>
+                    <Button variant="outlined" fullWidth size="small" href={`mailto:${emailAddress}`} sx={{ mt: 2 }}>
                         {t("contactSales")}
                     </Button>
                 </Box>
             </Box>
-        </Box>
+        </Box >
     );
 }

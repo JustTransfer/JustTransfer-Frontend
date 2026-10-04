@@ -116,26 +116,27 @@ function DownloadSection({ msg, progress, onDownload, onDelete, onInfo, compact 
 }
 
 function parseTransferInput(input: string, password: string) {
+    let url: URL;
+
     try {
-        const url = new URL(input);
-
-        const transferId = url.pathname.split("/").filter(Boolean).pop();
-
-        if (!transferId) {
-            throw new Error(i18n.t("transfer:invalidLink"));
-        }
-
-        // Password from fragment (#password)
-        const fragmentPassword = url.hash.substring(1);
-
-        return {
-            transferId,
-            password: fragmentPassword || password,
-        };
-
+        url = new URL(input);
     } catch {
         throw new Error(i18n.t("transfer:invalidUrl"));
     }
+
+    const transferId = url.pathname.split("/").filter(Boolean).pop();
+
+    if (!transferId) {
+        throw new Error(i18n.t("transfer:invalidLink"));
+    }
+
+    // Password from fragment (#password)
+    const fragmentPassword = url.hash.substring(1);
+
+    return {
+        transferId,
+        password: fragmentPassword || password,
+    };
 }
 
 export default function SavedTransfer() {
@@ -153,7 +154,7 @@ export default function SavedTransfer() {
         border: "1px solid #f1e7ee",
         boxShadow: "0 18px 40px rgba(83, 24, 60, 0.08)",
         backgroundColor: "#ffffff",
-        p: { xs: 2.5, md: 4 },
+        p: { xs: 2, md: 3 },
     };
 
     const headerCardSx = {
@@ -208,8 +209,8 @@ export default function SavedTransfer() {
 
             getMessagesLocal();
 
-        } catch {
-            error(t("transfer:addFailed", { error: t("errors:errorUnknown") }));
+        } catch (e) {
+            error(t("transfer:addFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
         } finally {
             setAddingTransfer(false);
         }
@@ -231,8 +232,8 @@ export default function SavedTransfer() {
 
             setMessages(prev => prev.filter(msg => msg.messageData.id !== id));
             success(t("common:msgMessageDeleted"));
-        } catch {
-            error(t("transfer:actionFailed", { error: t("errors:errorUnknown") }));
+        } catch (e) {
+            error(t("transfer:actionFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
         }
     }
 
@@ -267,8 +268,8 @@ export default function SavedTransfer() {
                     );
                 },
             });
-        } catch {
-            error(t("transfer:actionFailed", { error: t("errors:errorUnknown") }));
+        } catch (e) {
+            error(t("transfer:actionFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
         } finally {
             setDownloadProgress(prev => {
                 const { [message.messageData.id]: _, ...rest } = prev;
@@ -320,7 +321,7 @@ export default function SavedTransfer() {
                         info(t("transfer:deletingSavedTransfer", { id: msg.transfer_id }));
                         await deleteSavedTransferAPI(msg.id);
                     } else {
-                        error(t("transfer:loadTransferFailed", { id: msg.transfer_id, error: t("errors:errorUnknown") }));
+                        error(t("transfer:loadTransferFailed", { id: msg.transfer_id, error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
                     }
                 }
             }
@@ -333,8 +334,8 @@ export default function SavedTransfer() {
             });
 
             setMessages(tmpMessagesData);
-        } catch {
-            error(t("transfer:loadMessagesFailed", { error: t("errors:errorUnknown") }));
+        } catch (e) {
+            error(t("transfer:loadMessagesFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
         }
 
         setLoading(false);
@@ -356,7 +357,7 @@ export default function SavedTransfer() {
                         alignItems: "center",
                         flexDirection: "column",
                         gap: 3,
-                        py: { xs: 2.25, md: 5 },
+                        py: { xs: 3, md: 4 },
                     }}
                 >
                     <Box sx={contentCardSx}>
@@ -461,7 +462,7 @@ export default function SavedTransfer() {
                                                                 <Chip label={tampered ? t("unknownSize") : formatSize(msg.messageData.file_size)} size="small" />
                                                             </Stack>
 
-                                                            <Stack direction={compactInbox ? "column" : "row"} spacing={1} sx={{ mt: 0, alignItems: "flex-start", flexWrap: "wrap", rowGap: 1 }}>
+                                                            <Stack direction="row" spacing={{ xs: 0, sm: 1 }} sx={{ mt: 0, alignItems: "flex-start", flexWrap: "wrap", rowGap: 1, columnGap: 1 }}>
                                                                 {tampered ? (
                                                                     <Chip size="small" color="error" label={t("tampered")} />
                                                                 ) : (

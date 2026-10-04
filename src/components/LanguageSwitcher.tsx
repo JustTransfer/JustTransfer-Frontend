@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -12,38 +12,43 @@ import Chip from "@mui/material/Chip";
 
 import { supportedLanguages } from "../i18n";
 
+type Lang = (typeof supportedLanguages)[number];
 
-const languageLabels: Record<(typeof supportedLanguages)[number], string> = {
+const languageLabels: Record<Lang, string> = {
     en: "English",
     fr: "Français",
     de: "Deutsch",
     it: "Italiano",
 };
 
-const betaLanguages: Partial<Record<(typeof supportedLanguages)[number], boolean>> = {
+const betaLanguages: Partial<Record<Lang, boolean>> = {
     de: true,
     it: true,
 };
 
 export default function LanguageSwitcher() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { i18n, t } = useTranslation("nav");
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
-    // i18next may resolve to a region-specific code (e.g. "en-US");
-    // fall back to the base language so we always have a matching entry.
-    const currentLang = supportedLanguages.includes(i18n.language as (typeof supportedLanguages)[number])
-        ? (i18n.language as (typeof supportedLanguages)[number])
-        : ((i18n.language?.split("-")[0] ?? "en") as (typeof supportedLanguages)[number]);
+    const currentLang = supportedLanguages.includes(i18n.language as Lang)
+        ? (i18n.language as Lang)
+        : ((i18n.language?.split("-")[0] ?? "en") as Lang);
 
     const handleOpen = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
     const handleClose = () => setAnchorEl(null);
 
-    const handleSelect = (lng: (typeof supportedLanguages)[number]) => {
+    const handleSelect = (lng: Lang) => {
         handleClose();
-        const rest = location.pathname.replace(/^\/[a-z]{2}/, "");
-        navigate(`/${lng}${rest}`);
+
+        // Replace only the first path segment (the language code)
+        const segments = location.pathname.split("/");
+        segments[1] = lng;
+        const newPath = segments.join("/");
+
+        navigate(`${newPath}${location.search}${location.hash}`);
     };
 
     return (
@@ -66,11 +71,7 @@ export default function LanguageSwitcher() {
                 {languageLabels[currentLang]}
             </Button>
 
-            <Menu
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-            >
+            <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
                 {supportedLanguages.map((lng) => (
                     <MenuItem
                         key={lng}

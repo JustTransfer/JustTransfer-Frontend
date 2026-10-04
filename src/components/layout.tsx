@@ -254,8 +254,8 @@ export default function Layout({ content }: { content: React.ReactNode }) {
         { label: t("logout"), icon: <LogoutIcon />, path: "/logout" },
     ] : [
         { label: t("home"), icon: <HomeIcon />, path: "/" },
-        { label: t("createAccount"), icon: <PersonAddIcon />, path: "/register" },
         { label: t("login"), icon: <AccountCircleIcon />, path: "/login" },
+        { label: t("createAccount"), icon: <PersonAddIcon />, path: "/register" },
     ];
 
     return (

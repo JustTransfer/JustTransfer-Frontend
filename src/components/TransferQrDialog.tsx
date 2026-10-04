@@ -69,7 +69,7 @@ export default function TransferQrDialog({
             await navigator.clipboard.writeText(link);
             success(t("transfer:copyLink"));
         } catch (e) {
-            error(t("transfer:copyLinkFailed"));
+            error(e instanceof Error ? e.message : t("transfer:copyLinkFailed"));
         }
     };
 
@@ -79,7 +79,7 @@ export default function TransferQrDialog({
             await navigator.clipboard.writeText(password);
             success(t("transfer:copyPassword"));
         } catch (e) {
-            error(t("transfer:copyPasswordFailed"));
+            error(e instanceof Error ? e.message : t("transfer:copyPasswordFailed"));
         }
     };
 

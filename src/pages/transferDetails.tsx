@@ -102,7 +102,7 @@ export default function TransferDetails() {
         border: "1px solid #f1e7ee",
         boxShadow: "0 18px 40px rgba(83, 24, 60, 0.08)",
         backgroundColor: "#ffffff",
-        p: { xs: 2.5, md: 4, lg: 5 },
+        p: { xs: 2, md: 3, lg: 4 },
     };
 
     const headerCardSx = {
@@ -149,8 +149,8 @@ export default function TransferDetails() {
             setMessage(msg);
             setMaxDownloads(msg.messageData.max_downloads);
             setLifetimeDays(msg.messageData.lifetime ?? 0);
-        } catch {
-            error(t("transfer:loadFailed", { error: t("errors:errorUnknown") }));
+        } catch (e) {
+            error(t("transfer:loadFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
             setNotFound(true);
         } finally {
             setLoading(false);
@@ -241,8 +241,8 @@ export default function TransferDetails() {
                     signature: signature ?? prev.messageData.signature,
                 },
             }));
-        } catch {
-            error(t("transfer:updateFailed", { error: t("errors:errorUnknown") }));
+        } catch (e) {
+            error(t("transfer:updateFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
         } finally {
             setSaving(false);
         }
@@ -302,8 +302,8 @@ export default function TransferDetails() {
             setConfirmNewPassword("");
             setIsNewPasswordStrong(false);
             setShowNewPassword(false);
-        } catch {
-            error(t("transfer:passwordUpdateFailed", { error: t("errors:errorUnknown") }));
+        } catch (e) {
+            error(t("transfer:passwordUpdateFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
         } finally {
             setChangingPassword(false);
         }
@@ -334,8 +334,8 @@ export default function TransferDetails() {
                     }));
                 },
             });
-        } catch {
-            error(t("transfer:actionFailed", { error: t("errors:errorUnknown") }));
+        } catch (e) {
+            error(t("transfer:actionFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
         } finally {
             setDownloadProgress(undefined);
         }
@@ -348,8 +348,8 @@ export default function TransferDetails() {
             await deleteLinkMessageAPI(message.messageData.id, message.auth_key);
             success(t("common:msgMessageDeleted"));
             navigate("/transfers");
-        } catch {
-            error(t("transfer:actionFailed", { error: t("errors:errorUnknown") }));
+        } catch (e) {
+            error(t("transfer:actionFailed", { error: e instanceof Error ? e.message : t("errors:errorUnknown") }));
         }
     }
 
@@ -365,7 +365,7 @@ export default function TransferDetails() {
                     alignItems: "center",
                     flexDirection: "column",
                     gap: 3,
-                    py: { xs: 2.25, md: 5 },
+                    py: { xs: 3, md: 4 },
                     px: { xs: 1.5, sm: 2, md: 3 },
                 }}>
                     {loading ? (
