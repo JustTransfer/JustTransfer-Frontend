@@ -12,5 +12,6 @@
   "analyticsToolName": "Umami",
   "analyticsNoticeSuffix": ", a privacy-friendly, cookieless analytics tool that anonymizes visitor data. Nothing is sold or shared. See our",
   "analyticsNoticeEnd": "for details.",
-  "betaNotice": "JustTransfer is currently in beta — expect occasional bugs, and thanks for helping us test."
+  "betaNotice": "JustTransfer is currently in beta — expect occasional bugs, and thanks for helping us test.",
+  "versionInfo": "Frontend {{frontend}} · Backend {{backend}}"
 }

@@ -12,5 +12,6 @@
   "analyticsToolName": "Umami",
   "analyticsNoticeSuffix": ", uno strumento di analisi rispettoso della privacy e senza cookie che anonimizza i dati dei visitatori. Nessun dato viene venduto o condiviso. Consulta la nostra",
   "analyticsNoticeEnd": "per maggiori dettagli.",
-  "betaNotice": "JustTransfer è attualmente in versione beta: potresti riscontrare occasionali bug. Grazie per aiutarci a testarlo."
+  "betaNotice": "JustTransfer è attualmente in versione beta: potresti riscontrare occasionali bug. Grazie per aiutarci a testarlo.",
+  "versionInfo": "Frontend {{frontend}} · Backend {{backend}}"
 }
