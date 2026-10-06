@@ -21,5 +21,19 @@
   "btnSendFile": "Send File",
   "btnDownloadFile": "Download File",
   "btnBackToHome": "Back to Home",
-  "refresh": "Refresh"
+  "refresh": "Refresh",
+  "seo": {
+    "homeTitle": "JustTransfer | Secure End-to-End Encrypted File Transfer",
+    "homeDescription": "Send large files with JustTransfer, an open-source Swiss service for simple, private, end-to-end encrypted file transfers.",
+    "loginTitle": "Log In to JustTransfer | Secure File Transfers",
+    "loginDescription": "Log in to JustTransfer to manage encrypted file transfers, notify recipients, and access your saved links securely.",
+    "registerTitle": "Create a JustTransfer Account | Secure File Sharing",
+    "registerDescription": "Create a free JustTransfer account to manage end-to-end encrypted file transfers and share large files securely.",
+    "resetTitle": "Reset Your JustTransfer Password | Secure File Sharing",
+    "resetDescription": "Request a secure password reset link for your JustTransfer account and regain access to your encrypted file transfers.",
+    "termsTitle": "Terms of Service | JustTransfer Secure File Transfer",
+    "termsDescription": "Read the JustTransfer Terms of Service for rules, responsibilities, and conditions governing this encrypted file transfer service.",
+    "privacyTitle": "Privacy Policy | JustTransfer Encrypted File Transfer",
+    "privacyDescription": "Learn how JustTransfer protects personal data, handles information, and keeps file contents private with end-to-end encryption."
+  }
 }

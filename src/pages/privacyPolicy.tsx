@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import ReactMarkdown from "react-markdown";
+import Typography from "@mui/material/Typography";
+import { useTranslation } from "react-i18next";
 
 import Layout from "../components/layout";
+import Seo from "../components/Seo";
 
 
 
 export default function PrivacyPolicy() {
+    const { t } = useTranslation("common");
     const [privacyPolicy, setPrivacyPolicy] = useState("");
 
     useEffect(() => {
@@ -41,6 +45,10 @@ export default function PrivacyPolicy() {
                         "& li": { mb: 0.5 },
                     }}
                 >
+                    <Seo title={t("seo.privacyTitle")} description={t("seo.privacyDescription")} />
+                    <Typography component="h1" variant="h4" sx={{ mt: 0, mb: 2, fontWeight: "bold" }}>
+                        {t("footer:privacyPolicy")}
+                    </Typography>
                     <ReactMarkdown>
                         {privacyPolicy}
                     </ReactMarkdown>

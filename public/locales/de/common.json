@@ -21,5 +21,19 @@
   "btnSendFile": "Datei senden",
   "btnDownloadFile": "Datei herunterladen",
   "btnBackToHome": "Zurück zur Startseite",
-  "refresh": "Aktualisieren"
+  "refresh": "Aktualisieren",
+  "seo": {
+    "homeTitle": "JustTransfer | Sicherer Ende-zu-Ende-verschlüsselter Dateitransfer",
+    "homeDescription": "Senden Sie grosse Dateien mit JustTransfer, einem quelloffenen Schweizer Dienst für einfache, private und Ende-zu-Ende-verschlüsselte Dateiübertragungen.",
+    "loginTitle": "Bei JustTransfer anmelden | Sichere Dateiübertragungen",
+    "loginDescription": "Melden Sie sich bei JustTransfer an, um verschlüsselte Dateiübertragungen zu verwalten, Empfänger zu benachrichtigen und gespeicherte Links sicher aufzurufen.",
+    "registerTitle": "JustTransfer-Konto erstellen | Sicheres Teilen von Dateien",
+    "registerDescription": "Erstellen Sie ein kostenloses JustTransfer-Konto, um Ende-zu-Ende-verschlüsselte Dateiübertragungen zu verwalten und grosse Dateien sicher zu teilen.",
+    "resetTitle": "JustTransfer-Passwort zurücksetzen | Sicheres Teilen von Dateien",
+    "resetDescription": "Fordern Sie einen sicheren Link zum Zurücksetzen Ihres JustTransfer-Passworts an und erhalten Sie wieder Zugriff auf Ihre verschlüsselten Dateiübertragungen.",
+    "termsTitle": "Nutzungsbedingungen | Sicherer Dateitransfer mit JustTransfer",
+    "termsDescription": "Lesen Sie die Nutzungsbedingungen von JustTransfer mit Regeln, Verantwortlichkeiten und Bedingungen für diesen verschlüsselten Dateitransferdienst.",
+    "privacyTitle": "Datenschutzerklärung | Verschlüsselter Dateitransfer mit JustTransfer",
+    "privacyDescription": "Erfahren Sie, wie JustTransfer personenbezogene Daten schützt, Informationen verarbeitet und Dateiinhalte durch Ende-zu-Ende-Verschlüsselung privat hält."
+  }
 }

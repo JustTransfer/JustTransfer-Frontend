@@ -24,6 +24,7 @@ import { trackEvent, AnalyticsEvent, bucketFileSize } from "../handlers/analytic
 import { useTranslation } from "react-i18next";
 
 import FileTransferForm from "../components/FileTransferForm";
+import Seo from "../components/Seo";
 
 const organizationJsonLd = {
     "@context": "https://schema.org",
@@ -88,6 +89,7 @@ export default function HomePage() {
                         py: { xs: 3, md: 0 },
                     }}
                 >
+                    <Seo title={t("seo.homeTitle", { ns: "common" })} description={t("seo.homeDescription", { ns: "common" })} />
                     <script
                         type="application/ld+json"
                         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}

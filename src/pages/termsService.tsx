@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import ReactMarkdown from "react-markdown";
+import Typography from "@mui/material/Typography";
+import { useTranslation } from "react-i18next";
 
 import Layout from "../components/layout";
+import Seo from "../components/Seo";
 
 
 
 export default function TermsService() {
+    const { t } = useTranslation("common");
     const [terms, setTerms] = useState("");
 
     useEffect(() => {
@@ -40,6 +44,10 @@ export default function TermsService() {
                     "& li": { mb: 0.5 },
                 }}
             >
+                <Seo title={t("seo.termsTitle")} description={t("seo.termsDescription")} />
+                <Typography component="h1" variant="h4" sx={{ mt: 0, mb: 2, fontWeight: "bold" }}>
+                    {t("footer:termsOfService")}
+                </Typography>
                 <ReactMarkdown>
                     {terms}
                 </ReactMarkdown>

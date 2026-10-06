@@ -21,5 +21,19 @@
   "btnSendFile": "Invia file",
   "btnDownloadFile": "Scarica file",
   "btnBackToHome": "Torna alla home",
-  "refresh": "Aggiorna"
+  "refresh": "Aggiorna",
+  "seo": {
+    "homeTitle": "JustTransfer | Trasferimento di file sicuro e crittografato end-to-end",
+    "homeDescription": "Invia file di grandi dimensioni con JustTransfer, il servizio svizzero open source per trasferimenti semplici, privati e crittografati end-to-end.",
+    "loginTitle": "Accedi a JustTransfer | Trasferimenti di file sicuri",
+    "loginDescription": "Accedi a JustTransfer per gestire trasferimenti di file crittografati, avvisare i destinatari e usare in sicurezza i tuoi link salvati.",
+    "registerTitle": "Crea un account JustTransfer | Condivisione sicura di file",
+    "registerDescription": "Crea un account JustTransfer gratuito per gestire trasferimenti crittografati end-to-end e condividere file di grandi dimensioni in sicurezza.",
+    "resetTitle": "Reimposta la password JustTransfer | Condivisione sicura di file",
+    "resetDescription": "Richiedi un link sicuro per reimpostare la password del tuo account JustTransfer e recuperare l'accesso ai tuoi trasferimenti crittografati.",
+    "termsTitle": "Termini di servizio | Trasferimento sicuro con JustTransfer",
+    "termsDescription": "Leggi i Termini di servizio di JustTransfer, con regole, responsabilità e condizioni per questo servizio di trasferimento file crittografato.",
+    "privacyTitle": "Informativa sulla privacy | Trasferimento crittografato JustTransfer",
+    "privacyDescription": "Scopri come JustTransfer protegge i dati personali e mantiene privati i contenuti dei file grazie alla crittografia end-to-end."
+  }
 }

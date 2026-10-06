@@ -1,35 +1,31 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Open-source, end-to-end encrypted file sharing."
-    />
-    <link rel="apple-touch-icon" href="/JT-192.webp" />
-    <!--
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description"
+    content="JustTransfer is an open-source, end-to-end encrypted file transfer service based in Switzerland. Send large files securely, with or without an account." />
+
+  <link rel="apple-touch-icon" href="/JT-192.webp" />
+  <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
-    <link rel="manifest" href="/manifest.json" />
-    <title>JustTransfer</title>
+  <link rel="manifest" href="/manifest.json" />
+  <title>JustTransfer - Secure End-to-End Encrypted File Transfer</title>
 
-    <script
-      defer
-      src="%VITE_UMAMI_URL%"
-      data-website-id="%VITE_UMAMI_WEBSITE_ID%"
-      data-exclude-hash="true"
-      data-do-not-track="true"
-    ></script>
-  </head>
+  <script defer src="%VITE_UMAMI_URL%" data-website-id="%VITE_UMAMI_WEBSITE_ID%" data-exclude-hash="true"
+    data-do-not-track="true"></script>
+</head>
 
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
 
-    <script type="module" src="/src/index.tsx"></script>
-  </body>
+  <script type="module" src="/src/index.tsx"></script>
+</body>
+
 </html>
