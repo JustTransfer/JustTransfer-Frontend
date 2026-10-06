@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useNotification } from "../hooks/useNotificationContext";
 import Layout from "../components/layout";
 import { requestResetPasswordAPI } from "../handlers/api";
+import Seo from "../components/Seo";
 
 
 export default function ResetPasswordRequestPage() {
@@ -58,8 +59,9 @@ export default function ResetPasswordRequestPage() {
                         py: { xs: 3, md: 4 },
                     }}
                 >
+                    <Seo title={t("common:seo.resetTitle")} description={t("common:seo.resetDescription")} />
                     <Paper elevation={0} sx={cardSx}>
-                        <Typography variant="h4" sx={{ mb: 2, fontWeight: "bold", color: "#2b0f1f", fontSize: { xs: "1.5rem", md: "2.125rem" } }}>
+                        <Typography variant="h4" component="h1" sx={{ mb: 2, fontWeight: "bold", color: "#2b0f1f", fontSize: { xs: "1.5rem", md: "2.125rem" } }}>
                             {t("auth:resetTitle")}
                         </Typography>
 

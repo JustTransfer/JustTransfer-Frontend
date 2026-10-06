@@ -19,6 +19,7 @@ import PasswordStrength from "../components/passwordStrength";
 import AcceptTermsService from "../components/acceptTermsService";
 import { trackEvent, AnalyticsEvent } from "../handlers/analytics";
 import { useTranslation } from "react-i18next";
+import Seo from "../components/Seo";
 
 export default function CreateAccountPage() {
 
@@ -124,9 +125,10 @@ export default function CreateAccountPage() {
                         gap: 2,
                     }}
                 >
+                    <Seo title={t("common:seo.registerTitle")} description={t("common:seo.registerDescription")} />
                     <Paper elevation={0} sx={cardSx}>
 
-                        <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1, fontSize: { xs: "1.5rem", md: "2.125rem" } }}>
+                        <Typography variant="h4" component="h1" sx={{ fontWeight: "bold", mb: 1, fontSize: { xs: "1.5rem", md: "2.125rem" } }}>
                             {t("auth:registerTitle")}
                         </Typography>
 

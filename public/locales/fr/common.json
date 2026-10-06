@@ -21,5 +21,19 @@
   "btnSendFile": "Envoyer le fichier",
   "btnDownloadFile": "Télécharger le fichier",
   "btnBackToHome": "Retour à l'accueil",
-  "refresh": "Actualiser"
+  "refresh": "Actualiser",
+  "seo": {
+    "homeTitle": "JustTransfer | Transfert de fichiers sécurisé et chiffré de bout en bout",
+    "homeDescription": "Envoyez de gros fichiers avec JustTransfer, un service suisse open source pour des transferts simples, privés et chiffrés de bout en bout.",
+    "loginTitle": "Se connecter à JustTransfer | Transferts de fichiers sécurisés",
+    "loginDescription": "Connectez-vous à JustTransfer pour gérer vos transferts de fichiers chiffrés, prévenir vos destinataires et accéder à vos liens enregistrés en toute sécurité.",
+    "registerTitle": "Créer un compte JustTransfer | Partage sécurisé de fichiers",
+    "registerDescription": "Créez un compte JustTransfer gratuit pour gérer des transferts chiffrés de bout en bout et partager de gros fichiers en toute sécurité.",
+    "resetTitle": "Réinitialiser votre mot de passe JustTransfer | Partage sécurisé",
+    "resetDescription": "Demandez un lien sécurisé pour réinitialiser le mot de passe de votre compte JustTransfer et retrouver l'accès à vos transferts chiffrés.",
+    "termsTitle": "Conditions d'utilisation | Transfert sécurisé avec JustTransfer",
+    "termsDescription": "Consultez les conditions d'utilisation de JustTransfer, ses règles, responsabilités et conditions pour ce service de transfert de fichiers chiffré.",
+    "privacyTitle": "Politique de confidentialité | Transfert chiffré JustTransfer",
+    "privacyDescription": "Découvrez comment JustTransfer protège les données personnelles et préserve la confidentialité des fichiers grâce au chiffrement de bout en bout."
+  }
 }

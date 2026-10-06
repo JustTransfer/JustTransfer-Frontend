@@ -18,6 +18,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useLangNavigate } from "../hooks/useLangNavigate";
 import Layout from "../components/layout";
 import { loginProcess } from "../handlers/crypto";
+import Seo from "../components/Seo";
 
 export default function LoginPage() {
 
@@ -95,10 +96,11 @@ export default function LoginPage() {
                         gap: 2,
                     }}
                 >
+                    <Seo title={t("common:seo.loginTitle")} description={t("common:seo.loginDescription")} />
 
                     <Paper elevation={0} sx={cardSx}>
 
-                        <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1, fontSize: { xs: "1.5rem", md: "2.125rem" } }}>
+                        <Typography variant="h4" component="h1" sx={{ fontWeight: "bold", mb: 1, fontSize: { xs: "1.5rem", md: "2.125rem" } }}>
                             {t("login:title")}
                         </Typography>
 
