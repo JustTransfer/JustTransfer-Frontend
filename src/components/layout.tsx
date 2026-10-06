@@ -25,7 +25,8 @@ import Container from "@mui/material/Container";
 import Link from '@mui/material/Link';
 
 import { useAuth } from "../hooks/useAuth";
-import { emailAddress } from "../handlers/config";
+import { useServerConfig } from "../hooks/useServerConfig";
+import { emailAddress, frontendVersion } from "../handlers/config";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useLangNavigate, useLangPath } from "../hooks/useLangNavigate";
 
@@ -77,6 +78,7 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
 
     const { t } = useTranslation("footer");
     const langPath = useLangPath();
+    const { config } = useServerConfig();
 
     return (
         <Box
@@ -206,6 +208,18 @@ function Footer({ isLoggedIn }: { isLoggedIn: boolean }) {
                     sx={{ opacity: 0.6 }}
                 >
                     © {new Date().getFullYear()} JustTransfer
+                </Typography>
+
+                <Typography
+                    variant="caption"
+                    align="center"
+                    component="p"
+                    sx={{ opacity: 0.5, mt: 0.5 }}
+                >
+                    {t("versionInfo", {
+                        frontend: frontendVersion,
+                        backend: config?.version ?? "…",
+                    })}
                 </Typography>
             </Container>
         </Box>

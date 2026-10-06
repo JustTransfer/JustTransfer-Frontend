@@ -1,4 +1,5 @@
 import i18n from "../i18n";
+import { version } from "../../package.json";
 
 function getEnv(name: string): string {
     const value = import.meta.env[name];
@@ -8,6 +9,7 @@ function getEnv(name: string): string {
     return value;
 }
 
+export const frontendVersion = `v${version}`;
 export const apiUrl = getEnv("VITE_API_URL");
 export const frontendUrl = getEnv("VITE_FRONTEND_URL");
 export const emailAddress = getEnv("VITE_EMAIL_INFO");

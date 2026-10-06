@@ -4,6 +4,7 @@ import i18n from "../i18n";
 
 type ServerConfig = {
     result: string;
+    version: string;
     max_lifetime_link: number;
     max_file_size_link: number,
     max_downloads_link: number,
