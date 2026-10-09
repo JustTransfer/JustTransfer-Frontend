@@ -317,7 +317,7 @@ export default function SavedTransfer() {
                         // Break the loop and show a warning message if too many requests are made
                         warning(t("errors:errorTooManyRequests"));
                         break;
-                    } else if (e instanceof Error && e.message === t("errors:errorLoginFailed")) {
+                    } else if (e instanceof Error && e.message === t("errors:errorWrongPassword")) {
                         info(t("transfer:deletingSavedTransfer", { id: msg.transfer_id }));
                         await deleteSavedTransferAPI(msg.id);
                     } else {
