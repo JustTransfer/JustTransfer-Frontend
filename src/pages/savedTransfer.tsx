@@ -198,7 +198,9 @@ export default function SavedTransfer() {
             await addSavedTransfer(
                 transferId,
                 password,
-                exportKey!
+                exportKey!,
+                undefined,
+                true
             );
 
             success(t("common:msgTransferSaved"));

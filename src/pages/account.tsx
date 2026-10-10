@@ -115,7 +115,7 @@ export default function AccountPage() {
                 throw new Error(t("errors:errorRotateKeys"));
             }
 
-            updateKeys({
+            await updateKeys({
                 exportKey: exportKey!,
                 keys: result.keys!,
             });
@@ -137,7 +137,7 @@ export default function AccountPage() {
                 throw new Error(t("errors:errorChangePassword"));
             }
 
-            updateKeys({
+            await updateKeys({
                 exportKey: result.exportKey!,
                 keys: result.keys!,
             });
@@ -177,7 +177,7 @@ export default function AccountPage() {
     async function fetchAccountInfo() {
         try {
             const accountInfo = await getAccountInfoAPI();
-            updateRole(accountInfo.role);
+            await updateRole(accountInfo.role);
             setNumberTransfers(accountInfo.number_transfers);
             setCurrentPeriodEnd(accountInfo.current_period_end ?? null);
         } catch (e) {

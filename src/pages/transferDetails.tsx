@@ -287,7 +287,8 @@ export default function TransferDetails() {
                 message.messageData.id,
                 password,
                 exportKey!,
-                auth_key
+                auth_key,
+                false
             );
 
             success(t("transfer:passwordUpdated"));

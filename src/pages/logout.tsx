@@ -13,7 +13,7 @@ export default function Logout() {
             try {
                 await logoutProcess();
             } finally {
-                logout();
+                await logout();
                 navigate("/", { replace: true });
             }
         };
