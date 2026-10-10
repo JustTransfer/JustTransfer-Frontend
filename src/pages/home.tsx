@@ -219,7 +219,7 @@ export default function HomePage() {
                                                     data.receiver_email
                                                 );
 
-                                                await addSavedTransfer(result.id, result.password, exportKey!, result.auth_key);
+                                                await addSavedTransfer(result.id, result.password, exportKey!, result.auth_key, true);
 
                                                 trackEvent(AnalyticsEvent.TRANSFER_CREATED, {
                                                     type: "account",
