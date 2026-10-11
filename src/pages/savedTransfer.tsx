@@ -228,9 +228,10 @@ export default function SavedTransfer() {
         setOpenDialog(false);
     };
 
-    async function deleteMessage(id: string, authKey: string) {
+    async function deleteMessage(id: string, saved_transfer_id: string, authKey: string) {
         try {
             await deleteLinkMessageAPI(id, authKey);
+            await deleteSavedTransferAPI(saved_transfer_id);
 
             setMessages(prev => prev.filter(msg => msg.messageData.id !== id));
             success(t("common:msgMessageDeleted"));
@@ -295,6 +296,7 @@ export default function SavedTransfer() {
                         ...result,
                         auth_key: msg.auth_key,
                         password: msg.password,
+                        saved_transfer_id: msg.id,
                     });
                 } catch (e) {
                     if (e instanceof Error && e.message === t("errors:errorFailureMACVerification")) {
@@ -305,6 +307,7 @@ export default function SavedTransfer() {
                             },
                             auth_key: msg.auth_key,
                             password: msg.password,
+                            saved_transfer_id: msg.id,
                         });
                     } else if (e instanceof Error && e.message === t("errors:errorFailureSignatureVerification")) {
                         tmpMessagesData.push({
@@ -314,6 +317,7 @@ export default function SavedTransfer() {
                             },
                             auth_key: msg.auth_key,
                             password: msg.password,
+                            saved_transfer_id: msg.id,
                         });
                     } else if (e instanceof Error && e.message === t("errors:errorTooManyRequests")) {
                         // Break the loop and show a warning message if too many requests are made
@@ -692,7 +696,7 @@ export default function SavedTransfer() {
                                 color="error"
                                 startIcon={<DeleteIcon />}
                                 onClick={() => {
-                                    deleteMessage(messageToDelete.messageData.id, messageToDelete.auth_key);
+                                    deleteMessage(messageToDelete.messageData.id, messageToDelete.saved_transfer_id, messageToDelete.auth_key);
                                     handleCloseDialog();
                                 }}
                                 sx={{ borderRadius: 2 }}
@@ -702,7 +706,7 @@ export default function SavedTransfer() {
                             </Button>
                         </DialogActions>
                     </Dialog>
-                </Box>
+                </ Box>
             } />
     );
 }

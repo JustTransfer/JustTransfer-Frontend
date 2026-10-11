@@ -45,6 +45,7 @@ import Layout from "../components/layout";
 import { getOneLinkMessageMetadata, getOneLinkMessage, updateMessageLink, updateLinkPassword } from "../handlers/crypto_link";
 import { getSavedTransfers, addSavedTransfer } from "../handlers/crypto";
 import { deleteLinkMessageAPI } from "../handlers/api_link";
+import { deleteSavedTransferAPI } from "../handlers/api";
 import { formatSize, formatCreated, relativeExpire, expireColor, genericDownloadFile } from "../handlers/utils";
 import { frontendUrl } from "../handlers/config";
 import PasswordStrength from "../components/passwordStrength";
@@ -144,6 +145,7 @@ export default function TransferDetails() {
                 ...result,
                 auth_key: entry.auth_key,
                 password: entry.password,
+                saved_transfer_id: entry.id,
             };
 
             setMessage(msg);
@@ -347,6 +349,8 @@ export default function TransferDetails() {
 
         try {
             await deleteLinkMessageAPI(message.messageData.id, message.auth_key);
+            await deleteSavedTransferAPI(message.saved_transfer_id);
+
             success(t("common:msgMessageDeleted"));
             navigate("/transfers");
         } catch (e) {
