@@ -138,7 +138,7 @@ export default function LinkTransfer() {
 
         console.log("Saving transfer to account:", { id, password, exportKey });
         try {
-            await addSavedTransfer(id, password, exportKey, undefined);
+            await addSavedTransfer(id, password, exportKey, undefined, true);
         } catch (e) {
             error(e instanceof Error ? e.message : t("errors:errorUnknown"));
             return;

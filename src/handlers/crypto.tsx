@@ -196,14 +196,10 @@ async function changePassword(email: string, password: string, newPassword: stri
     // Decrypt the keys with the new export key
     const decryptedKeys = await decryptKeys(response3.keys, exportKeyDecoded);
 
-    // Delete all saved transfers
+    // Erase old saved transfers and re-encrypt and save them with the new export key
     for (let transfer of saved_transfers) {
         await deleteSavedTransferAPI(transfer.id);
-    }
-
-    // Re-encrypt and save all saved transfers with the new export key
-    for (let transfer of saved_transfers) {
-        await addSavedTransfer(transfer.transfer_id, transfer.password, Base64.fromUint8Array(exportKeyDecoded, true), transfer.auth_key);
+        await addSavedTransfer(transfer.transfer_id, transfer.password, Base64.fromUint8Array(exportKeyDecoded, true), transfer.auth_key, false);
     }
 
     // Return success
@@ -364,16 +360,20 @@ async function getSavedTransfers(exportKey: string) {
     return response.saved_transfers;
 }
 
-async function addSavedTransfer(transfer_id: string, transfer_password: string, exportKey: string, auth_key?: string) {
+async function addSavedTransfer(transfer_id: string, transfer_password: string, exportKey: string, auth_key?: string, check_existing: boolean = true) {
 
     const sodium = await getSodium();
 
     // Check if the transfer is already saved
-    const savedTransfers = await getSavedTransfers(exportKey);
-    const isAlreadySaved = savedTransfers.some((transfer: any) => transfer.transfer_id === transfer_id);
+    if (check_existing) {
+        const savedTransfers = await getSavedTransfers(exportKey);
+        const existingTransfer = savedTransfers.find(
+            (transfer: any) => transfer.transfer_id === transfer_id
+        );
 
-    if (isAlreadySaved) {
-        throw new Error(i18n.t("errors:errorTransferAlreadySaved"));
+        if (existingTransfer) {
+            throw new Error(i18n.t("errors:errorTransferAlreadySaved"));
+        }
     }
 
     const exportKeyDecoded = Base64.toUint8Array(exportKey);
