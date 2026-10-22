@@ -51,12 +51,23 @@ function RootRedirect() {
   return <Navigate to={withLangPrefix(resolvePreferredLang(i18n.language), location)} replace />;
 }
 
+function TrailingSlashRedirect() {
+  const location = useLocation();
+
+  if (location.pathname === "/" || !location.pathname.endsWith("/")) {
+    return null;
+  }
+
+  return <Navigate to={`${location.pathname.replace(/\/+$/, "")}${location.search}${location.hash}`} replace />;
+}
+
 function App() {
   return (
     <NotificationProvider>
       <ServerConfigProvider>
         <AuthProvider>
           <ScrollToTop />
+          <TrailingSlashRedirect />
           <Routes>
             <Route path="/:lng" element={<LangLayout />}>
               <Route index element={<HomePage />} />
