@@ -74,6 +74,7 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
         maxFileSize: config?.max_file_size_connected,
         maxDownloads: config?.max_downloads_connected,
         maxLifetime: config?.max_lifetime_connected,
+        maxNumberTransfers: config?.max_transfer_month_connected,
     };
 
     const premiumLimits = {
@@ -81,6 +82,7 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
         maxFileSize: config?.max_file_size_connected_premium,
         maxDownloads: config?.max_downloads_connected_premium,
         maxLifetime: config?.max_lifetime_connected_premium,
+        maxNumberTransfers: config?.max_transfer_month_connected_premium,
     };
 
     const renderLimitValue = (value: number | undefined, formatter?: (value: number) => string) => {
@@ -219,6 +221,7 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
                             <Typography variant="body2">{t("maximumFileSize", { value: renderLimitValue(connectedLimits.maxFileSize, formatSize) })}</Typography>
                             <Typography variant="body2">{t("availableDays", { value: renderLimitValue(connectedLimits.maxLifetime) })}</Typography>
                             <Typography variant="body2">{t("downloads", { value: renderLimitValue(connectedLimits.maxDownloads) })}</Typography>
+                            <Typography variant="body2">{t("maxTransfers", { value: renderLimitValue(connectedLimits.maxNumberTransfers) })}</Typography>
                         </Box>
                         {isCancelling && (
                             <Chip label={t("starts", { date: formattedPeriodEnd })} size="small" sx={cancellingChipSx} />
@@ -266,6 +269,7 @@ export default function Pricing({ isLoggedIn, currentPlan, currentPeriodEnd, onS
                             <Typography variant="body2">{t("maximumFileSize", { value: renderLimitValue(premiumLimits.maxFileSize, formatSize) })}</Typography>
                             <Typography variant="body2">{t("availableDays", { value: renderLimitValue(premiumLimits.maxLifetime) })}</Typography>
                             <Typography variant="body2">{t("downloads", { value: renderLimitValue(premiumLimits.maxDownloads) })}</Typography>
+                            <Typography variant="body2">{t("maxTransfers", { value: renderLimitValue(premiumLimits.maxNumberTransfers) })}</Typography>
                         </Box>
                         {isCancelling && (
                             <Chip label={t("ends", { date: formattedPeriodEnd })} size="small" sx={cancellingChipSx} />
