@@ -389,7 +389,7 @@ export default function LinkTransfer() {
                                                 </IconButton>
                                             </Tooltip>
                                         </Box>
-                                        <Typography variant="body1" sx={{ color: '#6e5a69', mb: 4 }}>
+                                        <Typography variant="body1" sx={{ color: '#6e5a69', mb: 1 }}>
                                             {t("transfer:protectedDescriptionDetails")}
                                         </Typography>
                                     </Box>
