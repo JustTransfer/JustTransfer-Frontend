@@ -94,6 +94,7 @@ async function sendLinkMessageAPI(id: string, client_registration_finish: string
     },
         {
             507: new Error(i18n.t("errors:errorMaxLinkTransfersReached")),
+            429: new Error(i18n.t("errors:errorInsufficientRessources")),
         },
     );
 
