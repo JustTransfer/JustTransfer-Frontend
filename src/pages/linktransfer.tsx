@@ -18,6 +18,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import SaveIcon from '@mui/icons-material/Save';
 import LockIcon from '@mui/icons-material/Lock';
 import DescriptionIcon from '@mui/icons-material/Description';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import { useNotification } from "../hooks/useNotificationContext";
 import { useTranslation } from "react-i18next";
@@ -252,9 +253,14 @@ export default function LinkTransfer() {
                                             {t("transfer:from")} <b>{messageData.sender}</b>
                                         </Typography>
 
-                                        <Typography variant="body1" sx={{ color: '#6e5a69' }}>
-                                            {t("transfer:readyForDownload")}
-                                        </Typography>
+                                        <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5 }}>
+                                            <Typography variant="body1" sx={{ color: '#6e5a69' }}>
+                                                {t("transfer:readyForDownload")}
+                                            </Typography>
+                                            <Tooltip title={t("transfer:e2eeExplanation")}>
+                                                <InfoOutlinedIcon sx={{ fontSize: 16, color: "#6e5a69" }} />
+                                            </Tooltip>
+                                        </Box>
                                     </Box>
 
 
@@ -369,8 +375,22 @@ export default function LinkTransfer() {
                                         <Typography variant="h5" sx={{ fontWeight: "bold" }}>
                                             {t("transfer:protectedTitle")}
                                         </Typography>
-                                        <Typography variant="body1" sx={{ color: '#6e5a69', mb: 4 }}>
-                                            {t("transfer:protectedDescription")}
+                                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                                            <Typography variant="body1" sx={{ color: '#6e5a69' }}>
+                                                {t("transfer:protectedDescriptionIntro")}
+                                            </Typography>
+                                            <Tooltip title={t("transfer:e2eeExplanation")}>
+                                                <IconButton
+                                                    size="small"
+                                                    aria-label={t("transfer:e2eeExplanation")}
+                                                    sx={{ p: 0.25, color: "#6e5a69" }}
+                                                >
+                                                    <InfoOutlinedIcon sx={{ fontSize: 16 }} />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </Box>
+                                        <Typography variant="body1" sx={{ color: '#6e5a69', mb: 1 }}>
+                                            {t("transfer:protectedDescriptionDetails")}
                                         </Typography>
                                     </Box>
                                     <TextField
