@@ -12,6 +12,7 @@
   "maximumFileSize": "Taille maximale : {{value}}",
   "availableDays": "Fichiers disponibles pendant {{value}} jours",
   "downloads": "{{value}} téléchargements par transfert",
+  "maxTransfers": "{{value}} transferts par mois",
   "starts": "Commence le {{date}}",
   "ends": "Se termine le {{date}}",
   "currentPlan": "Formule actuelle",
