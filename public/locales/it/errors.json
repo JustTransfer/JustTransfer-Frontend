@@ -25,6 +25,7 @@
   "errorWeakPassword": "La password è troppo debole. Scegli una password più sicura.",
   "errorPageNotFound": "Pagina non trovata.",
   "errorInvalidResetLink": "Link di reimpostazione della password non valido.",
+  "errorInvalidTransferLink": "Link di trasferimento non valido.",
   "errorTransferAlreadySaved": "Questo trasferimento è già stato salvato nel tuo account.",
   "errorTooManyRequests": "Troppe richieste. Riprova più tardi.",
   "errorAPIRequestFailed": "Richiesta API non riuscita. Riprova più tardi.",

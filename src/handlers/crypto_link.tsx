@@ -101,6 +101,32 @@ async function getOneLinkMessageMetadata(password: string, message_id: string) {
         throw new Error(i18n.t("errors:errorFailureMACVerification"));
     }
 
+    // Verify the server-supplied file hash against the stored MAC (and signature)
+    // before it is trusted anywhere. Without this, the owner's client would re-MAC
+    // and re-sign an arbitrary server-chosen hash on update.
+    const full_auth_data_encoded = new TextEncoder().encode(JSON.stringify({
+        cfilename, nonce_filename, file_id, max_downloads, lifetime, creation_time, file_size, chunk_size, is_signed
+    }));
+    const hash_file_decoded = Base64.toUint8Array(hash_file ?? "");
+
+    const mac_state = sodium.crypto_auth_hmacsha512256_init(MacKey);
+    sodium.crypto_auth_hmacsha512256_update(mac_state, full_auth_data_encoded);
+    sodium.crypto_auth_hmacsha512256_update(mac_state, hash_file_decoded);
+    const calc_mac = sodium.crypto_auth_hmacsha512256_final(mac_state);
+    if (mac.length !== calc_mac.length || !sodium.memcmp(mac, calc_mac)) {
+        throw new Error(i18n.t("errors:errorFailureMACVerification"));
+    }
+
+    if (is_signed) {
+        const sign_state = sodium.crypto_sign_init();
+        sodium.crypto_sign_update(sign_state, full_auth_data_encoded);
+        sodium.crypto_sign_update(sign_state, hash_file_decoded);
+        const isValidSignature = sodium.crypto_sign_final_verify(sign_state, Base64.toUint8Array(signature), Base64.toUint8Array(sender_pub_key));
+        if (!isValidSignature) {
+            throw new Error(i18n.t("errors:errorFailureSignatureVerification"));
+        }
+    }
+
     return {
         success: true,
         exportKey,

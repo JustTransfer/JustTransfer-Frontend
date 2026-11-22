@@ -1,5 +1,6 @@
 import { apiUrl } from "./config";
 import i18n from "../i18n";
+import { pathSegment } from "./utils";
 
 async function apiFetch(input: RequestInfo, init?: RequestInit, specificErrors: Record<number, Error> = {}) {
     const response = await fetch(input, init);
@@ -162,7 +163,7 @@ async function logoutAPI() {
 
 async function verifyEmailAPI(token: string) {
 
-    const response = await apiFetch(`${apiUrl}/verify-email/${token}`, {
+    const response = await apiFetch(`${apiUrl}/verify-email/${pathSegment(token)}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -189,7 +190,7 @@ async function requestResetPasswordAPI(email: string) {
 
 async function endPasswordResetAPI(token: string, client_registration_finish: string, cpriv_enc: string, nonce_priv_enc: string, pub_enc: string, cpriv_sign: string, nonce_priv_sign: string, pub_sign: string) {
 
-    const response = await apiFetch(`${apiUrl}/reset-password/end/${token}`, {
+    const response = await apiFetch(`${apiUrl}/reset-password/end/${pathSegment(token)}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -222,7 +223,7 @@ async function getAccountInfoAPI() {
 
 async function deleteAccountAPI(email: string) {
 
-    const response = await apiFetch(`${apiUrl}/user/${email}`, {
+    const response = await apiFetch(`${apiUrl}/user/${pathSegment(email)}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
@@ -234,7 +235,7 @@ async function deleteAccountAPI(email: string) {
 
 async function getPublicKeyAPI(pub_key_id: string) {
 
-    const response = await apiFetch(`${apiUrl}/pubkey/${pub_key_id}`, {
+    const response = await apiFetch(`${apiUrl}/pubkey/${pathSegment(pub_key_id)}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -250,7 +251,7 @@ async function getPublicKeyAPI(pub_key_id: string) {
 
 async function getPublicKeyEmailAPI(email: string) {
 
-    const response = await apiFetch(`${apiUrl}/user/${email}/pubkey`, {
+    const response = await apiFetch(`${apiUrl}/user/${pathSegment(email)}/pubkey`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -298,7 +299,7 @@ async function addSavedTransferAPI(nonce_transfer_id: string, enc_transfer_id: s
 
 async function deleteSavedTransferAPI(saved_transfer_id: string) {
 
-    const response = await apiFetch(`${apiUrl}/user/saved-transfer/${saved_transfer_id}`, {
+    const response = await apiFetch(`${apiUrl}/user/saved-transfer/${pathSegment(saved_transfer_id)}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",

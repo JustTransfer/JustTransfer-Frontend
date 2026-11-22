@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import i18n from "../i18n";
 import { storeRawKey, getRawKeyAsBase64, saveSessionMeta, loadSessionMeta, clearAllKeyStorage } from "./keyStorage";
 import { getAccountInfoAPI } from "../handlers/api";
+import { PERSISTED_KEYS_MAX_AGE } from "../handlers/config";
 import { useNotification } from "./useNotificationContext";
 import { useLangNavigate } from "./useLangNavigate";
 
@@ -37,6 +38,7 @@ type SessionMeta = {
     role: string;
     keyIds: number[];
     keysPublicMeta: Omit<Key, "enc_private_key" | "sign_private_key">[];
+    expiresAt: number; // Epoch ms after which the persisted keys are discarded
 };
 
 const EXPORT_KEY_ID = "export-key";
@@ -73,8 +75,15 @@ export const AuthProvider = ({ children }: any) => {
 
     // Persist the export key and every private key as raw, extractable
     // CryptoKeys in IndexedDB; everything else goes to localStorage.
-    const persistSession = async (nextEmail: string, nextRole: string, nextExportKey: string, nextKeys: Key[]) => {
+    // The expiry is fixed at login; later updates (keys, role) keep the original deadline.
+    const persistSession = async (nextEmail: string, nextRole: string, nextExportKey: string, nextKeys: Key[], expiresAt?: number) => {
         try {
+            const deadline = expiresAt ?? loadSessionMeta<SessionMeta>()?.expiresAt ?? Date.now() + PERSISTED_KEYS_MAX_AGE;
+            if (deadline <= Date.now()) {
+                await clearAllKeyStorage();
+                return;
+            }
+
             await storeRawKey(EXPORT_KEY_ID, nextExportKey);
 
             for (const key of nextKeys) {
@@ -89,6 +98,7 @@ export const AuthProvider = ({ children }: any) => {
                 role: nextRole,
                 keyIds: nextKeys.map(k => k.id),
                 keysPublicMeta,
+                expiresAt: deadline,
             });
         } catch (e) {
             // Persistence failing shouldn't break the active in-memory session
@@ -102,6 +112,13 @@ export const AuthProvider = ({ children }: any) => {
             try {
                 const meta = loadSessionMeta<SessionMeta>();
                 if (!meta) {
+                    setIsLoading(false);
+                    return;
+                }
+
+                // Discard persisted keys that have outlived their lifetime (or predate the expiry field)
+                if (typeof meta.expiresAt !== "number" || meta.expiresAt <= Date.now()) {
+                    await clearAllKeyStorage();
                     setIsLoading(false);
                     return;
                 }
@@ -157,7 +174,7 @@ export const AuthProvider = ({ children }: any) => {
         setExportKey(data.exportKey);
         setKeys(data.keys);
 
-        await persistSession(data.email, data.role, data.exportKey, data.keys);
+        await persistSession(data.email, data.role, data.exportKey, data.keys, Date.now() + PERSISTED_KEYS_MAX_AGE);
 
         navigate("/");
     };

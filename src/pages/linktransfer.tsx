@@ -25,7 +25,7 @@ import { useTranslation } from "react-i18next";
 import Layout from "../components/layout";
 import { getOneLinkMessageMetadata, getOneLinkMessage } from "../handlers/crypto_link";
 import { addSavedTransfer } from "../handlers/crypto";
-import { formatSize, relativeExpire, formatCreated, genericDownloadFile } from "../handlers/utils";
+import { formatSize, relativeExpire, formatCreated, genericDownloadFile, isUuid } from "../handlers/utils";
 import LinearProgressWithLabel from "../components/LinearProgressWithLabel";
 import { useSpeedMeter } from "../handlers/useSpeedMeter";
 import { useAuth } from "../hooks/useAuth";
@@ -81,7 +81,13 @@ export default function LinkTransfer() {
         try {
             setIsDownloading(false);
             setDownloadProgress(0);
-            const result = await getOneLinkMessageMetadata(password as string, id!);
+
+            // Reject anything that is not a transfer UUID before any request is made
+            if (!isUuid(id)) {
+                throw new Error(t("errors:errorInvalidTransferLink"));
+            }
+
+            const result = await getOneLinkMessageMetadata(password as string, id);
 
             setAegisKeyEncoded(result.AegisKey);
             setMacKeyEncoded(result.MacKey);
