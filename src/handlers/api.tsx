@@ -13,6 +13,10 @@ async function apiFetch(input: RequestInfo, init?: RequestInit, specificErrors: 
         throw new Error(i18n.t("errors:errorTooManyRequests"));
     }
 
+    if (response.status === 401) {
+        throw new Error(i18n.t("errors:errorUnauthorized"));
+    }
+
     if (!response.ok) {
         throw new Error(i18n.t("errors:errorAPIRequestFailed"));
     }
