@@ -101,7 +101,7 @@ npm install
 
 2. Create a local environment file from [.env.sample](.env.sample) and set the required values for your backend and frontend URLs.
 
-3. Start the development server:
+3. Start the development server.
 
 ```bash
 npm run dev
