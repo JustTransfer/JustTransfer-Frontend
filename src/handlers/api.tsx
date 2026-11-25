@@ -1,6 +1,7 @@
 import { apiUrl } from "./config";
 import i18n from "../i18n";
 import { pathSegment } from "./utils";
+import { extendSessionExpiry } from "../hooks/keyStorage";
 
 async function apiFetch(input: RequestInfo, init?: RequestInit, specificErrors: Record<number, Error> = {}) {
     const response = await fetch(input, init);
@@ -20,6 +21,10 @@ async function apiFetch(input: RequestInfo, init?: RequestInit, specificErrors: 
     if (!response.ok) {
         throw new Error(i18n.t("errors:errorAPIRequestFailed"));
     }
+
+    // Extend the expiry of the persisted session after each successful API call,
+    // as the backend session cookie is re-issued on every request.
+    extendSessionExpiry();
 
     return response;
 }
