@@ -109,6 +109,9 @@ export default function LinkTransfer() {
 
         await getMessageMetadata(password as string);
         setPassword(password as string);
+
+        // Set the password in the URL fragment so that it can be used for subsequent requests without re-entering it
+        window.location.hash = password as string;
     }
 
     async function downloadFile() {
@@ -134,7 +137,20 @@ export default function LinkTransfer() {
                 },
             });
         } catch (e) {
-            error(e instanceof Error ? e.message : t("errors:errorUnknown"));
+
+            if (e instanceof Error && e.message === t("errors:errorUnauthorized")) {
+                setMessageData(null);
+                
+                error(t("errors:errorWrongPassword"));
+
+                // Clear the password from the URL fragment to prevent re-submission
+                window.location.hash = "";
+                setPassword("");
+
+            } else {
+                error(e instanceof Error ? e.message : t("errors:errorUnknown"));
+            }
+
         } finally {
             setIsDownloading(false);
             setDownloadProgress(0);
