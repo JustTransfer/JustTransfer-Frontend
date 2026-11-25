@@ -120,8 +120,7 @@ async function updateLinkMessageAPI(id: string, auth_key: string, cfilename: str
             signature_metadata,
             signature,
         }),
-    },
-    );
+    }, {}, { requiresSession: true });
 
     return response.status;
 }
@@ -136,8 +135,7 @@ async function deleteLinkMessageAPI(id: string, auth_key: string) {
         body: JSON.stringify({
             auth_key,
         }),
-    },
-    );
+    }, {}, { requiresSession: true });
 
     return response.status;
 }
@@ -153,8 +151,7 @@ async function updatePasswordLinkMessageStartAPI(id: string, client_registration
         body: JSON.stringify({
             client_registration_start,
         }),
-    },
-    );
+    }, {}, { requiresSession: true });
 
     return (await response.json());
 }
@@ -174,8 +171,7 @@ async function updatePasswordLinkMessageEndAPI(id: string, client_registration_f
             c_mac_key,
             nonce_mac_key,
         }),
-    },
-    );
+    }, {}, { requiresSession: true });
 
     return (await response.json());
 }

@@ -3,8 +3,24 @@ import i18n from "../i18n";
 import { pathSegment } from "./utils";
 import { extendSessionExpiry } from "../hooks/keyStorage";
 
-async function apiFetch(input: RequestInfo, init?: RequestInit, specificErrors: Record<number, Error> = {}) {
+// Set by AuthProvider: navigates to the logout page when the session is no longer valid
+let navigateToLogout: (() => void) | null = null;
+
+function setNavigateToLogout(handler: (() => void) | null) {
+    navigateToLogout = handler;
+}
+
+type ApiFetchOptions = {
+    requiresSession?: boolean;
+};
+
+async function apiFetch(input: RequestInfo, init?: RequestInit, specificErrors: Record<number, Error> = {}, options: ApiFetchOptions = {}) {
     const response = await fetch(input, init);
+
+    if (response.status === 401 && options.requiresSession) {
+        navigateToLogout?.();
+        throw new Error(i18n.t("errors:errorUnauthorized"));
+    }
 
     if (specificErrors[response.status]) {
         throw specificErrors[response.status];
@@ -96,8 +112,7 @@ async function registerUpdateAPI(client_registration_finish: string, keys: KeyPa
     },
         {
             401: new Error(i18n.t("errors:errorChangePassword")),
-        },
-    );
+        }, { requiresSession: true });
 
     return (await response.json());
 
@@ -118,7 +133,7 @@ async function putNewKeyAPI(enc_public_key: string, enc_nonce_private_key: strin
             sign_nonce_private_key,
             sign_cipher_private_key,
         }),
-    });
+    }, {}, { requiresSession: true });
 
     return (await response.json());
 }
@@ -225,7 +240,7 @@ async function getAccountInfoAPI() {
         headers: {
             "Content-Type": "application/json",
         },
-    });
+    }, {}, { requiresSession: true });
 
     return (await response.json());
 }
@@ -237,7 +252,7 @@ async function deleteAccountAPI(email: string) {
         headers: {
             "Content-Type": "application/json",
         },
-    });
+    }, {}, { requiresSession: true });
 
     return response.status;
 }
@@ -252,8 +267,7 @@ async function getPublicKeyAPI(pub_key_id: string) {
     },
         {
             404: new Error(i18n.t("errors:errorPublicKeyNotFound")),
-        }
-    );
+        }, { requiresSession: true });
 
     return (await response.json());
 }
@@ -268,8 +282,7 @@ async function getPublicKeyEmailAPI(email: string) {
     },
         {
             404: new Error(i18n.t("errors:errorUserNotFound")),
-        }
-    );
+        }, { requiresSession: true });
 
     return (await response.json());
 }
@@ -281,7 +294,7 @@ async function getSavedTransfersAPI() {
         headers: {
             "Content-Type": "application/json",
         },
-    });
+    }, {}, { requiresSession: true });
 
     return (await response.json());
 }
@@ -301,7 +314,7 @@ async function addSavedTransferAPI(nonce_transfer_id: string, enc_transfer_id: s
             nonce_auth_key,
             enc_auth_key,
         }),
-    });
+    }, {}, { requiresSession: true });
 
     return response.status;
 }
@@ -313,7 +326,7 @@ async function deleteSavedTransferAPI(saved_transfer_id: string) {
         headers: {
             "Content-Type": "application/json",
         },
-    });
+    }, {}, { requiresSession: true });
 
     return response.status;
 }
@@ -324,7 +337,7 @@ async function createSubscriptionCheckoutAPI(plan: "user" | "premium"): Promise<
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan }),
-    });
+    }, {}, { requiresSession: true });
 
     const data = await response.json();
     return data.checkout_url;
@@ -335,9 +348,9 @@ async function cancelSubscriptionAPI(): Promise<number> {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-    });
+    }, {}, { requiresSession: true });
 
     return response.status;
 }
 
-export { apiFetch, registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, verifyEmailAPI, requestResetPasswordAPI, endPasswordResetAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyEmailAPI, getSavedTransfersAPI, addSavedTransferAPI, deleteSavedTransferAPI, createSubscriptionCheckoutAPI, cancelSubscriptionAPI };
+export { apiFetch, setNavigateToLogout, registerStartAPI, registerEndAPI, registerUpdateAPI, putNewKeyAPI, loginStartAPI, loginEndAPI, logoutAPI, verifyEmailAPI, requestResetPasswordAPI, endPasswordResetAPI, getAccountInfoAPI, deleteAccountAPI, getPublicKeyAPI, getPublicKeyEmailAPI, getSavedTransfersAPI, addSavedTransferAPI, deleteSavedTransferAPI, createSubscriptionCheckoutAPI, cancelSubscriptionAPI };

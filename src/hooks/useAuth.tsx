@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 import i18n from "../i18n";
 import { storeRawKey, getRawKeyAsBase64, saveSessionMeta, loadSessionMeta, clearAllKeyStorage, computeSessionExpiry } from "./keyStorage";
-import { getAccountInfoAPI } from "../handlers/api";
+import { getAccountInfoAPI, setNavigateToLogout } from "../handlers/api";
 import { useNotification } from "./useNotificationContext";
 import { useLangNavigate } from "./useLangNavigate";
 
@@ -227,6 +227,11 @@ export const AuthProvider = ({ children }: any) => {
 
         // Navigation done in logout.tsx page
     };
+
+    // Session endpoints answering 401 (password changed or keys rotated on another device...) go to the logout page
+    useEffect(() => {
+        setNavigateToLogout(() => navigate("/logout", { replace: true }));
+    }, [navigate]);
 
     const value = useMemo(
         () => ({
