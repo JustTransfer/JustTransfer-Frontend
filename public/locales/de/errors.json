@@ -25,6 +25,7 @@
   "errorWeakPassword": "Das Passwort ist zu schwach. Bitte wählen Sie ein stärkeres Passwort.",
   "errorPageNotFound": "Seite nicht gefunden.",
   "errorInvalidResetLink": "Ungültiger Link zum Zurücksetzen des Passworts.",
+  "errorInvalidTransferLink": "Ungültiger Übertragungslink.",
   "errorTransferAlreadySaved": "Diese Übertragung wurde bereits in Ihrem Konto gespeichert.",
   "errorTooManyRequests": "Zu viele Anfragen. Bitte versuchen Sie es später erneut.",
   "errorAPIRequestFailed": "API-Anfrage fehlgeschlagen. Bitte versuchen Sie es später erneut.",

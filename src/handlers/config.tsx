@@ -16,5 +16,8 @@ export const emailAddress = getEnv("VITE_EMAIL_INFO");
 
 export const linkTransferGeneratedPasswordLen = 20; // Bytes
 
+export const PERSISTED_KEYS_INACTIVITY_MAX_AGE = 3 * 24 * 60 * 60 * 1000; // 3 days, in milliseconds
+export const PERSISTED_KEYS_ABSOLUTE_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 days, in milliseconds
+
 export const MAX_NETWORK_RETRIES = 150;
 export const NETWORK_RETRY_DELAY = 2000; // milliseconds

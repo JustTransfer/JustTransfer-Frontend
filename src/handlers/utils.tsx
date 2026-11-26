@@ -4,6 +4,21 @@ import i18n from "../i18n";
 
 const DAY = 86400000; // milliseconds in a day
 
+// Self-host StreamSaver's man-in-the-middle page and service worker
+streamSaver.mitm = `${window.location.origin}/streamsaver/mitm.html`;
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Returns true if the value is a canonical UUID (all backend ids and tokens are UUIDs).
+export function isUuid(value: unknown): value is string {
+  return typeof value === "string" && UUID_RE.test(value);
+}
+
+// Encodes a value for safe interpolation as a single URL path segment.
+export function pathSegment(value: string | number): string {
+  return encodeURIComponent(String(value));
+}
+
 // Dynamically import libsodium-wrappers
 let sodiumPromise: Promise<typeof import("libsodium-wrappers-sumo")> | null = null;
 export async function getSodium() {

@@ -1,6 +1,7 @@
 import { Base64 } from 'js-base64';
 
 import i18n from "../i18n";
+import { PERSISTED_KEYS_INACTIVITY_MAX_AGE, PERSISTED_KEYS_ABSOLUTE_MAX_AGE } from "../handlers/config";
 
 const DB_NAME = "jt-secure-store";
 const DB_VERSION = 1;
@@ -88,6 +89,30 @@ export function loadSessionMeta<T>(): T | null {
         return JSON.parse(raw) as T;
     } catch {
         return null;
+    }
+}
+
+// Computes the expiry of the persisted keys: a sliding inactivity window, capped at an absolute lifetime from login.
+export function computeSessionExpiry(loginAt: number, now: number = Date.now()): number {
+    return Math.min(now + PERSISTED_KEYS_INACTIVITY_MAX_AGE, loginAt + PERSISTED_KEYS_ABSOLUTE_MAX_AGE);
+}
+
+// Extends the expiry of the persisted session metadata in localStorage, if it exists and is valid.
+export function extendSessionExpiry(): void {
+    try {
+        const meta = loadSessionMeta<{ loginAt?: number; expiresAt?: number }>();
+        if (!meta || typeof meta.loginAt !== "number" || typeof meta.expiresAt !== "number") return;
+
+        const now = Date.now();
+        if (meta.expiresAt <= now) return;
+
+        const expiresAt = computeSessionExpiry(meta.loginAt, now);
+        if (expiresAt > meta.expiresAt) {
+            saveSessionMeta({ ...meta, expiresAt });
+        }
+    } catch (e) {
+        // Failing to extend only means an earlier re-login; never break the request
+        console.error("Failed to extend session expiry:", e);
     }
 }
 

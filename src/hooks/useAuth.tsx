@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 import i18n from "../i18n";
-import { storeRawKey, getRawKeyAsBase64, saveSessionMeta, loadSessionMeta, clearAllKeyStorage } from "./keyStorage";
-import { getAccountInfoAPI } from "../handlers/api";
+import { storeRawKey, getRawKeyAsBase64, saveSessionMeta, loadSessionMeta, clearAllKeyStorage, computeSessionExpiry } from "./keyStorage";
+import { getAccountInfoAPI, setNavigateToLogout } from "../handlers/api";
 import { useNotification } from "./useNotificationContext";
 import { useLangNavigate } from "./useLangNavigate";
 
@@ -37,6 +37,8 @@ type SessionMeta = {
     role: string;
     keyIds: number[];
     keysPublicMeta: Omit<Key, "enc_private_key" | "sign_private_key">[];
+    loginAt: number; // Epoch ms of the login
+    expiresAt: number; // Epoch ms after which the persisted keys are discarded
 };
 
 const EXPORT_KEY_ID = "export-key";
@@ -71,10 +73,24 @@ export const AuthProvider = ({ children }: any) => {
 
     const [isLoading, setIsLoading] = useState(true);
 
-    // Persist the export key and every private key as raw, extractable
-    // CryptoKeys in IndexedDB; everything else goes to localStorage.
-    const persistSession = async (nextEmail: string, nextRole: string, nextExportKey: string, nextKeys: Key[]) => {
+    // Persist session data to IndexedDB + localStorage. loginAt is given at login and starts a fresh lifetime;
+    // later updates (keys, role) keep the stored login timestamp and current deadline, which apiFetch slides
+    // forward after each successful API call.
+    const persistSession = async (nextEmail: string, nextRole: string, nextExportKey: string, nextKeys: Key[], loginAt?: number) => {
         try {
+            const previous = loadSessionMeta<SessionMeta>();
+            const start = loginAt ?? previous?.loginAt;
+            if (typeof start !== "number") {
+                // No login timestamp (session persisted by an older version): don't persist without a lifetime
+                await clearAllKeyStorage();
+                return;
+            }
+            const deadline = loginAt !== undefined ? computeSessionExpiry(start) : previous?.expiresAt ?? 0;
+            if (deadline <= Date.now()) {
+                await clearAllKeyStorage();
+                return;
+            }
+
             await storeRawKey(EXPORT_KEY_ID, nextExportKey);
 
             for (const key of nextKeys) {
@@ -89,6 +105,8 @@ export const AuthProvider = ({ children }: any) => {
                 role: nextRole,
                 keyIds: nextKeys.map(k => k.id),
                 keysPublicMeta,
+                loginAt: start,
+                expiresAt: deadline,
             });
         } catch (e) {
             // Persistence failing shouldn't break the active in-memory session
@@ -102,6 +120,13 @@ export const AuthProvider = ({ children }: any) => {
             try {
                 const meta = loadSessionMeta<SessionMeta>();
                 if (!meta) {
+                    setIsLoading(false);
+                    return;
+                }
+
+                // Discard persisted keys that have outlived their lifetime (or predate the expiry/login fields)
+                if (typeof meta.expiresAt !== "number" || typeof meta.loginAt !== "number" || meta.expiresAt <= Date.now()) {
+                    await clearAllKeyStorage();
                     setIsLoading(false);
                     return;
                 }
@@ -157,7 +182,7 @@ export const AuthProvider = ({ children }: any) => {
         setExportKey(data.exportKey);
         setKeys(data.keys);
 
-        await persistSession(data.email, data.role, data.exportKey, data.keys);
+        await persistSession(data.email, data.role, data.exportKey, data.keys, Date.now());
 
         navigate("/");
     };
@@ -202,6 +227,11 @@ export const AuthProvider = ({ children }: any) => {
 
         // Navigation done in logout.tsx page
     };
+
+    // Session endpoints answering 401 (password changed or keys rotated on another device...) go to the logout page
+    useEffect(() => {
+        setNavigateToLogout(() => navigate("/logout", { replace: true }));
+    }, [navigate]);
 
     const value = useMemo(
         () => ({

@@ -1,10 +1,11 @@
 import { apiUrl, MAX_NETWORK_RETRIES, NETWORK_RETRY_DELAY } from "./config";
 import { apiFetch } from "./api";
 import i18n from "../i18n";
+import { pathSegment } from "./utils";
 
 
 async function postLinkMessageLoginStartAPI(id: string, client_login_start: string) {
-    const response = await apiFetch(`${apiUrl}/link/message/${id}/login/start`, {
+    const response = await apiFetch(`${apiUrl}/link/message/${pathSegment(id)}/login/start`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -18,7 +19,7 @@ async function postLinkMessageLoginStartAPI(id: string, client_login_start: stri
 }
 
 async function postLinkMessageLoginEndAPI(id: string, client_login_finish_result: string) {
-    const response = await apiFetch(`${apiUrl}/link/message/${id}/login/end`, {
+    const response = await apiFetch(`${apiUrl}/link/message/${pathSegment(id)}/login/end`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -33,7 +34,7 @@ async function postLinkMessageLoginEndAPI(id: string, client_login_finish_result
 
 async function getLinkMessageMetadataAPI(file_id: string) {
 
-    const response = await apiFetch(`${apiUrl}/link/message/${file_id}/metadata`, {
+    const response = await apiFetch(`${apiUrl}/link/message/${pathSegment(file_id)}/metadata`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -45,7 +46,7 @@ async function getLinkMessageMetadataAPI(file_id: string) {
 
 async function getLinkMessageAPI(id: string) {
 
-    const response = await apiFetch(`${apiUrl}/link/message/${id}`, {
+    const response = await apiFetch(`${apiUrl}/link/message/${pathSegment(id)}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -103,7 +104,7 @@ async function sendLinkMessageAPI(id: string, client_registration_finish: string
 
 async function updateLinkMessageAPI(id: string, auth_key: string, cfilename: string, nonce_filename: string, max_downloads: number, lifetime: number, mac: string, sender_key_id?: string, signature_metadata?: string, signature?: string) {
 
-    const response = await apiFetch(`${apiUrl}/link/message/${id}`, {
+    const response = await apiFetch(`${apiUrl}/link/message/${pathSegment(id)}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -119,15 +120,14 @@ async function updateLinkMessageAPI(id: string, auth_key: string, cfilename: str
             signature_metadata,
             signature,
         }),
-    },
-    );
+    }, {}, { requiresSession: true });
 
     return response.status;
 }
 
 async function deleteLinkMessageAPI(id: string, auth_key: string) {
 
-    const response = await apiFetch(`${apiUrl}/link/message/${id}`, {
+    const response = await apiFetch(`${apiUrl}/link/message/${pathSegment(id)}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
@@ -135,8 +135,7 @@ async function deleteLinkMessageAPI(id: string, auth_key: string) {
         body: JSON.stringify({
             auth_key,
         }),
-    },
-    );
+    }, {}, { requiresSession: true });
 
     return response.status;
 }
@@ -144,7 +143,7 @@ async function deleteLinkMessageAPI(id: string, auth_key: string) {
 
 async function updatePasswordLinkMessageStartAPI(id: string, client_registration_start: string) {
 
-    const response = await apiFetch(`${apiUrl}/link/message/${id}/password/start`, {
+    const response = await apiFetch(`${apiUrl}/link/message/${pathSegment(id)}/password/start`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -152,15 +151,14 @@ async function updatePasswordLinkMessageStartAPI(id: string, client_registration
         body: JSON.stringify({
             client_registration_start,
         }),
-    },
-    );
+    }, {}, { requiresSession: true });
 
     return (await response.json());
 }
 
 async function updatePasswordLinkMessageEndAPI(id: string, client_registration_finish: string, auth_key: string, c_enc_key: string, nonce_enc_key: string, c_mac_key: string, nonce_mac_key: string) {
 
-    const response = await apiFetch(`${apiUrl}/link/message/${id}/password/end`, {
+    const response = await apiFetch(`${apiUrl}/link/message/${pathSegment(id)}/password/end`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -173,8 +171,7 @@ async function updatePasswordLinkMessageEndAPI(id: string, client_registration_f
             c_mac_key,
             nonce_mac_key,
         }),
-    },
-    );
+    }, {}, { requiresSession: true });
 
     return (await response.json());
 }
@@ -185,7 +182,7 @@ async function updatePasswordLinkMessageEndAPI(id: string, client_registration_f
 
 async function finishUploadFileToS3Link(id: string, file_id: string, upload_id: string, etags: string[], hash_file: string, mac: string, is_signed: boolean, receiver_email?: string, sender_key_id?: string, signature_metadata?: string, signature?: string) {
 
-    const response = await apiFetch(`${apiUrl}/link/message/${id}/uploadfinish/${file_id}`, {
+    const response = await apiFetch(`${apiUrl}/link/message/${pathSegment(id)}/uploadfinish/${pathSegment(file_id)}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

@@ -25,6 +25,7 @@
   "errorWeakPassword": "Le mot de passe est trop faible. Veuillez choisir un mot de passe plus robuste.",
   "errorPageNotFound": "Page introuvable.",
   "errorInvalidResetLink": "Lien de réinitialisation du mot de passe invalide.",
+  "errorInvalidTransferLink": "Lien de transfert invalide.",
   "errorTransferAlreadySaved": "Ce transfert a déjà été enregistré dans votre compte.",
   "errorTooManyRequests": "Trop de requêtes. Veuillez réessayer plus tard.",
   "errorAPIRequestFailed": "Échec de la requête API. Veuillez réessayer plus tard.",

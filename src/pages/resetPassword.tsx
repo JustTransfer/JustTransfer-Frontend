@@ -19,6 +19,7 @@ import { useLangNavigate } from "../hooks/useLangNavigate";
 import Layout from "../components/layout";
 import PasswordStrength from "../components/passwordStrength";
 import { resetPassword } from "../handlers/crypto";
+import { isUuid } from "../handlers/utils";
 
 
 export default function ResetPasswordPage() {
@@ -65,7 +66,7 @@ export default function ResetPasswordPage() {
         }
 
         // check if id and email are set
-        if (!id || !decodedEmail) {
+        if (!isUuid(id) || !decodedEmail) {
             error(t("errors:errorInvalidResetLink"));
             setTimeout(() => {
                 navigate("/");
@@ -98,6 +99,11 @@ export default function ResetPasswordPage() {
             hasError = true;
         } else {
             setErrorPasswordMismatch(false);
+        }
+
+        if (!isUuid(id)) {
+            error(t("errors:errorInvalidResetLink"));
+            hasError = true;
         }
 
         if (hasError) {

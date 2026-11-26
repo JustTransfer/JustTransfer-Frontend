@@ -25,6 +25,7 @@
   "errorWeakPassword": "Password is too weak. Please choose a stronger password.",
   "errorPageNotFound": "Page not found.",
   "errorInvalidResetLink": "Invalid password reset link.",
+  "errorInvalidTransferLink": "Invalid transfer link.",
   "errorTransferAlreadySaved": "This transfer has already been saved to your account.",
   "errorTooManyRequests": "Too many requests. Please try again later.",
   "errorAPIRequestFailed": "API request failed. Please try again later.",

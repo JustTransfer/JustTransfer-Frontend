@@ -9,6 +9,7 @@ import { useNotification } from "../hooks/useNotificationContext";
 import { useLangNavigate } from "../hooks/useLangNavigate";
 import Layout from "../components/layout";
 import { verifyEmailAPI } from "../handlers/api";
+import { isUuid } from "../handlers/utils";
 
 export default function VerifyEmailPage() {
 
@@ -35,7 +36,9 @@ export default function VerifyEmailPage() {
 
     useEffect(() => {
         if (id) {
-            verifyEmailAPI(id)
+            // Only accept a well-formed token: never let a crafted route param reach the API URL
+            const request = isUuid(id) ? verifyEmailAPI(id) : Promise.reject(new Error("invalid token"));
+            request
                 .then(() => {
                     setState("success");
                     success(t("common:msgEmailVerified"));
