@@ -241,6 +241,7 @@ export default function TransferDetails() {
                     lifetime: lifetimeDays,
                     signature_metadata: signature_metadata ?? prev.messageData.signature_metadata,
                     signature: signature ?? prev.messageData.signature,
+                    sender_pub_key: signature ? keys.sign_public_key : prev.messageData.sender_pub_key,
                 },
             }));
         } catch (e) {
