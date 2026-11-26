@@ -291,9 +291,7 @@ async function downloadRangeFromS3(url: string, start: number, end: number, sign
     }
 }
 
-// Download the encrypted file chunk by chunk, fetching up to DOWNLOAD_CONCURRENCY chunks in
-// parallel with HTTP Range requests, while the chunks already received are handed to `decrypt`
-// strictly in order (the global hash and the output stream depend on the order).
+// Download file from S3 in parallel chunks and decrypting each chunk
 async function downloadFileFromS3(fileSize: number, chunkSize: number, tagSize: number, decrypt: (chunk: Uint8Array) => Promise<number>, url: string, onProgress?: (percent: number) => void) {
 
     if (!Number.isSafeInteger(fileSize) || fileSize < 0 || !Number.isSafeInteger(chunkSize) || chunkSize <= 0) {

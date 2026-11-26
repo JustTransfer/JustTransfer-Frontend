@@ -370,9 +370,7 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
 
     let hash_state = sodium.crypto_generichash_init(null, 64); // 512 bits for the hash output
 
-    // Pipeline: chunks are read, encrypted and hashed sequentially (the global hash depends on
-    // the order), while up to UPLOAD_CONCURRENCY encrypted chunks are uploaded in parallel as
-    // independent S3 multipart parts. Encryption of the next chunk overlaps with the uploads.
+    // Upload the file in chunks with UPLOAD_CONCURRENCY
     const totalChunks = uploadUrls.length;
     const ETags: string[] = new Array(totalChunks);
     const uploadController = new AbortController();
