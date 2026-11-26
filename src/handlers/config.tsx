@@ -21,3 +21,8 @@ export const PERSISTED_KEYS_ABSOLUTE_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 d
 
 export const MAX_NETWORK_RETRIES = 150;
 export const NETWORK_RETRY_DELAY = 2000; // milliseconds
+
+// Number of encrypted chunks (parts) transferred in parallel to/from object storage.
+// Also bounds memory usage: roughly (CONCURRENCY + 1) * chunk_size bytes are held at once.
+export const UPLOAD_CONCURRENCY = 4;
+export const DOWNLOAD_CONCURRENCY = 4;
