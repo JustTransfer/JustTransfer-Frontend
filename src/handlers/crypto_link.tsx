@@ -204,7 +204,7 @@ async function getOneLinkMessage(AegisKeyEncoded: string, MacKeyEncoded: string,
     await downloadFileFromS3(message.file_size, message.chunk_size, tagSize, async (chunk: Uint8Array) => {
         const { decryptedChunk } = decryptChunk(chunk);
         if (decryptedChunk) {
-            await onChunk(decryptedChunk, message.filename); // 
+            await onChunk(decryptedChunk, message.filename); // Call the onChunk callback with the decrypted chunk and filename
             return 1; // Decryption successful
         }
 
