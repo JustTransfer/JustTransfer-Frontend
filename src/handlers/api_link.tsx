@@ -1,4 +1,4 @@
-import { apiUrl, MAX_NETWORK_RETRIES, NETWORK_RETRY_DELAY } from "./config";
+import { apiUrl, MAX_NETWORK_RETRIES, NETWORK_RETRY_DELAY, DOWNLOAD_CONCURRENCY } from "./config";
 import { apiFetch } from "./api";
 import i18n from "../i18n";
 import { pathSegment } from "./utils";
@@ -207,9 +207,23 @@ async function finishUploadFileToS3Link(id: string, file_id: string, upload_id: 
 // Upload and Download to/from S3
 //
 
-async function uploadFileToS3(url: string, cfile: Uint8Array, onProgress?: (percent: number) => void) {
-    // Convert Uint8Array to Blob
-    const blob = new Blob([new Uint8Array(cfile)]);
+// Wait between two network retries, returning early if the transfer is aborted
+function retryDelay(signal?: AbortSignal) {
+    return new Promise<void>(resolve => {
+        if (signal?.aborted) return resolve();
+        const timer = setTimeout(done, NETWORK_RETRY_DELAY);
+        function done() {
+            clearTimeout(timer);
+            signal?.removeEventListener("abort", done);
+            resolve();
+        }
+        signal?.addEventListener("abort", done, { once: true });
+    });
+}
+
+async function uploadFileToS3(url: string, cfile: Uint8Array<ArrayBuffer>, onProgress?: (percent: number) => void, signal?: AbortSignal) {
+    // Wrap the encrypted chunk in a Blob (no copy) so it can be re-sent on retry
+    const blob = new Blob([cfile]);
 
     let response: Response | undefined;
     for (let attempt = 1; attempt <= MAX_NETWORK_RETRIES; attempt++) {
@@ -217,6 +231,7 @@ async function uploadFileToS3(url: string, cfile: Uint8Array, onProgress?: (perc
             response = await fetch(url, {
                 method: "PUT",
                 body: blob, // send the encrypted file
+                signal,
             });
 
             if (!response.ok) {
@@ -225,12 +240,13 @@ async function uploadFileToS3(url: string, cfile: Uint8Array, onProgress?: (perc
 
             break; // Sucess
         } catch (error) {
-            if (attempt === MAX_NETWORK_RETRIES) {
+            // Do not retry when the whole transfer was cancelled (e.g. another part failed)
+            if (signal?.aborted || attempt === MAX_NETWORK_RETRIES) {
                 throw error;
             }
 
             console.warn(`Upload attempt ${attempt}/${MAX_NETWORK_RETRIES} failed. Retrying in ${NETWORK_RETRY_DELAY / 1000} seconds...`);
-            await new Promise(resolve => setTimeout(resolve, NETWORK_RETRY_DELAY));
+            await retryDelay(signal);
         }
     }
 
@@ -240,95 +256,96 @@ async function uploadFileToS3(url: string, cfile: Uint8Array, onProgress?: (perc
     return { ETag: response!.headers.get("ETag") || "" };
 }
 
-async function downloadFileFromS3(chunkSize: number, tagSize: number, decrypt: (chunk: Uint8Array) => Promise<number>, url: string, onProgress?: (percent: number) => void) {
+// Download the byte range [start, end] (inclusive) of the object, with retries
+async function downloadRangeFromS3(url: string, start: number, end: number, signal: AbortSignal) {
 
-    const chunkSizeWithTag = chunkSize + tagSize;
-    let received = 0;
-    let contentLength = 0;
-    let chunk = new Uint8Array(0);
+    const expectedLength = end - start + 1;
 
-    for (let attempt = 0; attempt < MAX_NETWORK_RETRIES;) {
-
-        let response: Response;
+    for (let attempt = 1; ; attempt++) {
         try {
-            response = await fetch(url, {
-                headers: received > 0 || chunk.length > 0
-                    ? { Range: `bytes=${received + chunk.length}-` }
-                    : undefined
+            const response = await fetch(url, {
+                headers: { Range: `bytes=${start}-${end}` },
+                signal,
             });
 
-            if (!response.ok && response.status !== 206) throw new Error(i18n.t("errors:errorAPIRequestFailed"));
-            if (!response.body) throw new Error(i18n.t("errors:errorResponseBodyEmpty"));
-
-            if (contentLength === 0) {
-                if (received === 0) {
-                    contentLength = Number(response.headers.get("Content-Length") || 0);
-                } else {
-                    contentLength = received + Number(response.headers.get("Content-Length") || 0);
-                }
+            // 206 for a partial response; 200 is only acceptable if the range starts at 0
+            // (the server ignored the Range header), the length check below catches the rest.
+            if (response.status !== 206 && !(response.status === 200 && start === 0)) {
+                throw new Error(i18n.t("errors:errorAPIRequestFailed"));
             }
 
-            const reader = response.body.getReader();
-
-            while (true) {
-                const { done, value } = await reader.read();
-
-                if (done) break;
-                if (!value) continue;
-
-                if (chunk.length === 0) {
-                    chunk = value;
-                } else {
-                    const tmp = new Uint8Array(chunk.length + value.length);
-                    tmp.set(chunk);
-                    tmp.set(value, chunk.length);
-                    chunk = tmp;
-                }
-
-                // Process full chunks
-                let offset = 0;
-                while (offset + chunkSizeWithTag <= chunk.length) {
-
-                    const fullChunk = chunk.slice(
-                        offset,
-                        offset + chunkSizeWithTag
-                    );
-
-                    const ret = await decrypt(fullChunk);
-                    if (ret < 0) throw new Error(i18n.t("errors:errorFailureDecryption"));
-
-                    offset += chunkSizeWithTag;
-                    received += chunkSizeWithTag;
-
-                    if (contentLength) onProgress?.(received / contentLength * 100);
-                }
-
-                // Keep any remaining bytes for the next iteration
-                chunk = chunk.slice(offset);
+            const data = new Uint8Array(await response.arrayBuffer());
+            if (data.length !== expectedLength) {
+                throw new Error(i18n.t("errors:errorAPIRequestFailed"));
             }
 
-            // Download finished
-            break;
-
-        } catch (err) {
-
-            // If the error is a decryption failure, we should not retry, as it indicates a problem with the data or keys.
-            if (err instanceof Error && err.message === i18n.t("errors:errorFailureDecryption")) {
-                throw err;
+            return data;
+        } catch (error) {
+            if (signal.aborted || attempt >= MAX_NETWORK_RETRIES) {
+                throw error;
             }
 
-            attempt++;
-            if (attempt >= MAX_NETWORK_RETRIES) throw err;
-
-            console.warn(`Download interrupted, retry ${attempt}/${MAX_NETWORK_RETRIES}. Retrying in ${NETWORK_RETRY_DELAY / 1000} seconds...`);
-            await new Promise(r => setTimeout(r, NETWORK_RETRY_DELAY));
+            console.warn(`Download of bytes ${start}-${end} failed, retry ${attempt}/${MAX_NETWORK_RETRIES}. Retrying in ${NETWORK_RETRY_DELAY / 1000} seconds...`);
+            await retryDelay(signal);
         }
     }
+}
 
-    // Process any remaining bytes as the final chunk
-    if (chunk.length > 0) {
-        const ret = await decrypt(chunk);
-        if (ret < 0) throw new Error(i18n.t("errors:errorFailureDecryption"));
+// Download the encrypted file chunk by chunk, fetching up to DOWNLOAD_CONCURRENCY chunks in
+// parallel with HTTP Range requests, while the chunks already received are handed to `decrypt`
+// strictly in order (the global hash and the output stream depend on the order).
+async function downloadFileFromS3(fileSize: number, chunkSize: number, tagSize: number, decrypt: (chunk: Uint8Array) => Promise<number>, url: string, onProgress?: (percent: number) => void) {
+
+    if (!Number.isSafeInteger(fileSize) || fileSize < 0 || !Number.isSafeInteger(chunkSize) || chunkSize <= 0) {
+        throw new Error(i18n.t("errors:errorAPIRequestFailed"));
+    }
+
+    const chunkSizeWithTag = chunkSize + tagSize;
+    const totalChunks = Math.ceil(fileSize / chunkSize);
+
+    // Byte range of the i-th encrypted chunk (every chunk is full except possibly the last one)
+    const chunkRange = (index: number) => {
+        const plainLength = Math.min(chunkSize, fileSize - index * chunkSize);
+        const start = index * chunkSizeWithTag;
+        return { start, end: start + plainLength + tagSize - 1, plainLength };
+    };
+
+    const controller = new AbortController();
+    const pending = new Map<number, Promise<Uint8Array>>();
+    let scheduled = 0;
+
+    // Start downloads until `limit` (exclusive) chunks have been requested
+    const schedule = (limit: number) => {
+        while (scheduled < Math.min(limit, totalChunks)) {
+            const { start, end } = chunkRange(scheduled);
+            const promise = downloadRangeFromS3(url, start, end, controller.signal);
+            promise.catch(() => { }); // Rejections are handled when the chunk is awaited
+            pending.set(scheduled, promise);
+            scheduled++;
+        }
+    };
+
+    let processed = 0;
+    try {
+        schedule(DOWNLOAD_CONCURRENCY);
+
+        for (let index = 0; index < totalChunks; index++) {
+            const chunk = await pending.get(index)!;
+            pending.delete(index);
+
+            // Keep the network busy while this chunk is being decrypted and written
+            schedule(index + 1 + DOWNLOAD_CONCURRENCY);
+
+            const ret = await decrypt(chunk);
+            if (ret < 0) throw new Error(i18n.t("errors:errorFailureDecryption"));
+
+            processed += chunkRange(index).plainLength;
+            if (fileSize) onProgress?.(processed / fileSize * 100);
+        }
+    } finally {
+        // Cancel any download still in flight (on error)
+        controller.abort();
+        pending.clear();
     }
 
     onProgress?.(100);

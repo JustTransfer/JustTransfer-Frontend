@@ -7,7 +7,7 @@ import { postLinkMessageLoginStartAPI, postLinkMessageLoginEndAPI, getLinkMessag
 
 import i18n from "../i18n";
 import { frontendUrl } from "./config";
-import { linkTransferGeneratedPasswordLen } from "./config";
+import { linkTransferGeneratedPasswordLen, UPLOAD_CONCURRENCY } from "./config";
 
 
 ///
@@ -201,7 +201,7 @@ async function getOneLinkMessage(AegisKeyEncoded: string, MacKeyEncoded: string,
     };
 
     const tagSize = sodium.crypto_aead_aegis256_NPUBBYTES + sodium.crypto_aead_aegis256_ABYTES; // For each chunk: nonce at the beginning + MAC at the end
-    await downloadFileFromS3(message.chunk_size, tagSize, async (chunk: any) => {
+    await downloadFileFromS3(message.file_size, message.chunk_size, tagSize, async (chunk: Uint8Array) => {
         const { decryptedChunk } = decryptChunk(chunk);
         if (decryptedChunk) {
             await onChunk(decryptedChunk, message.filename); // 
@@ -370,32 +370,75 @@ async function sendMessageLink(fileName: string, file: File, lifetimeDays: numbe
 
     let hash_state = sodium.crypto_generichash_init(null, 64); // 512 bits for the hash output
 
-    let ETags: string[] = [];
+    // Pipeline: chunks are read, encrypted and hashed sequentially (the global hash depends on
+    // the order), while up to UPLOAD_CONCURRENCY encrypted chunks are uploaded in parallel as
+    // independent S3 multipart parts. Encryption of the next chunk overlaps with the uploads.
+    const totalChunks = uploadUrls.length;
+    const ETags: string[] = new Array(totalChunks);
+    const uploadController = new AbortController();
+    const inFlight = new Set<Promise<void>>();
+    let uploadError: unknown = undefined;
+    let uploadedBytes = 0;
 
-    for (let offset = 0; offset < file.size; offset += chunkSize) {
+    try {
+        for (let index = 0; index < totalChunks; index++) {
 
-        // Get the chunk from the file
-        const slice = file.slice(offset, offset + chunkSize);
-        const buf = new Uint8Array(await slice.arrayBuffer());
+            // Wait for a free upload slot (bounds memory usage)
+            while (inFlight.size >= UPLOAD_CONCURRENCY) {
+                await Promise.race(inFlight);
+            }
+            if (uploadError !== undefined) break;
 
-        // Encrypt the chunk
-        const nonce_chunk = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
-        const encryptedChunk = sodium.crypto_aead_aegis256_encrypt(buf, null, null, nonce_chunk, AegisKey);
+            // Get the chunk from the file
+            const offset = index * chunkSize;
+            const slice = file.slice(offset, offset + chunkSize);
+            const buf = new Uint8Array(await slice.arrayBuffer());
 
-        // Add nonce at the beginning of the chunk
-        const encryptedChunkWithNonce = new Uint8Array(nonce_chunk.length + encryptedChunk.length);
-        encryptedChunkWithNonce.set(nonce_chunk, 0);
-        encryptedChunkWithNonce.set(encryptedChunk, nonce_chunk.length);
+            // Encrypt the chunk
+            const nonce_chunk = sodium.randombytes_buf(sodium.crypto_aead_aegis256_NPUBBYTES);
+            const encryptedChunk = sodium.crypto_aead_aegis256_encrypt(buf, null, null, nonce_chunk, AegisKey);
 
-        // Update the global hash with the encrypted chunk
-        sodium.crypto_generichash_update(hash_state, encryptedChunkWithNonce);
+            // Add nonce at the beginning of the chunk
+            const encryptedChunkWithNonce = new Uint8Array(nonce_chunk.length + encryptedChunk.length);
+            encryptedChunkWithNonce.set(nonce_chunk, 0);
+            encryptedChunkWithNonce.set(encryptedChunk, nonce_chunk.length);
 
-        // Upload the chunk to S3
-        const chunkUploadResp = await uploadFileToS3(uploadUrls[offset / chunkSize], encryptedChunkWithNonce, void 0);
-        ETags.push(chunkUploadResp.ETag);
+            // Update the global hash with the encrypted chunk
+            sodium.crypto_generichash_update(hash_state, encryptedChunkWithNonce);
 
-        // Update progress
-        onProgress?.(Math.min(((offset + chunkSize) / totalLength) * 100, 100)); // Avoid going over 100% if the last chunk is smaller than chunkSize
+            // Upload the chunk to S3 in the background
+            const plainLength = buf.length;
+            const task: Promise<void> = uploadFileToS3(uploadUrls[index], encryptedChunkWithNonce, void 0, uploadController.signal)
+                .then(chunkUploadResp => {
+                    ETags[index] = chunkUploadResp.ETag;
+
+                    // Update progress
+                    uploadedBytes += plainLength;
+                    if (totalLength) onProgress?.(Math.min((uploadedBytes / totalLength) * 100, 100));
+                })
+                .catch(e => {
+                    // Keep the first error and cancel the other uploads
+                    if (uploadError === undefined) {
+                        uploadError = e;
+                        uploadController.abort();
+                    }
+                })
+                .finally(() => {
+                    inFlight.delete(task);
+                });
+            inFlight.add(task);
+        }
+
+        // Wait for the remaining uploads
+        await Promise.all(inFlight);
+    } catch (e) {
+        // Reading or encrypting failed: cancel the uploads still in flight
+        uploadController.abort();
+        throw e;
+    }
+
+    if (uploadError !== undefined) {
+        throw uploadError;
     }
 
     // Finalize the global hash
