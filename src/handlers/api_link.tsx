@@ -222,7 +222,7 @@ function retryDelay(signal?: AbortSignal) {
 }
 
 async function uploadFileToS3(url: string, cfile: Uint8Array<ArrayBuffer>, onProgress?: (percent: number) => void, signal?: AbortSignal) {
-    // Wrap the encrypted chunk in a Blob (no copy) so it can be re-sent on retry
+    // Wrap the encrypted chunk in a Blob so it can be re-sent on retry
     const blob = new Blob([cfile]);
 
     let response: Response | undefined;

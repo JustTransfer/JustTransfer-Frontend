@@ -185,8 +185,9 @@ async function getOneLinkMessage(AegisKeyEncoded: string, MacKeyEncoded: string,
     let hash_state = sodium.crypto_generichash_init(null, 64); // 512 bits for the hash output
 
     const decryptChunk = (chunk: Uint8Array) => {
-        const nonce_chunk = chunk.slice(0, sodium.crypto_aead_aegis256_NPUBBYTES);
-        const ciphertext_chunk = chunk.slice(sodium.crypto_aead_aegis256_NPUBBYTES);
+        // Views into the chunk (no copy)
+        const nonce_chunk = chunk.subarray(0, sodium.crypto_aead_aegis256_NPUBBYTES);
+        const ciphertext_chunk = chunk.subarray(sodium.crypto_aead_aegis256_NPUBBYTES);
 
         // Update the file hash with the encrypted chunk
         sodium.crypto_generichash_update(hash_state, chunk);
