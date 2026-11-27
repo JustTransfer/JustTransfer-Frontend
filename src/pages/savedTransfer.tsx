@@ -195,6 +195,9 @@ export default function SavedTransfer() {
                 throw new Error(t("transfer:passwordMissing"));
             }
 
+            // Try to fetch the transfer metadata to verify that the transfer exists and the password is correct
+            await getOneLinkMessageMetadata(password, transferId);
+
             await addSavedTransfer(
                 transferId,
                 password,

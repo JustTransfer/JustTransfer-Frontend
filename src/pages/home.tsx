@@ -201,6 +201,7 @@ export default function HomePage() {
                                 {config ? (
                                     isLoggedIn ? (
                                         <FileTransferForm
+                                            key={role ?? "anonymous"} // Re-render the form when the role changes to update the limits
                                             type="connected"
                                             maxFileSize={maxFileSize}
                                             maxDownloads={maxDownloads}
